@@ -155,6 +155,27 @@ async function main() {
     "parent_id,student_id",
   );
 
+  // The two test families count as subscribed, so their parents land on /parent. Placeholder IDs:
+  // there are no matching Stripe objects, so "Manage billing" is hidden for them.
+  await upsert(
+    admin,
+    "subscriptions",
+    [
+      { parent: ids.parentA, ref: "seed-family-a" },
+      { parent: ids.parentB, ref: "seed-family-b" },
+    ].map(({ parent, ref }) => ({
+      parent_id: parent,
+      plan_id: SEED_IDS.plan,
+      stripe_customer_id: null,
+      stripe_subscription_id: ref,
+      status: "active",
+      quantity: 1,
+      cancel_at_period_end: false,
+      current_period_end: new Date(Date.now() + 7 * 86_400_000).toISOString(),
+    })),
+    "stripe_subscription_id",
+  );
+
   // Legal documents the consent step cites (content/legal). The privacy notice is a draft.
   await upsert(
     admin,

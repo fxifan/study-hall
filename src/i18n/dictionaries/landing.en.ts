@@ -192,14 +192,14 @@ export const landingEn = {
     label: "Pricing",
     title: "Weekly plans, cancel any time.",
     intro:
-      "Each plan covers sessions Monday to Thursday, 4:00–8:00pm Melbourne time. Your child doesn't have to come to every session.",
+      "Prices are per student. Each plan covers sessions Monday to Thursday, 4:00–8:00pm Melbourne time. Your child doesn't have to come to every session.",
     checks: [
       "Billed weekly in Australian dollars through Stripe.",
-      "Change your card or cancel from your account.",
+      "Cancel any time from your account; access continues to the end of the week you've paid for.",
       "Not right for you? We'll refund the first week on request.",
     ],
     cardKicker: "Study Hall · Weekly",
-    per: "/ week",
+    per: "per student / week",
     rows: {
       sessions: "Sessions",
       sessionsUnlimited: "Any, Mon–Thu",
@@ -213,7 +213,7 @@ export const landingEn = {
       for: "For",
       forValue: "Years 9–12",
     },
-    cta: "Sign-up opens soon",
+    cta: "Start",
     ctaNote: "First week refundable on request.",
     empty: "Plans will be listed here soon.",
   },
@@ -269,7 +269,7 @@ export const landingEn = {
         id: "billing",
         q: "How do subscriptions, cancellations and refunds work?",
         a: [
-          "Plans are billed weekly in Australian dollars through Stripe. You can change your card or cancel from your account. If the first week isn't right for you, ask and we'll refund it.",
+          "Plans are priced per student and billed weekly in Australian dollars through Stripe. You can change your card or cancel from your account; access continues to the end of the week you've paid for. If the first week isn't right for you, ask and we'll refund it.",
         ],
       },
       {

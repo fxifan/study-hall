@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import Link from "next/link";
 import { cacheLife, cacheTag } from "next/cache";
 import type { LandingCopy } from "@/i18n/dictionaries/landing.en";
 import { fill } from "@/i18n/fill";
@@ -37,7 +38,7 @@ function formatPrice(cents: number) {
   return cents % 100 === 0 ? String(cents / 100) : (cents / 100).toFixed(2);
 }
 
-export async function PlanCards({ copy }: { copy: LandingCopy["pricing"] }) {
+export async function PlanCards({ copy, signUpHref }: { copy: LandingCopy["pricing"]; signUpHref: string }) {
   const plans = await getPublicPlans();
   if (!plans.length) return <p className="intro">{copy.empty}</p>;
 
@@ -61,10 +62,9 @@ export async function PlanCards({ copy }: { copy: LandingCopy["pricing"] }) {
             <Row label={copy.rows.report}>{copy.rows.reportValue}</Row>
             <Row label={copy.rows.for}>{copy.rows.forValue}</Row>
           </ul>
-          {/* Sign-up (/onboarding) is Phase 1B. Until then this isn't a link to a missing page. */}
-          <span className="btn btn-off" aria-disabled="true">
-            {copy.cta}
-          </span>
+          <Link className="btn btn-primary" href={signUpHref}>
+            {copy.cta} <span className="arr" aria-hidden="true">→</span>
+          </Link>
           <p className="label-note">{copy.ctaNote}</p>
         </div>
       ))}

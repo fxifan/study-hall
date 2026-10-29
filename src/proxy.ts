@@ -21,6 +21,7 @@ import { supabaseKey, supabaseUrl } from "@/lib/supabase/config";
  *   3. routes by role, in that language:
  *      - signed out on /parent, /student, /proctor or /admin -> /login
  *      - signed in on /login or on another role's area -> their own home
+ *      - /onboarding is for signed-out visitors and parents only
  * Pages check the role again with requireRole(), and RLS guards the data itself.
  */
 export async function proxy(request: NextRequest) {
@@ -72,10 +73,12 @@ export async function proxy(request: NextRequest) {
   // --- Role routing ---------------------------------------------------------
   const area = roleForPath(path);
   const isLogin = path === "/login";
-  if (!area && !isLogin) return serve();
+  // Sign-up: open to signed-out visitors and parents; the checkout return page needs a session.
+  const isOnboarding = path === "/onboarding" || path.startsWith("/onboarding/");
+  if (!area && !isLogin && !isOnboarding) return serve();
 
   if (!userId) {
-    return isLogin ? serve() : finish(NextResponse.redirect(at("/login")), response);
+    return isLogin || path === "/onboarding" ? serve() : finish(NextResponse.redirect(at("/login")), response);
   }
 
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", userId).maybeSingle();
@@ -85,6 +88,9 @@ export async function proxy(request: NextRequest) {
     return isLogin ? serve() : finish(NextResponse.redirect(at("/login?error=no-profile")), response);
   }
 
+  if (isOnboarding) {
+    return role === "parent" ? serve() : finish(NextResponse.redirect(at(ROLE_HOME[role])), response);
+  }
   if (isLogin || area !== role) return finish(NextResponse.redirect(at(ROLE_HOME[role])), response);
   return serve();
 }

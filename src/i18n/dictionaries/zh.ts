@@ -1,5 +1,6 @@
 import type { Dictionary } from "./en";
 import { landingZh } from "./landing.zh";
+import { onboardingZh } from "./onboarding.zh";
 
 /** Simplified Chinese (zh-CN). Parents are addressed as 您, students as 你. "Study Hall" stays as the brand. */
 export const zh: Dictionary = {
@@ -15,6 +16,7 @@ export const zh: Dictionary = {
   studentStatus: { invited: "已邀请", active: "使用中", paused: "已暂停", cancelled: "已取消" },
   formats: { longDate: "M月d日 EEEE", time: "HH:mm" },
   landing: landingZh,
+  onboarding: onboardingZh,
   login: {
     title: "登录",
     description: "我们会把登录链接发到您的邮箱，无需密码。",
@@ -38,6 +40,15 @@ export const zh: Dictionary = {
     empty: "还没有添加学生。",
     yearStatus: "{year} 年级 · {status}",
     reportsSoon: "每晚的学习报告和出勤记录将显示在这里。",
+    billing: {
+      title: "账单",
+      active: "{plan} · {count} × {price} 每周 · {date} 续费",
+      cancelling: "{plan} · 已取消 · 可使用至 {date}",
+      none: "还没有有效的套餐。",
+      finish: "完成注册",
+      manage: "管理账单",
+      welcome: "已收到付款，欢迎加入 Study Hall！孩子会收到一封登录邮件。",
+    },
   },
   student: {
     greeting: "{name}，你好",

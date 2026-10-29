@@ -21,7 +21,7 @@ import "./landing.css";
 const OWNER_NOTES = {
   recording: "Zoom/Meet room settings (cloud recording off, who can record or share) so this answer stays true.",
   stuck: "Academic-help scope and the subjects supervisors can help with.",
-  billing: "Whether cancelling stops at the end of the paid week or immediately, refunds beyond the first week, and GST wording.",
+  billing: "Refunds beyond the first week, and GST wording.",
   missed: "What happens when Study Hall cancels a session (e.g. public holidays), and whether missed or cancelled sessions are credited.",
   supervisors: "Supervisor qualifications and training to describe here.",
   contact: "Contact email for questions, concerns and deletion requests (set CHILD_SAFETY_CONTACT_EMAIL).",
@@ -319,7 +319,7 @@ export default async function LandingPage() {
         </Section>
 
         {/* 7. Pricing */}
-        <Section id="pricing" n={7} label={t.pricing.label} title={t.pricing.title} aside={<PlanCards copy={t.pricing} />}>
+        <Section id="pricing" n={7} label={t.pricing.label} title={t.pricing.title} aside={<PlanCards copy={t.pricing} signUpHref={localizePath("/onboarding", locale)} />}>
           <p className="intro">{t.pricing.intro}</p>
           <ul className="checks">
             {t.pricing.checks.map((check) => (

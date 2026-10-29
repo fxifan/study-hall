@@ -171,10 +171,10 @@ export const landingZh: LandingCopy = {
   pricing: {
     label: "价格",
     title: "按周付费，随时取消。",
-    intro: "每个套餐都涵盖周一至周四 16:00–20:00（墨尔本时间）的自习。孩子不必每节都参加。",
-    checks: ["通过 Stripe 以澳元按周收费。", "可在账户中更换银行卡或取消订阅。", "如果不合适，第一周可应要求退款。"],
+    intro: "价格按学生计算。每个套餐都涵盖周一至周四 16:00–20:00（墨尔本时间）的自习。孩子不必每节都参加。",
+    checks: ["通过 Stripe 以澳元按周收费。", "可随时在账户中取消，已付费的一周结束前仍可使用。", "如果不合适，第一周可应要求退款。"],
     cardKicker: "Study Hall · 按周",
-    per: "/ 周",
+    per: "每名学生 / 周",
     rows: {
       sessions: "场次",
       sessionsUnlimited: "周一至周四任选",
@@ -188,7 +188,7 @@ export const landingZh: LandingCopy = {
       for: "适合",
       forValue: "9–12 年级",
     },
-    cta: "即将开放注册",
+    cta: "开始注册",
     ctaNote: "第一周可应要求退款。",
     empty: "套餐即将公布。",
   },
@@ -237,7 +237,7 @@ export const landingZh: LandingCopy = {
       {
         id: "billing",
         q: "订阅、取消和退款如何处理？",
-        a: ["套餐通过 Stripe 以澳元按周收费。您可以在账户中更换银行卡或取消订阅。如果第一周不合适，提出后我们会退款。"],
+        a: ["套餐按学生计价，通过 Stripe 以澳元按周收费。您可以在账户中更换银行卡或取消订阅，已付费的一周结束前仍可使用。如果第一周不合适，提出后我们会退款。"],
       },
       {
         id: "missed",

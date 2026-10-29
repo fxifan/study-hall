@@ -2,6 +2,7 @@ import type { EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 import { DEFAULT_LOCALE, LOCALE_COOKIE, isLocale, localizePath } from "@/i18n/config";
 import { ROLE_HOME, isRole } from "@/lib/roles";
+import { ACTIVE_SUBSCRIPTION_STATUSES } from "@/lib/subscription-status";
 import { createClient } from "@/lib/supabase/server";
 
 const OTP_TYPES: EmailOtpType[] = ["email", "magiclink", "invite", "signup", "recovery", "email_change"];
@@ -36,5 +37,15 @@ export async function GET(request: NextRequest) {
   if (!userId) return to("/login?error=link");
 
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", userId).maybeSingle();
-  return to(isRole(profile?.role) ? ROLE_HOME[profile.role] : "/login?error=no-profile");
+  if (!isRole(profile?.role)) return to("/login?error=no-profile");
+  if (profile.role === "parent") {
+    // A parent who hasn't subscribed yet carries on with sign-up.
+    const { data: active } = await supabase
+      .from("subscriptions")
+      .select("id")
+      .in("status", [...ACTIVE_SUBSCRIPTION_STATUSES])
+      .limit(1);
+    if (!active?.length) return to("/onboarding");
+  }
+  return to(ROLE_HOME[profile.role]);
 }

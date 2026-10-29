@@ -4,6 +4,7 @@
  * The landing page's copy is long, so it lives in landing.en.ts.
  */
 import { landingEn } from "./landing.en";
+import { onboardingEn } from "./onboarding.en";
 
 export const en = {
   meta: {
@@ -18,6 +19,7 @@ export const en = {
   studentStatus: { invited: "invited", active: "active", paused: "paused", cancelled: "cancelled" },
   formats: { longDate: "EEEE d MMMM", time: "h:mmaaa" },
   landing: landingEn,
+  onboarding: onboardingEn,
   login: {
     title: "Log in",
     description: "We'll email you a link. No password needed.",
@@ -41,6 +43,15 @@ export const en = {
     empty: "No students yet.",
     yearStatus: "Year {year} · {status}",
     reportsSoon: "Nightly reports and attendance history will appear here.",
+    billing: {
+      title: "Billing",
+      active: "{plan} · {count} × {price} per week · renews {date}",
+      cancelling: "{plan} · cancelled · access until {date}",
+      none: "No active plan yet.",
+      finish: "Finish sign-up",
+      manage: "Manage billing",
+      welcome: "Payment received. Welcome to Study Hall! Your child will get a login email.",
+    },
   },
   student: {
     greeting: "Hi {name}",

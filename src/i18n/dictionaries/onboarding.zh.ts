@@ -1,0 +1,98 @@
+import type { OnboardingCopy } from "./onboarding.en";
+
+/** Sign-up copy, Simplified Chinese. DRAFT: needs a native speaker's review before launch. */
+export const onboardingZh: OnboardingCopy = {
+  title: "注册",
+  intro: "几分钟即可完成：添加孩子、同意自习规则，然后通过 Stripe 安全付款。",
+  included: {
+    title: "付款前请了解",
+    items: [
+      "真人实时小组监督，周一至周四 16:00–20:00（墨尔本时间）。孩子可以选择参加任意场次。",
+      "本节监督老师在有空时帮助孩子解决卡点，方式是应用内文字或小组讨论。这不是私人补习，也没有保证的回复时间。",
+      "摄像头对准双手和书桌，不必露脸。Study Hall 不录制视频、图片或音频。自习室在 Zoom 或 Google Meet 上进行。",
+      "每位监督老师都持有经我们核实的儿童工作许可（WWCC）。成年人绝不会单独与您的孩子视频。",
+      "每次自习后您会收到一份简短报告：出勤、目标和监督老师的客观记录。",
+    ],
+    billing: "每名学生每周 {price}，由 Stripe 按周收费。可随时取消，已付费的一周结束前仍可使用。第一周可应要求退款。",
+  },
+  start: {
+    title: "创建家长账户",
+    body: "输入您的邮箱，我们会发送一个链接让您继续。无需密码。",
+    email: "您的邮箱",
+    submit: "发送链接",
+    sent: "请查看邮箱中的链接以继续，一小时内有效。",
+    haveAccount: "已经注册？",
+    logIn: "登录",
+    errors: {
+      invalid_email: "请输入有效的邮箱地址。",
+      rate_limited: "邮件发送太频繁，请等一分钟再试。",
+      send_failed: "暂时无法发送链接，请稍后再试。",
+    },
+  },
+  steps: { details: "您的信息", children: "您的孩子", consent: "自习规则与隐私", pay: "套餐与付款" },
+  details: {
+    name: "您的姓名",
+    source: "您是如何了解到 Study Hall 的？（可选）",
+    sources: {
+      none: "不便透露",
+      wechat_referral: "微信群或微信好友",
+      parent_referral: "其他家长",
+      social_media: "社交媒体",
+      search: "搜索引擎",
+      other: "其他",
+    },
+    sourceHelp: "仅用于了解哪些渠道有效，我们不会收集社交媒体账号信息。",
+    save: "保存",
+  },
+  children: {
+    empty: "请添加每位将参加 Study Hall 的孩子。",
+    firstName: "名字",
+    lastInitial: "姓氏首字母",
+    yearLevel: "年级",
+    year: "{n} 年级",
+    school: "学校（可选）",
+    email: "孩子的邮箱（用于登录）",
+    add: "添加孩子",
+    remove: "移除",
+    minimisation: "我们只收集必要信息：不收集生日、照片、地址或电话。",
+    status: { invited: "付款后发送登录邮件", active: "使用中", paused: "已暂停", cancelled: "已取消" },
+    errors: {
+      invalid: "请检查填写的信息后重试。",
+      email_taken: "这个邮箱已经有 Study Hall 账户。",
+      failed: "无法添加孩子，请重试。",
+    },
+  },
+  consent: {
+    intro: "孩子每次自习前都会看到这些规则。",
+    privacyIntro: "我们如何处理您家庭的信息：",
+    privacyLink: "隐私与儿童安全声明",
+    draftNote: "（草稿，审核中）",
+    houseRules: "我已阅读自习规则，我的孩子同意遵守。",
+    privacy: "我已阅读隐私与儿童安全声明，并同意 Study Hall 按其所述处理我孩子的信息。",
+    submit: "同意",
+    done: "已同意：自习规则 {rules}，隐私声明 {privacy}。",
+    needChildren: "请先添加孩子。",
+    required: "请勾选两项以继续。",
+  },
+  pay: {
+    summary: "{count} × {price} = 每周 {total}",
+    terms: [
+      "由 Stripe 以澳元按周收费，Study Hall 不会看到您的银行卡信息。",
+      "可随时在账户中取消，已付费的一周结束前仍可使用。",
+      "如果不合适，第一周可应要求退款。",
+    ],
+    submit: "前往安全付款",
+    needConsent: "请先添加孩子并同意规则。",
+    notConfigured: "付款功能尚未开通。",
+    cancelled: "付款已取消，未产生任何费用。",
+    failed: "暂时无法开始付款，请稍后再试。",
+  },
+  done: {
+    title: "注册完成",
+    body: "孩子会收到一封带登录链接的邮件。报告和账单信息都在您的页面上。",
+    link: "前往您的页面",
+  },
+  complete: {
+    failed: "暂时无法确认付款，可能需要一分钟，请稍后查看您的页面。",
+  },
+};

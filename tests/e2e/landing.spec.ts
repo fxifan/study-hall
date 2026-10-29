@@ -64,13 +64,14 @@ test("the sample report is labelled fictional and switches between examples", as
   await expect(page.getByRole("button", { name: "Didn't attend" })).toHaveAttribute("aria-pressed", "true");
 });
 
-test("pricing comes from the plans table and doesn't link to sign-up yet", async ({ page }) => {
+test("pricing comes from the plans table and links to sign-up", async ({ page }) => {
   await page.goto("/");
   const card = page.getByTestId("plan-card").first();
   await expect(card).toContainText("A$");
   await expect(card).toContainText("49");
   await expect(card).toContainText("/ week");
-  await expect(card.getByText("Sign-up opens soon")).toHaveAttribute("aria-disabled", "true");
+  await expect(card).toContainText("per student");
+  await expect(card.getByRole("link", { name: /Start/ })).toHaveAttribute("href", "/onboarding");
 });
 
 test("the FAQ answers every question in the brief", async ({ page }) => {
