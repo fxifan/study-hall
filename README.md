@@ -81,6 +81,30 @@ project's Auth > URL Configuration (Site URL and Redirect URLs).
 To log in as a seeded account on a deployed site:
 `NEXT_PUBLIC_SITE_URL=https://study-hall-murex.vercel.app npm run login-link -- parentA`
 
+## Payments (Stripe, test mode)
+
+Study Hall uses its own Stripe account, in test mode until live payments are approved.
+
+1. Put the account's test secret key in `.env.local` as `STRIPE_SECRET_KEY` (and on Vercel).
+2. `npm run stripe:setup` creates a weekly AUD price for each active plan (saved to
+   `plans.stripe_price_id`) and the Customer Portal (cancel at the end of the paid week, with a reason).
+3. For a deployed site, `npm run stripe:setup -- --webhook https://<site>/api/stripe/webhook`
+   creates the webhook endpoint and saves its signing secret to `.stripe-webhook-secret` (gitignored);
+   set it as `STRIPE_WEBHOOK_SECRET` on Vercel. Locally the webhook isn't needed:
+   `/onboarding/complete` confirms the Checkout session directly.
+
+Pricing is per student: Checkout's quantity is the number of children signing up. Pay with Stripe's
+test card `4242 4242 4242 4242`, any future expiry and any CVC.
+
+## Sessions and admin
+
+- `/api/cron/generate-sessions` runs daily on Vercel (`vercel.json`, needs `CRON_SECRET`): it creates
+  14 days of sessions from the schedule and enrols active students, one room per time slot, up to
+  room capacity. Admins can run it from `/admin/schedule`.
+- A session's supervisor must have a verified Working with Children Check valid on the session date;
+  the database refuses anything else.
+- Admin pages: `/admin/rooms`, `/admin/schedule`, `/admin/plans`, `/admin/proctors` (English only).
+
 ## How it fits together
 
 - **Auth.** `/login` emails a magic link for existing accounts only (parents sign up through

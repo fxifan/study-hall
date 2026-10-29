@@ -40,7 +40,26 @@ The plan:
 - Sign-up isn't built, so plan buttons say sign-up opens soon instead of linking to a missing route.
 - Simplified Chinese landing copy, marked for human review. The sample report stays in English on `/zh` with a note, because real reports are English.
 
-### Phase 1B: sign-up, payment, joining (spec Phase 1 + brief Phase 2, §7, §8)
+### Phase 1B: sign-up, payment, joining (spec Phase 1 + brief Phase 2, §7, §8) — built
+
+Owner decisions taken (2026-10-30): Study Hall gets its own Stripe account (test mode); A$49/week is
+per student; cancelling stops at the end of the paid week; the privacy notice is a marked DRAFT; no
+two-day plan yet.
+
+Built in four commits: legal documents, WWCC gate, capacity and check-in in the database; sign-up,
+Stripe Checkout, webhook and portal; the student session page; admin rooms, schedule, plans and
+supervisors. Tested: 27 unit, 34 database (incl. signed webhook events), 28 browser tests.
+
+Not yet verified:
+- A real Stripe test-mode payment (needs the Study Hall test key; then `npm run stripe:setup`).
+- Emails (student login links, supervisor invites): Supabase's mailer only delivers to the project
+  team until Resend SMTP is configured.
+- On Vercel: `SUPABASE_SECRET_KEY`, `CRON_SECRET`, `IP_HASH_SALT`, Stripe keys and the webhook.
+
+Deferred: re-consent when house rules change (spec §7), adding a child to an active subscription
+(quantity change), choosing days for limited plans, parent deletion requests (spec §8.10).
+
+The plan as written:
 - Onboarding (spec 4.1) with the pre-checkout explanations from brief §7, unticked consent boxes, versioned house rules and privacy notice stored as records, `/legal/house-rules` and `/legal/privacy` (privacy text from the owner; Chinese legal text not published until reviewed).
 - Optional parent `acquisition_source` (WeChat referral, parent referral, social media, other) on onboarding (brief §9).
 - Stripe Checkout + webhook + Customer Portal in test mode only; plan comparison driven by `plans`; two-day plan added as a `plans` row once priced (decision 1). Auto-enrolment respects `days_per_week`.
