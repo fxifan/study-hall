@@ -135,6 +135,28 @@ describe("other roles", () => {
     expect(students.error?.code).toBe("42501");
   });
 
+  it("signed-out callers see active plans' public columns only", async () => {
+    const anon = signedOutClient();
+    const { data, error } = await anon.from("plans").select("id, name, price_cents, currency, interval, days_per_week");
+    expect(error).toBeNull();
+    expect(data).toEqual(expect.arrayContaining([expect.objectContaining({ id: SEED_IDS.plan, price_cents: 4900 })]));
+
+    const secret = await anon.from("plans").select("stripe_price_id");
+    expect(secret.error?.code).toBe("42501");
+
+    const inactive = await service
+      .from("plans")
+      .insert({ org_id: SEED_IDS.org, name: "RLS test (inactive)", price_cents: 100, active: false })
+      .select("id")
+      .single();
+    try {
+      const hidden = await anon.from("plans").select("id").eq("id", inactive.data!.id);
+      expect(hidden.data).toEqual([]);
+    } finally {
+      await service.from("plans").delete().eq("id", inactive.data!.id);
+    }
+  });
+
   it("the admin sees every student in the org", async () => {
     const { data } = await admin.from("students").select("id");
     expect(sortedIds(data)).toEqual(expect.arrayContaining([...FAMILY_A, ...FAMILY_B]));

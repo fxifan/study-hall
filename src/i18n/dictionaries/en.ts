@@ -1,7 +1,10 @@
 /**
  * English UI strings. The source of truth for the dictionary's shape: zh.ts must match it.
  * {placeholders} are filled with fill() from src/i18n/fill.ts. Date patterns are date-fns tokens.
+ * The landing page's copy is long, so it lives in landing.en.ts.
  */
+import { landingEn } from "./landing.en";
+
 export const en = {
   meta: {
     description: "Supervised online study for VCE students, Monday to Thursday 4–8pm.",
@@ -14,11 +17,7 @@ export const en = {
   roles: { parent: "Parent", student: "Student", proctor: "Proctor", admin: "Admin" },
   studentStatus: { invited: "invited", active: "active", paused: "paused", cancelled: "cancelled" },
   formats: { longDate: "EEEE d MMMM", time: "h:mmaaa" },
-  home: {
-    kicker: "VCE · Mon–Thu 4–8pm",
-    lead: "Supervised online study for VCE students, with a short report to parents every night.",
-    logIn: "Log in",
-  },
+  landing: landingEn,
   login: {
     title: "Log in",
     description: "We'll email you a link. No password needed.",

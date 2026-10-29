@@ -71,6 +71,11 @@ npm run typecheck && npm run lint
 - **Database.** SQL migrations only, in [supabase/migrations](supabase/migrations). All timestamps are
   UTC `timestamptz`. RLS policies use `SECURITY DEFINER` helpers in a non-exposed `private` schema;
   column guards (triggers) stop parents changing a student's status or anyone changing their own role.
+- **Landing page.** `/` (and `/zh`) is the port of `design/landing.html` with the positioning in
+  [docs/product-changes-plan.md](docs/product-changes-plan.md). Copy is in
+  `src/i18n/dictionaries/landing.*.ts`; prices come from the `plans` table (signed-out visitors can
+  read active plans' public columns). Dashed "Owner to confirm" notes mark undecided policy and must
+  be resolved before launch.
 - **Languages.** English and Simplified Chinese. English keeps the spec's URLs (`/parent`); Chinese
   is under `/zh` (`/zh/parent`). Pages live in `src/app/[lang]`; the proxy rewrites unprefixed URLs to
   `/en/…`, sends browsers that prefer Chinese (or chose it with the header's language switch, stored

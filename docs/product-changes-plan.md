@@ -22,7 +22,17 @@ This plan folds the brief into the spec's remaining build phases so nothing is b
 
 Each phase ends with lint, typecheck, unit + RLS + Playwright tests, a production build, a commit, and a report.
 
-### Phase 1A: landing page, positioning and trust (brief Phase 1, now)
+### Phase 1A: landing page, positioning and trust (brief Phase 1) — done
+
+Built as planned below. Departures from `design/landing.html`, on purpose:
+- Parent-facing copy says "supervisor", not "proctor"; the sample report's line is "Supervisor: …". Phase 2 reports should match.
+- Sample observations are neutral ("Phone visible once during the session"), not "Focused all session. Strong finish".
+- Not promised because they aren't in an MVP phase: weekly summaries (spec Phase 3), links to `/legal/*` (Phase 1B).
+- Dropped design-only extras: the tweaks panel, the timeline's "now" marker, today's date in the hero margin.
+- The "next session" line uses the default Mon–Thu schedule (`src/lib/default-schedule.ts`), not the sessions table, so it doesn't know about cancelled dates.
+- Pricing is cached for an hour; until Phase 1B's plan editor calls `revalidateTag("plans")`, a price change shows within the hour (or on the next deploy).
+
+The plan:
 - Port `design/landing.html` to `/` and `/zh` with the brief's positioning and copy, centralised in `src/i18n/dictionaries/landing.*.ts`.
 - Sections: hero, how it works (set goals / study together / ask for help / review progress), session timeline, what parents receive (fictional, neutral sample report with "participation, not proof of learning"), alongside tutoring, house rules, safety and privacy (incl. the video provider's own data handling), pricing, FAQ (the brief's eight questions), closing CTA.
 - Pricing reads active plans from the database (new migration: anonymous read of a few plan columns), so prices live in one place.

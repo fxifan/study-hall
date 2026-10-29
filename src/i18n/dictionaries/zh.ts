@@ -1,4 +1,5 @@
 import type { Dictionary } from "./en";
+import { landingZh } from "./landing.zh";
 
 /** Simplified Chinese (zh-CN). Parents are addressed as 您, students as 你. "Study Hall" stays as the brand. */
 export const zh: Dictionary = {
@@ -13,11 +14,7 @@ export const zh: Dictionary = {
   roles: { parent: "家长", student: "学生", proctor: "监督老师", admin: "管理员" },
   studentStatus: { invited: "已邀请", active: "使用中", paused: "已暂停", cancelled: "已取消" },
   formats: { longDate: "M月d日 EEEE", time: "HH:mm" },
-  home: {
-    kicker: "VCE · 周一至周四 16:00–20:00",
-    lead: "为 VCE 学生提供有老师监督的线上自习，每晚给家长发送一份简短的学习报告。",
-    logIn: "登录",
-  },
+  landing: landingZh,
   login: {
     title: "登录",
     description: "我们会把登录链接发到您的邮箱，无需密码。",
