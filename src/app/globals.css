@@ -1,0 +1,186 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/*
+ * Theme: the "exercise book" direction from design/landing.html. Cream paper, navy ink, red pen.
+ * Brand tokens (--paper, --ink, --pen …) are lifted from that file's :root and exposed to Tailwind as
+ * bg-paper, text-ink, border-rule, font-serif, font-mono, etc. shadcn/ui's semantic tokens
+ * (--background, --primary …) are mapped onto them, so components pick up the palette for free.
+ * Dark mode follows the OS, and [data-theme="light|dark"] on <html> overrides it, as on the landing page.
+ */
+
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *) {
+      @slot;
+    }
+  }
+}
+
+:root {
+  /* Brand */
+  --paper: #f6f2e8;
+  --paper-deep: #eee7d7;
+  --sheet: #fffdf8;
+  --ink: #1b2a41;
+  --ink-soft: #4a5770;
+  --ink-faint: #7f8899;
+  --hair: rgba(27, 42, 65, 0.14);
+  --rule: #d3deeb;
+  --pen: #bf3a2b;
+  --pen-faint: rgba(191, 58, 43, 0.42);
+  --cover: #1b2a41;
+  --cover-ink: #f6f2e8;
+  --cover-soft: #bac2cf;
+
+  /* shadcn/ui semantic tokens */
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: var(--sheet);
+  --card-foreground: var(--ink);
+  --popover: var(--sheet);
+  --popover-foreground: var(--ink);
+  --primary: var(--ink);
+  --primary-foreground: var(--paper);
+  --secondary: var(--paper-deep);
+  --secondary-foreground: var(--ink);
+  --muted: var(--paper-deep);
+  --muted-foreground: var(--ink-soft);
+  --accent: var(--paper-deep);
+  --accent-foreground: var(--ink);
+  --destructive: var(--pen);
+  --border: var(--hair);
+  --input: var(--hair);
+  --ring: var(--ink-faint);
+  --chart-1: var(--ink);
+  --chart-2: var(--pen);
+  --chart-3: var(--ink-soft);
+  --chart-4: var(--rule);
+  --chart-5: var(--ink-faint);
+  --radius: 0.375rem;
+  --sidebar: var(--sheet);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--ink);
+  --sidebar-primary-foreground: var(--paper);
+  --sidebar-accent: var(--paper-deep);
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: var(--hair);
+  --sidebar-ring: var(--ink-faint);
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #111a28;
+    --paper-deep: #0c1420;
+    --sheet: #172338;
+    --ink: #eee8da;
+    --ink-soft: #b3bbc9;
+    --ink-faint: #7e889a;
+    --hair: rgba(238, 232, 218, 0.14);
+    --rule: rgba(150, 178, 215, 0.16);
+    --pen: #ee7563;
+    --pen-faint: rgba(238, 117, 99, 0.4);
+    --cover: #1c2b44;
+    --cover-ink: #eee8da;
+    --cover-soft: #aeb7c6;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper: #111a28;
+  --paper-deep: #0c1420;
+  --sheet: #172338;
+  --ink: #eee8da;
+  --ink-soft: #b3bbc9;
+  --ink-faint: #7e889a;
+  --hair: rgba(238, 232, 218, 0.14);
+  --rule: rgba(150, 178, 215, 0.16);
+  --pen: #ee7563;
+  --pen-faint: rgba(238, 117, 99, 0.4);
+  --cover: #1c2b44;
+  --cover-ink: #eee8da;
+  --cover-soft: #aeb7c6;
+  color-scheme: dark;
+}
+
+@theme inline {
+  /* Brand utilities: bg-paper, text-ink, text-pen, border-rule, bg-cover … */
+  --color-paper: var(--paper);
+  --color-paper-deep: var(--paper-deep);
+  --color-sheet: var(--sheet);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-hair: var(--hair);
+  --color-rule: var(--rule);
+  --color-pen: var(--pen);
+  --color-pen-faint: var(--pen-faint);
+  --color-cover: var(--cover);
+  --color-cover-ink: var(--cover-ink);
+  --color-cover-soft: var(--cover-soft);
+
+  /* Fonts come from next/font in app/layout.tsx */
+  --font-serif: var(--font-newsreader), Georgia, "Times New Roman", serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, Menlo, Consolas, monospace;
+  --font-sans: var(--font-newsreader), Georgia, "Times New Roman", serif;
+  --font-heading: var(--font-newsreader), Georgia, "Times New Roman", serif;
+
+  /* shadcn/ui */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-serif;
+  }
+}

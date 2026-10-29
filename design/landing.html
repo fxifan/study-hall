@@ -1,0 +1,1003 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Study Hall: supervised online study for VCE students</title>
+<meta name="description" content="A supervised online study room for VCE students, Monday to Thursday 4–8pm. A tutor watches the room, and you get a short report every night. A$49 a week.">
+<meta name="theme-color" content="#F6F2E8">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23F6F2E8'/%3E%3Cpath d='M7 17.5c2.6 1.9 4.8 4.3 6.6 7C17.2 16.3 21.6 10.4 26 6' fill='none' stroke='%23BF3A2B' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<script>document.documentElement.classList.add('js')</script>
+<!--
+  Study Hall landing page: design file for the `/` route.
+  Direction: "Exercise book". Cream paper, navy ink, red-pen marks, ruled sheets, red margin line.
+  Porting to Next.js + Tailwind (Phase 1): lift the :root tokens below into tailwind.config theme
+  (colors: paper, sheet, ink, pen, rule, cover; fonts: serif = Newsreader, mono = JetBrains Mono).
+  Links point at the real app routes (/onboarding, /login, /legal/*), so they 404 when opened as a file.
+-->
+<style>
+:root {
+  --paper: #F6F2E8;
+  --paper-deep: #EEE7D7;
+  --sheet: #FFFDF8;
+  --ink: #1B2A41;
+  --ink-soft: #4A5770;
+  --ink-faint: #7F8899;
+  --hair: rgba(27, 42, 65, .14);
+  --rule: #D3DEEB;
+  --pen: #BF3A2B;
+  --pen-faint: rgba(191, 58, 43, .42);
+  --cover: #1B2A41;
+  --cover-ink: #F6F2E8;
+  --cover-soft: #BAC2CF;
+  --cover-hair: rgba(246, 242, 232, .16);
+  --cover-pen: #F08A78;
+  --shadow-1: 0 1px 2px rgba(27, 42, 65, .07), 0 2px 6px rgba(27, 42, 65, .05);
+  --shadow-2: 0 2px 4px rgba(27, 42, 65, .05), 0 22px 44px -16px rgba(27, 42, 65, .26);
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .1 0 0 0 0 .16 0 0 0 0 .25 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.11'/%3E%3C/svg%3E");
+  --serif: "Newsreader", Georgia, "Times New Roman", serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --r-sm: 3px;
+  --r-md: 6px;
+  --ease: cubic-bezier(.22, .8, .24, 1);
+  --mw: 148px;   /* margin column, left of the red line */
+  --mg: 52px;    /* gap the red line sits in */
+  --sec-y: 128px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #111A28; --paper-deep: #0C1420; --sheet: #172338;
+    --ink: #EEE8DA; --ink-soft: #B3BBC9; --ink-faint: #7E889A;
+    --hair: rgba(238, 232, 218, .14); --rule: rgba(150, 178, 215, .16);
+    --pen: #EE7563; --pen-faint: rgba(238, 117, 99, .4);
+    --cover: #1C2B44; --cover-ink: #EEE8DA; --cover-soft: #AEB7C6; --cover-hair: rgba(238, 232, 218, .14);
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, .3); --shadow-2: 0 2px 4px rgba(0, 0, 0, .25), 0 24px 48px -16px rgba(0, 0, 0, .6);
+    --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .93 0 0 0 0 .91 0 0 0 0 .85 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.06'/%3E%3C/svg%3E");
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #111A28; --paper-deep: #0C1420; --sheet: #172338;
+  --ink: #EEE8DA; --ink-soft: #B3BBC9; --ink-faint: #7E889A;
+  --hair: rgba(238, 232, 218, .14); --rule: rgba(150, 178, 215, .16);
+  --pen: #EE7563; --pen-faint: rgba(238, 117, 99, .4);
+  --cover: #1C2B44; --cover-ink: #EEE8DA; --cover-soft: #AEB7C6; --cover-hair: rgba(238, 232, 218, .14);
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, .3); --shadow-2: 0 2px 4px rgba(0, 0, 0, .25), 0 24px 48px -16px rgba(0, 0, 0, .6);
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .93 0 0 0 0 .91 0 0 0 0 .85 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.06'/%3E%3C/svg%3E");
+  color-scheme: dark;
+}
+:root[data-grain="off"] { --grain: none; }
+@media (max-width: 1180px) { :root { --mw: 104px; --mg: 40px; } }
+@media (max-width: 860px)  { :root { --sec-y: 76px; } }
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+body {
+  margin: 0;
+  background-color: var(--paper);
+  background-image: var(--grain);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 1.125rem;
+  line-height: 1.6;
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+a { color: inherit; }
+p { margin: 0; text-wrap: pretty; }
+h1, h2, h3 { margin: 0; font-weight: 500; text-wrap: balance; }
+b, strong { font-weight: 600; }
+:focus-visible { outline: 2px solid var(--pen); outline-offset: 3px; border-radius: 2px; }
+.vh { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip { position: absolute; left: 12px; top: -80px; z-index: 100; background: var(--ink); color: var(--paper); padding: 10px 14px; border-radius: var(--r-md); text-decoration: none; }
+.skip:focus { top: 12px; }
+.dim { color: var(--ink-faint); }
+
+/* ---------- pen strokes ---------- */
+.pen { overflow: visible; fill: none; stroke: var(--pen); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.js .draw .pen path { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.js .draw.go .pen path { animation: draw .5s var(--ease) forwards; animation-delay: calc(var(--i, 0) * 120ms + 380ms + var(--j, 0) * 160ms); }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+
+/* ---------- buttons & links ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: .55em;
+  min-height: 50px; padding: 0 24px; border: 0; border-radius: var(--r-md);
+  font: 500 1.0625rem/1 var(--serif); text-decoration: none; cursor: pointer; white-space: nowrap;
+  transition: transform .18s var(--ease), box-shadow .18s var(--ease), background-color .18s;
+}
+.btn-primary { background: var(--ink); color: var(--paper); box-shadow: var(--shadow-1); }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 2px 4px rgba(27, 42, 65, .1), 0 10px 22px -10px rgba(27, 42, 65, .45); }
+.btn-primary:active { transform: translateY(0); box-shadow: none; }
+.btn .arr { transition: transform .18s var(--ease); }
+.btn:hover .arr { transform: translateX(3px); }
+.btn-sm { min-height: 40px; padding: 0 16px; font-size: 1rem; }
+.link { color: var(--ink); text-decoration: underline; text-decoration-color: var(--pen-faint); text-decoration-thickness: 1.5px; text-underline-offset: .22em; transition: text-decoration-color .15s; }
+.link:hover { text-decoration-color: var(--pen); }
+
+/* ---------- nav ---------- */
+.nav {
+  position: sticky; top: 0; z-index: 50;
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
+  -webkit-backdrop-filter: saturate(1.2) blur(10px); backdrop-filter: saturate(1.2) blur(10px);
+  border-bottom: 1px solid transparent; transition: border-color .2s;
+}
+.nav.scrolled { border-bottom-color: var(--hair); }
+.nav-in { max-width: 1240px; margin: 0 auto; padding: 0 32px; height: 68px; display: flex; align-items: center; gap: 28px; }
+.brand { display: inline-flex; align-items: center; gap: 3px; font-size: 1.5rem; font-weight: 600; letter-spacing: -.015em; text-decoration: none; line-height: 1; }
+.brand svg { width: 19px; height: 19px; margin-top: -6px; stroke-width: 2.6; }
+.nav-links { display: flex; gap: 26px; margin-left: auto; font-size: 1rem; }
+.nav-links a { text-decoration: none; color: var(--ink-soft); transition: color .15s; }
+.nav-links a:hover { color: var(--ink); }
+.nav-cta { display: flex; align-items: center; gap: 18px; font-size: 1rem; }
+.nav-cta .login { text-decoration: none; color: var(--ink-soft); }
+.nav-cta .login:hover { color: var(--ink); }
+@media (max-width: 960px) { .nav-links { display: none; } .nav-cta { margin-left: auto; } }
+
+/* ---------- section scaffold: margin column + red margin line ---------- */
+.sec { position: relative; scroll-margin-top: 68px; }
+.wrap {
+  position: relative; max-width: 1240px; margin: 0 auto;
+  padding: var(--sec-y) 32px;
+  display: grid; grid-template-columns: var(--mw) minmax(0, 1fr); column-gap: var(--mg);
+}
+.wrap::before {
+  content: ""; position: absolute; top: 0; bottom: 0;
+  left: calc(32px + var(--mw) + var(--mg) / 2 - 2px); width: 4px;
+  border-left: 1px solid var(--pen-faint); border-right: 1px solid var(--pen-faint);
+  pointer-events: none;
+}
+.sec-mark { grid-column: 1; text-align: right; padding-top: .3rem; }
+.sec-num { display: block; font-style: italic; font-size: 2.25rem; line-height: 1; color: var(--pen); }
+.sec-label { display: block; margin-top: .65rem; font: 500 .6875rem/1.35 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); }
+.sec-body { grid-column: 2; min-width: 0; }
+.kicker { font: 500 .75rem/1.5 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); }
+.kicker span { white-space: nowrap; }
+h2 { font-size: clamp(2rem, 1.25rem + 2.6vw, 3.25rem); line-height: 1.06; letter-spacing: -.02em; max-width: 19ch; }
+.intro { margin-top: 20px; max-width: 36em; color: var(--ink-soft); font-size: clamp(1.0625rem, 1rem + .25vw, 1.1875rem); }
+
+@media (max-width: 860px) {
+  .wrap { grid-template-columns: minmax(0, 1fr); padding-left: 38px; padding-right: 20px; }
+  .wrap::before { left: 13px; }
+  .sec-mark { grid-column: 1; text-align: left; display: flex; align-items: baseline; gap: 10px; margin-bottom: 16px; padding-top: 0; }
+  .sec-num { font-size: 1.5rem; }
+  .sec-label { margin-top: 0; }
+  .sec-body { grid-column: 1; }
+}
+
+/* ---------- hero ---------- */
+.hero .wrap { padding-top: 64px; padding-bottom: 120px; }
+.hero-date { display: block; font: 500 .8125rem/1.3 var(--mono); color: var(--pen); padding-top: 1.5rem; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 430px); gap: 56px; align-items: center; }
+h1 { margin-top: 22px; font-size: clamp(2.6rem, 1.1rem + 4.6vw, 4.75rem); line-height: 1.02; letter-spacing: -.024em; }
+h1 em { position: relative; font-style: italic; white-space: nowrap; }
+h1 .uline { position: absolute; left: -1%; bottom: -.14em; width: 102%; height: .3em; }
+h1 .uline path { stroke-width: 2.6; vector-effect: non-scaling-stroke; }
+h1 .uline path + path { stroke-width: 1.8; }
+.lede { margin-top: 26px; max-width: 33em; color: var(--ink-soft); font-size: clamp(1.125rem, 1rem + .35vw, 1.25rem); }
+.hero-cta { margin-top: 34px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px 26px; }
+.live { margin-top: 26px; display: flex; align-items: center; gap: 10px; font: 500 .8125rem/1.45 var(--mono); color: var(--ink-soft); }
+.live .dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--ink-faint); }
+.live[data-kind="live"] .dot, .live[data-kind="doors"] .dot { background: var(--pen); animation: pulse 2s infinite; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 var(--pen-faint); } 70% { box-shadow: 0 0 0 9px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+
+/* ---------- ruled sheets (report + rules) ---------- */
+.sheet { position: relative; margin: 0; background: var(--sheet); border-radius: var(--r-sm); box-shadow: var(--shadow-2); }
+.hero .sheet { transform: rotate(-1.4deg); }
+.sheet-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 24px 14px; border-bottom: 1px solid var(--rule); font: 500 .6875rem/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); }
+.ruled {
+  --rl: 32px; --ro: -7px;
+  padding: var(--rl) 24px;
+  font-family: var(--mono); font-size: .9375rem; line-height: var(--rl); color: var(--ink);
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--rl) - 1px), var(--rule) calc(var(--rl) - 1px), var(--rule) var(--rl));
+  background-position: 0 var(--ro);
+}
+.ln { display: flex; gap: 10px; align-items: flex-start; }
+.ln .t { flex: 1; min-width: 0; }
+.ln b { font-weight: 600; }
+.ln .mk { flex: none; width: 20px; height: var(--rl); display: grid; place-items: center; }
+.ln .mk svg { width: 19px; height: 19px; }
+.ln.goal { padding-left: 2px; }
+.js .draw .ln { opacity: 0; transform: translateX(-6px); }
+.js .draw.go .ln { animation: write .5s var(--ease) forwards; animation-delay: calc(var(--i, 0) * 120ms); }
+@keyframes write { to { opacity: 1; transform: none; } }
+.circled { position: relative; white-space: nowrap; }
+.circled .pen { position: absolute; left: -9%; top: -38%; width: 118%; height: 176%; stroke-width: 1.6; }
+.circled .pen path { vector-effect: non-scaling-stroke; }
+.anno { flex: none; align-self: center; width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--pen); color: var(--pen); display: grid; place-items: center; font: 600 .6875rem/1 var(--mono); }
+
+/* ---------- 1. how it works ---------- */
+.steps { list-style: none; margin: 56px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 44px 32px; }
+.step { border-top: 1px solid var(--hair); padding-top: 20px; }
+.step-k { font-style: italic; font-size: 1.25rem; color: var(--pen); line-height: 1; }
+.step h3 { margin-top: 14px; font-size: 1.375rem; line-height: 1.2; letter-spacing: -.01em; }
+.step p { margin-top: 12px; font-size: 1.0625rem; line-height: 1.55; color: var(--ink-soft); }
+@media (max-width: 1180px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px)  { .steps { grid-template-columns: minmax(0, 1fr); gap: 32px; margin-top: 40px; } }
+
+/* ---------- 2. a night ---------- */
+.tl { margin-top: 64px; }
+.tl-track { position: relative; }
+.tl-bar { display: flex; height: 64px; border-radius: var(--r-sm); overflow: hidden; box-shadow: inset 0 0 0 1px var(--hair); }
+.tl-seg { flex: var(--m) 1 0; min-width: 0; display: flex; align-items: center; justify-content: center; font: 500 .75rem/1 var(--mono); letter-spacing: .04em; }
+.tl-seg + .tl-seg { border-left: 1px solid var(--paper); }
+.tl-study { background: var(--ink); color: var(--paper); }
+.tl-break { background: repeating-linear-gradient(135deg, transparent 0 5px, var(--hair) 5px 6.5px); }
+.tl-doors, .tl-wrapup { background: repeating-linear-gradient(135deg, transparent 0 5px, var(--pen-faint) 5px 6.5px); }
+.tl-study .s { display: none; }
+.tl-now { position: absolute; top: -10px; bottom: -10px; left: var(--x, 0); width: 2px; margin-left: -1px; background: var(--pen); border-radius: 2px; }
+.tl-now[hidden] { display: none; }
+.tl-now span { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 4px; font: 600 .6875rem/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--pen); }
+.tl-ticks { position: relative; height: 30px; margin-top: 12px; font: 500 .75rem/1 var(--mono); color: var(--ink-soft); }
+.tl-ticks span { position: absolute; top: 8px; left: var(--x); transform: translateX(-50%); white-space: nowrap; }
+.tl-ticks span:first-child, .tl-ticks span:nth-child(2) { transform: none; }
+.tl-ticks span:last-child { transform: translateX(-100%); }
+.tl-ticks span::before { content: ""; position: absolute; top: -9px; left: 50%; height: 6px; border-left: 1px solid var(--ink-faint); }
+.tl-ticks span:first-child::before, .tl-ticks span:nth-child(2)::before { left: 0; }
+.tl-ticks span:last-child::before { left: auto; right: 0; }
+@media (max-width: 760px) { .tl-ticks span:first-child { display: none; } }
+.tl-key { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 10px; font: 500 .75rem/1.4 var(--mono); color: var(--ink-soft); }
+.tl-key span { display: inline-flex; align-items: center; gap: 8px; }
+.tl-key i { width: 14px; height: 14px; border-radius: 2px; box-shadow: inset 0 0 0 1px var(--hair); }
+.tl-notes { list-style: none; margin: 52px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px; }
+.tl-notes li { border-top: 1px solid var(--hair); padding-top: 16px; }
+.tl-notes time { font: 500 .8125rem/1 var(--mono); color: var(--pen); }
+.tl-notes b { display: block; margin-top: 12px; font-size: 1.1875rem; line-height: 1.25; }
+.tl-notes p { margin-top: 8px; font-size: 1rem; line-height: 1.5; color: var(--ink-soft); }
+@media (max-width: 1180px) { .tl-notes { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) {
+  .tl-study .l { display: none; } .tl-study .s { display: inline; }
+  .tl-bar { height: 52px; }
+  .tl-notes { grid-template-columns: minmax(0, 1fr); gap: 24px; margin-top: 40px; }
+}
+
+/* ---------- 3. report ---------- */
+.report-grid { margin-top: 56px; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 64px; align-items: start; }
+.seg-ctl { display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 4px; border-radius: 999px; background: var(--paper-deep); box-shadow: inset 0 0 0 1px var(--hair); }
+.seg-ctl button { appearance: none; border: 0; background: transparent; min-height: 40px; padding: 0 16px; border-radius: 999px; font: 500 .9375rem/1 var(--serif); color: var(--ink-soft); cursor: pointer; transition: background-color .15s, color .15s, box-shadow .15s; }
+.seg-ctl button:hover { color: var(--ink); }
+.seg-ctl button[aria-pressed="true"] { background: var(--sheet); color: var(--ink); box-shadow: var(--shadow-1); }
+.report-sheet { margin-top: 20px; }
+.report-sheet .ruled { min-height: calc(var(--rl) * 10); } /* keeps the sheet steady when switching to the short "didn't come" report */
+.sheet-foot { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px 16px; padding: 12px 16px 12px 24px; border-top: 1px solid var(--rule); }
+.sheet-foot .note { font-size: .9375rem; color: var(--ink-soft); }
+.copy-btn { appearance: none; border: 1px solid var(--hair); background: var(--paper); color: var(--ink); min-height: 40px; padding: 0 14px; border-radius: var(--r-md); font: 500 .8125rem/1 var(--mono); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: border-color .15s, background-color .15s; }
+.copy-btn:hover { border-color: var(--ink-faint); }
+.copy-btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+.copy-btn.done { color: var(--pen); border-color: var(--pen-faint); }
+.legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 28px; }
+.legend li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 16px; }
+.legend .anno { align-self: start; margin-top: 3px; }
+.legend b { display: block; font-size: 1.1875rem; line-height: 1.3; }
+.legend p { margin-top: 6px; font-size: 1rem; line-height: 1.55; color: var(--ink-soft); }
+.aside-block { margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--hair); }
+.aside-block h3 { font: 500 .75rem/1.5 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); }
+.aside-block p { margin-top: 10px; font-size: 1.0625rem; line-height: 1.55; }
+@media (max-width: 1000px) { .report-grid { grid-template-columns: minmax(0, 1fr); gap: 48px; } .report-col { max-width: 560px; } }
+
+/* ---------- 4. house rules ---------- */
+.rules-sheet { margin-top: 56px; max-width: 880px; }
+.rules {
+  --rl: 46px; --ro: -12px;
+  position: relative; list-style: none; margin: 0; padding: var(--rl) 36px var(--rl) 0;
+  font-size: 1.25rem; line-height: var(--rl);
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--rl) - 1px), var(--rule) calc(var(--rl) - 1px), var(--rule) var(--rl));
+  background-position: 0 var(--ro);
+}
+.rules::before { content: ""; position: absolute; top: 0; bottom: 0; left: 70px; width: 4px; border-left: 1px solid var(--pen-faint); border-right: 1px solid var(--pen-faint); }
+.rules li { display: grid; grid-template-columns: 70px minmax(0, 1fr); column-gap: 26px; }
+.rules .n { text-align: center; font-style: italic; color: var(--pen); }
+.rules-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 24px; padding: 14px 24px 16px 100px; border-top: 1px solid var(--rule); font-size: 1rem; color: var(--ink-soft); }
+@media (max-width: 640px) {
+  .rules { --rl: 36px; --ro: -9px; font-size: 1.0625rem; padding-right: 18px; }
+  .rules::before { left: 42px; }
+  .rules li { grid-template-columns: 42px minmax(0, 1fr); column-gap: 14px; }
+  .rules-foot { padding-left: 20px; }
+}
+
+/* ---------- 5. child safety (the cover) ---------- */
+.cover { background: var(--cover); color: var(--cover-ink); }
+.cover .wrap::before { display: none; }
+.cover .sec-num { color: var(--cover-pen); }
+.cover .sec-label { color: var(--cover-soft); }
+.cover .intro { color: var(--cover-soft); }
+.cover :focus-visible { outline-color: var(--cover-pen); }
+.cover .link { color: var(--cover-ink); text-decoration-color: rgba(240, 138, 120, .6); }
+.cover .link:hover { text-decoration-color: var(--cover-pen); }
+.safety { list-style: none; margin: 56px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 40px; }
+.safety li { border-top: 1px solid var(--cover-hair); padding: 24px 0 40px; }
+.safety .k { font: 500 .75rem/1 var(--mono); letter-spacing: .08em; color: var(--cover-pen); }
+.safety h3 { margin-top: 16px; font-size: 1.5rem; line-height: 1.2; letter-spacing: -.01em; }
+.safety p { margin-top: 10px; font-size: 1.0625rem; line-height: 1.55; color: var(--cover-soft); }
+.cover-foot { margin-top: 16px; padding-top: 28px; border-top: 1px solid var(--cover-hair); display: flex; flex-wrap: wrap; gap: 14px 40px; font-size: 1.0625rem; color: var(--cover-soft); }
+@media (max-width: 1000px) { .safety { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px)  { .safety { grid-template-columns: minmax(0, 1fr); } .safety li { padding-bottom: 28px; } }
+
+/* ---------- 6. pricing ---------- */
+.price-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 420px); gap: 64px; align-items: start; }
+.checks { list-style: none; margin: 32px 0 0; padding: 0; display: grid; gap: 14px; }
+.checks li { display: flex; gap: 14px; align-items: flex-start; font-size: 1.0625rem; }
+.checks svg { flex: none; width: 18px; height: 18px; margin-top: 5px; }
+.label { position: relative; background: var(--sheet); border-radius: 14px; padding: 34px 32px 28px; box-shadow: var(--shadow-2), inset 0 0 0 1px var(--hair); }
+.label::before { content: ""; position: absolute; inset: 9px; border: 1.5px solid var(--ink); border-radius: 8px; opacity: .8; pointer-events: none; }
+.label-k { text-align: center; font: 500 .6875rem/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); }
+.price { display: flex; justify-content: center; align-items: baseline; gap: 8px; margin-top: 16px; }
+.price .amt { font-size: 4.75rem; line-height: 1; font-weight: 500; letter-spacing: -.035em; }
+.price .cur { font-size: 1.5rem; font-weight: 500; align-self: flex-start; margin-top: .5rem; color: var(--ink-soft); }
+.price .per { font-size: 1.125rem; color: var(--ink-soft); }
+.rows { list-style: none; margin: 24px 0 26px; padding: 0; font: 400 .875rem/1.45 var(--mono); }
+.rows li { display: flex; align-items: baseline; gap: 8px; padding: 8px 0; }
+.rows .lbl { color: var(--ink-soft); flex: none; }
+.rows .dots { flex: 1 1 16px; min-width: 16px; border-bottom: 1.5px dotted var(--ink-faint); transform: translateY(-4px); }
+.rows .val { text-align: right; }
+.label .btn { width: 100%; }
+.label-note { margin-top: 14px; text-align: center; font-size: .9375rem; color: var(--ink-soft); }
+@media (max-width: 1000px) { .price-grid { grid-template-columns: minmax(0, 1fr); gap: 48px; } .label { max-width: 440px; } }
+@media (max-width: 400px) { .label { padding: 30px 22px 24px; } .rows { font-size: .8125rem; } }
+
+/* ---------- 7. FAQ ---------- */
+.faq { margin-top: 48px; max-width: 820px; border-top: 1px solid var(--hair); }
+.faq details { border-bottom: 1px solid var(--hair); }
+.faq summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 22px 0; font-size: 1.3125rem; line-height: 1.3; font-weight: 500; transition: color .15s; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary:hover { color: var(--pen); }
+.faq .pm { flex: none; position: relative; width: 20px; height: 20px; }
+.faq .pm::before, .faq .pm::after { content: ""; position: absolute; left: 2px; right: 2px; top: 50%; height: 2px; margin-top: -1px; border-radius: 2px; background: var(--pen); transition: transform .25s var(--ease); }
+.faq .pm::after { transform: rotate(90deg); }
+.faq details[open] .pm::after { transform: rotate(0deg); }
+.faq .ans { padding: 0 44px 26px 0; max-width: 44em; color: var(--ink-soft); }
+.faq .ans p + p { margin-top: 12px; }
+@media (max-width: 600px) { .faq summary { font-size: 1.1875rem; padding: 18px 0; } .faq .ans { padding-right: 0; } }
+
+/* ---------- end ---------- */
+.end .wrap { padding-bottom: 136px; }
+.end .sec-mark .pen { width: 52px; height: 52px; margin-left: auto; stroke-width: 3; }
+.end h2 { font-size: clamp(2.4rem, 1.3rem + 3.8vw, 4.25rem); max-width: 16ch; }
+.end .hero-cta { margin-top: 30px; }
+@media (max-width: 860px) { .end .sec-mark .pen { width: 34px; height: 34px; margin-left: 0; } }
+
+/* ---------- footer ---------- */
+.foot { border-top: 1px solid var(--hair); }
+.foot .wrap { padding-top: 40px; padding-bottom: 52px; }
+.foot-grid { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 24px 48px; font-size: .9375rem; color: var(--ink-soft); }
+.foot .brand { font-size: 1.25rem; color: var(--ink); }
+.foot .brand svg { width: 16px; height: 16px; margin-top: -5px; }
+.foot nav { display: flex; flex-wrap: wrap; gap: 10px 24px; }
+.foot nav a { text-decoration: none; }
+.foot nav a:hover { color: var(--ink); text-decoration: underline; text-decoration-color: var(--pen-faint); text-underline-offset: .22em; }
+.foot-small { margin-top: 10px; }
+.todo { font: 500 .8125rem/1.3 var(--mono); padding: 2px 6px; border: 1px dashed var(--pen); border-radius: 3px; color: var(--pen); white-space: nowrap; }
+
+/* ---------- hero responsive ---------- */
+@media (max-width: 1060px) {
+  .hero-grid { grid-template-columns: minmax(0, 1fr); gap: 56px; }
+  .hero .sheet { max-width: 480px; }
+}
+@media (max-width: 860px) {
+  .hero { overflow-x: clip; }
+  .hero .wrap { padding-top: 36px; padding-bottom: 48px; }
+  .hero .sec-mark { display: none; }
+  .hero .sheet { transform: rotate(-.7deg); }
+}
+@media (max-width: 480px) {
+  .ruled { --rl: 30px; font-size: .8125rem; padding-left: 16px; padding-right: 16px; }
+  .sheet-head { padding-left: 16px; padding-right: 16px; }
+  .sheet-foot { padding-left: 16px; }
+  .ln { gap: 8px; }
+  .hero-cta .btn { width: 100%; }
+}
+
+/* ---------- tweaks ---------- */
+.tweaks { position: fixed; right: 20px; bottom: 20px; z-index: 80; width: 288px; max-width: calc(100vw - 40px); padding: 16px 18px 18px; border-radius: 12px; background: var(--sheet); color: var(--ink); box-shadow: var(--shadow-2), inset 0 0 0 1px var(--hair); font-size: .9375rem; }
+.tweaks[hidden] { display: none; }
+.tw-head { display: flex; justify-content: space-between; align-items: center; }
+.tw-head h2 { font: 600 .75rem/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; max-width: none; }
+.tw-x { appearance: none; border: 0; background: transparent; color: var(--ink-soft); width: 32px; height: 32px; margin: -6px -8px -6px 0; border-radius: 6px; cursor: pointer; font-size: 1.25rem; line-height: 1; }
+.tw-x:hover { color: var(--ink); background: var(--paper-deep); }
+.tw-row { display: block; margin-top: 14px; }
+.tw-row > span { display: block; margin-bottom: 6px; font: 500 .6875rem/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); }
+.tw-row select { width: 100%; min-height: 38px; padding: 0 10px; border-radius: var(--r-md); border: 1px solid var(--hair); background: var(--paper); color: var(--ink); font: 400 .9375rem var(--serif); }
+.tweaks .seg-ctl { display: flex; }
+.tweaks .seg-ctl button { flex: 1; min-height: 34px; padding: 0 10px; font-size: .875rem; }
+.tw-check { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.tw-check input { width: 16px; height: 16px; accent-color: var(--pen); }
+.tw-hint { margin-top: 14px; font: 400 .75rem/1.4 var(--mono); color: var(--ink-faint); }
+
+@media (prefers-reduced-motion: reduce) {
+  .js .draw .ln, .js .draw.go .ln { opacity: 1; transform: none; animation: none !important; }
+  .js .draw .pen path, .js .draw.go .pen path { stroke-dashoffset: 0; animation: none !important; }
+  .live .dot { animation: none !important; }
+  .btn, .btn .arr { transition: none; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav" id="nav">
+  <div class="nav-in">
+    <a class="brand" href="/" aria-label="Study Hall home">Study Hall<svg class="pen" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13.2c1.9 1.4 3.6 3.2 5 5.3C11.6 12.4 15.4 7.6 20.5 4"/></svg></a>
+    <nav class="nav-links" aria-label="Sections">
+      <a href="#how">How it works</a>
+      <a href="#rules">House rules</a>
+      <a href="#safety">Child safety</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="login" href="/login">Log in</a>
+      <a class="btn btn-primary btn-sm" href="/onboarding">Start</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- HERO -->
+  <section class="sec hero draw" id="top" aria-labelledby="hero-title">
+    <div class="wrap">
+      <div class="sec-mark" aria-hidden="true"><span class="hero-date" data-today>Thu 29/10</span></div>
+      <div class="sec-body hero-grid">
+        <div>
+          <p class="kicker"><span>Online supervised study</span> · <span>VCE Years 9–12</span> · <span>Victoria</span></p>
+          <h1 id="hero-title" data-headline>You’ll know they studied. <em>Every night.<svg class="pen uline" viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true" style="--i:5"><path pathLength="1" d="M3 12.5C70 6.5 160 4.5 297 8"/><path pathLength="1" style="--j:1" d="M46 16.5C120 12.5 200 11.5 268 13"/></svg></em></h1>
+          <p class="lede">A supervised online study room for VCE students, Monday to Thursday, 4–8pm. A tutor watches the room while your child works, and every night you get a short report: did they show up, what did they plan, and what did they finish.</p>
+          <div class="hero-cta">
+            <a class="btn btn-primary" href="/onboarding">Start: A$49 a week <span class="arr" aria-hidden="true">→</span></a>
+            <a class="link" href="#how">See how it works</a>
+          </div>
+          <p class="live" data-live data-kind="later" aria-live="polite"><span class="dot" aria-hidden="true"></span><span data-live-text>Sessions Monday to Thursday, 4:00–8:00pm</span></p>
+        </div>
+
+        <figure class="sheet" aria-label="Example of a nightly report to a parent">
+          <figcaption class="sheet-head"><span>Example report</span><span>Sent 8:41pm</span></figcaption>
+          <div class="ruled">
+            <div class="ln" style="--i:0"><span class="t"><b>Mia:</b> <span data-report-date>Thursday 29 October</span></span></div>
+            <div class="ln" style="--i:1"><span class="t">Attended 4:02–7:55pm <span class="circled">(233 min of 240)<svg class="pen" viewBox="0 0 200 60" preserveAspectRatio="none" aria-hidden="true" style="--i:7"><path pathLength="1" d="M24 41C9 31 22 12 72 8c50-4 108 1 118 18 9 17-30 27-90 28C42 55 6 48 9 32 11 21 30 13 58 11"/></svg></span></span></div>
+            <div class="ln" style="--i:2"><span class="t">Goals:</span></div>
+            <div class="ln goal" style="--i:3"><span class="mk"><svg class="pen" viewBox="0 0 24 24" aria-hidden="true"><path pathLength="1" d="M4 13.2c1.9 1.4 3.6 3.2 5 5.3C11.6 12.4 15.4 7.6 20.5 4"/></svg><span class="vh">Done:</span></span><span class="t">Chemistry: practice exam, section B</span></div>
+            <div class="ln goal" style="--i:4"><span class="mk"><svg class="pen" viewBox="0 0 24 24" aria-hidden="true"><path pathLength="1" d="M3.5 13.5c1.6-2.6 3.4-3.6 5.4-2.2 2.1 1.5 3.6 3.4 6 2 1.6-.9 2.9-2.4 5.6-3.6"/></svg><span class="vh">Partial:</span></span><span class="t">English: plan text response essay <span class="dim">(partial)</span></span></div>
+            <div class="ln goal" style="--i:5"><span class="mk"><svg class="pen" viewBox="0 0 24 24" aria-hidden="true"><path pathLength="1" d="M6 5.5c3.8 4 7.6 8.6 12 13.2"/><path pathLength="1" style="--j:1" d="M18.5 5.2C14 9.4 10.2 13.6 5.6 18.8"/></svg><span class="vh">Not done:</span></span><span class="t">Methods: Exercise 4B, Q1–20</span></div>
+            <div class="ln" style="--i:6"><span class="t"><span class="dim">Proctor:</span> Focused all session. Strong finish on the chem paper.</span></div>
+          </div>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- 1. HOW IT WORKS -->
+  <section class="sec" id="how" aria-labelledby="how-title">
+    <div class="wrap">
+      <div class="sec-mark" aria-hidden="true"><span class="sec-num">1.</span><span class="sec-label">How it works</span></div>
+      <div class="sec-body">
+        <h2 id="how-title">A real study room, run online.</h2>
+        <p class="intro">It’s the after-school supervised study room, without the drive. One adult watches the room, everyone works, and you hear how it went.</p>
+        <ol class="steps">
+          <li class="step">
+            <span class="step-k">(a)</span>
+            <h3>You set it up</h3>
+            <p>Create a parent account, add your child, and agree to the house rules together. You pay weekly and can cancel any time.</p>
+          </li>
+          <li class="step">
+            <span class="step-k">(b)</span>
+            <h3>They plan, then join</h3>
+            <p>From 3:50pm your child writes up to three goals for the session, then joins the video room with the camera on their hands and desk.</p>
+          </li>
+          <li class="step">
+            <span class="step-k">(c)</span>
+            <h3>A tutor runs the room</h3>
+            <p>A proctor with a verified Working With Children Check supervises, keeps breaks on the timer, and helps when someone presses “I’m stuck”.</p>
+          </li>
+          <li class="step">
+            <span class="step-k">(d)</span>
+            <h3>You hear how it went</h3>
+            <p>Every night: when they arrived and left, what they planned, what they finished, and a line from the proctor.</p>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. A NIGHT -->
+  <section class="sec" id="night" aria-labelledby="night-title">
+    <div class="wrap">
+      <div class="sec-mark" aria-hidden="true"><span class="sec-num">2.</span><span class="sec-label">A night at Study Hall</span></div>
+      <div class="sec-body">
+        <h2 id="night-title">Four hours, on the timer.</h2>
+        <p class="intro">Sessions run Monday to Thursday, Melbourne time. Everyone studies and breaks together, so no one drifts off into a twenty-minute snack run.</p>
+
+        <div class="tl">
+          <div class="tl-track">
+            <ol class="tl-bar" aria-label="Session timeline from 3:50pm to 8:00pm" style="list-style:none;margin:0;padding:0">
+              <li class="tl-seg tl-doors"  style="--m:10"><span class="vh">3:50 to 4:00pm, doors open, goals</span></li>
+              <li class="tl-seg tl-study"  style="--m:50"><span class="l">Study 50</span><span class="s" aria-hidden="true">50</span><span class="vh">: 4:00 to 4:50pm</span></li>
+              <li class="tl-seg tl-break"  style="--m:10"><span class="vh">Break, 4:50 to 5:00pm</span></li>
+              <li class="tl-seg tl-study"  style="--m:50"><span class="l">Study 50</span><span class="s" aria-hidden="true">50</span><span class="vh">: 5:00 to 5:50pm</span></li>
+              <li class="tl-seg tl-break"  style="--m:10"><span class="vh">Break, 5:50 to 6:00pm</span></li>
+              <li class="tl-seg tl-study"  style="--m:50"><span class="l">Study 50</span><span class="s" aria-hidden="true">50</span><span class="vh">: 6:00 to 6:50pm</span></li>
+              <li class="tl-seg tl-break"  style="--m:10"><span class="vh">Break, 6:50 to 7:00pm</span></li>
+              <li class="tl-seg tl-study"  style="--m:50"><span class="l">Study 50</span><span class="s" aria-hidden="true">50</span><span class="vh">: 7:00 to 7:50pm</span></li>
+              <li class="tl-seg tl-wrapup" style="--m:10"><span class="vh">7:50 to 8:00pm, mark goals</span></li>
+            </ol>
+            <div class="tl-now" data-now hidden><span>Now</span></div>
+          </div>
+          <div class="tl-ticks" aria-hidden="true">
+            <span style="--x:0%">3:50</span>
+            <span style="--x:4%">4:00</span>
+            <span style="--x:28%">5:00</span>
+            <span style="--x:52%">6:00</span>
+            <span style="--x:76%">7:00</span>
+            <span style="--x:100%">8:00</span>
+          </div>
+          <div class="tl-key" aria-hidden="true">
+            <span><i style="background:var(--ink)"></i>Study</span>
+            <span><i style="background:repeating-linear-gradient(135deg,transparent 0 3px,var(--hair) 3px 4.5px)"></i>Break, together</span>
+            <span><i style="background:repeating-linear-gradient(135deg,transparent 0 3px,var(--pen-faint) 3px 4.5px)"></i>Goals in, goals marked</span>
+          </div>
+
+          <ol class="tl-notes">
+            <li><time>3:50pm</time><b>Doors open</b><p>Your child writes up to three goals, one line each, then joins the room.</p></li>
+            <li><time>4:00–7:50pm</time><b>50 on, 10 off</b><p>Four study blocks. Breaks happen together, on the timer. Stuck? The proctor helps.</p></li>
+            <li><time>7:50pm</time><b>Mark the goals</b><p>Before they leave, each goal is marked done, partial or not done.</p></li>
+            <li><time>by about 9pm</time><b>Your report arrives</b><p>The proctor reviews it and adds a comment if there’s something worth saying.</p></li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. THE REPORT -->
+  <section class="sec" id="report" aria-labelledby="report-title">
+    <div class="wrap">
+      <div class="sec-mark" aria-hidden="true"><span class="sec-num">3.</span><span class="sec-label">The nightly report</span></div>
+      <div class="sec-body">
+        <h2 id="report-title">A report you can read in ten seconds.</h2>
+        <p class="intro">Plain and factual, written from what actually happened in the room. Good nights and bad nights look the same: just the facts.</p>
+
+        <div class="report-grid">
+          <div class="report-col">
+            <div class="seg-ctl" role="group" aria-label="Example night">
+              <button type="button" data-night="good" aria-pressed="true">Good night</button>
+              <button type="button" data-night="late" aria-pressed="false">Late start</button>
+              <button type="button" data-night="absent" aria-pressed="false">Didn’t come</button>
+            </div>
+            <figure class="sheet report-sheet draw" data-report-sheet aria-label="Example report">
+              <figcaption class="sheet-head"><span>Example report</span><span data-sent>Sent 8:41pm</span></figcaption>
+              <div class="ruled" data-report-body aria-live="polite">
+                <div class="ln" style="--i:0"><span class="t"><b>Mia:</b> <span data-report-date>Thursday 29 October</span></span></div>
+                <div class="ln" style="--i:1"><span class="t">Attended 4:02–7:55pm (233 min of 240)</span><span class="anno" aria-hidden="true">1</span></div>
+                <div class="ln" style="--i:2"><span class="t">Goals:</span><span class="anno" aria-hidden="true">2</span></div>
+                <div class="ln goal" style="--i:3"><span class="mk">✓</span><span class="t">Chemistry: practice exam, section B</span></div>
+                <div class="ln goal" style="--i:4"><span class="mk">~</span><span class="t">English: plan text response essay <span class="dim">(partial)</span></span></div>
+                <div class="ln goal" style="--i:5"><span class="mk">✗</span><span class="t">Methods: Exercise 4B, Q1–20</span></div>
+                <div class="ln" style="--i:6"><span class="t"><span class="dim">Proctor:</span> Focused all session. Strong finish on the chem paper.</span><span class="anno" aria-hidden="true">3</span></div>
+              </div>
+              <div class="sheet-foot">
+                <span class="note" data-foot-note>For WhatsApp or WeChat</span>
+                <button type="button" class="copy-btn" data-copy><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg><span data-copy-label>Copy as text</span></button>
+              </div>
+            </figure>
+          </div>
+
+          <div>
+            <ol class="legend">
+              <li><span class="anno" aria-hidden="true">1</span><div><b>Times come from the room</b><p>Recorded when they join and leave. The proctor confirms who was actually there on camera.</p></div></li>
+              <li><span class="anno" aria-hidden="true">2</span><div><b>Goals they set themselves</b><p>Written before joining, then marked by your child before they leave: done, partial or not done.</p></div></li>
+              <li><span class="anno" aria-hidden="true">3</span><div><b>A line from the proctor</b><p>What they saw on camera, like “Focused all session” or “Phone visible twice”, plus a comment when it helps.</p></div></li>
+            </ol>
+            <div class="aside-block">
+              <h3>Never in it</h3>
+              <p>Webcam images, ever. Comparisons with other students.</p>
+            </div>
+            <div class="aside-block">
+              <h3>How it reaches you</h3>
+              <p>By email after every session. Prefer WhatsApp or WeChat? We’ll send the same text there. Or switch to one weekly summary.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. HOUSE RULES -->
+  <section class="sec" id="rules" aria-labelledby="rules-title">
+    <div class="wrap">
+      <div class="sec-mark" aria-hidden="true"><span class="sec-num">4.</span><span class="sec-label">House rules</span></div>
+      <div class="sec-body">
+        <h2 id="rules-title">Six rules. Same for everyone.</h2>
+        <p class="intro">Your child agrees to these when you sign up, and sees them again before every session.</p>
+        <div class="sheet rules-sheet">
+          <ol class="rules">
+            <li><span class="n">1</span><span>Camera on, framed on your <b>hands and desk</b>. Face optional.</span></li>
+            <li><span class="n">2</span><span>Phone face-down <b>inside the camera frame</b> for the whole block.</span></li>
+            <li><span class="n">3</span><span>Mic muted unless the proctor asks.</span></li>
+            <li><span class="n">4</span><span>Set up to 3 goals before you join; mark them before you leave.</span></li>
+            <li><span class="n">5</span><span>Breaks happen together, on the timer.</span></li>
+            <li><span class="n">6</span><span>The proctor may remove you from the room if you’re off camera for more than 5 minutes; your parent’s report will say so.</span></li>
+          </ol>
+          <div class="rules-foot">
+            <span>Shown at sign-up and before every session.</span>
+            <a class="link" href="/legal/house-rules">Read the full house rules</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. CHILD SAFETY -->
+  <section class="sec cover" id="safety" aria-labelledby="safety-title">
+    <div class="wrap">
+      <div class="sec-mark" aria-hidden="true"><span class="sec-num">5.</span><span class="sec-label">Child safety</span></div>
+      <div class="sec-body">
+        <h2 id="safety-title">What we’ll never do.</h2>
+        <p class="intro">These rules are built into the software itself, not just written in a policy.</p>
+        <ul class="safety">
+          <li><span class="k">01</span><h3>Record your child</h3><p>Study Hall never captures, records or stores video, images or audio. The proctor watches the live room, and nothing is kept.</p></li>
+          <li><span class="k">02</span><h3>Allow private one-to-one video</h3><p>Help happens by text in the app, or in a breakout room with at least two students or a second adult. An adult is never alone on video with your child.</p></li>
+          <li><span class="k">03</span><h3>Use an unchecked adult</h3><p>Every proctor holds a Working With Children Check we’ve verified. If it’s unverified or expired, the system won’t let them run a room.</p></li>
+          <li><span class="k">04</span><h3>Delete the paper trail</h3><p>Every message between a proctor and a student is logged and visible to our admins. Proctors can’t delete them.</p></li>
+          <li><span class="k">05</span><h3>Collect more than we need</h3><p>First name, last initial, year level, and school if you choose. No birthday, photo, address or phone number. Stored in Sydney.</p></li>
+          <li><span class="k">06</span><h3>Go around you</h3><p>Only a parent can create a student account, after agreeing to the rules. Ask us to delete your child’s data any time and it’s done within 30 days.</p></li>
+        </ul>
+        <div class="cover-foot">
+          <span>No student-to-student messages, profiles, rankings or feeds. No ads or trackers on student pages.</span>
+          <a class="link" href="/legal/privacy">Privacy &amp; child safety notice</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. PRICING -->
+  <!-- TODO before launch: confirm GST wording with the accountant (spec §12). Price shown without "inc. GST" until then. -->
+  <section class="sec" id="pricing" aria-labelledby="pricing-title">
+    <div class="wrap">
+      <div class="sec-mark" aria-hidden="true"><span class="sec-num">6.</span><span class="sec-label">Pricing</span></div>
+      <div class="sec-body price-grid">
+        <div>
+          <h2 id="pricing-title">One plan. Every weeknight.</h2>
+          <p class="intro">Come Monday to Thursday, as often as suits. Come every night and that’s 16 supervised hours a week, about A$3 an hour.</p>
+          <ul class="checks">
+            <li><svg class="pen" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13.2c1.9 1.4 3.6 3.2 5 5.3C11.6 12.4 15.4 7.6 20.5 4"/></svg><span>Billed weekly in Australian dollars, through Stripe.</span></li>
+            <li><svg class="pen" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13.2c1.9 1.4 3.6 3.2 5 5.3C11.6 12.4 15.4 7.6 20.5 4"/></svg><span>Change your card or cancel any time from your account.</span></li>
+            <li><svg class="pen" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13.2c1.9 1.4 3.6 3.2 5 5.3C11.6 12.4 15.4 7.6 20.5 4"/></svg><span>Not right for you? We’ll refund the first week on request.</span></li>
+          </ul>
+        </div>
+        <div class="label">
+          <p class="label-k">Study Hall · Weekly</p>
+          <p class="price"><span class="cur">A$</span><span class="amt">49</span><span class="per">/ week</span></p>
+          <ul class="rows">
+            <li><span class="lbl">Sessions</span><span class="dots" aria-hidden="true"></span><span class="val">Every one, Mon–Thu</span></li>
+            <li><span class="lbl">Hours</span><span class="dots" aria-hidden="true"></span><span class="val">4:00–8:00pm</span></li>
+            <li><span class="lbl">Supervised by</span><span class="dots" aria-hidden="true"></span><span class="val">WWCC-verified proctor</span></li>
+            <li><span class="lbl">Report</span><span class="dots" aria-hidden="true"></span><span class="val">Every night</span></li>
+            <li><span class="lbl">For</span><span class="dots" aria-hidden="true"></span><span class="val">Years 9–12</span></li>
+          </ul>
+          <a class="btn btn-primary" href="/onboarding">Start <span class="arr" aria-hidden="true">→</span></a>
+          <p class="label-note">First week refundable on request.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. FAQ -->
+  <section class="sec" id="faq" aria-labelledby="faq-title">
+    <div class="wrap">
+      <div class="sec-mark" aria-hidden="true"><span class="sec-num">7.</span><span class="sec-label">Questions</span></div>
+      <div class="sec-body">
+        <h2 id="faq-title">Questions parents ask.</h2>
+        <div class="faq">
+          <details>
+            <summary>What does my child need?<span class="pm" aria-hidden="true"></span></summary>
+            <div class="ans"><p>A laptop or tablet with a camera, a reliable internet connection, and a desk. They join a Zoom or Google Meet room from the Join button on their Study Hall page.</p></div>
+          </details>
+          <details>
+            <summary>Is this tutoring?<span class="pm" aria-hidden="true"></span></summary>
+            <div class="ans"><p>No. It’s a place to do the work, not a lesson. The proctor supervises and keeps the room on task. If your child is stuck, they press “I’m stuck” and the proctor helps by text in the app or in a small group breakout.</p></div>
+          </details>
+          <details>
+            <summary>Who are the proctors?<span class="pm" aria-hidden="true"></span></summary>
+            <div class="ans"><p>Tutors who hold a Working With Children Check that we’ve verified. We track expiry dates, and no one can be put in charge of a room without a current check.</p></div>
+          </details>
+          <details>
+            <summary>Is my child recorded?<span class="pm" aria-hidden="true"></span></summary>
+            <div class="ans"><p>No. Study Hall never captures, records or stores video, images or audio. The proctor watches the live room and that’s all.</p></div>
+          </details>
+          <details>
+            <summary>Why hands and desk, not their face?<span class="pm" aria-hidden="true"></span></summary>
+            <div class="ans"><p>Because that’s where the work happens. Showing their face is optional. Phones go face-down inside the frame so the proctor can see they’re not in use.</p></div>
+          </details>
+          <details>
+            <summary>What if they don’t turn up?<span class="pm" aria-hidden="true"></span></summary>
+            <div class="ans"><p>You’ll get a one-line message saying they didn’t attend, about 15 minutes after the session ends.</p></div>
+          </details>
+          <details>
+            <summary>Do they have to come every night?<span class="pm" aria-hidden="true"></span></summary>
+            <div class="ans"><p>No. The plan covers every session from Monday to Thursday, so they can come as often as suits your family. Each report shows exactly when they were there.</p></div>
+          </details>
+          <details>
+            <summary>Can I get reports on WhatsApp or WeChat?<span class="pm" aria-hidden="true"></span></summary>
+            <div class="ans"><p>Reports come by email. If you’d rather read them in WhatsApp or WeChat, tell us and we’ll send the same text there. You can also switch to one weekly summary.</p></div>
+          </details>
+          <details>
+            <summary>How does billing work?<span class="pm" aria-hidden="true"></span></summary>
+            <div class="ans"><p>A$49 a week, charged weekly through Stripe. Change your card or cancel any time from your account. If the first week isn’t right for you, ask and we’ll refund it.</p></div>
+          </details>
+          <details>
+            <summary>Can my child sign up on their own?<span class="pm" aria-hidden="true"></span></summary>
+            <div class="ans"><p>No. A parent creates every student account and agrees to the house rules and privacy notice first. Your child then gets an email invite to log in.</p></div>
+          </details>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- END CTA -->
+  <section class="sec end draw" aria-labelledby="end-title" data-end>
+    <div class="wrap">
+      <div class="sec-mark" aria-hidden="true"><svg class="pen" viewBox="0 0 24 24"><path pathLength="1" d="M4 13.2c1.9 1.4 3.6 3.2 5 5.3C11.6 12.4 15.4 7.6 20.5 4"/></svg></div>
+      <div class="sec-body">
+        <h2 id="end-title">Give them somewhere to study this week.</h2>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="/onboarding">Start: A$49 a week <span class="arr" aria-hidden="true">→</span></a>
+          <a class="link" href="#faq">Read the FAQ</a>
+        </div>
+        <p class="live" data-live data-kind="later"><span class="dot" aria-hidden="true"></span><span data-live-text>Sessions Monday to Thursday, 4:00–8:00pm</span></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="sec-mark" aria-hidden="true"></div>
+    <div class="sec-body">
+      <div class="foot-grid">
+        <div>
+          <a class="brand" href="/">Study Hall<svg class="pen" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13.2c1.9 1.4 3.6 3.2 5 5.3C11.6 12.4 15.4 7.6 20.5 4"/></svg></a>
+          <p class="foot-small">Supervised online study for VCE students in Victoria.</p>
+        </div>
+        <div>
+          <nav aria-label="Footer">
+            <a href="/legal/house-rules">House rules</a>
+            <a href="/legal/privacy">Privacy &amp; child safety</a>
+            <a href="/login">Log in</a>
+          </nav>
+          <!-- TODO: real child-safety contact email (spec §8.11) -->
+          <p class="foot-small">Child-safety concerns: <span class="todo">[child-safety contact email]</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Tweaks: press T (or open with #tweaks) -->
+<aside class="tweaks" id="tweaks" hidden aria-label="Tweaks">
+  <div class="tw-head"><h2>Tweaks</h2><button type="button" class="tw-x" data-tw-close aria-label="Close tweaks">×</button></div>
+  <label class="tw-row"><span>Headline</span>
+    <select data-tw-headline>
+      <option value="a">You’ll know they studied. Every night.</option>
+      <option value="b">Homework, supervised. Reported nightly.</option>
+      <option value="c">The study room that reports back.</option>
+    </select>
+  </label>
+  <div class="tw-row"><span>Theme</span>
+    <div class="seg-ctl" role="group" aria-label="Theme">
+      <button type="button" data-tw-theme="auto" aria-pressed="true">Auto</button>
+      <button type="button" data-tw-theme="light" aria-pressed="false">Light</button>
+      <button type="button" data-tw-theme="dark" aria-pressed="false">Dark</button>
+    </div>
+  </div>
+  <div class="tw-row"><label class="tw-check"><input type="checkbox" data-tw-grain checked> Paper grain</label></div>
+  <p class="tw-hint">Press T to show or hide.</p>
+</aside>
+
+<script>
+(() => {
+  /* ---------- Melbourne time (Intl handles DST) ---------- */
+  const MEL = 'Australia/Melbourne';
+  const DAYS = [1, 2, 3, 4];               // Mon–Thu, default schedule (spec §12)
+  const DOORS = 15 * 60 + 50, START = 16 * 60, END = 20 * 60;
+  const WD = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const WD_LONG = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const partsFmt = new Intl.DateTimeFormat('en-US', { timeZone: MEL, weekday: 'short', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', hourCycle: 'h23' });
+
+  function mel(d = new Date()) {
+    const p = Object.fromEntries(partsFmt.formatToParts(d).map(x => [x.type, x.value]));
+    return { wd: WD.indexOf(p.weekday), day: +p.day, month: +p.month, mins: (+p.hour % 24) * 60 + +p.minute };
+  }
+  const longDate = t => `${WD_LONG[t.wd]} ${t.day} ${MONTHS[t.month - 1]}`;
+  const dur = m => m < 60 ? `${m} min` : `${Math.floor(m / 60)}h ${m % 60}m`;
+  const viewerInMelbourne = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone === MEL; } catch { return true; } })();
+
+  // Live line uses the default Mon–Thu schedule; in the app this reads the sessions table (holiday cancellations etc.).
+  function sessionState() {
+    const t = mel();
+    const isDay = DAYS.includes(t.wd);
+    if (isDay && t.mins < DOORS) return { kind: 'today', text: `Next session today at 4:00pm · doors open in ${dur(DOORS - t.mins)}`, t };
+    if (isDay && t.mins < START) return { kind: 'doors', text: 'Doors are open · session starts at 4:00pm', t };
+    if (isDay && t.mins < END) return { kind: 'live', text: 'In session now · until 8:00pm', t };
+    for (let k = 1; k <= 7; k++) {
+      const wd = (t.wd + k) % 7;
+      if (DAYS.includes(wd)) return { kind: 'later', text: `Next session ${k === 1 ? 'tomorrow' : WD_LONG[wd]} at 4:00pm`, t };
+    }
+  }
+
+  // Most recent session whose report has gone out, for the example report date.
+  function latestReportDate() {
+    const now = Date.now();
+    for (let k = 0; k < 8; k++) {
+      const t = mel(new Date(now - k * 864e5));
+      if (!DAYS.includes(t.wd) || (k === 0 && t.mins < END)) continue;
+      return longDate(t);
+    }
+  }
+
+  const nowMarker = document.querySelector('[data-now]');
+  function tick() {
+    const s = sessionState();
+    const suffix = viewerInMelbourne ? '' : ' (Melbourne time)';
+    document.querySelectorAll('[data-live]').forEach(el => {
+      el.dataset.kind = s.kind;
+      el.querySelector('[data-live-text]').textContent = s.text + suffix;
+    });
+    const t = s.t;
+    document.querySelectorAll('[data-today]').forEach(el => { el.textContent = `${WD[t.wd]} ${t.day}/${t.month}`; });
+    if (s.kind === 'doors' || s.kind === 'live') {
+      nowMarker.style.setProperty('--x', ((t.mins - DOORS) / (END - DOORS) * 100).toFixed(2) + '%');
+      nowMarker.hidden = false;
+    } else {
+      nowMarker.hidden = true;
+    }
+  }
+  tick();
+  setInterval(tick, 30000);
+
+  const reportDate = latestReportDate();
+  document.querySelectorAll('[data-report-date]').forEach(el => { el.textContent = reportDate; });
+
+  /* ---------- example reports (template from spec §4.5) ---------- */
+  const MARKS = {
+    done: { sym: '✓', label: 'Done', svg: '<path pathLength="1" d="M4 13.2c1.9 1.4 3.6 3.2 5 5.3C11.6 12.4 15.4 7.6 20.5 4"/>' },
+    partial: { sym: '~', label: 'Partial', svg: '<path pathLength="1" d="M3.5 13.5c1.6-2.6 3.4-3.6 5.4-2.2 2.1 1.5 3.6 3.4 6 2 1.6-.9 2.9-2.4 5.6-3.6"/>' },
+    not_done: { sym: '✗', label: 'Not done', svg: '<path pathLength="1" d="M6 5.5c3.8 4 7.6 8.6 12 13.2"/><path pathLength="1" style="--j:1" d="M18.5 5.2C14 9.4 10.2 13.6 5.6 18.8"/>' },
+  };
+  const NIGHTS = {
+    good: {
+      sent: '8:41pm', checkIn: '4:02', checkOut: '7:55pm', minutes: 233,
+      goals: [['done', 'Chemistry: practice exam, section B'], ['partial', 'English: plan text response essay'], ['not_done', 'Methods: Exercise 4B, Q1–20']],
+      proctor: 'Focused all session. Strong finish on the chem paper.',
+    },
+    late: {
+      sent: '8:52pm', checkIn: '4:31', checkOut: '8:00pm', minutes: 209,
+      goals: [['done', 'Physics: chapter 5 summary notes'], ['done', 'Methods: Exercise 3C'], ['partial', 'Biology: practice SAC questions']],
+      proctor: 'Phone visible twice. Settled after the first break.',
+    },
+    absent: { sent: '8:15pm', absent: true },
+  };
+  const NAME = 'Mia';
+
+  function reportHTML(n) {
+    let i = 0;
+    const line = (cls, inner, anno) => `<div class="ln ${cls}" style="--i:${i++}">${inner}${anno ? `<span class="anno" aria-hidden="true">${anno}</span>` : ''}</div>`;
+    let h = line('', `<span class="t"><b>${NAME}:</b> ${reportDate}</span>`);
+    if (n.absent) return h + line('', `<span class="t">${NAME} didn’t attend tonight’s session (4:00–8:00pm).</span>`);
+    h += line('', `<span class="t">Attended ${n.checkIn}–${n.checkOut} (${n.minutes} min of 240)</span>`, 1);
+    h += line('', '<span class="t">Goals:</span>', 2);
+    n.goals.forEach(([o, text]) => {
+      const m = MARKS[o];
+      h += line('goal', `<span class="mk"><svg class="pen" viewBox="0 0 24 24" aria-hidden="true">${m.svg}</svg><span class="vh">${m.label}:</span></span><span class="t">${text}${o === 'partial' ? ' <span class="dim">(partial)</span>' : ''}</span>`);
+    });
+    return h + line('', `<span class="t"><span class="dim">Proctor:</span> ${n.proctor}</span>`, 3);
+  }
+  function reportText(n) {
+    if (n.absent) return `${NAME}: ${reportDate}\n${NAME} didn’t attend tonight’s session (4:00–8:00pm).`;
+    return [
+      `${NAME}: ${reportDate}`,
+      `Attended ${n.checkIn}–${n.checkOut} (${n.minutes} min of 240)`,
+      'Goals:',
+      ...n.goals.map(([o, text]) => ` ${MARKS[o].sym} ${text}${o === 'partial' ? ' (partial)' : ''}`),
+      `Proctor: ${n.proctor}`,
+    ].join('\n');
+  }
+
+  const sheet = document.querySelector('[data-report-sheet]');
+  const body = sheet.querySelector('[data-report-body]');
+  const sent = sheet.querySelector('[data-sent]');
+  const footNote = sheet.querySelector('[data-foot-note]');
+  const copyBtn = sheet.querySelector('[data-copy]');
+  const copyLabel = sheet.querySelector('[data-copy-label]');
+  let current = 'good';
+
+  function showNight(key, animate) {
+    current = key;
+    const n = NIGHTS[key];
+    document.querySelectorAll('[data-night]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.night === key)));
+    sent.textContent = `Sent ${n.sent}`;
+    footNote.textContent = n.absent ? 'Sent 15 min after the session ends' : 'For WhatsApp or WeChat';
+    body.innerHTML = reportHTML(n);
+    if (animate) { sheet.classList.remove('go'); void sheet.offsetWidth; sheet.classList.add('go'); }
+  }
+  showNight('good', false);
+  document.querySelectorAll('[data-night]').forEach(b => b.addEventListener('click', () => showNight(b.dataset.night, true)));
+
+  copyBtn.addEventListener('click', async () => {
+    const text = reportText(NIGHTS[current]);
+    let ok = false;
+    try { await navigator.clipboard.writeText(text); ok = true; } catch {
+      const ta = Object.assign(document.createElement('textarea'), { value: text });
+      ta.style.cssText = 'position:fixed;opacity:0';
+      document.body.appendChild(ta); ta.select();
+      try { ok = document.execCommand('copy'); } catch {}
+      ta.remove();
+    }
+    copyLabel.textContent = ok ? 'Copied' : 'Copy failed';
+    copyBtn.classList.toggle('done', ok);
+    clearTimeout(copyBtn._t);
+    copyBtn._t = setTimeout(() => { copyLabel.textContent = 'Copy as text'; copyBtn.classList.remove('done'); }, 1800);
+  });
+
+  /* ---------- pen-stroke reveals ---------- */
+  const hero = document.querySelector('.hero');
+  requestAnimationFrame(() => hero.classList.add('go'));
+  const io = new IntersectionObserver(entries => entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('go'); io.unobserve(e.target); }
+  }), { threshold: 0.35 });
+  [sheet, document.querySelector('[data-end]')].forEach(el => io.observe(el));
+
+  /* ---------- nav hairline on scroll ---------- */
+  const nav = document.getElementById('nav');
+  const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 8);
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  /* ---------- tweaks ---------- */
+  const HEADLINES = {
+    a: ['You’ll know they studied. ', 'Every night.'],
+    b: ['Homework, supervised. ', 'Reported nightly.'],
+    c: ['The study room that ', 'reports back.'],
+  };
+  const h1 = document.querySelector('[data-headline]');
+  const uline = h1.querySelector('.uline');
+  const root = document.documentElement;
+  const panel = document.getElementById('tweaks');
+  const headSel = panel.querySelector('[data-tw-headline]');
+  const grainBox = panel.querySelector('[data-tw-grain]');
+  const KEY = 'studyhall-tweaks';
+  let tw = { headline: 'a', theme: 'auto', grain: true };
+  try { tw = { ...tw, ...JSON.parse(localStorage.getItem(KEY) || '{}') }; } catch {}
+
+  function applyTweaks(save) {
+    const [lead, em] = HEADLINES[tw.headline] || HEADLINES.a;
+    h1.textContent = lead;
+    const emEl = document.createElement('em');
+    emEl.append(em, uline);
+    h1.append(emEl);
+    if (tw.theme === 'auto') delete root.dataset.theme; else root.dataset.theme = tw.theme;
+    if (tw.grain) delete root.dataset.grain; else root.dataset.grain = 'off';
+    headSel.value = tw.headline;
+    grainBox.checked = tw.grain;
+    panel.querySelectorAll('[data-tw-theme]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.twTheme === tw.theme)));
+    if (save) { try { localStorage.setItem(KEY, JSON.stringify(tw)); } catch {} }
+  }
+  applyTweaks(false);
+  headSel.addEventListener('change', () => { tw.headline = headSel.value; applyTweaks(true); });
+  grainBox.addEventListener('change', () => { tw.grain = grainBox.checked; applyTweaks(true); });
+  panel.querySelectorAll('[data-tw-theme]').forEach(b => b.addEventListener('click', () => { tw.theme = b.dataset.twTheme; applyTweaks(true); }));
+  panel.querySelector('[data-tw-close]').addEventListener('click', () => { panel.hidden = true; });
+  document.addEventListener('keydown', e => {
+    if (e.key.toLowerCase() !== 't' || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (/^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName) || e.target.isContentEditable) return;
+    panel.hidden = !panel.hidden;
+  });
+  if (location.hash === '#tweaks') panel.hidden = false;
+})();
+</script>
+</body>
+</html>
