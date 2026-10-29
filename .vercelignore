@@ -1,0 +1,6 @@
+# Files `vercel deploy` must not upload. The CLI already skips .env.local and node_modules;
+# this makes the secrets rule explicit.
+.env*
+!.env.example
+test-results
+playwright-report
