@@ -172,14 +172,14 @@ describe("proctors only see students in sessions they're assigned to", () => {
   let sessionId: string;
 
   beforeAll(async () => {
-    // A far-future session so it can't collide with real generated sessions.
+    // A far-off session (before the seeded WWCC expires) so it can't collide with generated ones.
     const { data, error } = await service
       .from("sessions")
       .insert({
         room_id: SEED_IDS.room,
         schedule_id: SEED_IDS.schedule,
-        starts_at: zonedDateTimeToUtc("2099-01-05", "16:00").toISOString(),
-        ends_at: zonedDateTimeToUtc("2099-01-05", "20:00").toISOString(),
+        starts_at: zonedDateTimeToUtc("2029-12-31", "16:00").toISOString(),
+        ends_at: zonedDateTimeToUtc("2029-12-31", "20:00").toISOString(),
         proctor_id: await userIdOf("proctor"),
       })
       .select("id")

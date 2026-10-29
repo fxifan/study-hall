@@ -1,0 +1,44 @@
+DRAFT for review. This notice describes how the Study Hall app works today. It has not yet been reviewed by Study Hall's owners or a legal adviser, and it must be replaced by reviewed text before launch.
+
+## Who we are
+
+Study Hall runs supervised online study sessions for school students in Victoria, Australia. [Owner to add: legal entity name, ABN and contact email.]
+
+## What we collect
+
+- About you (the parent): your name, email address, the consents you give, and optionally how you heard about us.
+- About your child: first name, last initial, year level, school if you choose, and the email address they use to log in.
+- About each session: when your child joined and left, the goals they set and how they marked them, short factual notes from the supervisor (for example "Phone visible twice"), help requests, and messages between your child and the supervisor.
+- Billing: Stripe processes payments. We store your Stripe customer and subscription IDs and the plan you chose, not your card details.
+- When you agree to the house rules or this notice, we record the version, the time, and a one-way hash of your IP address.
+
+## What we don't collect
+
+- Study Hall doesn't capture, record or store video, images or audio.
+- We don't ask for your child's date of birth, photo, address or phone number.
+- We don't use advertising or third-party tracking on student pages.
+
+## The video room
+
+Sessions run on Zoom or Google Meet. The supervisor watches the live room; Study Hall doesn't record it. The video provider processes the call under its own privacy terms.
+
+## Who can see what
+
+- You can see your own children's details, attendance, goals and reports.
+- A supervisor can see the roster, goals and help requests for the sessions they supervise.
+- Study Hall administrators can see everything, including all messages between supervisors and students. Supervisors can't delete messages.
+- Students can't see other students' information, and there is no student-to-student messaging.
+
+## Where it's stored
+
+Our database is hosted by Supabase in Sydney, Australia. The website is hosted by Vercel, with server code running in Sydney. Emails are sent through our email provider. [Owner to confirm: email provider and any other processors.]
+
+## Keeping and deleting data
+
+You can ask us to delete your child's data at any time, and we'll do it within 30 days. [Owner to confirm: how long data is kept after a subscription ends, and the contact for deletion requests.]
+
+## Child safety
+
+- Every supervisor must hold a Working with Children Check that we have verified.
+- An adult is never alone on video with a student. Help happens by text in the app, or in a breakout room with at least two students or a second adult.
+- [Owner to add: the child-safety contact and how concerns are handled.]

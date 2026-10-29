@@ -61,4 +61,9 @@ export const zh: Dictionary = {
     inactive: "已停用",
     manageSoon: "自习室、课表、套餐和监督老师（WWCC）管理。",
   },
+  legal: {
+    draft: "草稿：本声明尚未经过审核，将在 Study Hall 正式开放前替换。",
+    englishOnly: "法律文件目前仅提供英文版本。",
+    version: "版本 {version} · 发布于 {date}",
+  },
 };

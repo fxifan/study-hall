@@ -64,6 +64,11 @@ export const en = {
     inactive: "inactive",
     manageSoon: "Rooms, schedule, plans and proctor (WWCC) management.",
   },
+  legal: {
+    draft: "Draft: this notice hasn't been reviewed yet and will be replaced before Study Hall opens.",
+    englishOnly: "Legal documents are in English only.",
+    version: "Version {version} · published {date}",
+  },
 };
 
 export type Dictionary = typeof en;

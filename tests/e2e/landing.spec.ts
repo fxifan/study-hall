@@ -102,3 +102,25 @@ test.describe("on a phone", () => {
     await expectNoSidewaysScroll(page);
   });
 });
+
+test.describe("legal pages", () => {
+  test("house rules are published with a version", async ({ page }) => {
+    await page.goto("/legal/house-rules");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("House rules");
+    await expect(page.getByText(/Version 2026-10-v1/)).toBeVisible();
+    await expect(page.getByText("Phone face-down inside the camera frame for the whole block.")).toBeVisible();
+    await expect(page.getByRole("note")).toHaveCount(0);
+  });
+
+  test("the privacy notice is clearly marked as a draft", async ({ page }) => {
+    await page.goto("/legal/privacy");
+    await expect(page.getByRole("note")).toContainText("Draft");
+    await expect(page.locator("mark").first()).toContainText("Owner to");
+  });
+
+  test("Chinese pages say legal text is English only", async ({ page }) => {
+    await page.goto("/zh/legal/privacy");
+    await expect(page.getByText("法律文件目前仅提供英文版本。")).toBeVisible();
+    await expect(page.locator("article")).toHaveAttribute("lang", "en");
+  });
+});

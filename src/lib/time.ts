@@ -48,6 +48,16 @@ export function formatInZone(instant: Instant, pattern: string, timeZone = MELBO
   return format(inZone(instant, timeZone), pattern, { locale });
 }
 
+/**
+ * "30 October 2026" in Melbourne. Uses Intl rather than TZDate (which reads the clock internally),
+ * so it's safe on prerendered pages such as /legal/*.
+ */
+export function formatLongDate(instant: Instant, timeZone = MELBOURNE): string {
+  return new Intl.DateTimeFormat("en-AU", { timeZone, day: "numeric", month: "long", year: "numeric" }).format(
+    new Date(instant),
+  );
+}
+
 /** The Melbourne calendar date an instant falls on. */
 export function dateKeyOf(instant: Instant = Date.now(), timeZone = MELBOURNE): string {
   return formatInZone(instant, "yyyy-MM-dd", timeZone);

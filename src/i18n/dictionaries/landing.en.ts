@@ -151,6 +151,7 @@ export const landingEn = {
       "The supervisor may remove you from the room if you're off camera for more than 5 minutes; your parent's report will say so.",
     ],
     foot: "Shown at sign-up and before every session.",
+    fullLink: "Read the full house rules",
   },
   safety: {
     label: "Safety & privacy",
@@ -185,6 +186,7 @@ export const landingEn = {
     ],
     foot: "No student-to-student messaging, profiles, rankings or feeds. No ads or trackers on student pages.",
     contact: "Questions, concerns or deletion requests: {email}",
+    privacyLink: "Privacy & child safety notice",
   },
   pricing: {
     label: "Pricing",
@@ -308,6 +310,7 @@ export const landingEn = {
     nav: "Footer",
     houseRules: "House rules",
     safety: "Safety & privacy",
+    privacy: "Privacy notice",
     logIn: "Log in",
   },
   ownerNote: "Owner to confirm",

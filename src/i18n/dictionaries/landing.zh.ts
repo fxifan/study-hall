@@ -132,6 +132,7 @@ export const landingZh: LandingCopy = {
       "如果离开画面超过 5 分钟，监督老师可以请你离开自习室，家长的报告中会注明。",
     ],
     foot: "注册时和每次自习前都会显示。",
+    fullLink: "阅读完整自习规则",
   },
   safety: {
     label: "安全与隐私",
@@ -165,6 +166,7 @@ export const landingZh: LandingCopy = {
     ],
     foot: "没有学生之间的私信、个人主页、排名或动态。学生页面没有广告或追踪器。",
     contact: "问题、疑虑或删除请求：{email}",
+    privacyLink: "隐私与儿童安全声明",
   },
   pricing: {
     label: "价格",
@@ -269,6 +271,7 @@ export const landingZh: LandingCopy = {
     nav: "页脚",
     houseRules: "自习规则",
     safety: "安全与隐私",
+    privacy: "隐私声明",
     logIn: "登录",
   },
   ownerNote: "待负责人确认",

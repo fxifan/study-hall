@@ -6,6 +6,7 @@ import {
   dateKeyOf,
   dayRangeUtc,
   formatInZone,
+  formatLongDate,
   isoWeekdayOf,
   isoWeekdayOfDateKey,
   zonedDateTimeToUtc,
@@ -53,6 +54,10 @@ describe("zonedDateTimeToUtc", () => {
 describe("formatting and calendar dates", () => {
   it("formats instants in Melbourne time", () => {
     expect(formatInZone("2026-10-29T05:02:00Z", "EEE d MMM, h:mmaaa")).toBe("Thu 29 Oct, 4:02pm");
+  });
+
+  it("formats long dates on the Melbourne calendar", () => {
+    expect(formatLongDate("2026-10-29T13:30:00Z")).toBe("30 October 2026");
   });
 
   it("formats in Chinese when given the zh-CN locale", () => {

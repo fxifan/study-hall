@@ -24,7 +24,7 @@ const OWNER_NOTES = {
   billing: "Whether cancelling stops at the end of the paid week or immediately, refunds beyond the first week, and GST wording.",
   missed: "What happens when Study Hall cancels a session (e.g. public holidays), and whether missed or cancelled sessions are credited.",
   supervisors: "Supervisor qualifications and training to describe here.",
-  contact: "Contact email for questions, concerns and deletion requests (set CHILD_SAFETY_CONTACT_EMAIL), and the privacy & child-safety notice page.",
+  contact: "Contact email for questions, concerns and deletion requests (set CHILD_SAFETY_CONTACT_EMAIL).",
 } as const;
 
 const SEGMENTS = [
@@ -281,6 +281,9 @@ export default async function LandingPage() {
             </ol>
             <div className="rules-foot">
               <span>{t.rules.foot}</span>
+              <Link className="link" href={localizePath("/legal/house-rules", locale)}>
+                {t.rules.fullLink}
+              </Link>
             </div>
           </div>
         </Section>
@@ -299,6 +302,9 @@ export default async function LandingPage() {
           </ul>
           <div className="cover-foot">
             <span>{t.safety.foot}</span>
+            <Link className="link" href={localizePath("/legal/privacy", locale)}>
+              {t.safety.privacyLink}
+            </Link>
             {contactEmail ? (
               <span>
                 {t.safety.contact.split("{email}")[0]}
@@ -383,6 +389,7 @@ export default async function LandingPage() {
               <nav aria-label={t.footer.nav}>
                 <a href="#rules">{t.footer.houseRules}</a>
                 <a href="#safety">{t.footer.safety}</a>
+                <Link href={localizePath("/legal/privacy", locale)}>{t.footer.privacy}</Link>
                 <Link href={localizePath("/login", locale)}>{t.footer.logIn}</Link>
                 <LanguageSwitch locale={locale} />
               </nav>

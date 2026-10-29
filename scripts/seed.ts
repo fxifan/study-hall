@@ -2,6 +2,7 @@
  * Dev seed. Run with `npm run db:seed` after `npm run db:migrate`. Safe to re-run.
  * Uses the service role, so it bypasses RLS. Refuses to run with NODE_ENV=production.
  */
+import { readFileSync } from "node:fs";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient, loadEnv, requireEnv } from "./lib/env";
 import {
@@ -152,6 +153,31 @@ async function main() {
       { parent_id: ids.parentB, student_id: SEED_IDS.studentB },
     ],
     "parent_id,student_id",
+  );
+
+  // Legal documents the consent step cites (content/legal). The privacy notice is a draft.
+  await upsert(
+    admin,
+    "legal_documents",
+    [
+      {
+        org_id: SEED_IDS.org,
+        document: "house_rules",
+        version: HOUSE_RULES_VERSION,
+        title: "House rules",
+        body: readFileSync("content/legal/house-rules.md", "utf8"),
+        is_draft: false,
+      },
+      {
+        org_id: SEED_IDS.org,
+        document: "privacy_child_safety",
+        version: PRIVACY_VERSION,
+        title: "Privacy & child safety notice",
+        body: readFileSync("content/legal/privacy-draft.md", "utf8"),
+        is_draft: true,
+      },
+    ],
+    "org_id,document,version",
   );
 
   // Consents for the students who have finished sign-up. Recreated on each run to stay idempotent.
