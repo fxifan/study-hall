@@ -97,7 +97,7 @@ async function StudentHome({ searchParams }: Pick<PageProps<"/[lang]/student">, 
     );
   }
 
-  const [{ data: goals }, { data: attendance }, { data: requests }, rules] = await Promise.all([
+  const [{ data: goals }, { data: attendance }, { data: requests }, rules, { data: tutoring }] = await Promise.all([
     supabase.from("goals").select("id, position, text, outcome, note").eq("session_id", session.id).order("position"),
     supabase.from("attendance").select("check_in_at, check_out_at").eq("session_id", session.id).maybeSingle(),
     supabase
@@ -106,6 +106,7 @@ async function StudentHome({ searchParams }: Pick<PageProps<"/[lang]/student">, 
       .eq("session_id", session.id)
       .order("created_at", { ascending: false }),
     getCurrentLegalDocument("house_rules"),
+    supabase.rpc("my_tutoring_plan"),
   ]);
   const { open, upcoming, doorsAt } = sessionWindow(session.starts_at, session.ends_at);
   const joined = Boolean(attendance?.check_in_at);
@@ -210,7 +211,7 @@ async function StudentHome({ searchParams }: Pick<PageProps<"/[lang]/student">, 
       {inRoom && (
         <section className="flex flex-col gap-3" data-testid="help">
           <h2 className="text-xl font-medium">{s.help.title}</h2>
-          <p className="text-sm text-ink-soft">{s.help.scope}</p>
+          <p className="text-sm text-ink-soft">{tutoring ? s.help.tutoringScope : s.help.scope}</p>
           <form action={raiseHelp} className="flex flex-col gap-2">
             <input type="hidden" name="sessionId" value={session.id} />
             <Label htmlFor="help-subject">{s.help.subject}</Label>

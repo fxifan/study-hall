@@ -37,7 +37,10 @@ async function ParentHome({ searchParams }: Pick<PageProps<"/[lang]/parent">, "s
   const supabase = await createClient();
   // RLS returns only this parent's students and subscriptions.
   const [{ data: students }, { data: subscription }] = await Promise.all([
-    supabase.from("students").select("id, first_name, last_initial, year_level, status").order("first_name"),
+    supabase
+      .from("students")
+      .select("id, first_name, last_initial, year_level, status, student_subjects(subject_id)")
+      .order("first_name"),
     supabase
       .from("subscriptions")
       .select("status, quantity, current_period_end, cancel_at_period_end, stripe_customer_id, plans(name, price_cents)")
@@ -72,11 +75,14 @@ async function ParentHome({ searchParams }: Pick<PageProps<"/[lang]/parent">, "s
               <span>
                 {s.first_name} {s.last_initial}.
               </span>
-              <span className="font-mono text-xs text-ink-soft">
+              <span className="flex items-baseline gap-4 font-mono text-xs text-ink-soft">
                 {fill(t.parent.yearStatus, {
                   year: s.year_level,
                   status: t.studentStatus[s.status as keyof typeof t.studentStatus] ?? s.status,
                 })}
+                <Link className="underline underline-offset-4" href={localizePath(`/parent/student/${s.id}`, locale)}>
+                  {t.parent.editStudies} ({s.student_subjects.length})
+                </Link>
               </span>
             </li>
           ))}

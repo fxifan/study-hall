@@ -1,6 +1,6 @@
 /**
- * Admin pages (spec Phase 1): rooms (capacity), schedule (generate, WWCC gate on assignment,
- * cancel/restore), plans, and supervisors' WWCC status. Restores what it changes.
+ * Admin pages (spec Phase 1): rooms (capacity), schedule (generate, WWCC gate on supervisor and
+ * tutor assignment, cancel/restore), plans, and supervisors' WWCC status. Restores what it changes.
  */
 import { expect, test, type Page } from "@playwright/test";
 import { createAdminClient, loadEnv } from "../../scripts/lib/env";
@@ -40,8 +40,13 @@ test("schedule: generate sessions, WWCC gate on assignment, cancel and restore",
 
   // The seeded admin has no WWCC, so assigning them is refused.
   await first.getByLabel("Supervisor").selectOption({ label: "Sam Admin" });
-  await first.getByRole("button", { name: "Assign" }).click();
+  await first.getByRole("button", { name: "Assign" }).first().click();
   // Filter: Next's route announcer is also role="alert".
+  await expect(page.getByRole("alert").filter({ hasText: "no verified Working with Children Check" })).toBeVisible();
+  // Same gate for tutors.
+  await page.goto("/admin/schedule");
+  await first.getByLabel("Tutor").selectOption({ label: "Sam Admin" });
+  await first.getByRole("button", { name: "Assign" }).nth(1).click();
   await expect(page.getByRole("alert").filter({ hasText: "no verified Working with Children Check" })).toBeVisible();
 
   await first.getByRole("button", { name: "Cancel session" }).click();
@@ -54,6 +59,7 @@ test("plans and supervisors show their status", async ({ page }) => {
   await logInAsAdmin(page);
   await page.goto("/admin/plans");
   await expect(page.getByRole("form", { name: "Unlimited weeknights" })).toContainText("A$49");
+  await expect(page.getByRole("form", { name: "Weeknights + tutoring" })).toContainText(/A\$79\s*Tutoring/);
 
   await page.goto("/admin/proctors");
   const priya = page.getByTestId("supervisors").locator("li", { hasText: "Priya Proctor" });

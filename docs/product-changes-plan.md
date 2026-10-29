@@ -71,6 +71,13 @@ The plan as written:
 - Admin: rooms (capacity), schedule, plans (revalidate the landing page cache on change), proctors.
 - Landing: replace "sign-up opens soon" with the real onboarding link.
 
+### Phase 1C: tutoring plan and study profiles (owner request, 30 Oct 2026) — built
+- Owner decisions: A$79/week per student; same room with a dedicated tutor; tutoring students' help requests go first; any session Mon–Thu; intake widened to Years 7–12.
+- `plans.includes_tutoring`, `sessions.tutor_id` / `rooms.default_tutor_id` with the WWCC gate, `help_requests.priority` from the family's plan.
+- Study profiles: `subjects` reference list, `student_subjects` (taking / wants help), `students.study_note` (≤200 chars, schoolwork only; no SAC or exam dates). Required before buying the tutoring plan.
+- Staff roster per session (`session_roster()`), admin subject demand page, landing, onboarding and privacy-draft copy (privacy draft version bumped to `2026-10-draft-2`).
+- Not yet: switching between plans in the Customer Portal (a parent cancels and re-subscribes), and the Phase 2 help queue that will order by `priority`.
+
 ### Phase 2: proctor, help queue, reports, metrics (spec Phase 2 + brief Phase 3, §5, §9)
 - Proctor dashboard with help queue and logged text messages; "no private 1:1 video" rule shown.
 - Report generation using neutral observation wording that matches the landing sample; approval, auto-send, absent notice, copy-as-text. Reports stay English unless the owner approves translation.
@@ -85,7 +92,7 @@ The plan as written:
 
 ## Owner decisions needed (brief §12)
 1. Two-day plan price (proposed A$29–35/week).
-2. Academic-help scope and subjects covered.
+2. Academic-help scope and subjects covered (partly settled: the tutoring plan, Phase 1C; tutor qualifications and subjects each tutor covers still open).
 3. Supervisor qualifications, training, and how many students one supervisor covers.
 4. Cancellation timing, refunds beyond "first week refundable on request" (spec §12), missed and cancelled sessions.
 5. Founder story: names, facts, and whether to mention University of Melbourne medical-student status.

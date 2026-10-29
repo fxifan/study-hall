@@ -21,7 +21,7 @@ export const landingEn = {
   },
   hero: {
     margin: "Mon–Thu",
-    kicker: ["Online supervised study", "Years 9–12", "Victoria"],
+    kicker: ["Online supervised study", "Years 7–12", "Victoria"],
     titleLead: "Make after-school study ",
     titleEm: "more consistent.",
     lede: "Live supervised study, structured goals, help when students get stuck, and a short progress report for parents after each session.",
@@ -133,10 +133,10 @@ export const landingEn = {
     title: "Designed to complement tutoring.",
     body: [
       "Tutoring helps students learn concepts. Study Hall gives them a structured place to work through homework, revision and practice between lessons.",
-      "Students can ask for help when they get stuck, and the session supervisor responds when they're available. Study Hall isn't a replacement for specialist tutoring or teaching.",
+      "Students can ask for help when they get stuck, and the session supervisor responds when they're available. The tutoring plan adds a dedicated tutor in the room who prepares from the subjects you list, and your child's questions go first. Either way, Study Hall isn't a replacement for specialist tutoring or teaching.",
     ],
     is: { title: "Study Hall is", items: ["Scheduled, supervised time for schoolwork", "Goals set and marked every session", "Help to get unstuck, in a group setting", "A factual report for parents"] },
-    isNot: { title: "Study Hall isn't", items: ["Private tutoring or lessons", "A guaranteed response time", "A promise of better marks or ATARs", "Webcam recording or monitoring software"] },
+    isNot: { title: "Study Hall isn't", items: ["Private one-to-one lessons", "A guaranteed response time", "A promise of better marks or ATARs", "Webcam recording or monitoring software"] },
   },
   rules: {
     label: "House rules",
@@ -177,7 +177,7 @@ export const landingEn = {
       },
       {
         title: "Only what we need",
-        body: "First name, last initial, year level, and school if you choose. No birthday, photo, address or phone number. Stored in Australia (Sydney).",
+        body: "First name, last initial, year level, the subjects they take, an optional short note on current work, and school if you choose. No birthday, photo, address or phone number. Stored in Australia (Sydney).",
       },
       {
         title: "Parents stay in charge",
@@ -211,7 +211,10 @@ export const landingEn = {
       report: "Report",
       reportValue: "After each session",
       for: "For",
-      forValue: "Years 9–12",
+      forValue: "Years 7–12",
+      help: "Help",
+      helpSupervisor: "When the supervisor is free",
+      helpTutor: "Dedicated tutor, questions first",
     },
     cta: "Start",
     ctaNote: "First week refundable on request.",
@@ -225,7 +228,8 @@ export const landingEn = {
         id: "tutoring",
         q: "Is Study Hall tutoring?",
         a: [
-          "No. It's supervised time to work on schoolwork your child already has: homework, revision and practice. They can ask for help when stuck, and the supervisor responds when available, but it isn't a lesson or a replacement for a tutor.",
+          "Not on the supervision plan. It's supervised time to work on schoolwork your child already has: homework, revision and practice. They can ask for help when stuck, and the supervisor responds when available, but it isn't a lesson or a replacement for a tutor.",
+          "The tutoring plan adds a dedicated tutor in the room for the whole session. They see the subjects and current work you enter, and your child's questions go first. Help is by text in the app or in a small group, never one-to-one video.",
         ],
       },
       {

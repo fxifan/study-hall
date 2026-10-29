@@ -5,7 +5,7 @@ import { onboardingZh } from "./onboarding.zh";
 /** Simplified Chinese (zh-CN). Parents are addressed as 您, students as 你. "Study Hall" stays as the brand. */
 export const zh: Dictionary = {
   meta: {
-    description: "为 VCE 学生提供有老师监督的线上自习，周一至周四 16:00–20:00。",
+    description: "为 7–12 年级学生提供有老师监督的线上自习，周一至周四 16:00–20:00。",
   },
   common: {
     loading: "加载中…",
@@ -41,6 +41,8 @@ export const zh: Dictionary = {
     empty: "还没有添加学生。",
     yearStatus: "{year} 年级 · {status}",
     reportsSoon: "每晚的学习报告和出勤记录将显示在这里。",
+    editStudies: "科目",
+    back: "返回孩子列表",
     billing: {
       title: "账单",
       active: "{plan} · {count} × {price} 每周 · {date} 续费",
@@ -95,6 +97,7 @@ export const zh: Dictionary = {
     help: {
       title: "我卡住了",
       scope: "本节监督老师会看到你的求助，在有空时通过这里的文字或小组讨论帮助你。这不是一对一私教课，也没有固定的回复时间。",
+      tutoringScope: "你使用的是辅导套餐：本节的辅导老师会优先看到你的求助，通过这里的文字或小组讨论帮助你。这不是一对一私教课。",
       subject: "科目",
       description: "你卡在哪里？",
       send: "发送求助",
@@ -112,7 +115,22 @@ export const zh: Dictionary = {
     melbourneTime: "墨尔本时间",
     room: "自习室",
     empty: "今天没有分配给您的自习。",
-    rosterSoon: "实时名单、专注标记和求助队列将在每节自习中开放。",
+    rosterSoon: "实时专注标记和求助队列将在每节自习中开放。",
+    upcoming: "接下来 7 天",
+    noneUpcoming: "本周没有其他分配给您的自习。",
+    supervising: "监督",
+    tutoring: "辅导",
+    roster: "名单（{count}）",
+    session: {
+      back: "返回您的自习",
+      summary: "已报名 {count} 人 · 辅导套餐 {tutoring} 人",
+      empty: "还没有学生报名。",
+      tutoring: "辅导套餐",
+      help: "需要帮助",
+      noSubjects: "尚未填写科目。",
+      note: "当前学习内容",
+      privacy: "仅用于准备本节自习，请勿复制、截图或分享。",
+    },
   },
   admin: {
     heading: "概览",
@@ -122,6 +140,21 @@ export const zh: Dictionary = {
     perInterval: { week: "周" },
     inactive: "已停用",
     manageSoon: "自习室、课表、套餐和监督老师（WWCC）管理。",
+  },
+  studies: {
+    title: "科目与当前学习内容",
+    intro: "勾选孩子正在学习的科目，以及希望得到帮助的科目。每节自习前，监督老师和辅导老师都会看到这些信息。",
+    junior: "7–10 年级",
+    vce: "VCE（10–12 年级）",
+    taking: "在学",
+    help: "需要帮助",
+    note: "当前学习内容（可选）",
+    notePlaceholder: "例如：数学方法：链式法则；英语作文周五截止。",
+    noteWarning: "只写学习相关内容，请勿填写健康或个人信息。",
+    save: "保存科目",
+    summary: "{count} 门科目",
+    none: "还没有填写科目",
+    helpBadge: "需帮助",
   },
   adminPages: en.adminPages, // internal admin tool: English only
   legal: {

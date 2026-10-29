@@ -15,27 +15,34 @@ type Schedule = {
   start_time: string;
   end_time: string;
   timezone: string;
-  rooms: { default_proctor_id: string | null } | null;
+  rooms: { default_proctor_id: string | null; default_tutor_id: string | null } | null;
 };
 
 /**
  * Create sessions from active schedules for the next SESSION_HORIZON_DAYS calendar days in each
- * schedule's timezone. Idempotent: (room_id, starts_at) is unique, so re-runs add nothing. The room's
- * default proctor is assigned only on days their verified WWCC covers (the DB enforces it too).
+ * schedule's timezone, then fill any empty supervisor/tutor slot on upcoming sessions from the room's
+ * defaults. Idempotent: (room_id, starts_at) is unique, so re-runs add nothing. Staff are assigned
+ * only on days their verified WWCC covers (the DB enforces it too).
  */
-export async function generateSessions(now = new Date()): Promise<{ created: number }> {
+export async function generateSessions(now = new Date()): Promise<{ created: number; staffed: number }> {
   const admin = createAdminClient();
   const { data: schedules, error } = await admin
     .from("schedules")
-    .select("id, room_id, days_of_week, start_time, end_time, timezone, rooms(default_proctor_id)")
+    .select("id, room_id, days_of_week, start_time, end_time, timezone, rooms(default_proctor_id, default_tutor_id)")
     .eq("active", true)
     .returns<Schedule[]>();
   if (error) throw error;
 
+  const covered = new Map<string, string | null>();
+  const coveredOn = async (person: string | null, day: string) => {
+    if (!person) return null;
+    if (!covered.has(person)) covered.set(person, await wwccCoveredUntil(admin, person));
+    const until = covered.get(person);
+    return until && until >= day ? person : null;
+  };
+
   const rows = [];
   for (const schedule of schedules ?? []) {
-    const proctorId = schedule.rooms?.default_proctor_id ?? null;
-    const coveredUntil = proctorId ? await wwccCoveredUntil(admin, proctorId) : null;
     const today = dateKeyOf(now, schedule.timezone);
     for (let d = 0; d < SESSION_HORIZON_DAYS; d++) {
       const day = addDaysToDateKey(today, d);
@@ -48,21 +55,47 @@ export async function generateSessions(now = new Date()): Promise<{ created: num
         schedule_id: schedule.id,
         starts_at: startsAt.toISOString(),
         ends_at: endsAt.toISOString(),
-        proctor_id: coveredUntil && coveredUntil >= day ? proctorId : null,
+        proctor_id: await coveredOn(schedule.rooms?.default_proctor_id ?? null, day),
+        tutor_id: await coveredOn(schedule.rooms?.default_tutor_id ?? null, day),
       });
     }
   }
-  if (!rows.length) return { created: 0 };
 
-  const { data: inserted, error: insertError } = await admin
+  let created = 0;
+  if (rows.length) {
+    const { data: inserted, error: insertError } = await admin
+      .from("sessions")
+      .upsert(rows, { onConflict: "room_id,starts_at", ignoreDuplicates: true })
+      .select("id");
+    if (insertError) throw insertError;
+    created = inserted?.length ?? 0;
+  }
+
+  // Existing upcoming sessions with an empty slot pick up the room's current default.
+  const { data: unstaffed } = await admin
     .from("sessions")
-    .upsert(rows, { onConflict: "room_id,starts_at", ignoreDuplicates: true })
-    .select("id");
-  if (insertError) throw insertError;
-  return { created: inserted?.length ?? 0 };
+    .select("id, starts_at, proctor_id, tutor_id, rooms(default_proctor_id, default_tutor_id)")
+    .neq("status", "cancelled")
+    .gt("starts_at", now.toISOString())
+    .or("proctor_id.is.null,tutor_id.is.null")
+    .returns<{ id: string; starts_at: string; proctor_id: string | null; tutor_id: string | null; rooms: Schedule["rooms"] }[]>();
+  let staffed = 0;
+  for (const session of unstaffed ?? []) {
+    const day = dateKeyOf(session.starts_at);
+    const update: { proctor_id?: string; tutor_id?: string } = {};
+    const proctor = session.proctor_id ? null : await coveredOn(session.rooms?.default_proctor_id ?? null, day);
+    const tutor = session.tutor_id ? null : await coveredOn(session.rooms?.default_tutor_id ?? null, day);
+    if (proctor) update.proctor_id = proctor;
+    if (tutor) update.tutor_id = tutor;
+    if (!Object.keys(update).length) continue;
+    const { error: staffError } = await admin.from("sessions").update(update).eq("id", session.id);
+    if (staffError) throw staffError;
+    staffed++;
+  }
+  return { created, staffed };
 }
 
-/** The last day (yyyy-MM-dd) a proctor's verified WWCC is valid, or null. */
+/** The last day (yyyy-MM-dd) a person's verified WWCC is valid, or null. */
 async function wwccCoveredUntil(admin: SupabaseClient, proctorId: string): Promise<string | null> {
   const { data } = await admin
     .from("proctor_checks")

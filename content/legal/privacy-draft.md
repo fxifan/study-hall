@@ -7,7 +7,7 @@ Study Hall runs supervised online study sessions for school students in Victoria
 ## What we collect
 
 - About you (the parent): your name, email address, the consents you give, and optionally how you heard about us.
-- About your child: first name, last initial, year level, school if you choose, and the email address they use to log in.
+- About your child: first name, last initial, year level, school if you choose, the subjects they take and any they'd like help with, an optional short note on current schoolwork (up to 200 characters), and the email address they use to log in. Please keep the note to schoolwork: no health or personal information.
 - About each session: when your child joined and left, the goals they set and how they marked them, short factual notes from the supervisor (for example "Phone visible twice"), help requests, and messages between your child and the supervisor.
 - Billing: Stripe processes payments. We store your Stripe customer and subscription IDs and the plan you chose, not your card details.
 - When you agree to the house rules or this notice, we record the version, the time, and a one-way hash of your IP address.
@@ -25,7 +25,7 @@ Sessions run on Zoom or Google Meet. The supervisor watches the live room; Study
 ## Who can see what
 
 - You can see your own children's details, attendance, goals and reports.
-- A supervisor can see the roster, goals and help requests for the sessions they supervise.
+- A supervisor or tutor can see the roster, subjects, current-work notes, goals and help requests for the sessions they're assigned to, so they can prepare. On the tutoring plan, your child's help requests are shown to the tutor first.
 - Study Hall administrators can see everything, including all messages between supervisors and students. Supervisors can't delete messages.
 - Students can't see other students' information, and there is no student-to-student messaging.
 

@@ -8,7 +8,7 @@ import { getDateLocale, getDictionary } from "@/i18n/server";
 import { SESSION_HORIZON_DAYS } from "@/lib/sessions";
 import { createClient } from "@/lib/supabase/server";
 import { MELBOURNE, formatInZone } from "@/lib/time";
-import { assignSupervisor, generateNow, saveSchedule, setSessionStatus } from "../actions";
+import { assignStaff, generateNow, saveSchedule, setSessionStatus } from "../actions";
 import { AdminFrame, fieldClass } from "../admin-frame";
 
 export const metadata: Metadata = { title: "Schedule" };
@@ -30,6 +30,7 @@ type UpcomingSession = {
   ends_at: string;
   status: string;
   proctor_id: string | null;
+  tutor_id: string | null;
   rooms: { name: string; capacity: number } | null;
   enrolments: { count: number }[];
 };
@@ -58,7 +59,7 @@ async function Schedule({ searchParams }: Pick<PageProps<"/[lang]/admin/schedule
       >(),
     supabase
       .from("sessions")
-      .select("id, starts_at, ends_at, status, proctor_id, rooms(name, capacity), enrolments(count)")
+      .select("id, starts_at, ends_at, status, proctor_id, tutor_id, rooms(name, capacity), enrolments(count)")
       .gt("ends_at", now.toISOString())
       .lt("starts_at", horizon.toISOString())
       .order("starts_at")
@@ -76,7 +77,11 @@ async function Schedule({ searchParams }: Pick<PageProps<"/[lang]/admin/schedule
       )}
       {typeof query.created === "string" && (
         <p role="status" className="rounded-md border border-hair bg-sheet px-3 py-2 text-sm">
-          {fill(s.generated, { sessions: query.created, enrolled: String(query.enrolled ?? 0) })}{" "}
+          {fill(s.generated, {
+            sessions: query.created,
+            staffed: String(query.staffed ?? 0),
+            enrolled: String(query.enrolled ?? 0),
+          })}{" "}
           {query.full && query.full !== "0" ? fill(s.full, { count: String(query.full) }) : ""}
         </p>
       )}
@@ -142,20 +147,29 @@ async function Schedule({ searchParams }: Pick<PageProps<"/[lang]/admin/schedule
                   <span className="font-mono text-xs">
                     {fill(s.enrolled, { count: session.enrolments[0]?.count ?? 0, capacity: session.rooms?.capacity ?? 0 })}
                   </span>
-                  <form action={assignSupervisor} className="flex items-center gap-2 no-underline">
-                    <input type="hidden" name="sessionId" value={session.id} />
-                    <select name="proctorId" defaultValue={session.proctor_id ?? ""} aria-label={s.supervisor} className={fieldClass}>
-                      <option value="">{s.unassigned}</option>
-                      {supervisors?.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.full_name ?? p.email}
-                        </option>
-                      ))}
-                    </select>
-                    <Button type="submit" variant="ghost" size="sm">
-                      {s.assign}
-                    </Button>
-                  </form>
+                  {(["proctor_id", "tutor_id"] as const).map((role) => (
+                    <form key={role} action={assignStaff} className="flex items-center gap-2 no-underline">
+                      <input type="hidden" name="sessionId" value={session.id} />
+                      <input type="hidden" name="role" value={role} />
+                      <span className="text-xs text-ink-soft">{role === "proctor_id" ? s.supervisor : s.tutor}</span>
+                      <select
+                        name="personId"
+                        defaultValue={session[role] ?? ""}
+                        aria-label={role === "proctor_id" ? s.supervisor : s.tutor}
+                        className={fieldClass}
+                      >
+                        <option value="">{s.unassigned}</option>
+                        {supervisors?.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.full_name ?? p.email}
+                          </option>
+                        ))}
+                      </select>
+                      <Button type="submit" variant="ghost" size="sm">
+                        {s.assign}
+                      </Button>
+                    </form>
+                  ))}
                   <form action={setSessionStatus} className="ml-auto">
                     <input type="hidden" name="sessionId" value={session.id} />
                     <input type="hidden" name="status" value={cancelled ? "scheduled" : "cancelled"} />

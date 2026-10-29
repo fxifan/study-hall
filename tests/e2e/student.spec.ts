@@ -89,11 +89,16 @@ test("a student sets goals, joins, asks for help, marks goals and leaves", async
 
   // I'm stuck
   const help = page.getByTestId("help");
-  await expect(help).toContainText("It isn't a private lesson");
+  // Ava's family is on the tutoring plan (seed), so her requests go to the tutor first.
+  await expect(help).toContainText("the session's tutor sees your request first");
+  await expect(help).toContainText("It isn't a private one-to-one lesson");
   await help.getByLabel("Subject").fill("Methods");
   await help.getByLabel("What are you stuck on?").fill("Question 7, the chain rule part");
   await help.getByRole("button", { name: "Send help request" }).click();
   await expect(help).toContainText("Waiting");
+  await expect
+    .poll(async () => (await admin.from("help_requests").select("priority").eq("session_id", sessionId).single()).data)
+    .toEqual({ priority: true });
 
   // Mark goals
   await page.getByRole("group", { name: "Methods: Exercise 4B" }).getByLabel("Done", { exact: true }).check();

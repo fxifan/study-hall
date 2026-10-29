@@ -40,6 +40,7 @@ export async function saveRoom(formData: FormData) {
       videoUrl: z.url().startsWith("https://"),
       capacity: z.coerce.number().int().min(1).max(500),
       defaultProctorId: optionalUuid,
+      defaultTutorId: optionalUuid,
     })
     .parse(Object.fromEntries(formData));
   const supabase = await createClient();
@@ -49,6 +50,7 @@ export async function saveRoom(formData: FormData) {
     video_url: room.videoUrl,
     capacity: room.capacity,
     default_proctor_id: room.defaultProctorId,
+    default_tutor_id: room.defaultTutorId,
   };
   const { error } = room.id
     ? await supabase.from("rooms").update(values).eq("id", room.id)
@@ -91,18 +93,22 @@ export async function saveSchedule(formData: FormData) {
 
 export async function generateNow() {
   await requireAdmin();
-  const { created } = await generateSessions();
+  const { created, staffed } = await generateSessions();
   const { enrolled, full } = await enrolEligibleStudents();
-  await back("/admin/schedule", `?created=${created}&enrolled=${enrolled}&full=${full.length}`);
+  await back("/admin/schedule", `?created=${created}&staffed=${staffed}&enrolled=${enrolled}&full=${full.length}`);
 }
 
-export async function assignSupervisor(formData: FormData) {
+/** Sets a session's supervisor or tutor. The database refuses anyone without a valid, verified WWCC. */
+export async function assignStaff(formData: FormData) {
   await requireAdmin();
-  const { sessionId, proctorId } = z
-    .object({ sessionId: z.uuid(), proctorId: optionalUuid })
+  const { sessionId, role, personId } = z
+    .object({ sessionId: z.uuid(), role: z.enum(["proctor_id", "tutor_id"]), personId: optionalUuid })
     .parse(Object.fromEntries(formData));
   const supabase = await createClient();
-  const { error } = await supabase.from("sessions").update({ proctor_id: proctorId }).eq("id", sessionId);
+  const { error } = await supabase
+    .from("sessions")
+    .update({ [role]: personId })
+    .eq("id", sessionId);
   if (error?.code === "23514") await back("/admin/schedule", "?error=wwcc");
   if (error) throw error;
   refresh();
@@ -150,6 +156,7 @@ export async function addPlan(formData: FormData) {
     name: plan.name,
     price_cents: plan.priceCents,
     days_per_week: plan.daysPerWeek,
+    includes_tutoring: formData.get("includesTutoring") === "on",
     active: false,
   });
   if (error) throw error;

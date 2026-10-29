@@ -72,6 +72,11 @@ test("pricing comes from the plans table and links to sign-up", async ({ page })
   await expect(card).toContainText("/ week");
   await expect(card).toContainText("per student");
   await expect(card.getByRole("link", { name: /Start/ })).toHaveAttribute("href", "/onboarding");
+  await expect(card).toContainText("When the supervisor is free");
+  const tutoring = page.getByTestId("plan-card").nth(1);
+  await expect(tutoring).toContainText("79");
+  await expect(tutoring).toContainText("Dedicated tutor, questions first");
+  await expect(card).toContainText("Years 7–12");
 });
 
 test("the FAQ answers every question in the brief", async ({ page }) => {

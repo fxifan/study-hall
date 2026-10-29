@@ -19,13 +19,20 @@ export default async function RoomsPage() {
   );
 }
 
-type Room = { id: string; name: string; video_url: string; capacity: number; default_proctor_id: string | null };
+type Room = {
+  id: string;
+  name: string;
+  video_url: string;
+  capacity: number;
+  default_proctor_id: string | null;
+  default_tutor_id: string | null;
+};
 
 async function Rooms() {
   const r = (await getDictionary()).adminPages.rooms;
   const supabase = await createClient();
   const [{ data: rooms }, { data: proctors }] = await Promise.all([
-    supabase.from("rooms").select("id, name, video_url, capacity, default_proctor_id").order("name"),
+    supabase.from("rooms").select("id, name, video_url, capacity, default_proctor_id, default_tutor_id").order("name"),
     supabase.from("profiles").select("id, full_name, email").eq("role", "proctor").order("full_name"),
   ]);
 
@@ -55,7 +62,18 @@ async function Rooms() {
           ))}
         </select>
       </label>
-      <div className="flex items-end">
+      <label className="flex flex-col gap-1 text-sm">
+        {r.defaultTutor}
+        <select name="defaultTutorId" defaultValue={room?.default_tutor_id ?? ""} className={fieldClass}>
+          <option value="">{r.none}</option>
+          {proctors?.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.full_name ?? p.email}
+            </option>
+          ))}
+        </select>
+      </label>
+      <div className="flex items-end sm:col-span-2">
         <Button type="submit">{room ? r.save : r.add}</Button>
       </div>
     </form>

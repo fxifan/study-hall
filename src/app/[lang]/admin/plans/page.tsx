@@ -25,7 +25,7 @@ async function Plans() {
   const supabase = await createClient();
   const { data: plans } = await supabase
     .from("plans")
-    .select("id, name, price_cents, days_per_week, active, stripe_price_id")
+    .select("id, name, price_cents, days_per_week, active, stripe_price_id, includes_tutoring")
     .order("price_cents");
 
   return (
@@ -35,7 +35,10 @@ async function Plans() {
         <form key={plan.id} action={savePlan} className="flex flex-col gap-3 rounded-md border border-hair bg-sheet p-4" aria-label={plan.name}>
           <input type="hidden" name="id" value={plan.id} />
           <div className="flex flex-wrap items-baseline justify-between gap-3">
-            <span className="text-2xl">{formatAud(plan.price_cents)}</span>
+            <span className="text-2xl">
+              {formatAud(plan.price_cents)}
+              {plan.includes_tutoring && <span className="ml-3 font-mono text-xs text-pen uppercase">{p.tutoringBadge}</span>}
+            </span>
             <span className={`font-mono text-xs ${plan.stripe_price_id ? "text-ink-soft" : "text-pen"}`}>
               {plan.stripe_price_id ? p.stripeReady : p.stripeMissing}
             </span>
@@ -71,6 +74,10 @@ async function Plans() {
         <label className="flex flex-col gap-1">
           {p.daysPerWeek}
           <Input name="daysPerWeek" type="number" min={1} max={7} className="w-24" />
+        </label>
+        <label className="flex items-center gap-2 pb-1.5">
+          <input type="checkbox" name="includesTutoring" />
+          {p.includesTutoring}
         </label>
         <Button type="submit">{p.add}</Button>
       </form>

@@ -81,14 +81,36 @@ async function main() {
     active: true,
   });
 
-  await upsert(admin, "proctor_checks", {
-    id: SEED_IDS.proctorCheck,
-    proctor_id: ids.proctor,
-    wwcc_number: "TEST-0000000-0",
-    wwcc_expiry: "2030-12-31",
-    verified_at: new Date().toISOString(),
-    verified_by: ids.admin,
+  await upsert(admin, "plans", {
+    id: SEED_IDS.tutoringPlan,
+    org_id: SEED_IDS.org,
+    name: "Weeknights + tutoring",
+    price_cents: 7900,
+    currency: "AUD",
+    interval: "week",
+    days_per_week: null,
+    includes_tutoring: true,
+    active: true,
   });
+
+  await upsert(admin, "proctor_checks", [
+    {
+      id: SEED_IDS.proctorCheck,
+      proctor_id: ids.proctor,
+      wwcc_number: "TEST-0000000-0",
+      wwcc_expiry: "2030-12-31",
+      verified_at: new Date().toISOString(),
+      verified_by: ids.admin,
+    },
+    {
+      id: SEED_IDS.tutorCheck,
+      proctor_id: ids.tutor,
+      wwcc_number: "TEST-0000000-1",
+      wwcc_expiry: "2030-12-31",
+      verified_at: new Date().toISOString(),
+      verified_by: ids.admin,
+    },
+  ]);
 
   await upsert(admin, "rooms", {
     id: SEED_IDS.room,
@@ -97,6 +119,7 @@ async function main() {
     video_url: "https://example.com/replace-with-zoom-or-meet-link",
     capacity: 40,
     default_proctor_id: ids.proctor,
+    default_tutor_id: ids.tutor,
   });
 
   await upsert(admin, "schedules", {
@@ -121,6 +144,7 @@ async function main() {
       year_level: 11,
       school: "Example Secondary College",
       status: "active",
+      study_note: "Methods: chain rule. Chemistry: equilibrium practice questions.",
     },
     {
       id: SEED_IDS.studentA2,
@@ -161,11 +185,12 @@ async function main() {
     admin,
     "subscriptions",
     [
-      { parent: ids.parentA, ref: "seed-family-a" },
-      { parent: ids.parentB, ref: "seed-family-b" },
-    ].map(({ parent, ref }) => ({
+      // Family A is on the tutoring plan, family B on supervision only.
+      { parent: ids.parentA, ref: "seed-family-a", plan: SEED_IDS.tutoringPlan },
+      { parent: ids.parentB, ref: "seed-family-b", plan: SEED_IDS.plan },
+    ].map(({ parent, ref, plan }) => ({
       parent_id: parent,
-      plan_id: SEED_IDS.plan,
+      plan_id: plan,
       stripe_customer_id: null,
       stripe_subscription_id: ref,
       status: "active",
@@ -174,6 +199,22 @@ async function main() {
       current_period_end: new Date(Date.now() + 7 * 86_400_000).toISOString(),
     })),
     "stripe_subscription_id",
+  );
+
+  // Sample study profiles (subjects, and which ones they want help with).
+  const studies: Record<string, [string, boolean][]> = {
+    [SEED_IDS.studentA]: [["vce-methods", true], ["vce-chemistry", true], ["vce-english", false]],
+    [SEED_IDS.studentB]: [["vce-specialist", false], ["vce-physics", true], ["vce-english", false]],
+  };
+  const { data: subjects } = await admin.from("subjects").select("id, code");
+  const subjectId = new Map((subjects ?? []).map((s) => [s.code, s.id]));
+  await upsert(
+    admin,
+    "student_subjects",
+    Object.entries(studies).flatMap(([studentId, list]) =>
+      list.map(([code, wantsHelp]) => ({ student_id: studentId, subject_id: subjectId.get(code), wants_help: wantsHelp })),
+    ),
+    "student_id,subject_id",
   );
 
   // Legal documents the consent step cites (content/legal). The privacy notice is a draft.

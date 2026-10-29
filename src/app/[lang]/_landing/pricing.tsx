@@ -12,6 +12,7 @@ type PublicPlan = {
   currency: string;
   interval: string;
   days_per_week: number | null;
+  includes_tutoring: boolean;
 };
 
 /**
@@ -27,7 +28,7 @@ async function getPublicPlans(): Promise<PublicPlan[]> {
   const supabase = createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false } });
   const { data, error } = await supabase
     .from("plans")
-    .select("id, name, price_cents, currency, interval, days_per_week")
+    .select("id, name, price_cents, currency, interval, days_per_week, includes_tutoring")
     .eq("active", true)
     .order("price_cents");
   if (error) throw new Error(`Loading plans for the landing page: ${error.message}`);
@@ -59,6 +60,7 @@ export async function PlanCards({ copy, signUpHref }: { copy: LandingCopy["prici
             </Row>
             <Row label={copy.rows.hours}>{copy.rows.hoursValue}</Row>
             <Row label={copy.rows.supervised}>{copy.rows.supervisedValue}</Row>
+            <Row label={copy.rows.help}>{plan.includes_tutoring ? copy.rows.helpTutor : copy.rows.helpSupervisor}</Row>
             <Row label={copy.rows.report}>{copy.rows.reportValue}</Row>
             <Row label={copy.rows.for}>{copy.rows.forValue}</Row>
           </ul>

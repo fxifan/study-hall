@@ -21,7 +21,7 @@ Supabase (Postgres, Auth, RLS) · Zod · Vitest · Playwright.
    ```bash
    npm install
    npm run db:migrate   # applies supabase/migrations to SUPABASE_DB_URL
-   npm run db:seed      # 1 org, admin, proctor, room, schedule, A$49/week plan, 2 families
+   npm run db:seed      # 1 org, admin, proctor, tutor, room, schedule, A$49 and A$79/week plans, 2 families
    npm run dev
    ```
    Migrations can also be applied through the Supabase MCP server in [.mcp.json](.mcp.json) (that's
@@ -41,9 +41,10 @@ npm run login-link -- parentA
 | ---------- | ------- | ---------- | ---------------------------------------- |
 | `admin`    | admin   | `/admin`   |                                          |
 | `proctor`  | proctor | `/proctor` | WWCC recorded as verified (test number)  |
-| `parentA`  | parent  | `/parent`  | Family A: Ava (Year 11), Leo (Year 9, invited, no login) |
+| `tutor`    | proctor | `/proctor` | Tom Tutor: the room's default tutor, WWCC verified |
+| `parentA`  | parent  | `/parent`  | Family A, tutoring plan: Ava (Year 11), Leo (Year 9, invited, no login) |
 | `studentA` | student | `/student` | Ava                                      |
-| `parentB`  | parent  | `/parent`  | Family B: Noah (Year 12)                 |
+| `parentB`  | parent  | `/parent`  | Family B, supervision plan: Noah (Year 12) |
 | `studentB` | student | `/student` | Noah                                     |
 
 Real emailed links work for real addresses, but Supabase's built-in mailer is heavily rate-limited
@@ -101,9 +102,24 @@ test card `4242 4242 4242 4242`, any future expiry and any CVC.
 - `/api/cron/generate-sessions` runs daily on Vercel (`vercel.json`, needs `CRON_SECRET`): it creates
   14 days of sessions from the schedule and enrols active students, one room per time slot, up to
   room capacity. Admins can run it from `/admin/schedule`.
-- A session's supervisor must have a verified Working with Children Check valid on the session date;
-  the database refuses anything else.
-- Admin pages: `/admin/rooms`, `/admin/schedule`, `/admin/plans`, `/admin/proctors` (English only).
+- A session's supervisor and tutor must each have a verified Working with Children Check valid on the
+  session date; the database refuses anything else. Tutors are proctor accounts assigned as
+  `sessions.tutor_id` (room default: `rooms.default_tutor_id`).
+- Admin pages: `/admin/rooms`, `/admin/schedule`, `/admin/subjects` (subject demand),
+  `/admin/plans`, `/admin/proctors` (English only).
+
+## Tutoring plan and study profiles
+
+- Plans with `includes_tutoring` (seeded: "Weeknights + tutoring", A$79/week per student) put a
+  dedicated tutor in the same room. Their students' help requests get `priority` (set by the database
+  from the family's plan), and the student page says so. Help stays text or small-group; there's no
+  one-to-one video.
+- Parents record each child's subjects (taking / wants help, from the `subjects` list: Years 7–10 and
+  VCE) and an optional 200-character note on current work, at sign-up or from `/parent/student/<id>`.
+  The tutoring plan can't be bought until every child has at least one subject.
+- Supervisors and tutors see each assigned session's roster at `/proctor/session/<id>` (the
+  `session_roster()` function: tutoring students first, subjects, notes). Admins see subject demand
+  at `/admin/subjects`.
 
 ## How it fits together
 

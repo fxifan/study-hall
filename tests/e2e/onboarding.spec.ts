@@ -61,8 +61,8 @@ test("a new parent signs up up to payment", async ({ page }) => {
   await addChild("Mia", "t", "10", childEmail);
   const children = page.getByTestId("onboarding-children");
   await expect(children).toContainText("Mia T. · Year 10");
-  await addChild("Sam", "T", "12", secondChildEmail);
-  await expect(children).toContainText("Sam T. · Year 12");
+  await addChild("Sam", "T", "7", secondChildEmail);
+  await expect(children).toContainText("Sam T. · Year 7");
   await children.locator("li", { hasText: "Sam T." }).getByRole("button", { name: "Remove" }).click();
   await expect(children).not.toContainText("Sam T.");
 
@@ -76,9 +76,27 @@ test("a new parent signs up up to payment", async ({ page }) => {
   await page.getByRole("button", { name: "Agree" }).click();
   await expect(page.getByTestId("consent-done")).toContainText("house rules 2026-10-v1");
 
-  // 4. Plan: per-student total
-  await expect(page.getByTestId("checkout-summary")).toHaveText("1 × A$49 = A$49 per week");
-  if (!process.env.STRIPE_SECRET_KEY) await expect(page.getByText("Payments aren't switched on yet.")).toBeVisible();
+  // 4. Plans: per-student totals, supervision first, then tutoring
+  const summaries = page.getByTestId("checkout-summary");
+  await expect(summaries.nth(0)).toHaveText("1 × A$49 = A$49 per week");
+  await expect(summaries.nth(1)).toHaveText("1 × A$79 = A$79 per week");
+  if (!process.env.STRIPE_SECRET_KEY) {
+    await expect(page.getByText("Payments aren't switched on yet.").first()).toBeVisible();
+  } else {
+    // The tutoring plan needs subjects first, so the tutor can prepare.
+    await page.getByRole("button", { name: "Continue to secure payment" }).nth(1).click();
+    await expect(page.getByRole("alert").filter({ hasText: "at least one subject for each child" })).toBeVisible();
+  }
+
+  // Subjects: Year 10 sees both the junior and VCE lists
+  const studies = page.getByRole("form", { name: "Subjects and current work: Mia" });
+  await expect(studies.getByRole("group", { name: "Years 7–10" })).toBeVisible();
+  const vce = studies.getByRole("group", { name: "VCE (Years 10–12)" });
+  await vce.getByLabel("Mathematical Methods: Wants help").check(); // implies "takes"
+  await vce.getByLabel("English: Takes").check();
+  await studies.getByLabel(/Current work/).fill("Methods: functions revision.");
+  await studies.getByRole("button", { name: "Save subjects" }).click();
+  await expect(children.getByTestId("studies-summary")).toContainText("2 subjects");
 
   // What was stored
   const { data: profile } = await admin.from("profiles").select("full_name, acquisition_source, role").eq("id", parentId).single();
@@ -95,6 +113,17 @@ test("a new parent signs up up to payment", async ({ page }) => {
   expect(mia.status).toBe("invited");
   expect(mia.profiles).toMatchObject({ role: "student", email: childEmail });
   expect(mia.consents.map((c) => c.document).sort()).toEqual(["house_rules", "privacy_child_safety"]);
+  const { data: miaStudies } = await admin
+    .from("students")
+    .select("study_note, student_subjects(wants_help, subjects(code))")
+    .eq("profile_id", (await admin.from("profiles").select("id").eq("email", childEmail).single()).data!.id)
+    .single();
+  expect(miaStudies?.study_note).toBe("Methods: functions revision.");
+  expect(
+    (miaStudies?.student_subjects as unknown as { wants_help: boolean; subjects: { code: string } }[])
+      .map((s) => `${s.subjects.code}:${s.wants_help}`)
+      .sort(),
+  ).toEqual(["vce-english:false", "vce-methods:true"]);
   const removed = await admin.from("profiles").select("id").eq("email", secondChildEmail);
   expect(removed.data).toEqual([]);
 });

@@ -98,7 +98,7 @@ const studentSchema = z.object({
     .trim()
     .regex(/^\p{L}$/u)
     .transform((v) => v.toUpperCase()),
-  yearLevel: z.coerce.number().int().min(9).max(12),
+  yearLevel: z.coerce.number().int().min(7).max(12),
   school: z
     .string()
     .trim()
@@ -245,7 +245,7 @@ export async function startCheckout(formData: FormData) {
   const supabase = await createClient();
   const { data: plan } = await supabase
     .from("plans")
-    .select("id, stripe_price_id")
+    .select("id, stripe_price_id, includes_tutoring")
     .eq("id", planId)
     .eq("active", true)
     .maybeSingle();
@@ -257,7 +257,7 @@ export async function startCheckout(formData: FormData) {
   ]);
   const { data: students } = await supabase
     .from("students")
-    .select("id, consents(document, document_version)")
+    .select("id, consents(document, document_version), student_subjects(subject_id)")
     .neq("status", "active");
   const ready = (students ?? []).filter((s) =>
     [houseRules, privacy].every((doc) =>
@@ -265,6 +265,10 @@ export async function startCheckout(formData: FormData) {
     ),
   );
   if (!ready.length) redirect(await onboardingUrl("?error=need_consent#pay"));
+  // Tutors prepare from the subjects list, so the tutoring plan needs at least one per child.
+  if (plan.includes_tutoring && ready.some((s) => !s.student_subjects.length)) {
+    redirect(await onboardingUrl("?error=need_subjects#pay"));
+  }
 
   const origin = await siteOrigin();
   const customer = await stripeCustomerFor(parent.id);

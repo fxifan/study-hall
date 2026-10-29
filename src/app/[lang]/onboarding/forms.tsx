@@ -51,7 +51,7 @@ export function AddStudentForm({ t }: { t: OnboardingCopy["children"] }) {
           defaultValue="11"
           className="h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm"
         >
-          {[9, 10, 11, 12].map((n) => (
+          {[7, 8, 9, 10, 11, 12].map((n) => (
             <option key={n} value={n}>
               {fill(t.year, { n })}
             </option>

@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { LanguageSwitch } from "@/components/language-switch";
+import { StudiesForm } from "@/components/studies-form";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { localizePath } from "@/i18n/config";
+import type { Dictionary } from "@/i18n/dictionaries/en";
 import type { OnboardingCopy } from "@/i18n/dictionaries/onboarding.en";
 import { fill } from "@/i18n/fill";
 import { getDictionary, getLocale } from "@/i18n/server";
@@ -14,6 +16,7 @@ import { ACTIVE_SUBSCRIPTION_STATUSES } from "@/lib/subscription-status";
 import { getCurrentLegalDocument } from "@/lib/legal";
 import { formatAud } from "@/lib/money";
 import { stripeConfigured } from "@/lib/stripe";
+import type { Subject } from "@/lib/subjects";
 import { createClient } from "@/lib/supabase/server";
 import { recordConsent, removeStudent, saveDetails, startCheckout } from "./actions";
 import { AddStudentForm, StartForm } from "./forms";
@@ -23,7 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function OnboardingPage({ searchParams }: PageProps<"/[lang]/onboarding">) {
-  const [{ onboarding: t, common }, locale] = await Promise.all([getDictionary(), getLocale()]);
+  const [{ onboarding: t, studies, common }, locale] = await Promise.all([getDictionary(), getLocale()]);
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 px-4 py-12">
       <div className="flex items-baseline justify-between gap-4">
@@ -37,7 +40,7 @@ export default async function OnboardingPage({ searchParams }: PageProps<"/[lang
         <p className="text-lg text-ink-soft">{t.intro}</p>
       </header>
       <Suspense fallback={<p className="font-mono text-sm text-ink-faint">{common.loading}</p>}>
-        <Onboarding t={t} searchParams={searchParams} />
+        <Onboarding t={t} studies={studies} searchParams={searchParams} />
       </Suspense>
     </main>
   );
@@ -46,6 +49,7 @@ export default async function OnboardingPage({ searchParams }: PageProps<"/[lang
 const MESSAGES = (t: OnboardingCopy): Record<string, string> => ({
   consent_required: t.consent.required,
   need_consent: t.pay.needConsent,
+  need_subjects: t.pay.needSubjects,
   not_configured: t.pay.notConfigured,
   checkout_failed: t.pay.failed,
   cancelled: t.pay.cancelled,
@@ -54,16 +58,18 @@ const MESSAGES = (t: OnboardingCopy): Record<string, string> => ({
 
 async function Onboarding({
   t,
+  studies,
   searchParams,
 }: {
   t: OnboardingCopy;
+  studies: Dictionary["studies"];
   searchParams: PageProps<"/[lang]/onboarding">["searchParams"];
 }) {
   const [profile, locale, query] = await Promise.all([getCurrentProfile(), getLocale(), searchParams]);
   const supabase = await createClient();
   const { data: plans } = await supabase
     .from("plans")
-    .select("id, name, price_cents, stripe_price_id, days_per_week")
+    .select("id, name, price_cents, stripe_price_id, days_per_week, includes_tutoring")
     .eq("active", true)
     .order("price_cents");
   const headlinePrice = plans?.[0] ? formatAud(plans[0].price_cents) : "";
@@ -99,12 +105,15 @@ async function Onboarding({
     );
   }
 
-  const [{ data: me }, { data: students }, { data: activeSubs }, houseRules, privacy] = await Promise.all([
+  const [{ data: me }, { data: students }, { data: subjects }, { data: activeSubs }, houseRules, privacy] = await Promise.all([
     supabase.from("profiles").select("full_name, acquisition_source").eq("id", profile.id).single(),
     supabase
       .from("students")
-      .select("id, first_name, last_initial, year_level, status, consents(document, document_version)")
+      .select(
+        "id, first_name, last_initial, year_level, status, study_note, consents(document, document_version), student_subjects(subject_id, wants_help)",
+      )
       .order("created_at"),
+    supabase.from("subjects").select("id, name, stage, sort").eq("active", true).order("sort").returns<Subject[]>(),
     supabase.from("subscriptions").select("id").in("status", [...ACTIVE_SUBSCRIPTION_STATUSES]).limit(1),
     getCurrentLegalDocument("house_rules"),
     getCurrentLegalDocument("privacy_child_safety"),
@@ -168,21 +177,32 @@ async function Onboarding({
         {students?.length ? (
           <ul className="divide-y divide-rule rounded-md border border-hair bg-sheet" data-testid="onboarding-children">
             {students.map((s) => (
-              <li key={s.id} className="flex items-center justify-between gap-4 px-4 py-3">
-                <span>
-                  {s.first_name} {s.last_initial}. · {fill(t.children.year, { n: s.year_level })}
-                </span>
-                <span className="flex items-center gap-3 font-mono text-xs text-ink-soft">
-                  {t.children.status[s.status as keyof typeof t.children.status]}
-                  {s.status === "invited" && (
-                    <form action={removeStudent}>
-                      <input type="hidden" name="studentId" value={s.id} />
-                      <Button type="submit" variant="ghost" size="sm">
-                        {t.children.remove}
-                      </Button>
-                    </form>
-                  )}
-                </span>
+              <li key={s.id} className="flex flex-col gap-2 px-4 py-3">
+                <div className="flex items-center justify-between gap-4">
+                  <span>
+                    {s.first_name} {s.last_initial}. · {fill(t.children.year, { n: s.year_level })}
+                  </span>
+                  <span className="flex items-center gap-3 font-mono text-xs text-ink-soft">
+                    {t.children.status[s.status as keyof typeof t.children.status]}
+                    {s.status === "invited" && (
+                      <form action={removeStudent}>
+                        <input type="hidden" name="studentId" value={s.id} />
+                        <Button type="submit" variant="ghost" size="sm">
+                          {t.children.remove}
+                        </Button>
+                      </form>
+                    )}
+                  </span>
+                </div>
+                <details className="group" open={!s.student_subjects.length}>
+                  <summary className="cursor-pointer text-sm text-ink-soft" data-testid="studies-summary">
+                    {studies.title} ·{" "}
+                    {s.student_subjects.length ? fill(studies.summary, { count: s.student_subjects.length }) : studies.none}
+                  </summary>
+                  <div className="pt-3">
+                    <StudiesForm student={s} subjects={subjects ?? []} selected={s.student_subjects} t={studies} />
+                  </div>
+                </details>
               </li>
             ))}
           </ul>
@@ -242,6 +262,7 @@ async function Onboarding({
             <form key={plan.id} action={startCheckout} className="flex flex-col gap-3 rounded-md border border-hair bg-sheet p-5">
               <input type="hidden" name="planId" value={plan.id} />
               <p className="text-lg">{plan.name}</p>
+              <p className="text-sm text-ink-soft">{plan.includes_tutoring ? t.pay.tutoring : t.pay.supervision}</p>
               <p className="font-mono text-sm" data-testid="checkout-summary">
                 {fill(t.pay.summary, {
                   count,
