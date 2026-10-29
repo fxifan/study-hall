@@ -58,6 +58,25 @@ npm run test:e2e    # Playwright: each role logs in and lands home (needs seed; 
 npm run typecheck && npm run lint
 ```
 
+## Deployment (Vercel, Hobby plan)
+
+Production: https://study-hall-murex.vercel.app (project `study-hall`, team "feifan's projects").
+`vercel.json` pins the Next.js preset and runs functions in Sydney (`syd1`); `.vercelignore` keeps
+`.env*` files out of uploads.
+
+```bash
+vercel deploy --environment preview   # protected preview URL (only signed-in team members)
+vercel deploy --prod                  # public production
+```
+
+Environment variables on Vercel: `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+(Preview + Production), and `NEXT_PUBLIC_SITE_URL` (Production). The secret key isn't needed there
+yet. For emailed magic links to work in production, add the production URL to the Supabase
+project's Auth > URL Configuration (Site URL and Redirect URLs).
+
+To log in as a seeded account on a deployed site:
+`NEXT_PUBLIC_SITE_URL=https://study-hall-murex.vercel.app npm run login-link -- parentA`
+
 ## How it fits together
 
 - **Auth.** `/login` emails a magic link for existing accounts only (parents sign up through
