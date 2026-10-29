@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { DEFAULT_LOCALE, LOCALE_COOKIE, isLocale, localizePath, type Locale } from "@/i18n/config";
 import { getCurrentProfile, type CurrentProfile } from "@/lib/auth";
+import { emailLimitKind } from "@/lib/email";
 import { stripeCustomerFor } from "@/lib/billing";
 import { getCurrentLegalDocument } from "@/lib/legal";
 import { siteOrigin } from "@/lib/site";
@@ -32,7 +33,10 @@ async function requireParent(): Promise<CurrentProfile> {
 
 // --- Step 0: create the parent account (signed out) --------------------------------------------
 
-export type StartState = { status: "idle" } | { status: "sent" } | { status: "error"; code: "invalid_email" | "rate_limited" | "send_failed" };
+export type StartState =
+  | { status: "idle" }
+  | { status: "sent" }
+  | { status: "error"; code: "invalid_email" | "rate_limited" | "email_quota" | "send_failed" };
 
 export async function startSignUp(_prev: StartState, formData: FormData): Promise<StartState> {
   const parsed = z.object({ email: z.email().trim().toLowerCase() }).safeParse({ email: formData.get("email") });
@@ -45,7 +49,12 @@ export async function startSignUp(_prev: StartState, formData: FormData): Promis
     options: { shouldCreateUser: true, emailRedirectTo: `${await siteOrigin()}/auth/confirm` },
   });
   if (error) {
-    if (error.code === "over_email_send_rate_limit" || error.status === 429) return { status: "error", code: "rate_limited" };
+    const limit = emailLimitKind(error);
+    if (limit === "cooldown") return { status: "error", code: "rate_limited" };
+    if (limit === "quota") {
+      console.error("Auth email quota reached (Supabase Auth > Rate Limits)", error.message);
+      return { status: "error", code: "email_quota" };
+    }
     console.error("Sign-up email failed", error.code, error.message);
     return { status: "error", code: "send_failed" };
   }

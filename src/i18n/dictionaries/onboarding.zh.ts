@@ -25,7 +25,8 @@ export const onboardingZh: OnboardingCopy = {
     logIn: "登录",
     errors: {
       invalid_email: "请输入有效的邮箱地址。",
-      rate_limited: "邮件发送太频繁，请等一分钟再试。",
+      rate_limited: "您刚刚请求过链接，请等一分钟再试。",
+      email_quota: "暂时无法发送注册邮件，请稍后再试。",
       send_failed: "暂时无法发送链接，请稍后再试。",
     },
   },

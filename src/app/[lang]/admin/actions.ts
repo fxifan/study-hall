@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { DEFAULT_LOCALE, LOCALE_COOKIE, isLocale, localizePath } from "@/i18n/config";
 import { getCurrentProfile, type CurrentProfile } from "@/lib/auth";
+import { isReservedTestEmail } from "@/lib/email";
 import { enrolEligibleStudents, generateSessions } from "@/lib/sessions";
 import { siteOrigin } from "@/lib/site";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -201,6 +202,10 @@ export async function inviteSupervisor(formData: FormData) {
     .from("profiles")
     .upsert({ id: data.user!.id, org_id: admin.orgId, role: "proctor", full_name: invite.fullName, email: invite.email });
 
+  if (isReservedTestEmail(invite.email)) {
+    refresh(); // test account: no email (it would only burn the hourly email quota)
+    return;
+  }
   const supabase = await createClient();
   const { error: mailError } = await supabase.auth.signInWithOtp({
     email: invite.email,

@@ -30,7 +30,8 @@ export const en = {
     sent: "If {email} has a Study Hall account, a login link is on its way. It expires in an hour.",
     errors: {
       invalid_email: "Enter a valid email address.",
-      rate_limited: "Too many login emails. Wait a minute and try again.",
+      rate_limited: "You just asked for a link. Wait a minute and try again.",
+      email_quota: "We can't send login emails right now. Please try again in a little while.",
       send_failed: "We couldn't send the link. Try again shortly.",
     },
     linkErrors: {

@@ -1,6 +1,7 @@
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
 import type Stripe from "stripe";
+import { isReservedTestEmail } from "@/lib/email";
 import { enrolEligibleStudents } from "@/lib/sessions";
 import { getStripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -113,7 +114,8 @@ async function sendLoginEmails(profileIds: string[], origin: string) {
   const admin = createAdminClient();
   const { data: profiles } = await admin.from("profiles").select("email").in("id", profileIds);
   const auth = createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false } }).auth;
-  for (const { email } of profiles ?? []) {
+  // Test accounts use reserved domains: sending would only burn the hourly email quota.
+  for (const { email } of (profiles ?? []).filter((p) => !isReservedTestEmail(p.email))) {
     const { error } = await auth.signInWithOtp({
       email,
       options: { shouldCreateUser: false, emailRedirectTo: `${origin}/auth/confirm` },

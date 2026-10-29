@@ -1,10 +1,11 @@
 "use server";
 
 import { z } from "zod";
+import { emailLimitKind } from "@/lib/email";
 import { createClient } from "@/lib/supabase/server";
 
 /** Error codes, not text: the form shows them in the page's language. */
-export type LoginErrorCode = "invalid_email" | "rate_limited" | "send_failed";
+export type LoginErrorCode = "invalid_email" | "rate_limited" | "email_quota" | "send_failed";
 
 export type LoginState =
   | { status: "idle" }
@@ -31,8 +32,11 @@ export async function sendMagicLink(_prev: LoginState, formData: FormData): Prom
   });
 
   if (error) {
-    if (error.code === "over_email_send_rate_limit" || error.status === 429) {
-      return { status: "error", code: "rate_limited" };
+    const limit = emailLimitKind(error);
+    if (limit === "cooldown") return { status: "error", code: "rate_limited" };
+    if (limit === "quota") {
+      console.error("Auth email quota reached (Supabase Auth > Rate Limits)", error.message);
+      return { status: "error", code: "email_quota" };
     }
     // otp_disabled / user_not_found: no account with that email. Reply as if it worked.
     if (error.code !== "otp_disabled" && error.code !== "user_not_found") {

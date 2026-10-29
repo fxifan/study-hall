@@ -26,7 +26,8 @@ export const onboardingEn = {
     logIn: "Log in",
     errors: {
       invalid_email: "Enter a valid email address.",
-      rate_limited: "Too many emails. Wait a minute and try again.",
+      rate_limited: "You just asked for a link. Wait a minute and try again.",
+      email_quota: "We can't send sign-up emails right now. Please try again in a little while.",
       send_failed: "We couldn't send the link. Try again shortly.",
     },
   },
