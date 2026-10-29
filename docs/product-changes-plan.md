@@ -50,11 +50,14 @@ Built in four commits: legal documents, WWCC gate, capacity and check-in in the 
 Stripe Checkout, webhook and portal; the student session page; admin rooms, schedule, plans and
 supervisors. Tested: 27 unit, 34 database (incl. signed webhook events), 28 browser tests.
 
-Not yet verified:
-- A real Stripe test-mode payment (needs the Study Hall test key; then `npm run stripe:setup`).
-- Emails (student login links, supervisor invites): Supabase's mailer only delivers to the project
-  team until Resend SMTP is configured.
-- On Vercel: `SUPABASE_SECRET_KEY`, `CRON_SECRET`, `IP_HASH_SALT`, Stripe keys and the webhook.
+Verified 2026-10-30: a Stripe test-mode payment end to end (tests/e2e/stripe.spec.ts, localhost),
+the production webhook cancelling access, production sign-up reaching Stripe Checkout, and all
+server secrets plus Stripe keys set on Vercel. Checkout opts out of Stripe Managed Payments (the
+account's default, merchant of record with extra fees) to match the spec's stack; owner to decide
+whether to use it for GST instead.
+
+Not yet verified: emails (student login links, supervisor invites) now that Resend is the SMTP
+provider; check with a real address.
 
 Deferred: re-consent when house rules change (spec §7), adding a child to an active subscription
 (quantity change), choosing days for limited plans, parent deletion requests (spec §8.10).
