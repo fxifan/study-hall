@@ -1,5 +1,7 @@
+import { zhCN } from "date-fns/locale";
 import { describe, expect, it } from "vitest";
 import {
+  MELBOURNE,
   addDaysToDateKey,
   dateKeyOf,
   dayRangeUtc,
@@ -51,6 +53,10 @@ describe("zonedDateTimeToUtc", () => {
 describe("formatting and calendar dates", () => {
   it("formats instants in Melbourne time", () => {
     expect(formatInZone("2026-10-29T05:02:00Z", "EEE d MMM, h:mmaaa")).toBe("Thu 29 Oct, 4:02pm");
+  });
+
+  it("formats in Chinese when given the zh-CN locale", () => {
+    expect(formatInZone("2026-10-29T05:02:00Z", "M月d日 EEEE HH:mm", MELBOURNE, zhCN)).toBe("10月29日 星期四 16:02");
   });
 
   it("puts a late-UTC instant on the next Melbourne day", () => {

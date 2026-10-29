@@ -71,6 +71,12 @@ npm run typecheck && npm run lint
 - **Database.** SQL migrations only, in [supabase/migrations](supabase/migrations). All timestamps are
   UTC `timestamptz`. RLS policies use `SECURITY DEFINER` helpers in a non-exposed `private` schema;
   column guards (triggers) stop parents changing a student's status or anyone changing their own role.
+- **Languages.** English and Simplified Chinese. English keeps the spec's URLs (`/parent`); Chinese
+  is under `/zh` (`/zh/parent`). Pages live in `src/app/[lang]`; the proxy rewrites unprefixed URLs to
+  `/en/…`, sends browsers that prefer Chinese (or chose it with the header's language switch, stored
+  in the `NEXT_LOCALE` cookie) to `/zh/…`, and keeps the language through role redirects. Strings
+  are in [src/i18n/dictionaries](src/i18n/dictionaries); `zh.ts` is typed against `en.ts`, so a
+  missing translation fails the typecheck. The magic-link email itself is still English only.
 - **Time.** Every date/time goes through [src/lib/time.ts](src/lib/time.ts) (`Australia/Melbourne`,
   DST-safe).
 - **Theme.** Brand tokens from the landing design (`paper`, `sheet`, `ink`, `pen`, `rule`, `cover`;

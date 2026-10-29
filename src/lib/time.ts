@@ -12,7 +12,7 @@
  * "Date keys" are calendar dates as 'yyyy-MM-dd' strings in the zone, e.g. '2026-10-29'.
  */
 import { TZDate } from "@date-fns/tz";
-import { format, parseISO } from "date-fns";
+import { format, parseISO, type Locale } from "date-fns";
 
 export const MELBOURNE = "Australia/Melbourne";
 
@@ -40,9 +40,12 @@ export function inZone(instant: Instant = Date.now(), timeZone = MELBOURNE): TZD
   return new TZDate(toDate(instant).getTime(), timeZone);
 }
 
-/** Format an instant in Melbourne time using a date-fns pattern, e.g. 'EEE d MMM' or 'h:mmaaa'. */
-export function formatInZone(instant: Instant, pattern: string, timeZone = MELBOURNE): string {
-  return format(inZone(instant, timeZone), pattern);
+/**
+ * Format an instant in Melbourne time using a date-fns pattern, e.g. 'EEE d MMM' or 'h:mmaaa'.
+ * Pass a date-fns locale (getDateLocale() in src/i18n/server.ts) for translated day and month names.
+ */
+export function formatInZone(instant: Instant, pattern: string, timeZone = MELBOURNE, locale?: Locale): string {
+  return format(inZone(instant, timeZone), pattern, { locale });
 }
 
 /** The Melbourne calendar date an instant falls on. */

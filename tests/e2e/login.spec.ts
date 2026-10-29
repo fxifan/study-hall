@@ -71,3 +71,49 @@ test("logging out returns to /login and locks the role area", async ({ page }) =
   await page.goto("/parent");
   await expect(page).toHaveURL("/login");
 });
+
+test.describe("Simplified Chinese", () => {
+  test("/zh/login is in Chinese", async ({ page }) => {
+    await page.goto("/zh/login");
+    await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN");
+    await expect(page.getByRole("button", { name: "发送登录链接" })).toBeVisible();
+  });
+
+  test.describe("a browser set to Chinese", () => {
+    test.use({ locale: "zh-CN" });
+
+    test("is sent to the Chinese pages", async ({ page }) => {
+      await page.goto("/login");
+      await expect(page).toHaveURL("/zh/login");
+    });
+  });
+
+  test("a parent who chose Chinese logs in and stays in Chinese", async ({ page, context, baseURL }) => {
+    await context.addCookies([{ name: "NEXT_LOCALE", value: "zh", url: baseURL! }]);
+    await logInAs(page, "parentA");
+    await expect(page).toHaveURL("/zh/parent");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("您的孩子");
+    await expect(page.getByTestId("student-list")).toContainText("11 年级 · 使用中");
+
+    // Role routing keeps the language.
+    await page.goto("/zh/admin");
+    await expect(page).toHaveURL("/zh/parent");
+  });
+
+  test("the language switch changes language and is remembered", async ({ page }) => {
+    await logInAs(page, "parentB");
+    await expect(page).toHaveURL("/parent");
+
+    await page.getByRole("link", { name: "中文" }).click();
+    await expect(page).toHaveURL("/zh/parent");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("您的孩子");
+
+    // Remembered: the English URL now sends this browser to Chinese.
+    await page.goto("/parent");
+    await expect(page).toHaveURL("/zh/parent");
+
+    await page.getByRole("link", { name: "English" }).click();
+    await expect(page).toHaveURL("/parent");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(/your students/i);
+  });
+});

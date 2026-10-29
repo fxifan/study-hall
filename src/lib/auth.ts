@@ -1,6 +1,8 @@
 import "server-only";
 import { redirect } from "next/navigation";
 import { cache } from "react";
+import { localizePath } from "@/i18n/config";
+import { getLocale } from "@/i18n/server";
 import { ROLE_HOME, isRole, type Role } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 
@@ -35,10 +37,15 @@ export const getCurrentProfile = cache(async (): Promise<CurrentProfile | null> 
   };
 });
 
-/** Use at the top of every role page and Server Action: redirects anyone who isn't `role`. */
+/**
+ * Use at the top of every role page: redirects anyone who isn't `role`, staying in the page's
+ * language. Server Components only (it reads the [lang] root param); Server Actions should call
+ * getCurrentProfile() and throw instead.
+ */
 export async function requireRole(role: Role): Promise<CurrentProfile> {
   const profile = await getCurrentProfile();
-  if (!profile) redirect("/login");
-  if (profile.role !== role) redirect(ROLE_HOME[profile.role]);
+  const locale = await getLocale();
+  if (!profile) redirect(localizePath("/login", locale));
+  if (profile.role !== role) redirect(localizePath(ROLE_HOME[profile.role], locale));
   return profile;
 }

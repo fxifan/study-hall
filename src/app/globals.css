@@ -71,6 +71,9 @@
   --sidebar-border: var(--hair);
   --sidebar-ring: var(--ink-faint);
 
+  /* Simplified Chinese system fonts, used as the fallback in every font stack. */
+  --font-cjk: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC";
+
   color-scheme: light;
 }
 
@@ -126,11 +129,12 @@
   --color-cover-ink: var(--cover-ink);
   --color-cover-soft: var(--cover-soft);
 
-  /* Fonts come from next/font in app/layout.tsx */
-  --font-serif: var(--font-newsreader), Georgia, "Times New Roman", serif;
-  --font-mono: var(--font-jetbrains-mono), ui-monospace, Menlo, Consolas, monospace;
-  --font-sans: var(--font-newsreader), Georgia, "Times New Roman", serif;
-  --font-heading: var(--font-newsreader), Georgia, "Times New Roman", serif;
+  /* Latin fonts come from next/font in app/[lang]/layout.tsx. Neither has Chinese glyphs, so
+     Chinese text falls back to the system fonts in --font-cjk (:root above; nothing is downloaded). */
+  --font-serif: var(--font-newsreader), Georgia, "Times New Roman", var(--font-cjk), serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, Menlo, Consolas, var(--font-cjk), monospace;
+  --font-sans: var(--font-newsreader), Georgia, "Times New Roman", var(--font-cjk), serif;
+  --font-heading: var(--font-newsreader), Georgia, "Times New Roman", var(--font-cjk), serif;
 
   /* shadcn/ui */
   --color-background: var(--background);
