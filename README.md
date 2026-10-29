@@ -64,8 +64,12 @@ Production: https://study-hall-murex.vercel.app (project `study-hall`, team "fei
 `vercel.json` pins the Next.js preset and runs functions in Sydney (`syd1`); `.vercelignore` keeps
 `.env*` files out of uploads.
 
+The project is connected to GitHub (`fxifan/study-hall`): pushing to `main` deploys production, and
+pushing any other branch creates a protected preview (only signed-in team members can open it).
+Manual deploys from a local checkout still work:
+
 ```bash
-vercel deploy --environment preview   # protected preview URL (only signed-in team members)
+vercel deploy --environment preview   # protected preview URL
 vercel deploy --prod                  # public production
 ```
 
