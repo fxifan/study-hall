@@ -11,6 +11,15 @@ import { zonedDateTimeToUtc } from "../../src/lib/time";
 import { signInAs, signedOutClient, sortedIds, userIdOf } from "../helpers";
 
 const FAMILY_A = [SEED_IDS.studentA, SEED_IDS.studentA2].sort();
+
+/** Students enrolled in any session the given proctor supervises, per the service role. */
+async function rosteredFor(proctorId: string): Promise<string[]> {
+  const { data } = await createAdminClient()
+    .from("enrolments")
+    .select("student_id, sessions!inner(proctor_id)")
+    .eq("sessions.proctor_id", proctorId);
+  return [...new Set((data ?? []).map((e) => e.student_id))].sort();
+}
 const FAMILY_B = [SEED_IDS.studentB];
 
 let parentA: SupabaseClient;
@@ -162,9 +171,10 @@ describe("other roles", () => {
     expect(sortedIds(data)).toEqual(expect.arrayContaining([...FAMILY_A, ...FAMILY_B]));
   });
 
-  it("a proctor with no sessions sees no students", async () => {
+  it("a proctor sees exactly the students rostered to their sessions", async () => {
     const { data } = await proctor.from("students").select("id");
-    expect(data).toEqual([]);
+    expect(sortedIds(data)).toEqual(await rosteredFor(await userIdOf("proctor")));
+    expect(sortedIds(data)).not.toContain(SEED_IDS.studentA2); // invited, never enrolled
   });
 });
 
@@ -194,9 +204,10 @@ describe("proctors only see students in sessions they're assigned to", () => {
     if (sessionId) await service.from("sessions").delete().eq("id", sessionId);
   });
 
-  it("sees the rostered student and no one else", async () => {
+  it("sees the newly rostered student, and still only rostered students", async () => {
     const { data } = await proctor.from("students").select("id");
-    expect(sortedIds(data)).toEqual([SEED_IDS.studentA]);
+    expect(sortedIds(data)).toContain(SEED_IDS.studentA);
+    expect(sortedIds(data)).toEqual(await rosteredFor(await userIdOf("proctor")));
   });
 
   it("can record attendance for a rostered student", async () => {

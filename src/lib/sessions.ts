@@ -2,6 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { ACTIVE_SUBSCRIPTION_STATUSES } from "@/lib/subscription-status";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { placeStudentsInSlot, type SessionWithRoom } from "@/lib/enrolment";
 import { addDaysToDateKey, dateKeyOf, isoWeekdayOfDateKey, zonedDateTimeToUtc } from "@/lib/time";
 
 /** How far ahead sessions are generated (spec §6: cron creates sessions 14 days ahead). */
@@ -105,30 +106,28 @@ export async function enrolEligibleStudents(options: { studentIds?: string[]; no
 
   const { data: sessions, error: sessionsError } = await admin
     .from("sessions")
-    .select("id, starts_at, rooms(capacity), enrolments(student_id)")
+    .select("id, starts_at, rooms(name, capacity), enrolments(student_id)")
     .neq("status", "cancelled")
     .gt("ends_at", now.toISOString())
     .order("starts_at")
-    .returns<{ id: string; starts_at: string; rooms: { capacity: number } | null; enrolments: { student_id: string }[] }[]>();
+    .returns<SessionWithRoom[]>();
   if (sessionsError) throw sessionsError;
 
   const result: EnrolResult = { enrolled: 0, full: [] };
-  for (const session of sessions ?? []) {
-    const already = new Set(session.enrolments.map((e) => e.student_id));
-    const wanted = eligible.filter((id) => !already.has(id));
-    if (!wanted.length) continue;
-    const room = Math.max(0, (session.rooms?.capacity ?? 0) - already.size);
-    const fits = wanted.slice(0, room);
-    if (fits.length) {
-      const { error: enrolError } = await admin
-        .from("enrolments")
-        .insert(fits.map((studentId) => ({ session_id: session.id, student_id: studentId })));
+  for (const [startsAt, slot] of groupBy(sessions ?? [], (s) => s.starts_at)) {
+    const { assignments, unplaced } = placeStudentsInSlot(slot, eligible);
+    if (assignments.length) {
+      const { error: enrolError } = await admin.from("enrolments").insert(assignments);
       if (enrolError) throw enrolError;
-      result.enrolled += fits.length;
+      result.enrolled += assignments.length;
     }
-    if (wanted.length > fits.length) {
-      result.full.push({ sessionId: session.id, startsAt: session.starts_at, notEnrolled: wanted.length - fits.length });
-    }
+    if (unplaced) result.full.push({ sessionId: slot[0].id, startsAt, notEnrolled: unplaced });
   }
   return result;
+}
+
+function groupBy<T>(items: T[], key: (item: T) => string): Map<string, T[]> {
+  const groups = new Map<string, T[]>();
+  for (const item of items) groups.set(key(item), [...(groups.get(key(item)) ?? []), item]);
+  return groups;
 }
