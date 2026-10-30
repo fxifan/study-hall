@@ -50,10 +50,16 @@ export async function proxy(request: NextRequest) {
   if (pathname.startsWith("/auth/") || pathname.startsWith("/api/")) return response;
 
   // Supabase sends an email link to the project's Site URL (the home page) when the link's own
-  // redirect isn't on its allow list, so a sign-in code can arrive on any page. Finish it properly.
-  const code = request.nextUrl.searchParams.get("code");
+  // redirect isn't on its allow list, so a sign-in code or token can arrive on any page. Finish it.
+  const params = request.nextUrl.searchParams;
+  const code = params.get("code");
   if (code && /^[0-9a-f-]{36}$/i.test(code)) {
     return finish(NextResponse.redirect(new URL(`/auth/confirm?code=${code}`, request.url)), response);
+  }
+  const tokenHash = params.get("token_hash");
+  const type = params.get("type");
+  if (tokenHash && /^[0-9a-f]+$/i.test(tokenHash) && type && /^[a-z_]+$/.test(type)) {
+    return finish(NextResponse.redirect(new URL(`/auth/confirm?token_hash=${tokenHash}&type=${type}`, request.url)), response);
   }
 
   // --- Language -------------------------------------------------------------

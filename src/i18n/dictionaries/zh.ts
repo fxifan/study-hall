@@ -143,6 +143,29 @@ export const zh: Dictionary = {
     inactive: "已停用",
     manageSoon: "自习室、课表、套餐和监督老师（WWCC）管理。",
   },
+  emails: {
+    label: "简体中文",
+    footer: "如有疑问或意见，请发邮件至 {email}。Study Hall 由个体经营者 Feifan Wu 运营。",
+    login: {
+      subject: "您的 Study Hall 登录链接",
+      heading: "登录 Study Hall",
+      body: "请使用以下链接登录。链接只能使用一次，一小时内有效。",
+      button: "登录",
+      ignore: "如果这不是您本人的操作，请忽略本邮件。",
+    },
+    signup: {
+      subject: "确认您在 Study Hall 的邮箱",
+      heading: "确认您的邮箱",
+      body: "请使用以下链接确认邮箱并继续注册。链接只能使用一次，一小时内有效。",
+      button: "继续注册",
+      ignore: "如果您没有注册 Study Hall，请忽略本邮件。",
+    },
+    report: {
+      subject: "Study Hall 学习报告：{name}，{date}",
+      heading: "学习报告：{name}",
+      button: "查看全部报告",
+    },
+  },
   reportCard: {
     title: "学习报告",
     sampleTitle: "示例学习报告（虚构学生）",

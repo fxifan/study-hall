@@ -97,6 +97,13 @@ Study Hall uses its own Stripe account, in test mode until live payments are app
 Pricing is per student: Checkout's quantity is the number of children signing up. Pay with Stripe's
 test card `4242 4242 4242 4242`, any future expiry and any CVC.
 
+## Emails
+
+Every automated parent email is one email with the full English version first and the Simplified
+Chinese version below it (`src/lib/email`). `npm run emails` regenerates the Supabase Auth templates in
+`supabase/templates/` (paste them into the Supabase dashboard); `npm run emails -- --preview` writes
+previews of every email to `email-previews/`. Nothing is sent by these commands.
+
 ## Sessions and admin
 
 - `/api/cron/generate-sessions` runs daily on Vercel (`vercel.json`, needs `CRON_SECRET`): it creates

@@ -69,6 +69,14 @@ test("a sign-in code that lands on another page is finished at /auth/confirm", a
   await expect(page).toHaveURL("/login?error=link"); // forwarded, then refused: the code isn't real
 });
 
+test("a token link that lands on the home page still signs in", async ({ page }) => {
+  // The bilingual email templates link to {{ .RedirectTo }}, which is the Site URL if not allow-listed.
+  const { data, error } = await createAdminClient().auth.admin.generateLink({ type: "magiclink", email: seedEmail("parentB") });
+  if (error) throw error;
+  await page.goto(`/?token_hash=${data.properties.hashed_token}&type=email`);
+  await expect(page).toHaveURL("/parent");
+});
+
 test("logging out returns to /login and locks the role area", async ({ page }) => {
   await logInAs(page, "parentB");
   await expect(page).toHaveURL("/parent");

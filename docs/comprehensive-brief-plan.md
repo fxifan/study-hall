@@ -72,12 +72,35 @@ with **one hour of tutoring per session attended**, not A$79 with a tutor for th
 - No schema change. Supervisor focus flags aren't shown to parents yet: parents can't read them, and
   they belong in reports once the supervisor review step exists (spec Phase 2).
 
-## Plan for later phases (each needs the owner's go-ahead)
+## Phase 3: bilingual parent emails (done)
 
-- **Phase 3, bilingual emails.** One shared template module (English first, separator, Simplified
-  Chinese) with plain-text fallback and HTML escaping, built on `reportText()`, used by report emails
-  when they exist. The Supabase Auth templates (sign-up, login) are edited in the Supabase dashboard;
-  the repo keeps the source in `supabase/templates/`. Previews only; nothing sent.
+Inventory of automated emails:
+
+| Email | Sent by | Status |
+| --- | --- | --- |
+| Sign-up confirmation (parent) | Supabase Auth, "Confirm signup" template | Bilingual template generated; **paste into the dashboard** |
+| Login link (parents; also student invites after payment and supervisor invites) | Supabase Auth, "Magic Link" template | Bilingual template generated; **paste into the dashboard** |
+| Session report and absence note | The app | Bilingual template built (`reportEmail`); sending isn't built yet (spec Phase 2) |
+| Receipts, failed payments, subscription notices | Stripe, if turned on in Stripe's email settings | Stripe can't put two languages in one email; owner decision |
+| Welcome, reminders, weekly summaries, cancellation confirmations | — | Not sent by Study Hall today |
+
+- `src/lib/email/bilingual.ts`: one layout for every email: the complete English version, a separator,
+  then the complete Simplified Chinese version; table HTML with inline styles and a plain-text
+  alternative; every value is HTML-escaped.
+- `src/lib/email/templates.ts`: `authEmail("login" | "signup")` and `reportEmail(report, origin)`.
+  Copy is in the `emails` and `reportCard` dictionaries; the contact address is the same constant in
+  both languages. Goals and supervisor notes appear as written in both parts.
+- `npm run emails` writes `supabase/templates/magic_link.html` and `confirmation.html` and prints
+  their subjects; `-- --preview` also writes every email to `email-previews/` (gitignored). Nothing is
+  sent.
+- The templates link to `{{ .RedirectTo }}?token_hash=…&type=email`, which works on any device. If
+  Supabase falls back to the Site URL, the proxy forwards the token to `/auth/confirm`.
+
+Manual step for the owner: in Supabase, Authentication > Email Templates, paste
+`supabase/templates/confirmation.html` into "Confirm signup" and `magic_link.html` into "Magic Link",
+with the subjects in `supabase/config.toml`.
+
+## Plan for later phases (each needs the owner's go-ahead)
 - **Phase 4, tutoring hour.** Per the owner, scheduling stays manual. Optional: let the supervisor
   record the hour on the session roster so it can appear on the parent report.
 - **Phase 5, motion.** Extend the existing IntersectionObserver reveals to section headings, steps,
@@ -91,5 +114,7 @@ with **one hour of tutoring per session attended**, not A$79 with a tutor for th
    these, so "Study Hall doesn't record" covers the app only.
 4. Child-safety escalation process beyond the contact email.
 5. Parent report emails and the supervisor's report review aren't built yet (spec Phase 2), though
-   the landing page describes them.
+   the landing page describes them. The bilingual email template for them is ready.
+7. Stripe's own customer emails (receipts, failed payments): leave them on in English, or turn them off
+   and have Study Hall send bilingual ones later.
 6. Which supervisors cover which subjects isn't recorded in the app.

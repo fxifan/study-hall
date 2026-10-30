@@ -146,6 +146,31 @@ export const en = {
     inactive: "inactive",
     manageSoon: "Rooms, schedule, plans and proctor (WWCC) management.",
   },
+  // Automated emails (comprehensive brief §6): every email carries this English text first and the
+  // Chinese below it (src/lib/email). The contact address is filled in, identical in both.
+  emails: {
+    label: "English",
+    footer: "Questions or concerns? Email {email}. Study Hall is run by Feifan Wu, a sole trader.",
+    login: {
+      subject: "Your Study Hall login link",
+      heading: "Log in to Study Hall",
+      body: "Use this link to log in. It works once and expires in an hour.",
+      button: "Log in",
+      ignore: "If you didn't ask for this, you can ignore this email.",
+    },
+    signup: {
+      subject: "Confirm your email for Study Hall",
+      heading: "Confirm your email",
+      body: "Use this link to confirm your email and carry on signing up. It works once and expires in an hour.",
+      button: "Continue sign-up",
+      ignore: "If you didn't sign up for Study Hall, you can ignore this email.",
+    },
+    report: {
+      subject: "Study Hall report: {name}, {date}",
+      heading: "Session report: {name}",
+      button: "See all reports",
+    },
+  },
   // Session report cards (comprehensive brief §5). Both languages are sent to the browser so a report
   // can switch language without a reload. Goals and supervisor notes are never translated.
   reportCard: {

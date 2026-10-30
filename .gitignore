@@ -50,3 +50,6 @@ next-env.d.ts
 
 # Stripe webhook signing secret written by scripts/stripe-setup.ts
 .stripe-webhook-secret
+
+# local email previews (npm run emails -- --preview)
+/email-previews/

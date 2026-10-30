@@ -14,7 +14,8 @@
     "db:migrate": "tsx scripts/migrate.ts",
     "db:seed": "tsx scripts/seed.ts",
     "login-link": "tsx scripts/login-link.ts",
-    "stripe:setup": "tsx scripts/stripe-setup.ts"
+    "stripe:setup": "tsx scripts/stripe-setup.ts",
+    "emails": "tsx scripts/emails.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
