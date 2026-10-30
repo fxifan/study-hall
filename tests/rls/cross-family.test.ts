@@ -148,7 +148,7 @@ describe("other roles", () => {
     const anon = signedOutClient();
     const { data, error } = await anon.from("plans").select("id, name, price_cents, currency, interval, days_per_week");
     expect(error).toBeNull();
-    expect(data).toEqual(expect.arrayContaining([expect.objectContaining({ id: SEED_IDS.plan, price_cents: 4900 })]));
+    expect(data).toEqual(expect.arrayContaining([expect.objectContaining({ id: SEED_IDS.plan, price_cents: 9900 })]));
 
     const secret = await anon.from("plans").select("stripe_price_id");
     expect(secret.error?.code).toBe("42501");

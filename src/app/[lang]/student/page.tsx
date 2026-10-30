@@ -11,9 +11,10 @@ import { getDateLocale, getDictionary, getLocale } from "@/i18n/server";
 import { requireRole } from "@/lib/auth";
 import { getCurrentLegalDocument } from "@/lib/legal";
 import { createClient } from "@/lib/supabase/server";
-import { sessionWindow } from "@/lib/session-timer";
+import { pickTodaySession, sessionWindow } from "@/lib/session-timer";
 import { MELBOURNE, dateKeyOf, dayRangeUtc, formatInZone } from "@/lib/time";
 import { leaveSession, markGoals, raiseHelp, saveGoals } from "./actions";
+import { EvidenceUpload } from "./evidence-upload";
 import { JoinButton, SessionTimer } from "./session-controls";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -49,9 +50,17 @@ async function StudentHome({ searchParams }: Pick<PageProps<"/[lang]/student">, 
   const supabase = await createClient();
   const { data: student } = await supabase
     .from("students")
-    .select("id, first_name, year_level, status")
+    .select("id, first_name, year_level, status, student_subjects(subjects(name))")
     .eq("profile_id", profile.id)
-    .maybeSingle();
+    .maybeSingle<{
+      id: string;
+      first_name: string;
+      year_level: number;
+      status: string;
+      student_subjects: { subjects: { name: string } | null }[];
+    }>();
+  // Suggestions for the plan's subject box: the subjects the parent listed.
+  const mySubjects = (student?.student_subjects ?? []).flatMap((x) => (x.subjects ? [x.subjects.name] : []));
   const title = student ? fill(s.greeting, { name: student.first_name }) : s.greetingFallback;
   const time = (iso: string) => formatInZone(iso, t.formats.time, MELBOURNE, dateLocale);
 
@@ -65,15 +74,15 @@ async function StudentHome({ searchParams }: Pick<PageProps<"/[lang]/student">, 
 
   // RLS only returns sessions this student is enrolled in.
   const { start, end } = dayRangeUtc(dateKeyOf());
-  const { data: session } = await supabase
+  const { data: todays } = await supabase
     .from("sessions")
     .select("id, starts_at, ends_at, rooms(name), schedules(block_minutes, break_minutes)")
     .gte("starts_at", start.toISOString())
     .lt("starts_at", end.toISOString())
     .neq("status", "cancelled")
     .order("starts_at")
-    .limit(1)
-    .maybeSingle<TodaySession>();
+    .returns<TodaySession[]>();
+  const session = pickTodaySession(todays ?? []);
 
   if (!session) {
     const { data: next } = await supabase
@@ -98,7 +107,11 @@ async function StudentHome({ searchParams }: Pick<PageProps<"/[lang]/student">, 
   }
 
   const [{ data: goals }, { data: attendance }, { data: requests }, rules, { data: tutoring }] = await Promise.all([
-    supabase.from("goals").select("id, position, text, outcome, note").eq("session_id", session.id).order("position"),
+    supabase
+      .from("goals")
+      .select("id, position, text, subject, expected_output, est_minutes, outcome, note, result, goal_evidence(id, file_name, size_bytes, created_at)")
+      .eq("session_id", session.id)
+      .order("position"),
     supabase.from("attendance").select("check_in_at, check_out_at").eq("session_id", session.id).maybeSingle(),
     supabase
       .from("help_requests")
@@ -163,19 +176,42 @@ async function StudentHome({ searchParams }: Pick<PageProps<"/[lang]/student">, 
       <section className="flex flex-col gap-3">
         <h2 className="text-xl font-medium">{joined ? s.goals.outcomeTitle : s.goals.title}</h2>
         {!joined ? (
-          <form action={saveGoals} className="flex flex-col gap-2">
+          <form action={saveGoals} className="flex flex-col gap-3">
             <p className="text-sm text-ink-soft">{s.goals.intro}</p>
             <input type="hidden" name="sessionId" value={session.id} />
-            {[1, 2, 3].map((n) => (
-              <Input
-                key={n}
-                name={`goal${n}`}
-                maxLength={140}
-                aria-label={fill(s.goals.placeholder, { n })}
-                placeholder={fill(s.goals.placeholder, { n })}
-                defaultValue={goals?.find((g) => g.position === n)?.text ?? ""}
-              />
-            ))}
+            <datalist id="my-subjects">
+              {mySubjects.map((name) => (
+                <option key={name} value={name} />
+              ))}
+            </datalist>
+            {[1, 2, 3].map((n) => {
+              const goal = goals?.find((g) => g.position === n);
+              return (
+                <fieldset key={n} className="grid gap-2 rounded-md border border-hair bg-sheet p-3 sm:grid-cols-[10rem_1fr]">
+                  <legend className="px-1 font-mono text-xs text-ink-soft">{fill(s.goals.placeholder, { n })}</legend>
+                  <Input name={`subject${n}`} list="my-subjects" maxLength={60} aria-label={`${s.goals.subject} ${n}`} placeholder={s.goals.subject} defaultValue={goal?.subject ?? ""} />
+                  <Input
+                    name={`goal${n}`}
+                    maxLength={140}
+                    aria-label={fill(s.goals.placeholder, { n })}
+                    placeholder={s.goals.taskPlaceholder}
+                    defaultValue={goal?.text ?? ""}
+                  />
+                  <Input
+                    name={`expected${n}`}
+                    maxLength={140}
+                    aria-label={`${s.goals.expected} ${n}`}
+                    placeholder={`${s.goals.expected}: ${s.goals.expectedPlaceholder}`}
+                    defaultValue={goal?.expected_output ?? ""}
+                    className="sm:col-span-2"
+                  />
+                  <label className="flex items-center gap-2 text-sm text-ink-soft sm:col-span-2">
+                    {s.goals.minutes}
+                    <Input name={`minutes${n}`} type="number" min={5} max={240} step={5} className="w-24" defaultValue={goal?.est_minutes ?? ""} />
+                  </label>
+                </fieldset>
+              );
+            })}
             <Button type="submit" variant="outline" className="self-start">
               {s.goals.save}
             </Button>
@@ -185,7 +221,11 @@ async function StudentHome({ searchParams }: Pick<PageProps<"/[lang]/student">, 
             <p className="text-sm text-ink-soft">{s.goals.outcomeIntro}</p>
             {goals?.map((g) => (
               <fieldset key={g.id} className="flex flex-col gap-2 rounded-md border border-hair bg-sheet p-4">
-                <legend className="px-1">{g.text}</legend>
+                <legend className="px-1">
+                  {g.subject && <span className="text-ink-soft">{g.subject} · </span>}
+                  {g.text}
+                </legend>
+                {g.expected_output && <p className="text-sm text-ink-soft">{fill(s.goals.planned, { expected: g.expected_output })}</p>}
                 <input type="hidden" name="goalId" value={g.id} />
                 <div className="flex flex-wrap gap-4">
                   {(["done", "partial", "not_done"] as const).map((o) => (
@@ -199,6 +239,11 @@ async function StudentHome({ searchParams }: Pick<PageProps<"/[lang]/student">, 
                   {s.goals.note}
                 </Label>
                 <Input id={`note_${g.id}`} name={`note_${g.id}`} maxLength={140} defaultValue={g.note ?? ""} />
+                <Label htmlFor={`result_${g.id}`} className="text-sm text-ink-soft">
+                  {s.goals.result}
+                </Label>
+                <Input id={`result_${g.id}`} name={`result_${g.id}`} maxLength={60} defaultValue={g.result ?? ""} />
+                <EvidenceUpload goalId={g.id} task={g.text} files={g.goal_evidence} t={s.goals.evidence} />
               </fieldset>
             ))}
             <Button type="submit" className="self-start">

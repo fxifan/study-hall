@@ -58,8 +58,9 @@ test("schedule: generate sessions, WWCC gate on assignment, cancel and restore",
 test("plans and supervisors show their status", async ({ page }) => {
   await logInAsAdmin(page);
   await page.goto("/admin/plans");
-  await expect(page.getByRole("form", { name: "Supervised Study" })).toContainText("A$49");
-  await expect(page.getByRole("form", { name: "Study + Tutoring" })).toContainText(/A\$149\s*Tutoring/);
+  // Earlier prices stay listed (inactive) for families already on them.
+  await expect(page.getByRole("form", { name: "Supervised Study" }).filter({ hasText: "A$99" })).toBeVisible();
+  await expect(page.getByRole("form", { name: "Study + Tutoring" }).filter({ hasText: /A\$199\s*Tutoring/ })).toBeVisible();
 
   await page.goto("/admin/proctors");
   const priya = page.getByTestId("supervisors").locator("li", { hasText: "Priya Proctor" });

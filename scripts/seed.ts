@@ -75,7 +75,7 @@ async function main() {
     id: SEED_IDS.plan,
     org_id: SEED_IDS.org,
     name: "Supervised Study",
-    price_cents: 4900,
+    price_cents: 9900, // owner's proposed price (Oct 2026)
     currency: "AUD",
     interval: "week",
     days_per_week: null,
@@ -86,15 +86,16 @@ async function main() {
     id: SEED_IDS.tutoringPlan,
     org_id: SEED_IDS.org,
     name: "Study + Tutoring", // one hour of tutoring per session attended (owner brief, Oct 2026)
-    price_cents: 14900,
+    price_cents: 19900, // owner's proposed price (Oct 2026)
     currency: "AUD",
     interval: "week",
     days_per_week: null,
     includes_tutoring: true,
     active: true,
   });
-  // Plans keep their price (Stripe prices are immutable), so the A$79 tutoring plan was retired, not edited.
-  const { error: retireError } = await admin.from("plans").update({ active: false }).eq("id", SEED_IDS.retiredTutoringPlan);
+  // Plans keep their price (Stripe prices are immutable), so a price change is a new plan and the old
+  // one is closed to new sign-ups, not edited.
+  const { error: retireError } = await admin.from("plans").update({ active: false }).in("id", SEED_IDS.retiredPlans);
   if (retireError) throw retireError;
 
   await upsert(admin, "proctor_checks", [

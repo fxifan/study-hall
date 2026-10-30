@@ -13,7 +13,7 @@ import { breakoutMinutes, breakoutMinutesByStudent, type LoggedBreakout } from "
 import { sessionWindow } from "@/lib/session-timer";
 import { createClient } from "@/lib/supabase/server";
 import { MELBOURNE, formatInZone } from "@/lib/time";
-import { endBreakout } from "../../actions";
+import { addCheckIn, endBreakout } from "../../actions";
 import { BreakoutForm } from "./breakout-form";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -28,6 +28,18 @@ export default async function SessionRosterPage({ params }: PageProps<"/[lang]/p
     </Suspense>
   );
 }
+
+type PlanRow = {
+  id: string;
+  student_id: string;
+  text: string;
+  subject: string | null;
+  outcome: "done" | "partial" | "not_done" | null;
+  result: string | null;
+  goal_evidence: { id: string; file_name: string }[];
+};
+type CheckIn = { id: string; student_id: string; template_en: string | null; template_zh: string | null; note: string | null; created_at: string };
+type Template = { id: string; kind: string; text_en: string; text_zh: string };
 
 type RosterRow = {
   student_id: string;
@@ -51,7 +63,15 @@ async function SessionRoster({ params }: Pick<PageProps<"/[lang]/proctor/session
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
   const supabase = await createClient();
   // RLS: staff only see sessions they're assigned to; the roster and breakout functions check the same.
-  const [{ data: session }, { data: roster }, { data: breakoutRows }, { data: adultRows }] = await Promise.all([
+  const [
+    { data: session },
+    { data: roster },
+    { data: breakoutRows },
+    { data: adultRows },
+    { data: plans },
+    { data: checkIns },
+    { data: templates },
+  ] = await Promise.all([
     supabase.from("sessions").select("id, starts_at, ends_at, status, rooms(name)").eq("id", id).maybeSingle<{
       id: string;
       starts_at: string;
@@ -62,6 +82,20 @@ async function SessionRoster({ params }: Pick<PageProps<"/[lang]/proctor/session
     supabase.rpc("session_roster", { p_session: id }),
     supabase.rpc("session_breakouts", { p_session: id }),
     supabase.rpc("breakout_adults", { p_session: id }),
+    // Each student's plan and uploads, to compare with the work in the room (staff RLS).
+    supabase
+      .from("goals")
+      .select("id, student_id, text, subject, outcome, result, goal_evidence(id, file_name)")
+      .eq("session_id", id)
+      .order("position")
+      .returns<PlanRow[]>(),
+    supabase
+      .from("session_checkins")
+      .select("id, student_id, template_en, template_zh, note, created_at")
+      .eq("session_id", id)
+      .order("created_at")
+      .returns<CheckIn[]>(),
+    supabase.from("report_templates").select("id, kind, text_en, text_zh").order("sort").returns<Template[]>(),
   ]);
   if (!session) notFound();
   const s = t.proctor.session;
@@ -128,6 +162,16 @@ async function SessionRoster({ params }: Pick<PageProps<"/[lang]/proctor/session
                   <span className="text-ink-soft">{s.note}:</span> {r.study_note}
                 </p>
               )}
+              <StudentPlan
+                sessionId={session.id}
+                studentId={r.student_id}
+                plan={(plans ?? []).filter((g) => g.student_id === r.student_id)}
+                checkIns={(checkIns ?? []).filter((c) => c.student_id === r.student_id)}
+                templates={templates ?? []}
+                locale={locale}
+                t={t}
+                time={(iso) => formatInZone(iso, t.formats.time, MELBOURNE, dateLocale)}
+              />
             </li>
           ))}
         </ul>
@@ -136,6 +180,94 @@ async function SessionRoster({ params }: Pick<PageProps<"/[lang]/proctor/session
       )}
       <p className="text-xs text-ink-faint">{s.privacy}</p>
     </AppShell>
+  );
+}
+
+/**
+ * One student's session plan (tasks, how they marked them, uploads) next to the supervisor's
+ * check-ins, with a quick form to add one from a template or as a short note.
+ */
+function StudentPlan({
+  sessionId,
+  studentId,
+  plan,
+  checkIns,
+  templates,
+  locale,
+  t,
+  time,
+}: {
+  sessionId: string;
+  studentId: string;
+  plan: PlanRow[];
+  checkIns: CheckIn[];
+  templates: Template[];
+  locale: "en" | "zh";
+  t: Dictionary;
+  time: (iso: string) => string;
+}) {
+  const s = t.proctor.session;
+  return (
+    <div className="grid gap-3 rounded-md bg-paper-deep/40 p-3 text-sm md:grid-cols-2" data-testid={`plan-${studentId}`}>
+      <div className="flex flex-col gap-1">
+        <h3 className="font-mono text-xs tracking-widest text-ink-soft uppercase">{s.plan}</h3>
+        {plan.length ? (
+          <ul className="flex flex-col gap-1">
+            {plan.map((g) => (
+              <li key={g.id}>
+                {g.subject && <span className="text-ink-soft">{g.subject} · </span>}
+                {g.text}
+                <span className="ml-2 font-mono text-xs text-ink-soft">
+                  {t.reportCard.outcomes[g.outcome ?? "unmarked"]}
+                  {g.result && ` · ${g.result}`}
+                </span>
+                {g.goal_evidence.map((e) => (
+                  <a key={e.id} href={`/api/evidence/${e.id}`} target="_blank" rel="noreferrer" className="ml-2 text-xs underline underline-offset-4">
+                    {e.file_name}
+                  </a>
+                ))}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-ink-faint">{s.noPlan}</p>
+        )}
+      </div>
+      <div className="flex flex-col gap-1">
+        <h3 className="font-mono text-xs tracking-widest text-ink-soft uppercase">{s.checkIns}</h3>
+        {checkIns.map((c) => (
+          <p key={c.id}>
+            <span className="font-mono text-xs text-ink-soft">{time(c.created_at)}</span>{" "}
+            {c.template_en && (locale === "zh" ? c.template_zh : c.template_en)}
+            {c.template_en && c.note && " "}
+            {c.note}
+          </p>
+        ))}
+        <form action={addCheckIn} className="flex flex-col gap-1.5" aria-label={s.addCheckIn}>
+          <input type="hidden" name="sessionId" value={sessionId} />
+          <input type="hidden" name="studentId" value={studentId} />
+          <select name="templateId" aria-label={s.checkInTemplate} className="h-8 rounded-lg border border-input bg-transparent px-2 text-sm">
+            <option value="">{s.checkInNoTemplate}</option>
+            {templates.map((tpl) => (
+              <option key={tpl.id} value={tpl.id}>
+                {locale === "zh" ? tpl.text_zh : tpl.text_en}
+              </option>
+            ))}
+          </select>
+          <input
+            name="note"
+            maxLength={200}
+            aria-label={s.checkInNote}
+            placeholder={s.checkInNote}
+            className="h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm"
+          />
+          <Button type="submit" variant="outline" size="sm" className="self-start">
+            {s.addCheckIn}
+          </Button>
+          <p className="text-xs text-ink-faint">{s.checkInHelp}</p>
+        </form>
+      </div>
+    </div>
   );
 }
 

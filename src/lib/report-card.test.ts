@@ -22,7 +22,7 @@ describe("report cards", () => {
   it("translates labels and keeps what people wrote", () => {
     const text = reportText(report, "zh", zh.reportCard);
     expect(text).toContain("出勤时间：下午4:00 至 下午5:50（240 分钟的学习时段中出勤 110 分钟）");
-    expect(text).toContain("学习目标：\n");
+    expect(text).toContain("学习目标：完成 1 项 · 部分完成 1 项 · 未完成 0 项 · 由学生自己标记");
     expect(text).toContain("  - Methods: chain rule · 已完成"); // student's own words, untranslated
     expect(text).toContain("  - 复习化学笔记 · 部分完成"); // demo text with a Chinese version
     expect(text).toContain("  - English essay plan · 未标记");
@@ -33,8 +33,22 @@ describe("report cards", () => {
     const text = reportText(report, "en", en.reportCard, true);
     expect(text.split("\n")[0]).toBe("[Sample report, fictional student]");
     expect(text).toContain("Attendance: 4:00pm–5:50pm (110 minutes of a 240-minute session)");
-    expect(text).toContain("Goals:\n");
+    expect(text).toContain("Goals: 1 done · 1 partly done · 0 not done · marked by the student");
     expect(text).toContain("  - Review chemistry notes · Partially completed");
+  });
+
+  it("keeps uploaded work apart from what was marked, and says Study Hall didn't mark it", () => {
+    const withWork: ReportCardData = {
+      ...report,
+      goals: [{ text: "Questions 1–15", subject: "Methods", outcome: "done", result: "12/15", note: "Q14 unsure", evidence: [{ id: "e1", name: "worksheet.jpg" }] }],
+    };
+    const text = reportText(withWork, "en", en.reportCard);
+    expect(text).toContain("  - Methods · Questions 1–15 · Done");
+    expect(text).toContain("    Result: 12/15");
+    expect(text).toContain("    Student's note: Q14 unsure");
+    expect(text).toContain("    Work uploaded: worksheet.jpg");
+    expect(text).toContain("Uploaded by the student. Study Hall hasn't checked or marked it.");
+    expect(reportText(report, "en", en.reportCard)).not.toContain("Study Hall hasn't checked");
   });
 
   it("says when a student didn't attend", () => {

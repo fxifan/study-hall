@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatCountdown, timerPhase } from "./session-timer";
+import { formatCountdown, pickTodaySession, timerPhase } from "./session-timer";
 
 const start = Date.parse("2026-10-29T05:00:00Z"); // 4:00pm Melbourne
 const end = start + 4 * 3600_000; // 8:00pm
@@ -32,5 +32,16 @@ describe("formatCountdown", () => {
     expect(formatCountdown(83_000)).toBe("1:23");
     expect(formatCountdown(3_723_000)).toBe("1:02:03");
     expect(formatCountdown(-5)).toBe("0:00");
+  });
+});
+
+describe("pickTodaySession (two blocks a day)", () => {
+  const early = { id: "early", starts_at: "2026-11-02T05:00:00Z", ends_at: "2026-11-02T07:00:00Z" }; // 4–6pm AEDT
+  const late = { id: "late", starts_at: "2026-11-02T08:00:00Z", ends_at: "2026-11-02T10:00:00Z" }; // 7–9pm AEDT
+  it("shows the block in progress or coming up, then the last one", () => {
+    expect(pickTodaySession([late, early], Date.parse("2026-11-02T04:00:00Z"))?.id).toBe("early");
+    expect(pickTodaySession([late, early], Date.parse("2026-11-02T07:30:00Z"))?.id).toBe("late");
+    expect(pickTodaySession([late, early], Date.parse("2026-11-02T11:00:00Z"))?.id).toBe("late");
+    expect(pickTodaySession([], Date.parse("2026-11-02T11:00:00Z"))).toBeNull();
   });
 });

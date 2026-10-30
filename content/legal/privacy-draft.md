@@ -8,7 +8,8 @@ Study Hall is run by Feifan Wu, a sole trader, and offers supervised online stud
 
 - About you (the parent): your name, email address, the consents you give, and optionally how you heard about us.
 - About your child: first name, last initial, year level, school if you choose, the subjects they take and any they'd like help with, an optional short note on current schoolwork (up to 200 characters), and the email address they use to log in. Please keep the note to schoolwork: no health or personal information.
-- About each session: when your child joined and left, the goals they set and how they marked them, short factual notes from the supervisor (for example "Phone visible twice"), help requests, and messages between your child and the supervisor.
+- About each session: when your child joined and left, the tasks they planned and how they marked them (with any result or note they add), any photos or PDFs of their work they choose to upload, short factual check-in notes from the supervisor (for example "Phone visible once during the session"), help requests, and messages between your child and the supervisor.
+- Uploaded work is optional. It's stored privately and can only be opened by your child, you, the staff of that session and Study Hall administrators. Study Hall doesn't mark it.
 - Billing: Stripe processes payments. We store your Stripe customer and subscription IDs and the plan you chose, not your card details.
 - When you agree to the house rules or this notice, we record the version, the time, and a one-way hash of your IP address.
 
@@ -20,12 +21,12 @@ Study Hall is run by Feifan Wu, a sole trader, and offers supervised online stud
 
 ## The video room
 
-Sessions run on Zoom or Google Meet. The supervisor watches the live room; Study Hall doesn't record it. The video provider processes the call under its own privacy terms.
+Sessions run on Zoom or Google Meet. A supervisor is present in the live room; Study Hall doesn't record it. The video provider processes the call under its own privacy terms.
 
 ## Who can see what
 
 - You can see your own children's details, attendance, goals and reports.
-- A supervisor or tutor can see the roster, subjects, current-work notes, goals and help requests for the sessions they're assigned to, so they can prepare. On the tutoring plan, your child's help requests are shown to the tutor first.
+- A supervisor or tutor can see the roster, subjects, current-work notes, session plans, uploaded work and help requests for the sessions they're assigned to, so they can prepare and check in. On the tutoring plan, your child's help requests are shown to the tutor first.
 - Study Hall administrators can see everything, including all messages between supervisors and students. Supervisors can't delete messages.
 - Students can't see other students' information, and there is no student-to-student messaging.
 

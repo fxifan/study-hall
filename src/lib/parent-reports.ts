@@ -3,7 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { enAU, zhCN } from "date-fns/locale";
 import { en } from "@/i18n/dictionaries/en";
 import { zh } from "@/i18n/dictionaries/zh";
-import type { Outcome, ReportCardData, ReportLang } from "./report-card";
+import type { Localized, Outcome, ReportCardData, ReportLang } from "./report-card";
 import { MELBOURNE, formatInZone } from "./time";
 
 export const REPORT_WINDOW_DAYS = 14;
@@ -34,11 +34,10 @@ type Enrolment = {
 
 /**
  * Session reports for the signed-in parent's children (or, for an admin, one student with
- * `studentId`), built from what was recorded: attendance
- * (check-in and check-out) and the goals the student set and marked, plus the supervisor's comment
- * once a report has been approved. Sessions that ended in the last two weeks and have an attendance
- * record. RLS limits every query to the parent's own children. The supervisor's focus flags join
- * these when the report approval workflow exists (spec Phase 2).
+ * `studentId`), built from what was recorded: attendance (check-in and check-out), the session plan
+ * the student set and marked (self-reported), any work they uploaded, the supervisor's check-ins,
+ * and the supervisor's comment once a report has been approved. Sessions that ended in the last two
+ * weeks and have an attendance record. RLS limits every query to the parent's own children.
  */
 export async function getParentReports(
   supabase: SupabaseClient,
@@ -57,16 +56,25 @@ export async function getParentReports(
   if (!enrolments?.length) return [];
 
   const sessionIds = [...new Set(enrolments.map((e) => e.session_id))];
-  const [attendance, goals, reports] = await Promise.all([
+  const [attendance, goals, reports, checkIns] = await Promise.all([
     supabase.from("attendance").select("session_id, student_id, check_in_at, check_out_at, status").in("session_id", sessionIds),
-    supabase.from("goals").select("session_id, student_id, position, text, outcome").in("session_id", sessionIds).order("position"),
+    supabase
+      .from("goals")
+      .select("session_id, student_id, position, text, subject, expected_output, outcome, result, note, goal_evidence(id, file_name)")
+      .in("session_id", sessionIds)
+      .order("position"),
     supabase
       .from("reports")
       .select("session_id, student_id, proctor_comment")
       .in("session_id", sessionIds)
       .in("status", ["approved", "sent"]),
+    supabase
+      .from("session_checkins")
+      .select("session_id, student_id, template_en, template_zh, note")
+      .in("session_id", sessionIds)
+      .order("created_at"),
   ]);
-  for (const result of [attendance, goals, reports]) if (result.error) throw result.error;
+  for (const result of [attendance, goals, reports, checkIns]) if (result.error) throw result.error;
   const key = (row: { session_id: string; student_id: string }) => `${row.session_id}:${row.student_id}`;
 
   return enrolments
@@ -97,8 +105,22 @@ export async function getParentReports(
                 },
           goals: goals
             .data!.filter((g) => key(g) === key(e))
-            .map((g) => ({ text: g.text as string, outcome: g.outcome as Outcome | null })),
-          observations: [],
+            .map((g) => ({
+              text: g.text as string,
+              outcome: g.outcome as Outcome | null,
+              subject: g.subject,
+              expected: g.expected_output,
+              result: g.result,
+              note: g.note,
+              evidence: (g.goal_evidence as { id: string; file_name: string }[]).map((x) => ({ id: x.id, name: x.file_name })),
+            })),
+          // Check-ins from a template read in either language; typed notes stay as written.
+          observations: checkIns
+            .data!.filter((c) => key(c) === key(e))
+            .flatMap((c): Localized[] => [
+              ...(c.template_en ? [{ en: c.template_en as string, zh: c.template_zh as string }] : []),
+              ...(c.note ? [c.note as string] : []),
+            ]),
           comment: reports.data!.find((r) => key(r) === key(e))?.proctor_comment ?? null,
         },
       ];

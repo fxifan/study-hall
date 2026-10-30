@@ -39,7 +39,7 @@ function formatPrice(cents: number) {
   return cents % 100 === 0 ? String(cents / 100) : (cents / 100).toFixed(2);
 }
 
-export async function PlanCards({ copy, signUpHref }: { copy: LandingCopy["pricing"]; signUpHref: string }) {
+export async function PlanCards({ copy, times, signUpHref }: { copy: LandingCopy["pricing"]; times: string; signUpHref: string }) {
   const plans = await getPublicPlans();
   if (!plans.length) return <p className="intro">{copy.empty}</p>;
 
@@ -60,7 +60,7 @@ export async function PlanCards({ copy, signUpHref }: { copy: LandingCopy["prici
             <Row label={copy.rows.sessions}>
               {plan.days_per_week ? fill(copy.rows.sessionsLimited, { n: plan.days_per_week }) : copy.rows.sessionsUnlimited}
             </Row>
-            <Row label={copy.rows.hours}>{copy.rows.hoursValue}</Row>
+            <Row label={copy.rows.hours}>{times}</Row>
             <Row label={copy.rows.supervised}>{copy.rows.supervisedValue}</Row>
             <Row label={copy.rows.help}>{copy.rows.helpValue}</Row>
             <Row label={copy.rows.tutoring}>{plan.includes_tutoring ? copy.rows.tutoringValue : copy.rows.tutoringNone}</Row>

@@ -9,7 +9,7 @@ export const landingEn = {
   meta: {
     title: "Study Hall · Supervised after-school study",
     description:
-      "Structured after-school study, live supervision, academic help when students get stuck, and clear progress reports for parents.",
+      "Supervised study sessions that help students stay engaged and accountable, with academic help when they're stuck and a progress report for parents.",
   },
   nav: {
     skip: "Skip to content",
@@ -22,21 +22,21 @@ export const landingEn = {
     viewPlans: "View plans",
   },
   hero: {
-    margin: "Mon–Thu",
+    margin: "{days}",
     kicker: ["Online supervised study", "Years 7–12", "Victoria"],
     titleLead: "Make after-school study ",
     titleEm: "more consistent.",
-    lede: "Live supervised study, structured goals, subject-specific academic help, and a progress report for parents after each session.",
+    lede: "Supervised study sessions that help students stay engaged and accountable: structured goals, subject-specific academic help, and a progress report for parents after each session.",
     primary: "View plans",
     secondary: "See how it works",
   },
   live: {
-    default: "Sessions Monday to Thursday, 4:00–8:00pm, Melbourne time",
-    today: "Next session today at 4:00pm · doors open in {duration}",
-    doors: "Doors are open · session starts at 4:00pm",
-    live: "In session now · until 8:00pm",
-    tomorrow: "Next session tomorrow at 4:00pm",
-    later: "Next session {weekday} at 4:00pm",
+    default: "Sessions {days}, {times}, Melbourne time",
+    today: "Next session today at {time} · doors open in {duration}",
+    doors: "Doors are open · session starts at {time}",
+    live: "In session now · until {time}",
+    tomorrow: "Next session tomorrow at {time}",
+    later: "Next session {weekday} at {time}",
     melbourne: " (Melbourne time)",
     minutes: "{m} min",
     hoursMinutes: "{h}h {m}m",
@@ -49,7 +49,7 @@ export const landingEn = {
     steps: [
       {
         title: "Set goals",
-        body: "Before each session, your child chooses up to three tasks they want to complete, one line each.",
+        body: "Before each session, your child plans up to three specific tasks, like “questions 1–15”, and what they'll have to show for them.",
       },
       {
         title: "Study with supervision",
@@ -61,43 +61,38 @@ export const landingEn = {
       },
       {
         title: "Review progress",
-        body: "Before leaving, your child marks each goal done, partial or not done. You get a short, factual report after the session.",
+        body: "Before leaving, your child marks each task done, partly done or not done, and can add a photo or file of the work. You get a short, factual report after the session.",
       },
     ],
   },
   session: {
     label: "A session",
-    title: "Four hours, on a shared timer.",
+    title: "Every session runs on a shared timer.",
     intro:
-      "Sessions run Monday to Thursday, Melbourne time. Students study and take breaks together. They can come to as many sessions as suits your family.",
-    timelineLabel: "Session timeline, 3:50pm to 8:00pm",
-    study: "Study 50",
-    studyShort: "50",
-    segments: [
-      "3:50 to 4:00pm: doors open, goals",
-      "Study, 4:00 to 4:50pm",
-      "Break, 4:50 to 5:00pm",
-      "Study, 5:00 to 5:50pm",
-      "Break, 5:50 to 6:00pm",
-      "Study, 6:00 to 6:50pm",
-      "Break, 6:50 to 7:00pm",
-      "Study, 7:00 to 7:50pm",
-      "7:50 to 8:00pm: mark goals",
-    ],
-    ticks: ["3:50", "4:00", "5:00", "6:00", "7:00", "8:00"],
+      "Sessions run {days}, Melbourne time: {times}. Students study and take breaks together, and can come to as many sessions as suits your family.",
+    // Times and segments come from the schedule (src/lib/timetable.ts).
+    timelineLabel: "Session timeline, {from} to {to}",
+    study: "Study {m}",
+    studyShort: "{m}",
+    segment: {
+      doors: "{from} to {to}: doors open, plan goals",
+      study: "Study, {from} to {to}",
+      break: "Break, {from} to {to}",
+      wrapup: "{from} to {to}: mark goals",
+    },
     key: { study: "Study", break: "Break, together", goals: "Goals in, goals marked" },
-    notes: [
-      { time: "3:50pm", title: "Doors open", body: "Your child writes up to three goals, then joins the room." },
-      { time: "4:00–7:50pm", title: "50 on, 10 off", body: "Four study blocks with breaks on the timer. Help requests go to the supervisor." },
-      { time: "7:50pm", title: "Mark the goals", body: "Each goal is marked done, partial or not done before they leave." },
-      { time: "After the session", title: "Your report arrives", body: "The supervisor reviews it and may add a short comment." },
-    ],
+    notes: {
+      doors: { title: "Doors open", body: "Your child plans up to three tasks, then joins the room." },
+      blocks: { title: "{block} on, {break} off", body: "{n} study blocks with breaks on the timer. Help requests go to the supervisor." },
+      wrapup: { title: "Mark the goals", body: "Each task is marked done, partly done or not done, with a photo or file of the work if there is one." },
+      after: { time: "After the session", title: "Your report arrives", body: "Tasks planned and finished, any work uploaded, and the supervisor's notes." },
+    },
   },
   report: {
     label: "What parents receive",
     title: "A short, factual report after each session.",
     intro:
-      "Written from what was recorded in the session: attendance, goals and the supervisor's notes. Every report uses the same plain format.",
+      "Written from what was recorded in the session: attendance, the tasks your child planned and finished, any work they uploaded, and the supervisor's notes. Every report uses the same plain format.",
     variantsLabel: "Sample session",
     variants: { attended: "Attended", absent: "Didn't attend" },
     sent: "Sent {time}",
@@ -110,7 +105,7 @@ export const landingEn = {
       },
       {
         title: "Goals they set themselves",
-        body: "Written before joining, then marked by your child before they leave: done, partial or not done.",
+        body: "Planned before joining, then marked by your child before they leave: done, partial or not done. Uploaded work shows as uploaded by your child; Study Hall doesn't mark it.",
       },
       {
         title: "Factual supervisor notes",
@@ -129,7 +124,7 @@ export const landingEn = {
     label: "Study and tutoring",
     title: "Supervised study, with tutoring if you want it.",
     body: [
-      "**Supervised Study** is structured, supervised time for schoolwork your child already has: homework, revision and practice. They can request help within the subjects we support, and the supervisor responds when available. There's no dedicated tutoring hour.",
+      "**Supervised Study** is structured independent study with a supervisor checking in, for the homework, revision and practice your child already has. They can ask for help within the subjects we support. It doesn't include tutoring.",
       "**Study + Tutoring** includes **one hour of one-to-one tutoring for each session your child attends**, scheduled by the supervisor when you request it. Tutoring happens in the main session room, with the supervisor and other students present. The rest of the session is supervised independent study. Attend four sessions in a week and that's up to four one-hour tutoring periods; the tutor isn't with your child for the whole four hours.",
       "Neither plan replaces specialist tutoring or teaching, and we don't promise particular marks or results.",
     ],
@@ -155,7 +150,7 @@ export const landingEn = {
     label: "Safety & privacy",
     title: "How the camera, supervisors and data are handled.",
     intro:
-      "The camera is part of live supervision: a supervisor watches the room while it happens. Here is what that does and doesn't involve.",
+      "The camera is part of live supervision: a supervisor is in the room while it happens. Here is what that does and doesn't involve.",
     items: [
       {
         title: "No recording by Study Hall",
@@ -190,7 +185,7 @@ export const landingEn = {
     label: "Pricing",
     title: "Two weekly plans. Cancel any time.",
     intro:
-      "Prices are per student. Both plans cover sessions Monday to Thursday, 4:00–8:00pm Melbourne time, and your child doesn't have to come to every session.",
+      "Prices are per student. Both plans cover sessions {days}, {times} Melbourne time, and your child doesn't have to come to every session.",
     checks: [
       "Billed weekly in Australian dollars through Stripe.",
       "Cancel any time from your account and keep access until the end of your paid week.",
@@ -221,8 +216,7 @@ export const landingEn = {
       sessions: "Sessions",
       sessionsUnlimited: "Any, Mon–Thu",
       sessionsLimited: "Up to {n} a week",
-      hours: "Hours",
-      hoursValue: "4:00–8:00pm",
+      hours: "Times",
       supervised: "Supervised by",
       supervisedValue: "WWCC-verified supervisor",
       report: "Report",
@@ -257,7 +251,7 @@ export const landingEn = {
         q: "How does online supervision work?",
         a: [
           "Your child joins a scheduled group video room on Zoom or Google Meet from their Study Hall page, with the camera on their hands and desk. Showing their face is optional.",
-          "A supervisor watches the live room, keeps the shared timer, makes factual notes such as a phone in use, and handles help requests.",
+          "A supervisor runs the room: they keep the shared timer, check in with students, note anything parents should know, and handle help requests.",
         ],
       },
       {
@@ -280,7 +274,7 @@ export const landingEn = {
         id: "report",
         q: "What will I receive after each session?",
         a: [
-          "A short email: when your child arrived and left, the goals they set and how they marked them, and any factual notes from the supervisor. If they didn't attend, a one-line note about 15 minutes after the session ends.",
+          "A short email: when your child arrived and left, the tasks they planned and how they marked them, any work they uploaded, and notes from the supervisor. If they didn't attend, a one-line note about 15 minutes after the session ends.",
         ],
       },
       {

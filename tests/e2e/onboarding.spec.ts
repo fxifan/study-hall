@@ -78,8 +78,8 @@ test("a new parent signs up up to payment", async ({ page }) => {
 
   // 4. Plans: per-student totals, supervision first, then tutoring
   const summaries = page.getByTestId("checkout-summary");
-  await expect(summaries.nth(0)).toHaveText("1 × A$49 = A$49 per week");
-  await expect(summaries.nth(1)).toHaveText("1 × A$149 = A$149 per week");
+  await expect(summaries.nth(0)).toHaveText("1 × A$99 = A$99 per week");
+  await expect(summaries.nth(1)).toHaveText("1 × A$199 = A$199 per week");
   await expect(page.locator("#pay")).toContainText("Includes one hour of one-to-one tutoring per session attended, scheduled by the supervisor when you request it.");
   await expect(page.locator("#pay")).toContainText("Ask within 7 days of your first payment and we'll refund it.");
   await expect(page.locator("main")).not.toContainText("GST");

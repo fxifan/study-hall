@@ -21,7 +21,7 @@ Supabase (Postgres, Auth, RLS) · Zod · Vitest · Playwright.
    ```bash
    npm install
    npm run db:migrate   # applies supabase/migrations to SUPABASE_DB_URL
-   npm run db:seed      # 1 org, admin, proctor, tutor, room, schedule, A$49 and A$149/week plans, 2 families
+   npm run db:seed      # 1 org, admin, proctor, tutor, room, schedule, A$99 and A$199/week plans, 2 families
    npm run dev
    ```
    Migrations can also be applied through the Supabase MCP server in [.mcp.json](.mcp.json) (that's
@@ -115,9 +115,24 @@ previews of every email to `email-previews/`. Nothing is sent by these commands.
 - Admin pages: `/admin/rooms`, `/admin/schedule`, `/admin/subjects` (subject demand),
   `/admin/plans`, `/admin/proctors` (English only).
 
+## Session checklist, work evidence and the timetable
+
+- Students plan up to three tasks per session (subject, task, what they'll show, minutes), then mark
+  each one with an optional result and note, and can attach up to three photos or PDFs per task.
+  Files go straight to the private `work-evidence` bucket with a one-time signed upload URL; they're
+  opened only through `/api/evidence/<id>`, which checks access with RLS and signs a one-minute link.
+- Supervisors and tutors see each student's plan and uploads on the session roster and add check-in
+  notes (a report template, in both languages, or a short note). Parents' reports show what the
+  student marked, what they uploaded (not marked by Study Hall) and the check-ins, separately.
+- The public timetable (landing page, sign-up, live status, the session timeline and the sample
+  report) is read from active schedules. Admins add or switch blocks (e.g. 4:00–6:00pm and
+  7:00–9:00pm) at `/admin/schedule`; new blocks start inactive.
+- Staff logins: `npm run grant-admin -- <email> "Name"`. Admins also see `/admin/students`,
+  `/admin/templates`, and can create Zoom meetings for rooms once the Zoom env vars are set.
+
 ## Tutoring plan and study profiles
 
-- Plans with `includes_tutoring` (seeded: "Study + Tutoring", A$149/week per student, one hour of
+- Plans with `includes_tutoring` (seeded: "Study + Tutoring", A$199/week per student, one hour of
   tutoring per session attended; the rest is supervised study) have a tutor rostered in the same room.
   Scheduling and recording the hour itself is planned (docs/comprehensive-brief-plan.md, Phase 4). Their students' help requests get `priority` (set by the database
   from the family's plan), and the student page says so. Help stays text or small-group; there's no

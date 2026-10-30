@@ -6,26 +6,30 @@ import type { LandingCopy } from "@/i18n/dictionaries/landing.en";
 import { fill } from "@/i18n/fill";
 import { attendanceParts, outcomeLabel, pick, reportText, type ReportLabels, type ReportLang } from "@/lib/report-card";
 import { Circled, OutcomeMark, vars } from "./marks";
-import { SAMPLES, type Variant } from "./sample-data";
+import { sampleReports, type Variant } from "./sample-data";
+import type { TimetableBlock } from "@/lib/timetable";
 
 /**
  * The report lines, shared by the hero sheet (circled minutes, no annotations) and the interactive
  * sample (numbered annotations matching the legend).
  */
 export function ReportLines({
+  block,
   variant,
   lang,
   t,
   annotate = false,
   circled = false,
 }: {
+  /** The timetable block the sample's times follow. */
+  block: TimetableBlock;
   variant: Variant;
   lang: ReportLang;
   t: ReportLabels;
   annotate?: boolean;
   circled?: boolean;
 }) {
-  const { report } = SAMPLES[variant];
+  const { report } = sampleReports(block)[variant];
   const a = report.attendance;
   let i = 0;
   const line = (cls: string, content: React.ReactNode, anno?: number) => (
@@ -101,10 +105,12 @@ export function ReportLines({
 
 /** The interactive sample: attended or absent, in English or Simplified Chinese, with copy as text. */
 export function SampleReport({
+  block,
   copies,
   labels,
   initialLang,
 }: {
+  block: TimetableBlock;
   copies: Record<ReportLang, LandingCopy["report"]>;
   labels: Record<ReportLang, ReportLabels>;
   initialLang: ReportLang;
@@ -113,7 +119,7 @@ export function SampleReport({
   const [lang, setLang] = useState<ReportLang>(initialLang);
   const [copyState, copy] = useCopyText();
   const sheet = useRef<HTMLElement>(null);
-  const { report, sent } = SAMPLES[variant];
+  const { report, sent } = sampleReports(block)[variant];
   const c = copies[lang];
   const t = labels[lang];
 
@@ -158,7 +164,7 @@ export function SampleReport({
           <span>{fill(c.sent, { time: sent[lang] })}</span>
         </figcaption>
         <div className="ruled" key={`${variant}-${lang}`} aria-live="polite">
-          <ReportLines variant={variant} lang={lang} t={t} annotate />
+          <ReportLines block={block} variant={variant} lang={lang} t={t} annotate />
         </div>
         <div className="sheet-foot">
           <span className="note">{report.attendance.attended ? c.footNote : c.absentNote}</span>

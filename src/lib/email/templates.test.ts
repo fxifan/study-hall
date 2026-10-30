@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { SAMPLES } from "@/app/[lang]/_landing/sample-data";
+import { sampleReports } from "@/app/[lang]/_landing/sample-data";
+import { DEFAULT_TIMETABLE, type TimetableBlock } from "@/lib/timetable";
 import { CONTACT_EMAIL } from "@/lib/contact";
 import type { ReportCardData } from "@/lib/report-card";
 import { escapeHtml } from "./bilingual";
 import { AUTH_LINK, authEmail, reportEmail } from "./templates";
 
 const ORIGIN = "https://study-hall.example";
+const SAMPLES = sampleReports(DEFAULT_TIMETABLE[0]);
 
 const realReport: ReportCardData = {
   ...SAMPLES.attended.report,
@@ -54,6 +56,14 @@ describe("bilingual emails", () => {
     expect(email.text.match(/Worked steadily\./g)).toHaveLength(2);
     expect(email.text).toContain(`See all reports: ${ORIGIN}/parent`);
     expect(email.text).toContain(`查看全部报告：${ORIGIN}/zh/parent`);
+  });
+
+  it("follows the timetable: a two-hour block makes the brief's 110-of-120-minute sample", () => {
+    const twoHours: TimetableBlock = { days: [1, 2, 3, 4], start: "16:00", end: "18:00", blockMinutes: 50, breakMinutes: 10 };
+    const text = reportEmail(sampleReports(twoHours).attended.report, ORIGIN).text;
+    expect(text).toContain("Attendance: 4:00–5:50pm (110 minutes of a 120-minute session)");
+    expect(text).toContain("出勤时间：下午 4:00 至 5:50（120 分钟的学习时段中出勤 110 分钟）");
+    expect(reportEmail(sampleReports(twoHours).absent.report, ORIGIN).text).toContain("(4:00–6:00pm)");
   });
 
   it("says when a student didn't attend, in both languages", () => {

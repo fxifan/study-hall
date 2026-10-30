@@ -112,6 +112,39 @@ export async function saveSchedule(formData: FormData) {
     })
     .eq("id", schedule.id);
   if (error) throw error;
+  updateTag("timetable"); // the landing page and sign-up show the timetable
+  refresh();
+}
+
+/**
+ * Adds a session block (e.g. 7:00–9:00pm) to a room. New blocks start inactive, so a proposed
+ * timetable can be set up before families see it. Already-generated sessions aren't changed.
+ */
+export async function addSchedule(formData: FormData) {
+  await requireAdmin();
+  const block = z
+    .object({
+      roomId: z.uuid(),
+      start: time,
+      end: time,
+      block: z.coerce.number().int().min(10).max(240),
+      break: z.coerce.number().int().min(0).max(60),
+    })
+    .parse(Object.fromEntries(formData));
+  const days = formData.getAll("days").map((d) => z.coerce.number().int().min(1).max(7).parse(d));
+  if (!days.length || block.end <= block.start) await back("/admin/schedule", "?error=schedule");
+  const supabase = await createClient();
+  const { error } = await supabase.from("schedules").insert({
+    room_id: block.roomId,
+    days_of_week: days,
+    start_time: block.start,
+    end_time: block.end,
+    block_minutes: block.block,
+    break_minutes: block.break,
+    active: formData.get("active") === "on",
+  });
+  if (error) throw error;
+  updateTag("timetable");
   refresh();
 }
 

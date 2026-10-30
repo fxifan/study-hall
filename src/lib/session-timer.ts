@@ -46,6 +46,15 @@ export function sessionWindow(startsAt: string, endsAt: string, nowMs = Date.now
   };
 }
 
+/**
+ * With more than one session block a day (e.g. 4–6pm and 7–9pm), the one a student should see: the
+ * first that hasn't ended, or the day's last one once they all have (so goals can still be reviewed).
+ */
+export function pickTodaySession<T extends { starts_at: string; ends_at: string }>(sessions: T[], nowMs = Date.now()): T | null {
+  const ordered = [...sessions].sort((a, b) => Date.parse(a.starts_at) - Date.parse(b.starts_at));
+  return ordered.find((s) => Date.parse(s.ends_at) > nowMs) ?? ordered.at(-1) ?? null;
+}
+
 /** 83_000 -> "1:23"; 3_723_000 -> "1:02:03". */
 export function formatCountdown(ms: number): string {
   const total = Math.max(0, Math.ceil(ms / 1000));

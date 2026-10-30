@@ -3,7 +3,7 @@ import { en } from "@/i18n/dictionaries/en";
 import { zh } from "@/i18n/dictionaries/zh";
 import { fill } from "@/i18n/fill";
 import { CONTACT_EMAIL } from "@/lib/contact";
-import { attendanceLine, outcomeLabel, pick, type ReportCardData, type ReportLang } from "@/lib/report-card";
+import { attendanceLine, evidenceCount, goalSummary, outcomeLabel, pick, type ReportCardData, type ReportLang } from "@/lib/report-card";
 import { renderBilingualEmail, type EmailBlock, type EmailSection, type RenderedEmail } from "./bilingual";
 
 /**
@@ -68,11 +68,27 @@ export function reportEmail(report: ReportCardData, origin: string): RenderedEma
         },
       ];
       if (report.attendance.attended) {
-        blocks.push(
-          report.goals.length
-            ? { kind: "list", title: t.goals, items: report.goals.map((g) => `${pick(g.text, lang)} · ${outcomeLabel(g.outcome, t)}`) }
-            : { kind: "p", text: t.noGoals },
-        );
+        if (report.goals.length) {
+          blocks.push(
+            { kind: "small", text: `${goalSummary(report, t)} · ${t.selfReported}` },
+            {
+              kind: "list",
+              title: t.goals,
+              items: report.goals.map((g) =>
+                [
+                  `${g.subject ? `${g.subject} · ` : ""}${pick(g.text, lang)} · ${outcomeLabel(g.outcome, t)}`,
+                  g.result && `${t.result}${t.colon}${g.result}`,
+                  g.evidence?.length && `${t.evidence}${t.colon}${g.evidence.map((e) => e.name).join(", ")}`,
+                ]
+                  .filter(Boolean)
+                  .join(" · "),
+              ),
+            },
+          );
+          if (evidenceCount(report)) blocks.push({ kind: "small", text: t.evidenceNote });
+        } else {
+          blocks.push({ kind: "p", text: t.noGoals });
+        }
         const notes: [string, string][] = [
           ...report.observations.map((note): [string, string] => [t.observations, pick(note, lang)]),
           ...(report.comment ? [[t.comment, report.comment] as [string, string]] : []),

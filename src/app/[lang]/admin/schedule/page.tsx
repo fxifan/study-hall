@@ -8,7 +8,7 @@ import { getDateLocale, getDictionary } from "@/i18n/server";
 import { SESSION_HORIZON_DAYS } from "@/lib/sessions";
 import { createClient } from "@/lib/supabase/server";
 import { MELBOURNE, formatInZone } from "@/lib/time";
-import { assignStaff, generateNow, saveSchedule, setSessionStatus } from "../actions";
+import { addSchedule, assignStaff, generateNow, saveSchedule, setSessionStatus } from "../actions";
 import { AdminFrame, fieldClass } from "../admin-frame";
 
 export const metadata: Metadata = { title: "Schedule" };
@@ -41,10 +41,11 @@ async function Schedule({ searchParams }: Pick<PageProps<"/[lang]/admin/schedule
   const supabase = await createClient();
   const now = new Date();
   const horizon = new Date(now.getTime() + SESSION_HORIZON_DAYS * 86_400_000);
-  const [{ data: schedules }, { data: sessions }, { data: supervisors }] = await Promise.all([
+  const [{ data: schedules }, { data: sessions }, { data: supervisors }, { data: rooms }] = await Promise.all([
     supabase
       .from("schedules")
       .select("id, days_of_week, start_time, end_time, block_minutes, break_minutes, active, rooms(name)")
+      .order("start_time")
       .returns<
         {
           id: string;
@@ -65,11 +66,17 @@ async function Schedule({ searchParams }: Pick<PageProps<"/[lang]/admin/schedule
       .order("starts_at")
       .returns<UpcomingSession[]>(),
     supabase.from("profiles").select("id, full_name, email").in("role", ["proctor", "admin"]).order("full_name"),
+    supabase.from("rooms").select("id, name").order("name"),
   ]);
   const when = (iso: string) => formatInZone(iso, `${t.formats.longDate}, ${t.formats.time}`, MELBOURNE, dateLocale);
 
   return (
     <AdminFrame title={s.title} current="schedule">
+      {query.error === "schedule" && (
+        <p role="alert" className="rounded-md border border-pen-faint px-3 py-2 text-sm text-pen">
+          {s.scheduleError}
+        </p>
+      )}
       {query.error === "wwcc" && (
         <p role="alert" className="rounded-md border border-pen-faint px-3 py-2 text-sm text-pen">
           {s.wwccError}
@@ -128,6 +135,55 @@ async function Schedule({ searchParams }: Pick<PageProps<"/[lang]/admin/schedule
           </Button>
         </form>
       ))}
+
+      <form action={addSchedule} className="flex flex-col gap-3 rounded-md border border-dashed border-rule p-4" aria-label={s.addRule}>
+        <p className="font-medium">{s.addRule}</p>
+        <p className="text-sm text-ink-soft">{s.addRuleHelp}</p>
+        <div className="flex flex-wrap gap-3 text-sm">
+          <label className="flex flex-col gap-1">
+            {s.room}
+            <select name="roomId" required className={fieldClass}>
+              {rooms?.map((room) => (
+                <option key={room.id} value={room.id}>
+                  {room.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1">
+            {s.start}
+            <Input name="start" type="time" required />
+          </label>
+          <label className="flex flex-col gap-1">
+            {s.end}
+            <Input name="end" type="time" required />
+          </label>
+          <label className="flex flex-col gap-1">
+            {s.block}
+            <Input name="block" type="number" min={10} max={240} defaultValue={50} className="w-24" />
+          </label>
+          <label className="flex flex-col gap-1">
+            {s.break}
+            <Input name="break" type="number" min={0} max={60} defaultValue={10} className="w-24" />
+          </label>
+        </div>
+        <fieldset className="flex flex-wrap gap-3 text-sm">
+          <legend className="mb-1 text-ink-soft">{s.days}</legend>
+          {WEEKDAYS.map((day, i) => (
+            <label key={day} className="flex items-center gap-1">
+              <input type="checkbox" name="days" value={i + 1} defaultChecked={i < 4} />
+              {day}
+            </label>
+          ))}
+        </fieldset>
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" name="active" />
+          {s.active}
+        </label>
+        <Button type="submit" variant="outline" className="self-start">
+          {s.addRule}
+        </Button>
+      </form>
 
       <section className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-3">

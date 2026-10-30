@@ -11,6 +11,8 @@ import type { Dictionary } from "@/i18n/dictionaries/en";
 import type { OnboardingCopy } from "@/i18n/dictionaries/onboarding.en";
 import { fill } from "@/i18n/fill";
 import { helpScopeSummary } from "@/i18n/help-scope";
+import { getPublicTimetable } from "@/lib/public-timetable";
+import { daysSummary, timesSummary } from "@/lib/timetable";
 import { getDictionary, getLocale } from "@/i18n/server";
 import { getCurrentProfile } from "@/lib/auth";
 import { CONTACT_EMAIL } from "@/lib/contact";
@@ -28,8 +30,13 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function OnboardingPage({ searchParams }: PageProps<"/[lang]/onboarding">) {
-  const [{ onboarding: t, studies, helpScope, common }, locale] = await Promise.all([getDictionary(), getLocale()]);
+  const [{ onboarding: t, studies, helpScope, common }, locale, blocks] = await Promise.all([
+    getDictionary(),
+    getLocale(),
+    getPublicTimetable(),
+  ]);
   const scope = helpScopeSummary(helpScope, locale);
+  const when = { days: daysSummary(blocks, locale), times: timesSummary(blocks, locale) };
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 px-4 py-12">
       <div className="flex items-baseline justify-between gap-4">
@@ -43,7 +50,7 @@ export default async function OnboardingPage({ searchParams }: PageProps<"/[lang
         <p className="text-lg text-ink-soft">{t.intro}</p>
       </header>
       <Suspense fallback={<p className="font-mono text-sm text-ink-faint">{common.loading}</p>}>
-        <Onboarding t={t} studies={studies} scope={scope} searchParams={searchParams} />
+        <Onboarding t={t} studies={studies} scope={scope} when={when} searchParams={searchParams} />
       </Suspense>
     </main>
   );
@@ -63,12 +70,15 @@ async function Onboarding({
   t,
   studies,
   scope,
+  when,
   searchParams,
 }: {
   t: OnboardingCopy;
   studies: Dictionary["studies"];
   /** The academic-help subjects, as one line. */
   scope: string;
+  /** The timetable: days and session times. */
+  when: { days: string; times: string };
   searchParams: PageProps<"/[lang]/onboarding">["searchParams"];
 }) {
   const [profile, locale, query] = await Promise.all([getCurrentProfile(), getLocale(), searchParams]);
@@ -85,7 +95,7 @@ async function Onboarding({
       <h2 className="font-mono text-xs tracking-widest text-ink-soft uppercase">{t.included.title}</h2>
       <ul className="mt-3 flex list-disc flex-col gap-2 pl-5 text-ink-soft">
         {t.included.items.map((item) => (
-          <li key={item}>{fill(item, { subjects: scope })}</li>
+          <li key={item}>{fill(item, { subjects: scope, ...when })}</li>
         ))}
         {headlinePrice && <li>{fill(t.included.billing, { price: headlinePrice })}</li>}
       </ul>

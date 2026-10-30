@@ -8,11 +8,11 @@ export const onboardingEn = {
   included: {
     title: "Before you pay",
     items: [
-      "Live group supervision, Monday to Thursday, 4:00–8:00pm Melbourne time. Your child can come to as many sessions as suits.",
+      "Supervised study sessions that help your child stay engaged and accountable, {days}, {times} Melbourne time. They can come to as many sessions as suits.",
       "Academic help when your child gets stuck, within the subjects we currently support ({subjects}), by text in the app or in a small group. On Supervised Study the supervisor responds when available, with no guaranteed response time. Study + Tutoring includes one hour of one-to-one tutoring for each session your child attends, in the main session room, scheduled by the supervisor when you request it; the rest of the session is supervised independent study. Help is never a private call or breakout with one adult.",
       "Camera on hands and desk; face optional. Study Hall doesn't record video, images or audio. The room runs on Zoom or Google Meet.",
       "Every supervisor holds a Working with Children Check that we've verified. An adult is never alone on video with your child.",
-      "After each session you get a short report: attendance, goals, and factual notes from the supervisor.",
+      "After each session you get a short report: attendance, the tasks your child planned and finished, any work they uploaded, and notes from the supervisor.",
     ],
     billing: "From {price} per student per week, billed weekly by Stripe. Cancel any time and keep access until the end of your paid week. Refundable within 7 days of your first payment; refunds aren't available after that.",
   },

@@ -8,11 +8,13 @@ import { fill } from "@/i18n/fill";
 import { helpScopeSummary } from "@/i18n/help-scope";
 import { getDictionary, getLocale } from "@/i18n/server";
 import { CONTACT_EMAIL } from "@/lib/contact";
+import { getPublicTimetable } from "@/lib/public-timetable";
+import { daysSummary, distinctBlocks, formatClock, formatRange, sessionSegments, timesSummary } from "@/lib/timetable";
 import { LandingEffects } from "./_landing/landing-effects";
 import { LiveStatus } from "./_landing/live-status";
 import { Cross, Rich, Tick, Underline } from "./_landing/marks";
 import { PlanCards, PlanComparison } from "./_landing/pricing";
-import { sampleSentTime } from "./_landing/sample-data";
+import { sampleReports } from "./_landing/sample-data";
 import { ReportLines, SampleReport } from "./_landing/sample-report";
 import "./landing.css";
 
@@ -21,26 +23,25 @@ import "./landing.css";
  * (docs/product-changes-plan.md, Phase 1A). Copy lives in src/i18n/dictionaries/landing.*.ts.
  */
 
-const SEGMENTS = [
-  { kind: "doors", m: 10 },
-  { kind: "study", m: 50 },
-  { kind: "break", m: 10 },
-  { kind: "study", m: 50 },
-  { kind: "break", m: 10 },
-  { kind: "study", m: 50 },
-  { kind: "break", m: 10 },
-  { kind: "study", m: 50 },
-  { kind: "wrapup", m: 10 },
-] as const;
-const TICK_POSITIONS = ["0%", "4%", "28%", "52%", "76%", "100%"];
-
 export async function generateMetadata(): Promise<Metadata> {
   const { landing } = await getDictionary();
   return { title: { absolute: landing.meta.title }, description: landing.meta.description };
 }
 
 export default async function LandingPage() {
-  const [{ landing: t, helpScope, reportCard }, locale] = await Promise.all([getDictionary(), getLocale()]);
+  const [{ landing: t, helpScope, reportCard }, locale, blocks] = await Promise.all([getDictionary(), getLocale(), getPublicTimetable()]);
+  // The timetable comes from the schedule, so trialling different session blocks updates the page.
+  const when = { days: daysSummary(blocks, locale), times: timesSummary(blocks, locale) };
+  const clock = (minutes: number) => formatClock(minutes, locale);
+  const firstBlock = distinctBlocks(blocks)[0];
+  const segments = sessionSegments(firstBlock);
+  const studies = segments.filter((seg) => seg.kind === "study");
+  const span = { from: segments[0].from, to: segments.at(-1)!.to };
+  const firstHour = Math.ceil((segments[1].from + 1) / 60) * 60;
+  const ticks = [span.from, segments[1].from];
+  for (let m = firstHour; m <= span.to; m += 60) ticks.push(m);
+  const tickAt = (m: number) => `${((m - span.from) / (span.to - span.from)) * 100}%`;
+  const wrapup = segments.at(-1)!;
   // Filled into FAQ answers that mention them.
   const faqValues = { email: CONTACT_EMAIL, subjects: helpScopeSummary(helpScope, locale) };
   const mailto = (
@@ -84,7 +85,7 @@ export default async function LandingPage() {
         <section className="sec hero draw" id="top" aria-labelledby="hero-title">
           <div className="wrap">
             <div className="sec-mark" aria-hidden="true">
-              <span className="hero-date">{t.hero.margin}</span>
+              <span className="hero-date">{fill(t.hero.margin, { days: daysSummary(blocks, locale, { short: true }) })}</span>
             </div>
             <div className="sec-body hero-grid">
               <div>
@@ -112,16 +113,16 @@ export default async function LandingPage() {
                     {t.hero.secondary}
                   </a>
                 </div>
-                <LiveStatus copy={t.live} locale={locale} />
+                <LiveStatus copy={t.live} locale={locale} blocks={blocks} />
               </div>
 
               <figure className="sheet" aria-label={reportCard.sampleTitle}>
                 <figcaption className="sheet-head">
                   <span>{reportCard.sampleTitle}</span>
-                  <span>{fill(t.report.sent, { time: sampleSentTime(locale) })}</span>
+                  <span>{fill(t.report.sent, { time: sampleReports(firstBlock).attended.sent[locale] })}</span>
                 </figcaption>
                 <div className="ruled">
-                  <ReportLines variant="attended" lang={locale} t={reportCard} circled />
+                  <ReportLines block={firstBlock} variant="attended" lang={locale} t={reportCard} circled />
                 </div>
               </figure>
             </div>
@@ -144,31 +145,31 @@ export default async function LandingPage() {
 
         {/* 2. A session */}
         <Section id="session" n={2} label={t.session.label} title={t.session.title}>
-          <p className="intro">{t.session.intro}</p>
+          <p className="intro">{fill(t.session.intro, when)}</p>
           <div className="tl">
             <div className="tl-track">
-              <ol className="tl-bar" aria-label={t.session.timelineLabel}>
-                {SEGMENTS.map((seg, i) => (
-                  <li key={i} className={`tl-seg tl-${seg.kind}`} style={{ "--m": seg.m } as React.CSSProperties}>
+              <ol className="tl-bar" aria-label={fill(t.session.timelineLabel, { from: clock(span.from), to: clock(span.to) })}>
+                {segments.map((seg, i) => (
+                  <li key={i} className={`tl-seg tl-${seg.kind}`} style={{ "--m": seg.to - seg.from } as React.CSSProperties}>
                     {seg.kind === "study" && (
                       <>
                         <span className="l" aria-hidden="true">
-                          {t.session.study}
+                          {fill(t.session.study, { m: seg.to - seg.from })}
                         </span>
                         <span className="s" aria-hidden="true">
-                          {t.session.studyShort}
+                          {fill(t.session.studyShort, { m: seg.to - seg.from })}
                         </span>
                       </>
                     )}
-                    <span className="vh">{t.session.segments[i]}</span>
+                    <span className="vh">{fill(t.session.segment[seg.kind], { from: clock(seg.from), to: clock(seg.to) })}</span>
                   </li>
                 ))}
               </ol>
             </div>
             <div className="tl-ticks" aria-hidden="true">
-              {t.session.ticks.map((tick, i) => (
-                <span key={tick} style={{ "--x": TICK_POSITIONS[i] } as React.CSSProperties}>
-                  {tick}
+              {ticks.map((m) => (
+                <span key={m} style={{ "--x": tickAt(m) } as React.CSSProperties}>
+                  {formatClock(m, locale, { suffix: false })}
                 </span>
               ))}
             </div>
@@ -187,7 +188,16 @@ export default async function LandingPage() {
               </span>
             </div>
             <ol className="tl-notes">
-              {t.session.notes.map((n) => (
+              {[
+                { time: clock(span.from), ...t.session.notes.doors },
+                {
+                  time: formatRange(studies[0].from, studies.at(-1)!.to, locale),
+                  title: fill(t.session.notes.blocks.title, { block: firstBlock.blockMinutes, break: firstBlock.breakMinutes }),
+                  body: fill(t.session.notes.blocks.body, { n: studies.length }),
+                },
+                { time: clock(wrapup.from), ...t.session.notes.wrapup },
+                t.session.notes.after,
+              ].map((n) => (
                 <li key={n.title}>
                   <time>{n.time}</time>
                   <b>{n.title}</b>
@@ -205,6 +215,7 @@ export default async function LandingPage() {
             <div className="report-col">
               {/* Both languages go to the browser so the sample can switch without a reload. */}
               <SampleReport
+                block={firstBlock}
                 copies={{ en: en.landing.report, zh: zh.landing.report }}
                 labels={{ en: en.reportCard, zh: zh.reportCard }}
                 initialLang={locale}
@@ -335,8 +346,8 @@ export default async function LandingPage() {
         </Section>
 
         {/* 7. Pricing */}
-        <Section id="pricing" n={7} label={t.pricing.label} title={t.pricing.title} aside={<PlanCards copy={t.pricing} signUpHref={localizePath("/onboarding", locale)} />}>
-          <p className="intro">{t.pricing.intro}</p>
+        <Section id="pricing" n={7} label={t.pricing.label} title={t.pricing.title} aside={<PlanCards copy={t.pricing} times={when.times} signUpHref={localizePath("/onboarding", locale)} />}>
+          <p className="intro">{fill(t.pricing.intro, when)}</p>
           <ul className="checks">
             {t.pricing.checks.map((check) => (
               <li key={check}>
@@ -383,7 +394,7 @@ export default async function LandingPage() {
                   {t.end.secondary}
                 </a>
               </div>
-              <LiveStatus copy={t.live} locale={locale} />
+              <LiveStatus copy={t.live} locale={locale} blocks={blocks} />
             </div>
           </div>
         </section>

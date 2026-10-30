@@ -13,6 +13,49 @@ import { createClient } from "@/lib/supabase/server";
 async function requireStaff() {
   const profile = await getCurrentProfile();
   if (!profile || (profile.role !== "proctor" && profile.role !== "admin")) throw new Error("Staff only.");
+  return profile;
+}
+
+/**
+ * A supervisor's check-in note for one student: a report template (its English and Chinese are
+ * copied in, so the parent report can switch language) and/or a short typed note. RLS allows it
+ * only for the session's own staff and enrolled students; the log is append-only.
+ */
+export async function addCheckIn(formData: FormData) {
+  const profile = await requireStaff();
+  const parsed = z
+    .object({
+      sessionId: z.uuid(),
+      studentId: z.uuid(),
+      templateId: z.union([z.uuid(), z.literal("")]).transform((v) => v || null),
+      note: z
+        .string()
+        .trim()
+        .max(200)
+        .transform((v) => v || null),
+    })
+    .parse({
+      sessionId: formData.get("sessionId"),
+      studentId: formData.get("studentId"),
+      templateId: formData.get("templateId") ?? "",
+      note: formData.get("note") ?? "",
+    });
+  if (!parsed.templateId && !parsed.note) return;
+  const supabase = await createClient();
+  const template = parsed.templateId
+    ? (await supabase.from("report_templates").select("text_en, text_zh").eq("id", parsed.templateId).single()).data
+    : null;
+  const { error } = await supabase.from("session_checkins").insert({
+    session_id: parsed.sessionId,
+    student_id: parsed.studentId,
+    template_id: template ? parsed.templateId : null,
+    template_en: template?.text_en ?? null,
+    template_zh: template?.text_zh ?? null,
+    note: parsed.note,
+    created_by: profile.id,
+  });
+  if (error) throw error;
+  refresh();
 }
 
 export type BreakoutState = { status: "idle" } | { status: "started" } | { status: "error"; code: BreakoutError };

@@ -23,7 +23,18 @@ export type ReportCardData = {
   attendance:
     | { attended: false }
     | { attended: true; from: Record<ReportLang, string>; to: Record<ReportLang, string>; minutes: number; total: number };
-  goals: { text: Localized; outcome: Outcome | null }[];
+  /** The session plan, as the student marked it (self-reported). */
+  goals: {
+    text: Localized;
+    outcome: Outcome | null;
+    subject?: string | null;
+    expected?: string | null;
+    result?: string | null;
+    note?: string | null;
+    /** Uploaded by the student; Study Hall doesn't check or mark it. */
+    evidence?: { id: string; name: string }[];
+  }[];
+  /** Supervisor observations and check-in notes (templates carry both languages). */
   observations: Localized[];
   comment: string | null;
 };
@@ -52,6 +63,16 @@ export function outcomeLabel(outcome: Outcome | null, t: ReportLabels): string {
   return t.outcomes[outcome ?? "unmarked"];
 }
 
+/** "2 done · 1 partly done · 0 not done". */
+export function goalSummary(report: ReportCardData, t: ReportLabels): string {
+  const count = (o: Outcome) => report.goals.filter((g) => g.outcome === o).length;
+  return fill(t.summary, { done: count("done"), partial: count("partial"), notDone: count("not_done") });
+}
+
+export function evidenceCount(report: ReportCardData): number {
+  return report.goals.reduce((n, g) => n + (g.evidence?.length ?? 0), 0);
+}
+
 /** Plain text for copying into WhatsApp or WeChat, in one language. */
 export function reportText(report: ReportCardData, lang: ReportLang, t: ReportLabels, sample = false): string {
   const lines = [
@@ -60,9 +81,15 @@ export function reportText(report: ReportCardData, lang: ReportLang, t: ReportLa
     `${t.attendance}${t.colon}${attendanceLine(report, lang, t)}`,
   ];
   if (report.attendance.attended) {
-    lines.push(t.goals + t.colon.trimEnd());
-    if (!report.goals.length) lines.push(`  ${t.noGoals}`);
-    for (const goal of report.goals) lines.push(`  - ${pick(goal.text, lang)} · ${outcomeLabel(goal.outcome, t)}`);
+    lines.push(`${t.goals}${t.colon}${report.goals.length ? `${goalSummary(report, t)} · ${t.selfReported}` : t.noGoals}`);
+    for (const goal of report.goals) {
+      const subject = goal.subject ? `${goal.subject} · ` : "";
+      lines.push(`  - ${subject}${pick(goal.text, lang)} · ${outcomeLabel(goal.outcome, t)}`);
+      if (goal.result) lines.push(`    ${t.result}${t.colon}${goal.result}`);
+      if (goal.note) lines.push(`    ${t.note}${t.colon}${goal.note}`);
+      if (goal.evidence?.length) lines.push(`    ${t.evidence}${t.colon}${goal.evidence.map((e) => e.name).join(", ")}`);
+    }
+    if (evidenceCount(report)) lines.push(t.evidenceNote);
     for (const note of report.observations) lines.push(`${t.observations}${t.colon}${pick(note, lang)}`);
     if (report.comment) lines.push(`${t.comment}${t.colon}${report.comment}`);
   }

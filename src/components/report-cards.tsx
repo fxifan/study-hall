@@ -5,6 +5,8 @@ import {
   REPORT_LANGS,
   REPORT_LANG_NAMES,
   attendanceLine,
+  evidenceCount,
+  goalSummary,
   outcomeLabel,
   pick,
   reportText,
@@ -133,17 +135,52 @@ function ReportCard({ report, lang, t }: { report: ReportCardData; lang: ReportL
             <dt className="text-ink-soft">{t.goals}</dt>
             <dd>
               {report.goals.length ? (
-                <ul className="flex flex-col gap-1">
-                  {report.goals.map((goal, i) => (
-                    <li key={i} className="flex flex-wrap items-baseline gap-x-2">
-                      {/* What the student wrote, in their own language. */}
-                      <span lang={typeof goal.text === "string" ? "" : HTML_LANG[lang]}>{pick(goal.text, lang)}</span>
-                      <span className={`font-mono text-xs ${OUTCOME_CLASS[goal.outcome ?? "unmarked"]}`}>
-                        {outcomeLabel(goal.outcome, t)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+                <>
+                  <p className="mb-1 font-mono text-xs text-ink-soft" data-testid="goal-summary">
+                    {goalSummary(report, t)} · {t.selfReported}
+                  </p>
+                  <ul className="flex flex-col gap-1.5">
+                    {report.goals.map((goal, i) => (
+                      <li key={i}>
+                        <span className="flex flex-wrap items-baseline gap-x-2">
+                          {/* What the student wrote, in their own language. */}
+                          <span lang={typeof goal.text === "string" ? "" : HTML_LANG[lang]}>
+                            {goal.subject && <span className="text-ink-soft">{goal.subject} · </span>}
+                            {pick(goal.text, lang)}
+                          </span>
+                          <span className={`font-mono text-xs ${OUTCOME_CLASS[goal.outcome ?? "unmarked"]}`}>
+                            {outcomeLabel(goal.outcome, t)}
+                          </span>
+                        </span>
+                        {(goal.expected || goal.result || goal.note) && (
+                          <span className="block text-xs text-ink-soft" lang="">
+                            {[
+                              goal.expected && `${t.expected}${t.colon}${goal.expected}`,
+                              goal.result && `${t.result}${t.colon}${goal.result}`,
+                              goal.note && `${t.note}${t.colon}${goal.note}`,
+                            ]
+                              .filter(Boolean)
+                              .join(" · ")}
+                          </span>
+                        )}
+                        {goal.evidence?.length ? (
+                          <span className="block text-xs">
+                            <span className="text-ink-soft">{t.evidence}{t.colon}</span>
+                            {goal.evidence.map((e, j) => (
+                              <span key={e.id}>
+                                {j > 0 && ", "}
+                                <a href={`/api/evidence/${e.id}`} target="_blank" rel="noreferrer" className="underline underline-offset-4">
+                                  {e.name}
+                                </a>
+                              </span>
+                            ))}
+                          </span>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                  {evidenceCount(report) > 0 && <p className="mt-1 text-xs text-ink-faint">{t.evidenceNote}</p>}
+                </>
               ) : (
                 <span className="text-ink-soft">{t.noGoals}</span>
               )}
