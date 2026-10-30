@@ -49,6 +49,13 @@ export async function proxy(request: NextRequest) {
   // Route handlers (/auth/confirm, later /api/*) aren't localized.
   if (pathname.startsWith("/auth/") || pathname.startsWith("/api/")) return response;
 
+  // Supabase sends an email link to the project's Site URL (the home page) when the link's own
+  // redirect isn't on its allow list, so a sign-in code can arrive on any page. Finish it properly.
+  const code = request.nextUrl.searchParams.get("code");
+  if (code && /^[0-9a-f-]{36}$/i.test(code)) {
+    return finish(NextResponse.redirect(new URL(`/auth/confirm?code=${code}`, request.url)), response);
+  }
+
   // --- Language -------------------------------------------------------------
   const { locale: urlLocale, path } = splitLocale(pathname);
   if (urlLocale === "en") {

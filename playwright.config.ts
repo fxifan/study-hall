@@ -3,7 +3,8 @@ import { defineConfig, devices } from "@playwright/test";
 
 if (existsSync(".env.local")) process.loadEnvFile(".env.local");
 
-const baseURL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+// Always a local server unless E2E_BASE_URL says otherwise: NEXT_PUBLIC_SITE_URL may name production.
+const baseURL = process.env.E2E_BASE_URL || "http://localhost:3000";
 
 // Key flows against the Supabase project in .env.local. Needs `npm run db:seed` first.
 export default defineConfig({

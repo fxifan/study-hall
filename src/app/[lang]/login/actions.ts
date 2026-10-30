@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { emailLimitKind } from "@/lib/email";
+import { siteOrigin } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
 
 /** Error codes, not text: the form shows them in the page's language. */
@@ -25,10 +26,9 @@ export async function sendMagicLink(_prev: LoginState, formData: FormData): Prom
   const { email } = parsed.data;
 
   const supabase = await createClient();
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   const { error } = await supabase.auth.signInWithOtp({
     email,
-    options: { shouldCreateUser: false, emailRedirectTo: new URL("/auth/confirm", siteUrl).toString() },
+    options: { shouldCreateUser: false, emailRedirectTo: `${await siteOrigin()}/auth/confirm` },
   });
 
   if (error) {

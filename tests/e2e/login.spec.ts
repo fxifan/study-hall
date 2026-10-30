@@ -63,6 +63,12 @@ test("a used or bad link shows an error on /login", async ({ page }) => {
   await expect(page.getByRole("alert").filter({ hasText: /expired or was already used/i })).toBeVisible();
 });
 
+test("a sign-in code that lands on another page is finished at /auth/confirm", async ({ page }) => {
+  // What Supabase does when an email link's redirect isn't on its allow list: it uses the Site URL.
+  await page.goto("/?code=00000000-0000-4000-8000-000000000000");
+  await expect(page).toHaveURL("/login?error=link"); // forwarded, then refused: the code isn't real
+});
+
 test("logging out returns to /login and locks the role area", async ({ page }) => {
   await logInAs(page, "parentB");
   await expect(page).toHaveURL("/parent");
