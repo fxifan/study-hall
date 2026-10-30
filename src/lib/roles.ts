@@ -8,6 +8,11 @@ export const ROLE_HOME: Record<Role, string> = {
   admin: "/admin",
 };
 
+/** Admins can also use the supervisor pages, for the sessions they supervise or tutor themselves. */
+export function canEnterArea(role: Role, area: Role): boolean {
+  return area === role || (role === "admin" && area === "proctor");
+}
+
 export function isRole(value: unknown): value is Role {
   return typeof value === "string" && (ROLES as readonly string[]).includes(value);
 }

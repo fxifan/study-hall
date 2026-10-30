@@ -9,7 +9,7 @@ import {
   splitLocale,
   type Locale,
 } from "@/i18n/config";
-import { ROLE_HOME, isRole, roleForPath } from "@/lib/roles";
+import { ROLE_HOME, canEnterArea, isRole, roleForPath } from "@/lib/roles";
 import { supabaseKey, supabaseUrl } from "@/lib/supabase/config";
 
 /**
@@ -20,7 +20,8 @@ import { supabaseKey, supabaseUrl } from "@/lib/supabase/config";
  *      Chinese, in which case it redirects to /zh/…. English is served by rewriting to app/en/…;
  *   3. routes by role, in that language:
  *      - signed out on /parent, /student, /proctor or /admin -> /login
- *      - signed in on /login or on another role's area -> their own home
+ *      - signed in on /login or on another role's area -> their own home (admins may also use
+ *        the supervisor area)
  *      - /onboarding is for signed-out visitors and parents only
  * Pages check the role again with requireRole(), and RLS guards the data itself.
  */
@@ -104,7 +105,7 @@ export async function proxy(request: NextRequest) {
   if (isOnboarding) {
     return role === "parent" ? serve() : finish(NextResponse.redirect(at(ROLE_HOME[role])), response);
   }
-  if (isLogin || area !== role) return finish(NextResponse.redirect(at(ROLE_HOME[role])), response);
+  if (isLogin || !area || !canEnterArea(role, area)) return finish(NextResponse.redirect(at(ROLE_HOME[role])), response);
   return serve();
 }
 

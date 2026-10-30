@@ -3,18 +3,20 @@ import { Suspense } from "react";
 import { AppShellFallback } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { fill } from "@/i18n/fill";
 import { getDictionary } from "@/i18n/server";
 import { createClient } from "@/lib/supabase/server";
-import { saveRoom } from "../actions";
+import { zoomConfigured } from "@/lib/zoom";
+import { createRoomZoomMeeting, saveRoom } from "../actions";
 import { AdminFrame, fieldClass } from "../admin-frame";
 
 export const metadata: Metadata = { title: "Rooms" };
 
-export default async function RoomsPage() {
+export default async function RoomsPage({ searchParams }: PageProps<"/[lang]/admin/rooms">) {
   const t = await getDictionary();
   return (
     <Suspense fallback={<AppShellFallback label={t.common.loading} />}>
-      <Rooms />
+      <Rooms searchParams={searchParams} />
     </Suspense>
   );
 }
@@ -26,14 +28,16 @@ type Room = {
   capacity: number;
   default_proctor_id: string | null;
   default_tutor_id: string | null;
+  zoom_meeting_id: string | null;
 };
 
-async function Rooms() {
-  const r = (await getDictionary()).adminPages.rooms;
+async function Rooms({ searchParams }: Pick<PageProps<"/[lang]/admin/rooms">, "searchParams">) {
+  const [r, query] = await Promise.all([getDictionary().then((t) => t.adminPages.rooms), searchParams]);
+  const zoomReady = zoomConfigured();
   const supabase = await createClient();
   const [{ data: rooms }, { data: proctors }] = await Promise.all([
-    supabase.from("rooms").select("id, name, video_url, capacity, default_proctor_id, default_tutor_id").order("name"),
-    supabase.from("profiles").select("id, full_name, email").eq("role", "proctor").order("full_name"),
+    supabase.from("rooms").select("id, name, video_url, capacity, default_proctor_id, default_tutor_id, zoom_meeting_id").order("name"),
+    supabase.from("profiles").select("id, full_name, email").in("role", ["proctor", "admin"]).order("full_name"),
   ]);
 
   const form = (room: Room | null) => (
@@ -79,10 +83,35 @@ async function Rooms() {
     </form>
   );
 
+  // Zoom sits beside each room's form (forms can't nest).
+  const zoom = (room: Room) => (
+    <form key={`zoom-${room.id}`} action={createRoomZoomMeeting} className="-mt-2 flex flex-wrap items-center gap-3 px-4 text-sm" aria-label={`Zoom: ${room.name}`}>
+      <input type="hidden" name="roomId" value={room.id} />
+      {room.zoom_meeting_id && <span className="font-mono text-xs text-ink-soft">{fill(r.zoomLinked, { id: room.zoom_meeting_id })}</span>}
+      <Button type="submit" variant="outline" size="sm" disabled={!zoomReady}>
+        {room.zoom_meeting_id ? r.zoomReplace : r.zoomCreate}
+      </Button>
+    </form>
+  );
+  const notice =
+    query.zoom === "created"
+      ? { role: "status" as const, text: r.zoomCreated }
+      : query.zoom === "error"
+        ? { role: "alert" as const, text: fill(r.zoomError, { message: typeof query.message === "string" ? query.message : "" }) }
+        : null;
+
   return (
     <AdminFrame title={r.title} current="rooms">
+      {notice && (
+        <p role={notice.role} className="rounded-md border border-hair bg-sheet px-3 py-2 text-sm">
+          {notice.text}
+        </p>
+      )}
       <p className="text-sm text-ink-soft">{r.capacityHelp}</p>
-      {rooms?.map((room) => form(room))}
+      <p className={`text-sm ${zoomReady ? "text-ink-soft" : "rounded-md border border-pen-faint px-3 py-2 text-pen"}`} data-testid="zoom-status">
+        {zoomReady ? r.zoomSettings : r.zoomOff}
+      </p>
+      {rooms?.flatMap((room) => [form(room), zoom(room)])}
       {form(null)}
     </AdminFrame>
   );

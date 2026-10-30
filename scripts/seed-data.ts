@@ -38,5 +38,19 @@ export function seedEmail(account: SeedAccount, domain = process.env.SEED_EMAIL_
   return `${SEED_ACCOUNTS[account].local}@${domain}`;
 }
 
+// Starter report-writing templates (admins edit them at /admin/templates). Factual observations
+// only, never judgements about ability or attitude. The Chinese wording follows the owner-approved
+// sample report.
+export const STARTER_TEMPLATES: { id: string; kind: "observation" | "comment"; en: string; zh: string }[] = [
+  { id: "00000000-0000-4000-8000-000000000501", kind: "observation", en: "Phone visible once during the session.", zh: "本次学习期间，学生曾有一次手机出现在视线范围内。" },
+  { id: "00000000-0000-4000-8000-000000000502", kind: "observation", en: "Phone visible more than once during the session.", zh: "本次学习期间，学生的手机多次出现在视线范围内。" },
+  { id: "00000000-0000-4000-8000-000000000503", kind: "observation", en: "Off camera for part of the session.", zh: "本次学习期间，学生有一段时间不在镜头内。" },
+  { id: "00000000-0000-4000-8000-000000000504", kind: "observation", en: "Joined after the session started.", zh: "学生在自习开始后才加入。" },
+  { id: "00000000-0000-4000-8000-000000000505", kind: "observation", en: "Left before the session ended.", zh: "学生在自习结束前离开。" },
+  { id: "00000000-0000-4000-8000-000000000506", kind: "observation", en: "Asked for help with schoolwork during the session.", zh: "学生在自习期间提出了学业求助。" },
+  { id: "00000000-0000-4000-8000-000000000511", kind: "comment", en: "Had a one-hour tutoring period this session.", zh: "本节自习安排了一小时辅导。" },
+  { id: "00000000-0000-4000-8000-000000000512", kind: "comment", en: "Set three goals and marked each one before leaving.", zh: "设定了三个学习目标，并在离开前逐一标记。" },
+];
+
 export const HOUSE_RULES_VERSION = "2026-10-v1";
 export const PRIVACY_VERSION = "2026-10-draft-5"; // replace with reviewed text before launch

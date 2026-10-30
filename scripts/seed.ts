@@ -10,6 +10,7 @@ import {
   PRIVACY_VERSION,
   SEED_ACCOUNTS,
   SEED_IDS,
+  STARTER_TEMPLATES,
   seedEmail,
   type SeedAccount,
 } from "./seed-data";
@@ -218,6 +219,13 @@ async function main() {
       list.map(([code, wantsHelp]) => ({ student_id: studentId, subject_id: subjectId.get(code), wants_help: wantsHelp })),
     ),
     "student_id,subject_id",
+  );
+
+  // Starter report-writing templates; admins edit them at /admin/templates.
+  await upsert(
+    admin,
+    "report_templates",
+    STARTER_TEMPLATES.map((t, i) => ({ id: t.id, org_id: SEED_IDS.org, kind: t.kind, text_en: t.en, text_zh: t.zh, sort: i })),
   );
 
   // Legal documents the consent step cites (content/legal). The privacy notice is a draft.

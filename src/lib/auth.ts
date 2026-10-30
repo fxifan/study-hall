@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { cache } from "react";
 import { localizePath } from "@/i18n/config";
 import { getLocale } from "@/i18n/server";
-import { ROLE_HOME, isRole, type Role } from "@/lib/roles";
+import { ROLE_HOME, canEnterArea, isRole, type Role } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 
 export type CurrentProfile = {
@@ -38,14 +38,14 @@ export const getCurrentProfile = cache(async (): Promise<CurrentProfile | null> 
 });
 
 /**
- * Use at the top of every role page: redirects anyone who isn't `role`, staying in the page's
- * language. Server Components only (it reads the [lang] root param); Server Actions should call
- * getCurrentProfile() and throw instead.
+ * Use at the top of every role page: redirects anyone who can't use the `area` (see canEnterArea),
+ * staying in the page's language. Server Components only (it reads the [lang] root param); Server
+ * Actions should call getCurrentProfile() and throw instead.
  */
-export async function requireRole(role: Role): Promise<CurrentProfile> {
+export async function requireRole(area: Role): Promise<CurrentProfile> {
   const profile = await getCurrentProfile();
   const locale = await getLocale();
   if (!profile) redirect(localizePath("/login", locale));
-  if (profile.role !== role) redirect(localizePath(ROLE_HOME[profile.role], locale));
+  if (!canEnterArea(profile.role, area)) redirect(localizePath(ROLE_HOME[profile.role], locale));
   return profile;
 }

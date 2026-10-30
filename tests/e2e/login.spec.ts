@@ -22,7 +22,8 @@ const homes: { account: SeedAccount; path: string; heading: RegExp; elsewhere: s
   { account: "parentA", path: "/parent", heading: /your students/i, elsewhere: "/admin" },
   { account: "studentA", path: "/student", heading: /hi ava/i, elsewhere: "/parent" },
   { account: "proctor", path: "/proctor", heading: /today's sessions/i, elsewhere: "/student" },
-  { account: "admin", path: "/admin", heading: /overview/i, elsewhere: "/proctor" },
+  // Admins may use the supervisor pages too, so their "elsewhere" is a family area.
+  { account: "admin", path: "/admin", heading: /overview/i, elsewhere: "/parent" },
 ];
 
 for (const { account, path, heading, elsewhere } of homes) {

@@ -11,6 +11,7 @@ import { enrolEligibleStudents, generateSessions } from "@/lib/sessions";
 import { siteOrigin } from "@/lib/site";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { ZoomError, createZoomMeeting, zoomConfigured } from "@/lib/zoom";
 
 // Admin writes go through RLS ("admins manage org …") as the signed-in admin, except inviting a
 // supervisor and generating sessions, which need the service role.
@@ -57,6 +58,29 @@ export async function saveRoom(formData: FormData) {
     : await supabase.from("rooms").insert(values);
   if (error) throw error;
   refresh();
+}
+
+/** Creates a Zoom meeting for the room (safe settings in src/lib/zoom.ts) and makes it the room's link. */
+export async function createRoomZoomMeeting(formData: FormData) {
+  await requireAdmin();
+  const roomId = z.uuid().parse(formData.get("roomId"));
+  if (!zoomConfigured()) await back("/admin/rooms", "?zoom=off");
+  const supabase = await createClient();
+  const { data: room } = await supabase.from("rooms").select("id, name").eq("id", roomId).single();
+  if (!room) throw new Error("Room not found.");
+  let meeting: { id: string; joinUrl: string };
+  try {
+    meeting = await createZoomMeeting(room.name);
+  } catch (error) {
+    if (!(error instanceof ZoomError)) throw error;
+    await back("/admin/rooms", `?zoom=error&message=${encodeURIComponent(error.message)}`);
+  }
+  const { error } = await supabase
+    .from("rooms")
+    .update({ video_url: meeting!.joinUrl, zoom_meeting_id: meeting!.id })
+    .eq("id", roomId);
+  if (error) throw error;
+  await back("/admin/rooms", "?zoom=created");
 }
 
 // --- Schedule and sessions -----------------------------------------------------------------------
@@ -161,6 +185,42 @@ export async function addPlan(formData: FormData) {
   });
   if (error) throw error;
   updateTag("plans");
+  refresh();
+}
+
+// --- Report templates ---------------------------------------------------------------------------
+
+const templateText = z.string().trim().min(1).max(200);
+
+export async function saveTemplate(formData: FormData) {
+  await requireAdmin();
+  const template = z
+    .object({ id: z.uuid(), textEn: templateText, textZh: templateText })
+    .parse(Object.fromEntries(formData));
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("report_templates")
+    .update({ text_en: template.textEn, text_zh: template.textZh, active: formData.get("active") === "on" })
+    .eq("id", template.id);
+  if (error) throw error;
+  refresh();
+}
+
+export async function addTemplate(formData: FormData) {
+  const admin = await requireAdmin();
+  const template = z
+    .object({ kind: z.enum(["observation", "comment"]), textEn: templateText, textZh: templateText })
+    .parse(Object.fromEntries(formData));
+  const supabase = await createClient();
+  const { count } = await supabase.from("report_templates").select("id", { count: "exact", head: true });
+  const { error } = await supabase.from("report_templates").insert({
+    org_id: admin.orgId,
+    kind: template.kind,
+    text_en: template.textEn,
+    text_zh: template.textZh,
+    sort: count ?? 0,
+  });
+  if (error) throw error;
   refresh();
 }
 

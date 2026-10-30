@@ -5,7 +5,7 @@ import { localizePath } from "@/i18n/config";
 import { getDictionary, getLocale } from "@/i18n/server";
 import { requireRole } from "@/lib/auth";
 
-const SECTIONS = ["overview", "rooms", "schedule", "subjects", "plans", "proctors"] as const;
+const SECTIONS = ["overview", "rooms", "schedule", "students", "subjects", "templates", "plans", "proctors"] as const;
 type Section = (typeof SECTIONS)[number];
 
 /** Admin page frame: checks the role, then the shell plus section navigation. */
@@ -24,6 +24,10 @@ export async function AdminFrame({ title, current, children }: { title: string; 
             {t.adminPages.nav[section]}
           </Link>
         ))}
+        {/* Admins supervise and tutor too: their own sessions, rosters and breakout log. */}
+        <Link href={localizePath("/proctor", locale)} className="text-ink-soft hover:text-ink sm:ml-auto">
+          {t.adminPages.nav.supervise} →
+        </Link>
       </nav>
       {children}
     </AppShell>

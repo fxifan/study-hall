@@ -32,7 +32,7 @@ async function Proctors({ searchParams }: Pick<PageProps<"/[lang]/admin/proctors
   const { data: supervisors } = await supabase
     .from("profiles")
     .select("id, full_name, email, proctor_checks!proctor_checks_proctor_id_fkey(id, wwcc_number, wwcc_expiry, verified_at)")
-    .eq("role", "proctor")
+    .in("role", ["proctor", "admin"]) // admins can supervise too, with a verified check
     .order("full_name")
     .returns<Supervisor[]>();
   const today = dateKeyOf();

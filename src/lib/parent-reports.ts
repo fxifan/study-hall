@@ -8,6 +8,11 @@ import { MELBOURNE, formatInZone } from "./time";
 
 export const REPORT_WINDOW_DAYS = 14;
 
+/** The start of the report window (two weeks ago), as an ISO timestamp. */
+export function reportWindowStart(now = new Date()): string {
+  return new Date(now.getTime() - REPORT_WINDOW_DAYS * 86_400_000).toISOString();
+}
+
 const FORMATS: Record<ReportLang, { date: string; time: string; locale: typeof enAU }> = {
   en: { date: en.reportCard.dateFormat, time: en.reportCard.timeFormat, locale: enAU },
   zh: { date: zh.reportCard.dateFormat, time: zh.reportCard.timeFormat, locale: zhCN },
@@ -28,21 +33,26 @@ type Enrolment = {
 };
 
 /**
- * Session reports for the signed-in parent's children, built from what was recorded: attendance
+ * Session reports for the signed-in parent's children (or, for an admin, one student with
+ * `studentId`), built from what was recorded: attendance
  * (check-in and check-out) and the goals the student set and marked, plus the supervisor's comment
  * once a report has been approved. Sessions that ended in the last two weeks and have an attendance
  * record. RLS limits every query to the parent's own children. The supervisor's focus flags join
  * these when the report approval workflow exists (spec Phase 2).
  */
-export async function getParentReports(supabase: SupabaseClient, now = new Date()): Promise<ReportCardData[]> {
+export async function getParentReports(
+  supabase: SupabaseClient,
+  { now = new Date(), studentId }: { now?: Date; studentId?: string } = {},
+): Promise<ReportCardData[]> {
   const since = new Date(now.getTime() - REPORT_WINDOW_DAYS * 86_400_000);
-  const { data: enrolments, error } = await supabase
+  let query = supabase
     .from("enrolments")
     .select("session_id, student_id, students(first_name, last_initial), sessions!inner(starts_at, ends_at)")
     .gte("sessions.starts_at", since.toISOString())
     .lt("sessions.ends_at", now.toISOString())
-    .neq("sessions.status", "cancelled")
-    .returns<Enrolment[]>();
+    .neq("sessions.status", "cancelled");
+  if (studentId) query = query.eq("student_id", studentId);
+  const { data: enrolments, error } = await query.returns<Enrolment[]>();
   if (error) throw error;
   if (!enrolments?.length) return [];
 
