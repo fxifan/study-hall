@@ -177,7 +177,7 @@ test.describe("legal pages", () => {
   test("the privacy notice is clearly marked as a draft", async ({ page }) => {
     await page.goto("/legal/privacy");
     await expect(page.getByRole("note")).toContainText("Draft");
-    await expect(page.getByText(/Version 2026-10-draft-6/)).toBeVisible();
+    await expect(page.getByText(/Version 2026-10-draft-7/)).toBeVisible();
     await expect(page.locator("article")).toContainText("One-to-one tutoring (Study + Tutoring plan) happens in the main session room");
     await expect(page.locator("article")).toContainText("run by Feifan Wu, a sole trader");
   });

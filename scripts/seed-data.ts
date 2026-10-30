@@ -58,4 +58,4 @@ export const STARTER_TEMPLATES: { id: string; kind: "observation" | "comment"; e
 ];
 
 export const HOUSE_RULES_VERSION = "2026-10-v1";
-export const PRIVACY_VERSION = "2026-10-draft-6"; // replace with reviewed text before launch
+export const PRIVACY_VERSION = "2026-10-draft-7"; // replace with reviewed text before launch
