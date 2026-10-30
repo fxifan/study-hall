@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { AppShell, AppShellFallback, ComingInPhase } from "@/components/app-shell";
+import { AppShell, AppShellFallback } from "@/components/app-shell";
 import { localizePath } from "@/i18n/config";
 import { fill } from "@/i18n/fill";
 import { getDateLocale, getDictionary, getLocale } from "@/i18n/server";
@@ -103,7 +103,6 @@ async function ProctorHome() {
           <p className="text-ink-soft">{t.proctor.noneUpcoming}</p>
         )}
       </section>
-      <ComingInPhase phase={2}>{t.proctor.rosterSoon}</ComingInPhase>
     </AppShell>
   );
 }

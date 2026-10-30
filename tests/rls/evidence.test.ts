@@ -156,7 +156,12 @@ describe("supervisor check-ins", () => {
     }
   });
 
-  it("shows check-ins to that student's parent only, and can't be edited", async () => {
+  it("shows check-ins and flags to that student's parent only once the report is released", async () => {
+    await service.from("focus_flags").insert({ session_id: sessionId, student_id: SEED_IDS.studentA, type: "phone_visible" });
+    expect((await parentA.from("session_checkins").select("id").eq("session_id", sessionId)).data).toHaveLength(0);
+    expect((await parentA.from("focus_flags").select("id").eq("session_id", sessionId)).data).toHaveLength(0);
+    await service.from("reports").insert({ session_id: sessionId, student_id: SEED_IDS.studentA, body_text: "(test)", status: "approved" });
+    expect((await parentA.from("focus_flags").select("id").eq("session_id", sessionId)).data).toHaveLength(1);
     expect((await parentA.from("session_checkins").select("id").eq("session_id", sessionId)).data).toHaveLength(1);
     expect((await parentB.from("session_checkins").select("id").eq("session_id", sessionId)).data).toHaveLength(0);
     const { data: edited } = await tutor.from("session_checkins").update({ note: "changed" }).eq("session_id", sessionId).select("id");

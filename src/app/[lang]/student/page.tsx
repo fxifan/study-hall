@@ -13,7 +13,8 @@ import { getCurrentLegalDocument } from "@/lib/legal";
 import { createClient } from "@/lib/supabase/server";
 import { pickTodaySession, sessionWindow } from "@/lib/session-timer";
 import { MELBOURNE, dateKeyOf, dayRangeUtc, formatInZone } from "@/lib/time";
-import { leaveSession, markGoals, raiseHelp, saveGoals } from "./actions";
+import { LiveRefresh } from "@/components/live-refresh";
+import { leaveSession, markGoals, raiseHelp, replyHelp, saveGoals } from "./actions";
 import { EvidenceUpload } from "./evidence-upload";
 import { JoinButton, SessionTimer } from "./session-controls";
 
@@ -115,7 +116,7 @@ async function StudentHome({ searchParams }: Pick<PageProps<"/[lang]/student">, 
     supabase.from("attendance").select("check_in_at, check_out_at").eq("session_id", session.id).maybeSingle(),
     supabase
       .from("help_requests")
-      .select("id, subject, description, status, created_at")
+      .select("id, subject, description, status, created_at, messages(id, sender_id, body, created_at)")
       .eq("session_id", session.id)
       .order("created_at", { ascending: false }),
     getCurrentLegalDocument("house_rules"),
@@ -255,6 +256,7 @@ async function StudentHome({ searchParams }: Pick<PageProps<"/[lang]/student">, 
 
       {inRoom && (
         <section className="flex flex-col gap-3" data-testid="help">
+          <LiveRefresh />
           <h2 className="text-xl font-medium">{s.help.title}</h2>
           <p className="text-sm text-ink-soft">{tutoring ? s.help.tutoringScope : s.help.scope}</p>
           <form action={raiseHelp} className="flex flex-col gap-2">
@@ -279,13 +281,31 @@ async function StudentHome({ searchParams }: Pick<PageProps<"/[lang]/student">, 
               <h3 className="font-mono text-xs tracking-widest text-ink-soft uppercase">{s.help.yours}</h3>
               <ul className="divide-y divide-rule rounded-md border border-hair bg-sheet">
                 {requests.map((r) => (
-                  <li key={r.id} className="flex justify-between gap-4 px-4 py-3">
-                    <span>
-                      <b>{r.subject}:</b> {r.description}
-                    </span>
-                    <span className="font-mono text-xs whitespace-nowrap text-ink-soft">
-                      {s.help.status[r.status as keyof typeof s.help.status]}
-                    </span>
+                  <li key={r.id} className="flex flex-col gap-2 px-4 py-3">
+                    <div className="flex justify-between gap-4">
+                      <span>
+                        <b>{r.subject}:</b> {r.description}
+                      </span>
+                      <span className="font-mono text-xs whitespace-nowrap text-ink-soft">
+                        {s.help.status[r.status as keyof typeof s.help.status]}
+                      </span>
+                    </div>
+                    {r.messages
+                      .toSorted((a, b) => a.created_at.localeCompare(b.created_at))
+                      .map((m) => (
+                        <p key={m.id} className="text-sm">
+                          <span className="text-ink-soft">{m.sender_id === profile.id ? s.help.you : s.help.supervisor}:</span> {m.body}
+                        </p>
+                      ))}
+                    {r.status !== "resolved" && (
+                      <form action={replyHelp} className="flex gap-2">
+                        <input type="hidden" name="helpId" value={r.id} />
+                        <Input name="body" required maxLength={1000} aria-label={s.help.reply} placeholder={s.help.reply} />
+                        <Button type="submit" variant="outline" size="sm">
+                          {s.help.sendReply}
+                        </Button>
+                      </form>
+                    )}
                   </li>
                 ))}
               </ul>

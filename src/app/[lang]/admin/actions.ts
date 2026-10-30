@@ -5,8 +5,11 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { DEFAULT_LOCALE, LOCALE_COOKIE, isLocale, localizePath } from "@/i18n/config";
+import { en } from "@/i18n/dictionaries/en";
 import { getCurrentProfile, type CurrentProfile } from "@/lib/auth";
 import { isReservedTestEmail } from "@/lib/email";
+import { getParentReports } from "@/lib/parent-reports";
+import { reportText } from "@/lib/report-card";
 import { enrolEligibleStudents, generateSessions } from "@/lib/sessions";
 import { siteOrigin } from "@/lib/site";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -218,6 +221,29 @@ export async function addPlan(formData: FormData) {
   });
   if (error) throw error;
   updateTag("plans");
+  refresh();
+}
+
+// --- Reports ------------------------------------------------------------------------------------
+
+/** Sending is manual for now: an admin emails the text, then records it here. */
+export async function markReportSent(formData: FormData) {
+  await requireAdmin();
+  const { sessionId, studentId } = z.object({ sessionId: z.uuid(), studentId: z.uuid() }).parse(Object.fromEntries(formData));
+  const supabase = await createClient();
+  const [card] = await getParentReports(supabase, { sessionId, studentId, includeUnreleased: true });
+  if (!card) throw new Error("No report for that session.");
+  const { error } = await supabase.from("reports").upsert(
+    {
+      session_id: sessionId,
+      student_id: studentId,
+      body_text: reportText(card, "en", en.reportCard),
+      status: "sent",
+      sent_at: new Date().toISOString(),
+    },
+    { onConflict: "session_id,student_id" },
+  );
+  if (error) throw error;
   refresh();
 }
 

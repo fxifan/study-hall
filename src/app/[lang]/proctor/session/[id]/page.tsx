@@ -14,7 +14,10 @@ import { sessionWindow } from "@/lib/session-timer";
 import { createClient } from "@/lib/supabase/server";
 import { MELBOURNE, formatInZone } from "@/lib/time";
 import { addCheckIn, endBreakout } from "../../actions";
+import { LiveRefresh } from "@/components/live-refresh";
+import { getParentReports } from "@/lib/parent-reports";
 import { BreakoutForm } from "./breakout-form";
+import { HelpQueue, ReportReview, StudentControls, type Attendance, type Flag, type HelpRow } from "./live";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getDictionary()).roles.proctor };
@@ -71,6 +74,12 @@ async function SessionRoster({ params }: Pick<PageProps<"/[lang]/proctor/session
     { data: plans },
     { data: checkIns },
     { data: templates },
+    { data: attendance },
+    { data: flags },
+    { data: help },
+    { data: reports },
+    { data: studentLogins },
+    reportCards,
   ] = await Promise.all([
     supabase.from("sessions").select("id, starts_at, ends_at, status, rooms(name)").eq("id", id).maybeSingle<{
       id: string;
@@ -96,12 +105,28 @@ async function SessionRoster({ params }: Pick<PageProps<"/[lang]/proctor/session
       .order("created_at")
       .returns<CheckIn[]>(),
     supabase.from("report_templates").select("id, kind, text_en, text_zh").order("sort").returns<Template[]>(),
+    supabase.from("attendance").select("student_id, status, check_in_at").eq("session_id", id).returns<Attendance[]>(),
+    supabase.from("focus_flags").select("id, student_id, type, created_at").eq("session_id", id).order("created_at").returns<Flag[]>(),
+    // Tutoring students first, then oldest (help_requests_queue_idx).
+    supabase
+      .from("help_requests")
+      .select("id, student_id, subject, description, status, priority, created_at, messages(id, sender_id, body, created_at)")
+      .eq("session_id", id)
+      .order("priority", { ascending: false })
+      .order("created_at")
+      .returns<HelpRow[]>(),
+    supabase.from("reports").select("student_id, status, proctor_comment").eq("session_id", id),
+    supabase.from("enrolments").select("students(profile_id)").eq("session_id", id).returns<{ students: { profile_id: string | null } | null }[]>(),
+    getParentReports(supabase, { sessionId: id, includeUnreleased: true }),
   ]);
   if (!session) notFound();
   const s = t.proctor.session;
   const students: RosterRow[] = roster ?? [];
   const breakouts: LoggedBreakout[] = breakoutRows ?? [];
   const breakoutTotals = breakoutMinutesByStudent(breakouts, session.ends_at);
+  const helpRows = help ?? [];
+  const names = students.map((r): [string, string] => [r.student_id, `${r.first_name} ${r.last_initial}.`]);
+  const clock = (iso: string) => formatInZone(iso, t.formats.time, MELBOURNE, dateLocale);
   const when = `${formatInZone(session.starts_at, t.formats.longDate, MELBOURNE, dateLocale)}, ${formatInZone(session.starts_at, t.formats.time, MELBOURNE, dateLocale)}`;
   // Same window as check-in and public.start_breakout.
   const open = session.status !== "cancelled" && sessionWindow(session.starts_at, session.ends_at).open;
@@ -111,9 +136,20 @@ async function SessionRoster({ params }: Pick<PageProps<"/[lang]/proctor/session
       <Link href={localizePath("/proctor", locale)} className="text-sm text-ink-soft underline-offset-4 hover:underline">
         ← {s.back}
       </Link>
-      <p className="font-mono text-sm text-ink-soft">
-        {fill(s.summary, { count: students.length, tutoring: students.filter((r) => r.tutoring).length })}
+      {open && <LiveRefresh />}
+      <p className="font-mono text-sm text-ink-soft" data-testid="live-summary">
+        {fill(s.summary, { count: students.length, tutoring: students.filter((r) => r.tutoring).length })} ·{" "}
+        {fill(s.live.joined, { joined: (attendance ?? []).filter((a) => a.check_in_at).length, total: students.length })} ·{" "}
+        {fill(s.live.openHelp, { n: helpRows.filter((h) => h.status === "open").length })}
       </p>
+      <HelpQueue
+        help={helpRows.filter((h) => h.status !== "resolved").concat(helpRows.filter((h) => h.status === "resolved"))}
+        names={new Map(names)}
+        studentProfiles={new Set((studentLogins ?? []).flatMap((e) => (e.students?.profile_id ? [e.students.profile_id] : [])))}
+        profileId={profile.id}
+        t={s.live}
+        time={clock}
+      />
       <Breakouts
         sessionId={session.id}
         endsAt={session.ends_at}
@@ -162,6 +198,14 @@ async function SessionRoster({ params }: Pick<PageProps<"/[lang]/proctor/session
                   <span className="text-ink-soft">{s.note}:</span> {r.study_note}
                 </p>
               )}
+              <StudentControls
+                ids={{ sessionId: session.id, studentId: r.student_id }}
+                name={`${r.first_name} ${r.last_initial}.`}
+                attendance={attendance?.find((a) => a.student_id === r.student_id)}
+                flags={(flags ?? []).filter((f) => f.student_id === r.student_id)}
+                t={s.live}
+                time={clock}
+              />
               <StudentPlan
                 sessionId={session.id}
                 studentId={r.student_id}
@@ -177,6 +221,16 @@ async function SessionRoster({ params }: Pick<PageProps<"/[lang]/proctor/session
         </ul>
       ) : (
         <p className="text-ink-soft">{s.empty}</p>
+      )}
+      {students.length > 0 && (
+        <ReportReview
+          sessionId={session.id}
+          students={names.map(([studentId, name]) => ({ id: studentId, name }))}
+          cards={reportCards}
+          reports={reports ?? []}
+          locale={locale}
+          t={s.review}
+        />
       )}
       <p className="text-xs text-ink-faint">{s.privacy}</p>
     </AppShell>

@@ -3,7 +3,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { enAU, zhCN } from "date-fns/locale";
 import { en } from "@/i18n/dictionaries/en";
 import { zh } from "@/i18n/dictionaries/zh";
-import type { Localized, Outcome, ReportCardData, ReportLang } from "./report-card";
+import { fill } from "@/i18n/fill";
+import { FLAG_TYPES, type Localized, type Outcome, type ReportCardData, type ReportLang } from "./report-card";
 import { MELBOURNE, formatInZone } from "./time";
 
 export const REPORT_WINDOW_DAYS = 14;
@@ -25,6 +26,18 @@ const date = (iso: string) => both((l) => formatInZone(iso, FORMATS[l].date, MEL
 const time = (iso: string) => both((l) => formatInZone(iso, FORMATS[l].time, MELBOURNE, FORMATS[l].locale));
 const minutesBetween = (from: number, to: number) => Math.max(0, Math.round((to - from) / 60_000));
 
+const RELEASE_AFTER_MS = 60 * 60_000;
+
+/** "Phone visible 2×" in both languages, plus any note as written. */
+function flagLines(rows: { type: string; note: string | null }[]): Localized[] {
+  const lines: Localized[] = [];
+  for (const type of FLAG_TYPES) {
+    const count = rows.filter((f) => f.type === type).length;
+    if (count) lines.push({ en: fill(en.reportCard.flags[type], { n: count }), zh: fill(zh.reportCard.flags[type], { n: count }) });
+  }
+  return [...lines, ...rows.flatMap((f) => (f.note ? [f.note] : []))];
+}
+
 type Enrolment = {
   session_id: string;
   student_id: string;
@@ -41,22 +54,27 @@ type Enrolment = {
  */
 export async function getParentReports(
   supabase: SupabaseClient,
-  { now = new Date(), studentId }: { now?: Date; studentId?: string } = {},
+  {
+    now = new Date(),
+    studentId,
+    sessionId,
+    includeUnreleased = false,
+  }: { now?: Date; studentId?: string; sessionId?: string; includeUnreleased?: boolean } = {},
 ): Promise<ReportCardData[]> {
   const since = new Date(now.getTime() - REPORT_WINDOW_DAYS * 86_400_000);
   let query = supabase
     .from("enrolments")
     .select("session_id, student_id, students(first_name, last_initial), sessions!inner(starts_at, ends_at)")
-    .gte("sessions.starts_at", since.toISOString())
-    .lt("sessions.ends_at", now.toISOString())
     .neq("sessions.status", "cancelled");
+  if (sessionId) query = query.eq("session_id", sessionId);
+  else query = query.gte("sessions.starts_at", since.toISOString()).lt("sessions.ends_at", now.toISOString());
   if (studentId) query = query.eq("student_id", studentId);
   const { data: enrolments, error } = await query.returns<Enrolment[]>();
   if (error) throw error;
   if (!enrolments?.length) return [];
 
   const sessionIds = [...new Set(enrolments.map((e) => e.session_id))];
-  const [attendance, goals, reports, checkIns] = await Promise.all([
+  const [attendance, goals, reports, checkIns, flags] = await Promise.all([
     supabase.from("attendance").select("session_id, student_id, check_in_at, check_out_at, status").in("session_id", sessionIds),
     supabase
       .from("goals")
@@ -73,8 +91,9 @@ export async function getParentReports(
       .select("session_id, student_id, template_en, template_zh, note")
       .in("session_id", sessionIds)
       .order("created_at"),
+    supabase.from("focus_flags").select("session_id, student_id, type, note").in("session_id", sessionIds).order("created_at"),
   ]);
-  for (const result of [attendance, goals, reports, checkIns]) if (result.error) throw result.error;
+  for (const result of [attendance, goals, reports, checkIns, flags]) if (result.error) throw result.error;
   const key = (row: { session_id: string; student_id: string }) => `${row.session_id}:${row.student_id}`;
 
   return enrolments
@@ -84,6 +103,9 @@ export async function getParentReports(
       if (!record || !e.sessions || !e.students) return [];
       const start = Date.parse(e.sessions.starts_at);
       const end = Date.parse(e.sessions.ends_at);
+      // Parents see a report once it's approved, or 60 minutes after the session ends.
+      const approved = reports.data!.find((r) => key(r) === key(e));
+      if (!includeUnreleased && !approved && end + RELEASE_AFTER_MS > now.getTime()) return [];
       const checkIn = record.check_in_at ? Date.parse(record.check_in_at) : null;
       const from = checkIn === null ? null : Math.max(checkIn, start);
       const to = Math.min(record.check_out_at ? Date.parse(record.check_out_at) : end, end);
@@ -115,13 +137,16 @@ export async function getParentReports(
               evidence: (g.goal_evidence as { id: string; file_name: string }[]).map((x) => ({ id: x.id, name: x.file_name })),
             })),
           // Check-ins from a template read in either language; typed notes stay as written.
-          observations: checkIns
-            .data!.filter((c) => key(c) === key(e))
-            .flatMap((c): Localized[] => [
-              ...(c.template_en ? [{ en: c.template_en as string, zh: c.template_zh as string }] : []),
-              ...(c.note ? [c.note as string] : []),
-            ]),
-          comment: reports.data!.find((r) => key(r) === key(e))?.proctor_comment ?? null,
+          observations: [
+            ...flagLines(flags.data!.filter((f) => key(f) === key(e))),
+            ...checkIns
+              .data!.filter((c) => key(c) === key(e))
+              .flatMap((c): Localized[] => [
+                ...(c.template_en ? [{ en: c.template_en as string, zh: c.template_zh as string }] : []),
+                ...(c.note ? [c.note as string] : []),
+              ]),
+          ],
+          comment: approved?.proctor_comment ?? null,
         },
       ];
     });

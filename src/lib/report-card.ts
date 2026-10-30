@@ -14,6 +14,8 @@ export type ReportLabels = Dictionary["reportCard"];
 /** Written by a person (kept as is), or fixed demo text in both languages. */
 export type Localized = string | Record<ReportLang, string>;
 export type Outcome = "done" | "partial" | "not_done";
+/** The factual flags a supervisor can tap. */
+export const FLAG_TYPES = ["phone_visible", "off_camera", "chatting"] as const;
 
 export type ReportCardData = {
   id: string;

@@ -2,8 +2,11 @@
 
 import { refresh } from "next/cache";
 import { z } from "zod";
+import { en } from "@/i18n/dictionaries/en";
 import { getCurrentProfile } from "@/lib/auth";
 import { breakoutErrorCode, type BreakoutError } from "@/lib/breakouts";
+import { getParentReports } from "@/lib/parent-reports";
+import { FLAG_TYPES, reportText } from "@/lib/report-card";
 import { createClient } from "@/lib/supabase/server";
 
 // Breakout log (docs/in-site-video-plan.md). The database functions check that the caller is the
@@ -54,6 +57,106 @@ export async function addCheckIn(formData: FormData) {
     note: parsed.note,
     created_by: profile.id,
   });
+  if (error) throw error;
+  refresh();
+}
+
+const SESSION_STUDENT = z.object({ sessionId: z.uuid(), studentId: z.uuid() });
+
+/** The supervisor confirms what they see on camera; check-in pre-fills it (spec 4.4). */
+export async function setAttendance(formData: FormData) {
+  const profile = await requireStaff();
+  const { sessionId, studentId, status } = SESSION_STUDENT.extend({
+    status: z.enum(["present", "late", "left_early", "absent"]),
+  }).parse(Object.fromEntries(formData));
+  const supabase = await createClient();
+  const { error } = await supabase.from("attendance").upsert(
+    { session_id: sessionId, student_id: studentId, status, confirmed_by: profile.id, confirmed_at: new Date().toISOString() },
+    { onConflict: "session_id,student_id" },
+  );
+  if (error) throw error;
+  refresh();
+}
+
+export async function addFlag(formData: FormData) {
+  const profile = await requireStaff();
+  const { sessionId, studentId, type } = SESSION_STUDENT.extend({ type: z.enum(FLAG_TYPES) }).parse(Object.fromEntries(formData));
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("focus_flags")
+    .insert({ session_id: sessionId, student_id: studentId, type, created_by: profile.id });
+  if (error) throw error;
+  refresh();
+}
+
+export async function removeFlag(formData: FormData) {
+  await requireStaff();
+  const supabase = await createClient();
+  const { error } = await supabase.from("focus_flags").delete().eq("id", z.uuid().parse(formData.get("flagId")));
+  if (error) throw error;
+  refresh();
+}
+
+export async function updateHelp(formData: FormData) {
+  const profile = await requireStaff();
+  const { helpId, action } = z.object({ helpId: z.uuid(), action: z.enum(["claim", "resolve"]) }).parse(Object.fromEntries(formData));
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("help_requests")
+    .update(
+      action === "claim"
+        ? { status: "helping", claimed_by: profile.id }
+        : { status: "resolved", resolved_at: new Date().toISOString() },
+    )
+    .eq("id", helpId);
+  if (error) throw error;
+  refresh();
+}
+
+/** Help messages are logged and append-only (spec 8.4). */
+export async function sendHelpMessage(formData: FormData) {
+  const profile = await requireStaff();
+  const { helpId, body } = z.object({ helpId: z.uuid(), body: z.string().trim().min(1).max(1000) }).parse(Object.fromEntries(formData));
+  const supabase = await createClient();
+  const { error } = await supabase.from("messages").insert({ help_request_id: helpId, sender_id: profile.id, body });
+  if (error) throw error;
+  refresh();
+}
+
+/**
+ * Approves a student's report (or saves its comment if already approved). body_text keeps a plain
+ * snapshot of what was approved. Approving is what releases it to the parent early.
+ */
+export async function reviewReport(formData: FormData) {
+  await requireStaff();
+  const { sessionId, studentId, comment } = SESSION_STUDENT.extend({
+    comment: z
+      .string()
+      .trim()
+      .max(200)
+      .transform((v) => v || null),
+  }).parse(Object.fromEntries(formData));
+  const supabase = await createClient();
+  const [card] = await getParentReports(supabase, { sessionId, studentId, includeUnreleased: true });
+  if (!card) throw new Error("Confirm attendance first.");
+  const { data: existing } = await supabase
+    .from("reports")
+    .select("id, status")
+    .eq("session_id", sessionId)
+    .eq("student_id", studentId)
+    .maybeSingle();
+  const { error } = existing
+    ? await supabase
+        .from("reports")
+        .update({ proctor_comment: comment, status: existing.status === "draft" ? "approved" : existing.status })
+        .eq("id", existing.id)
+    : await supabase.from("reports").insert({
+        session_id: sessionId,
+        student_id: studentId,
+        body_text: reportText(card, "en", en.reportCard),
+        proctor_comment: comment,
+        status: "approved",
+      });
   if (error) throw error;
   refresh();
 }

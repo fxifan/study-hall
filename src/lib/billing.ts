@@ -43,6 +43,8 @@ export async function syncSubscription(subscription: Stripe.Subscription, origin
       current_period_end: new Date(item.current_period_end * 1000).toISOString(),
       cancel_at_period_end: subscription.cancel_at_period_end,
       quantity: item.quantity ?? 1,
+      canceled_at: subscription.canceled_at ? new Date(subscription.canceled_at * 1000).toISOString() : null,
+      cancel_reason: subscription.cancellation_details?.feedback ?? null,
     },
     { onConflict: "stripe_subscription_id" },
   );

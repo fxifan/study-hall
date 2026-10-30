@@ -40,3 +40,7 @@ Source: the owner's "Supervision, Pricing, Work Evidence, and Session Scheduling
 5. **Retention of uploaded work.** No rule exists. Decide how long uploads are kept (they're deleted
    with the student today, and on request).
 6. **Final session times**, once the trial shows what suits families.
+7. **Zoom automation.** The owner's school Zoom login can't make a Server-to-Server OAuth app, so
+   "Create Zoom meeting" stays unconnected; paste meeting links into rooms. The code is ready if a
+   Zoom account that allows it turns up.
+8. **Report emails** are manual (`/admin/reports`). Automatic sending needs a verified sending domain.

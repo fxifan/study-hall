@@ -130,6 +130,16 @@ previews of every email to `email-previews/`. Nothing is sent by these commands.
 - Staff logins: `npm run grant-admin -- <email> "Name"`. Admins also see `/admin/students`,
   `/admin/templates`, and can create Zoom meetings for rooms once the Zoom env vars are set.
 
+## Supervising a session and reports
+
+- `/proctor/session/<id>` is the live dashboard (refreshes every 15 seconds while open): help queue
+  with tutoring students first and logged replies, attendance, one-tap flags, plans, check-ins.
+- Reports are built from recorded data. Staff approve them at the bottom of that page. Parents see a
+  report once approved, or automatically 60 minutes after the session ends, without a comment.
+- Nothing is emailed automatically. `/admin/reports` gives the English-and-Chinese text to copy into
+  an email, and "Mark sent" records it. `/admin/metrics` shows the spec's numbers by date range,
+  leaving out test accounts.
+
 ## Tutoring plan and study profiles
 
 - Plans with `includes_tutoring` (seeded: "Study + Tutoring", A$199/week per student, one hour of

@@ -5,7 +5,7 @@ import { localizePath } from "@/i18n/config";
 import { getDictionary, getLocale } from "@/i18n/server";
 import { requireRole } from "@/lib/auth";
 
-const SECTIONS = ["overview", "rooms", "schedule", "students", "subjects", "templates", "plans", "proctors"] as const;
+const SECTIONS = ["overview", "rooms", "schedule", "students", "subjects", "templates", "reports", "metrics", "plans", "proctors"] as const;
 type Section = (typeof SECTIONS)[number];
 
 /** Admin page frame: checks the role, then the shell plus section navigation. */

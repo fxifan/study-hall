@@ -149,6 +149,17 @@ export async function removeEvidence(evidenceId: string): Promise<EvidenceResult
   return { ok: true };
 }
 
+/** The student's reply on their own help request; RLS checks it's theirs. Logged, append-only. */
+export async function replyHelp(formData: FormData) {
+  const profile = await getCurrentProfile();
+  if (!profile) throw new Error("Sign in first.");
+  const { helpId, body } = z.object({ helpId: z.uuid(), body: z.string().trim().min(1).max(1000) }).parse(Object.fromEntries(formData));
+  const supabase = await createClient();
+  const { error } = await supabase.from("messages").insert({ help_request_id: helpId, sender_id: profile.id, body });
+  if (error) throw error;
+  refresh();
+}
+
 export async function leaveSession(formData: FormData) {
   await currentStudentId();
   const supabase = await createClient();
