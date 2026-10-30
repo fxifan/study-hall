@@ -111,7 +111,7 @@ test("pricing comes from the plans table and links to sign-up", async ({ page })
   await expect(tutoring).toContainText("Study + Tutoring");
   await expect(tutoring).toContainText("149");
   await expect(tutoring).toContainText(
-    "Includes one hour of tutoring per session attended, scheduled by the supervisor when you request it. The rest of the session is supervised independent study.",
+    "Includes one hour of one-to-one tutoring per session attended, in the main session room, scheduled by the supervisor when you request it. The rest of the session is supervised independent study.",
   );
 
   const pricing = page.locator("#pricing");
@@ -137,6 +137,8 @@ test("the FAQ answers every question in the brief", async ({ page }) => {
   await expect(faq).toContainText(`Email ${CONTACT}`);
   await faq.getByText("What happens if a session is cancelled or my child misses it?").click();
   await expect(faq).toContainText("everyone booked into it gets a credit to attend another session instead");
+  await faq.getByText("Is Study Hall tutoring?").click();
+  await expect(faq).toContainText("in the main session room, with the supervisor and other students present, never in a private call or breakout room");
   await faq.getByText("What happens if my child gets stuck?").click();
   await expect(faq).toContainText("VCE Mathematical Methods, General Mathematics, Chemistry, Biology, and Accounting");
 });
@@ -148,7 +150,7 @@ test("the Chinese page is translated, sample report included", async ({ page }) 
   await expect(page.locator("#report")).toContainText("报告可以用英文或简体中文阅读");
   await expect(page.locator("#report figure")).toContainText("示例学习报告（虚构学生）");
   await expect(page.getByTestId("plan-card").first()).toContainText("/ 周");
-  await expect(page.getByTestId("plan-card").nth(1)).toContainText("孩子每参加一节自习，包含一小时辅导");
+  await expect(page.getByTestId("plan-card").nth(1)).toContainText("孩子每参加一节自习，包含一小时一对一辅导，在主自习室中进行");
   await expect(page.getByTestId("plan-comparison")).toContainText("每参加一节自习一小时");
 });
 
@@ -175,7 +177,8 @@ test.describe("legal pages", () => {
   test("the privacy notice is clearly marked as a draft", async ({ page }) => {
     await page.goto("/legal/privacy");
     await expect(page.getByRole("note")).toContainText("Draft");
-    await expect(page.getByText(/Version 2026-10-draft-4/)).toBeVisible();
+    await expect(page.getByText(/Version 2026-10-draft-5/)).toBeVisible();
+    await expect(page.locator("article")).toContainText("One-to-one tutoring (Study + Tutoring plan) happens in the main session room");
     await expect(page.locator("article")).toContainText("run by Feifan Wu, a sole trader");
   });
 

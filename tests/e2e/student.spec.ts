@@ -90,8 +90,8 @@ test("a student sets goals, joins, asks for help, marks goals and leaves", async
   // I'm stuck
   const help = page.getByTestId("help");
   // Ava's family is on the tutoring plan (seed), so her requests go to the tutor first.
-  await expect(help).toContainText("the session's tutor sees your request first");
-  await expect(help).toContainText("It isn't a private one-to-one lesson");
+  await expect(help).toContainText("the session's tutor sees your requests first");
+  await expect(help).toContainText("one-to-one in the main room, with the supervisor and other students there, never in a private call");
   await help.getByLabel("Subject").fill("Methods");
   await help.getByLabel("What are you stuck on?").fill("Question 7, the chain rule part");
   await help.getByRole("button", { name: "Send help request" }).click();

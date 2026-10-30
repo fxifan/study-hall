@@ -40,5 +40,5 @@ You can ask us to delete your child's data at any time by emailing feifanwork1@g
 ## Child safety
 
 - Every supervisor must hold a Working with Children Check that we have verified.
-- An adult is never alone on video with a student. Help happens by text in the app, or in a breakout room with at least two students or a second adult.
+- An adult is never alone on video with a student. Help happens by text in the app, or in a breakout room with at least two students or a second adult. One-to-one tutoring (Study + Tutoring plan) happens in the main session room, with the supervisor and other students present.
 - To raise a child-safety concern, email feifanwork1@gmail.com. If a child is in immediate danger, call 000.

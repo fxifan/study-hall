@@ -130,7 +130,7 @@ export const landingEn = {
     title: "Supervised study, with tutoring if you want it.",
     body: [
       "**Supervised Study** is structured, supervised time for schoolwork your child already has: homework, revision and practice. They can request help within the subjects we support, and the supervisor responds when available. There's no dedicated tutoring hour.",
-      "**Study + Tutoring** includes **one hour of tutoring for each session your child attends**, scheduled by the supervisor when you request it. The rest of the session is supervised independent study. Attend four sessions in a week and that's up to four one-hour tutoring periods; the tutor isn't with your child for the whole four hours.",
+      "**Study + Tutoring** includes **one hour of one-to-one tutoring for each session your child attends**, scheduled by the supervisor when you request it. Tutoring happens in the main session room, with the supervisor and other students present. The rest of the session is supervised independent study. Attend four sessions in a week and that's up to four one-hour tutoring periods; the tutor isn't with your child for the whole four hours.",
       "Neither plan replaces specialist tutoring or teaching, and we don't promise particular marks or results.",
     ],
     is: { title: "Study Hall is", items: ["Scheduled, supervised time for schoolwork", "Goals set and marked every session", "Academic help within the subjects we support", "A factual report for parents"] },
@@ -163,7 +163,7 @@ export const landingEn = {
       },
       {
         title: "No private one-to-one video",
-        body: "Help happens by text in the app, or in a breakout room with at least two students or a second adult. An adult is never alone on video with your child.",
+        body: "Help happens by text in the app, or in a breakout room with at least two students or a second adult. One-to-one tutoring happens in the main session room, with the supervisor and other students present. An adult is never alone on video with your child.",
       },
       {
         title: "Checked supervisors",
@@ -210,13 +210,13 @@ export const landingEn = {
       },
       helpValue: "Within supported subjects, when a supervisor is available",
       tutoringNone: "Not included",
-      tutoringHour: "One hour per session attended",
+      tutoringHour: "One hour per session attended, one-to-one in the main room",
       restValue: "Supervised independent study",
     },
     cardKicker: "Study Hall · Weekly",
     per: "per student / week",
     tutoringNote:
-      "Includes one hour of tutoring per session attended, scheduled by the supervisor when you request it. The rest of the session is supervised independent study.",
+      "Includes one hour of one-to-one tutoring per session attended, in the main session room, scheduled by the supervisor when you request it. The rest of the session is supervised independent study.",
     rows: {
       sessions: "Sessions",
       sessionsUnlimited: "Any, Mon–Thu",
@@ -248,7 +248,8 @@ export const landingEn = {
         q: "Is Study Hall tutoring?",
         a: [
           "Supervised Study isn't tutoring. It's supervised time to work on schoolwork your child already has: homework, revision and practice. They can ask for help within the subjects we support, and the supervisor responds when available, but it isn't a lesson or a replacement for a tutor.",
-          "Study + Tutoring includes one hour of tutoring for each session your child attends; the rest of the session is supervised independent study. Email {email} to request the hour and the supervisor will schedule it within the session. Tutoring covers the subjects we support and is never a private one-to-one video call.",
+          "Study + Tutoring includes one hour of one-to-one tutoring for each session your child attends; the rest of the session is supervised independent study. Email {email} to request the hour and the supervisor will schedule it within the session.",
+          "Tutoring happens in the main session room, with the supervisor and other students present, never in a private call or breakout room. It covers the subjects we support.",
         ],
       },
       {

@@ -39,4 +39,4 @@ export function seedEmail(account: SeedAccount, domain = process.env.SEED_EMAIL_
 }
 
 export const HOUSE_RULES_VERSION = "2026-10-v1";
-export const PRIVACY_VERSION = "2026-10-draft-4"; // replace with reviewed text before launch
+export const PRIVACY_VERSION = "2026-10-draft-5"; // replace with reviewed text before launch

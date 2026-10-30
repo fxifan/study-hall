@@ -9,7 +9,7 @@ export const onboardingEn = {
     title: "Before you pay",
     items: [
       "Live group supervision, Monday to Thursday, 4:00–8:00pm Melbourne time. Your child can come to as many sessions as suits.",
-      "Academic help when your child gets stuck, within the subjects we currently support ({subjects}), by text in the app or in a small group. On Supervised Study the supervisor responds when available, with no guaranteed response time. Study + Tutoring includes one hour of tutoring for each session your child attends, scheduled by the supervisor when you request it; the rest of the session is supervised independent study. Help is never a private one-to-one video call.",
+      "Academic help when your child gets stuck, within the subjects we currently support ({subjects}), by text in the app or in a small group. On Supervised Study the supervisor responds when available, with no guaranteed response time. Study + Tutoring includes one hour of one-to-one tutoring for each session your child attends, in the main session room, scheduled by the supervisor when you request it; the rest of the session is supervised independent study. Help is never a private call or breakout with one adult.",
       "Camera on hands and desk; face optional. Study Hall doesn't record video, images or audio. The room runs on Zoom or Google Meet.",
       "Every supervisor holds a Working with Children Check that we've verified. An adult is never alone on video with your child.",
       "After each session you get a short report: attendance, goals, and factual notes from the supervisor.",
@@ -87,7 +87,7 @@ export const onboardingEn = {
     submit: "Continue to secure payment",
     needConsent: "Add a child and agree to the rules first.",
     needSubjects: "The tutoring plan needs at least one subject for each child, so their tutor can prepare.",
-    tutoring: "Includes one hour of tutoring per session attended, scheduled by the supervisor when you request it. The rest of the session is supervised independent study. Tutoring covers the subjects we support and is never a private one-to-one video call.",
+    tutoring: "Includes one hour of one-to-one tutoring per session attended, scheduled by the supervisor when you request it. The rest of the session is supervised independent study. Tutoring happens in the main session room with the supervisor and other students present, never in a private call, and covers the subjects we support.",
     supervision: "Live group supervision, goals and progress tracking, academic help requests within the subjects we support when the supervisor is available, and a report after each session. No dedicated tutoring hour.",
     notConfigured: "Payments aren't switched on yet.",
     cancelled: "Payment was cancelled. Nothing was charged.",

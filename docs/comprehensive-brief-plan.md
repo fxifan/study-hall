@@ -46,13 +46,14 @@ with **one hour of tutoring per session attended**, not A$79 with a tutor for th
 2. Tutoring hour: no in-app booking. When a parent asks, the supervisor schedules the hour within the
    session. The plan copy and FAQ say so (requests go to the contact email).
 3. Refunds: within 7 days of the first payment; none after that.
-4. Tutoring format: "one-to-one on the call, like Zoom tutoring". **Not applied**: it conflicts with the
-   child-safety rule that an adult is never alone on video with a student. The copy still says help is
-   never a private one-to-one video call until the owner picks a safe arrangement.
+4. Tutoring format: one-to-one, **in the main session room** with the supervisor and other students
+   present (the owner's choice after the first answer, private one-to-one video, was flagged against the
+   child-safety rule). Never a private call or a breakout with one adult. Landing, sign-up, student
+   page and privacy draft (`2026-10-draft-5`) say so.
 5. Not registered for GST: every GST mention is removed from prices, sign-up and billing.
 6. Study Hall-cancelled sessions: families booked into that session get a credit to attend another
    one (FAQ). Credits are handled by hand; the app doesn't track them. The privacy notice names the
-   operator: Feifan Wu, sole trader (no ABN shown). Privacy draft is now `2026-10-draft-4`.
+   operator: Feifan Wu, sole trader (no ABN shown).
 7. The Simplified Chinese copy is approved.
 
 ## Phase 2: report-card localisation (done)
@@ -84,12 +85,11 @@ with **one hour of tutoring per session attended**, not A$79 with a tutor for th
 
 ## Owner decisions still needed
 
-1. A safe format for one-to-one tutoring (see answer 4).
-2. Live Stripe isn't set up. Test mode matches A$49 and A$149; live prices must match before launch.
-3. How long data is kept after a subscription ends, for the privacy notice.
-4. Zoom or Meet room settings (cloud recording off, who can record or share): the app can't enforce
+1. Live Stripe isn't set up. Test mode matches A$49 and A$149; live prices must match before launch.
+2. How long data is kept after a subscription ends, for the privacy notice.
+3. Zoom or Meet room settings (cloud recording off, who can record or share): the app can't enforce
    these, so "Study Hall doesn't record" covers the app only.
-5. Child-safety escalation process beyond the contact email.
-6. Parent report emails and the supervisor's report review aren't built yet (spec Phase 2), though
+4. Child-safety escalation process beyond the contact email.
+5. Parent report emails and the supervisor's report review aren't built yet (spec Phase 2), though
    the landing page describes them.
-7. Which supervisors cover which subjects isn't recorded in the app.
+6. Which supervisors cover which subjects isn't recorded in the app.

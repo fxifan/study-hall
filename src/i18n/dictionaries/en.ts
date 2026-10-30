@@ -102,7 +102,7 @@ export const en = {
     help: {
       title: "I'm stuck",
       scope: "The session supervisor sees your request and helps when they're available, by text here or in a small group. It isn't a private lesson, and there's no set response time.",
-      tutoringScope: "You're on the tutoring plan: the session's tutor sees your request first and helps by text here or in a small group. It isn't a private one-to-one lesson.",
+      tutoringScope: "You're on Study + Tutoring: the session's tutor sees your requests first. Your one-hour tutoring is one-to-one in the main room, with the supervisor and other students there, never in a private call.",
       subject: "Subject",
       description: "What are you stuck on?",
       send: "Send help request",
