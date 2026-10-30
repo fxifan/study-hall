@@ -113,6 +113,7 @@ async function ParentHome({ searchParams }: Pick<PageProps<"/[lang]/parent">, "s
                 <Button type="submit" variant="outline">
                   {b.manage}
                 </Button>
+                <p className="mt-2 text-sm text-ink-soft">{b.manageHelp}</p>
               </form>
             )}
           </>

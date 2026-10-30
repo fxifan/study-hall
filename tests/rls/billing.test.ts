@@ -106,6 +106,17 @@ describe("Stripe webhook", () => {
     expect(res.status).toBe(400);
   });
 
+  it("follows a plan switch made in the Customer Portal", async () => {
+    const tutoring = (await admin.from("plans").select("id, stripe_price_id").eq("id", SEED_IDS.tutoringPlan).single()).data!;
+    const sub = subscription("active");
+    const switched = { ...sub, items: { data: [{ ...sub.items.data[0], price: { id: tutoring.stripe_price_id } }] } };
+    expect((await deliver("customer.subscription.updated", switched)).status).toBe(200);
+    const row = async () => (await admin.from("subscriptions").select("plan_id").eq("stripe_subscription_id", subscriptionId).single()).data;
+    expect(await row()).toEqual({ plan_id: tutoring.id });
+    expect((await deliver("customer.subscription.updated", sub)).status).toBe(200);
+    expect(await row()).toEqual({ plan_id: planId });
+  });
+
   it("activates and enrols the child when the subscription is active", async () => {
     const res = await deliver("customer.subscription.created", subscription("active"));
     expect(res.status).toBe(200);

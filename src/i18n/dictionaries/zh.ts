@@ -52,6 +52,7 @@ export const zh: Dictionary = {
       none: "还没有有效的套餐。",
       finish: "完成注册",
       manage: "管理账单",
+      manageHelp: "可在这里更换套餐、更新银行卡或取消订阅。升级立即生效，并补付本周差价；降级在下次续费时生效。升级到“自习 + 辅导”前，请先填写孩子的科目。",
       welcome: "已收到付款，欢迎加入 Study Hall！孩子会收到一封登录邮件。",
     },
   },

@@ -288,7 +288,7 @@ export const landingEn = {
         id: "billing",
         q: "How do subscriptions, cancellations and refunds work?",
         a: [
-          "Prices are per student and billed weekly in Australian dollars through Stripe. You can change your card or cancel from your account and keep access until the end of your paid week.",
+          "Prices are per student and billed weekly in Australian dollars through Stripe. You can change plan, change your card or cancel from your account, and keep access until the end of your paid week if you cancel.",
           "If Study Hall isn't right for you, email {email} within 7 days of your first payment and we'll refund it. Refunds aren't available after that.",
         ],
       },

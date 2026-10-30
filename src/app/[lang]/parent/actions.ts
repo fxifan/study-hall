@@ -8,7 +8,7 @@ import { stripeCustomerFor, studyHallPortalConfiguration } from "@/lib/billing";
 import { siteOrigin } from "@/lib/site";
 import { getStripe } from "@/lib/stripe";
 
-/** Opens Stripe's Customer Portal (change card, invoices, cancel at the end of the paid week). */
+/** Opens Stripe's Customer Portal (change card, invoices, switch plan, cancel at the end of the paid week). */
 export async function openBillingPortal() {
   const profile = await getCurrentProfile();
   if (!profile || profile.role !== "parent") throw new Error("Only a signed-in parent can manage billing.");

@@ -5,8 +5,8 @@
  *
  * 1. For each active plan: a Stripe product and weekly AUD price (lookup key study-hall-<plan id>),
  *    saved to plans.stripe_price_id. Price changes need a new price; this script never edits one.
- * 2. A Customer Portal configuration: update card, see invoices, cancel at the end of the paid week
- *    with an optional reason (owner decision 2026-10-30; reasons feed churn metrics).
+ * 2. A Customer Portal configuration: update card, see invoices, switch plan, cancel at the end of
+ *    the paid week with an optional reason (owner decision 2026-10-30; reasons feed churn metrics).
  * 3. With --webhook <url>: a webhook endpoint for that URL. Its signing secret is written to
  *    .stripe-webhook-secret (gitignored) instead of being printed.
  */
@@ -66,7 +66,16 @@ async function main() {
     console.log(`Plan "${plan.name}" -> ${price.id}`);
   }
 
-  // 2. Customer Portal
+  // 2. Customer Portal. Families can switch between the plans on sale: moving up starts now and they
+  // pay the difference for the week; moving down starts at the next renewal. Quantity stays fixed.
+  const { data: onSale, error: onSaleError } = await db.from("plans").select("stripe_price_id").eq("active", true);
+  if (onSaleError) throw onSaleError;
+  const switchable = await Promise.all(
+    (onSale ?? []).map(async (plan) => {
+      const price = await stripe.prices.retrieve(plan.stripe_price_id!);
+      return { product: price.product as string, prices: [price.id] };
+    }),
+  );
   const configs = await stripe.billingPortal.configurations.list({ active: true, limit: 100 });
   const portal: Stripe.BillingPortal.ConfigurationCreateParams = {
     business_profile: { privacy_policy_url: `${site}/legal/privacy`, terms_of_service_url: `${site}/legal/house-rules` },
@@ -82,6 +91,13 @@ async function main() {
           enabled: true,
           options: ["too_expensive", "unused", "switched_service", "missing_features", "other"],
         },
+      },
+      subscription_update: {
+        enabled: true,
+        default_allowed_updates: ["price"],
+        products: switchable,
+        proration_behavior: "always_invoice",
+        schedule_at_period_end: { conditions: [{ type: "decreasing_item_amount" }] },
       },
     },
     metadata: { app: "study-hall" },

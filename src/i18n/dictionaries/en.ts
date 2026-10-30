@@ -55,6 +55,7 @@ export const en = {
       none: "No active plan yet.",
       finish: "Finish sign-up",
       manage: "Manage billing",
+      manageHelp: "Change plan, update your card or cancel. Moving up starts now and you pay the difference for this week; moving down starts at your next renewal. Moving to Study + Tutoring? Add your child's subjects first.",
       welcome: "Payment received. Welcome to Study Hall! Your child will get a login email.",
     },
   },
