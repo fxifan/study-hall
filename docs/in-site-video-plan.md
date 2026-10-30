@@ -6,7 +6,93 @@ public pages on that date (sources at the end). A$ figures use US$1 = A$1.55; ch
 The owner asked whether video rooms inside the website could replace the external Zoom or Google Meet
 links, so one supervisor can watch several study rooms at once from one screen.
 
-## Recommendation
+For launch, the owner proposed a lower-cost route: one Zoom meeting with breakouts, supervised by the
+owner. It needs no video build and is described first. The in-site plan follows, for when Study Hall
+outgrows it.
+
+## Launch option: one Zoom meeting with breakouts
+
+Proposed by the owner (30 Oct 2026). This uses the ordinary Zoom Meetings product, not the Zoom Video
+SDK ruled out in §2. The app's Join flow already works this way: `check_in` returns `rooms.video_url`.
+
+### How it runs
+
+- **One meeting for the whole evening,** linked from a single room's `video_url`.
+  - A Zoom Pro meeting holds up to 100 participants for up to 30 hours.
+  - Gallery view shows up to 49 tiles per screen (a desktop-app setting that needs a capable computer).
+    The owner can watch up to about 45 students on one screen without separate rooms.
+- **The owner hosts and supervises the main room all session.** When a student needs tutoring, the
+  owner opens a breakout.
+- **Cost:** one Pro licence. Third-party listings put it at about US$14–17/month; check Zoom's
+  Australian price. That compares with about A$130/month for in-site video at full load.
+
+### Tutoring breakouts
+
+A host can't see or hear a breakout without leaving the main room, and Zoom doesn't know who is an
+adult. So the rule that an adult is never alone on video with a student has to be run by staff, not
+software:
+
+- **A second adult does the tutoring.** The owner stays in the main room, so a WWCC-verified tutor
+  (rostered as `sessions.tutor_id`) runs the breakout. If no tutor is on, tutoring happens in the main
+  room.
+- **Each tutoring breakout has at least two students, or a third adult.** A tutor alone with one
+  student is the private one-to-one video the rules forbid, and Zoom won't stop it.
+- **If a breakout drops to one student, the tutor closes it straight away.** This is a written staff
+  rule; Zoom can't do it automatically.
+- **The tutoring hour changes format.** The A$149 plan's "one hour of tutoring per session attended"
+  becomes small-group or in-room tutoring. The owner described it as one-to-one (answer 4 in
+  `comprehensive-brief-plan.md`), so the plan copy must match what is actually delivered.
+
+| Format | Allowed | Staff needed |
+| --- | --- | --- |
+| Tutor + 2 or more students in a breakout | Yes, while 2+ students remain | Owner (main room) + tutor |
+| Tutor + 1 student + another adult in a breakout | Yes | Owner + tutor + a third adult |
+| Tutor and student talk in the main room, others muted | Yes | Owner + tutor |
+| Tutor + 1 student alone in a breakout | **No** | n/a |
+
+### Zoom account settings
+
+Set these in the account settings and lock them, so no meeting can override them:
+
+- **Recording:** cloud and local recording off (spec §8.1).
+- **AI Companion:** off. Meeting summaries and transcripts would capture students' audio.
+- **Chat:** private chat off and chat auto-save off. Help messages go through the app, where they're
+  logged (spec §8.4).
+- **Waiting room:** on. Admit only names on that night's roster. Admit the first students together so
+  the owner is never on video with just one student. The same applies at the end of the night: if the
+  main room drops to one student, a second adult joins or that student's session ends.
+- **Co-host:** only the rostered tutor. Check whether co-hosts can create and assign breakouts on the
+  current Zoom version; if not, the owner assigns them.
+- **Breakouts:** keep "Allow participants to return to the main session at any time" on, so a student
+  can always leave a breakout.
+
+### Small app change
+
+A breakout log on `/proctor/session/[id]` records start, end, tutor and students. It refuses a log
+with one adult and one student. The log:
+
+- gives an audit trail for breakouts;
+- counts each A$149 student's tutoring hour (Phase 4 in `comprehensive-brief-plan.md`).
+
+It needs one small table and no video integration.
+
+### What it doesn't cover
+
+These are what the in-site plan below adds:
+
+- the one-adult rule and staff identity enforced in code, rather than by staff rules and Zoom display
+  names;
+- live presence in the app (attendance stays Join and Leave);
+- several rooms on one screen (not needed while everyone fits in one gallery).
+
+### When to move to in-site video
+
+Move when any of these happens:
+- the evening grows past about 45 students;
+- a second simultaneous room is needed;
+- the owner wants the safety rules enforced in code.
+
+## Recommendation (in-site video)
 
 - **Provider: LiveKit Cloud, "Ship" plan.** Estimated **US$84/month (≈A$130)** at full load (40 students,
   4 h, 4 nights a week, every student attending every night). At 60% attendance it's the US$50 plan fee
