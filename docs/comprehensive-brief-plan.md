@@ -100,11 +100,29 @@ Manual step for the owner: in Supabase, Authentication > Email Templates, paste
 `supabase/templates/confirmation.html` into "Confirm signup" and `magic_link.html` into "Magic Link",
 with the subjects in `supabase/config.toml`.
 
+## Phase 4: tutoring hour
+
+No code: the owner keeps scheduling manual (the supervisor schedules the hour when a parent asks).
+
+## Phase 5: motion and interaction polish (done)
+
+Applied with the web-design-engineer skill as an extension of the existing "ruled paper and red pen"
+design: one small motion vocabulary on the existing easing curve, quiet by intent.
+
+- Rise: section headings (number, title, intro) arrive in order; content blocks arrive whole; items
+  in a grid (how-it-works steps, safety points, plan cards, is / isn't lists) arrive 70ms apart.
+- Ruled line: the rule above each step and safety point is drawn left to right as it arrives, so the
+  how-it-works steps read as a progression.
+- Plan cards lift 2px with a deeper shadow on hover or keyboard focus.
+- `src/app/[lang]/_landing/landing-effects.tsx` (IntersectionObserver) and `landing.css`. No library.
+  Only opacity and transform change (no layout shift); anything on screen at load is never hidden;
+  without JavaScript or IntersectionObserver, with reduced motion, or in print, nothing is hidden or
+  moved. Existing smooth anchor scrolling and focus outlines are unchanged.
+- `tests/e2e/motion.spec.ts`: reveal on scroll, nothing hidden on screen, stagger, zero layout shift
+  across the page, card lift, reduced motion, and no JavaScript.
+
 ## Plan for later phases (each needs the owner's go-ahead)
-- **Phase 4, tutoring hour.** Per the owner, scheduling stays manual. Optional: let the supervisor
-  record the hour on the session roster so it can appear on the parent report.
-- **Phase 5, motion.** Extend the existing IntersectionObserver reveals to section headings, steps,
-  plan cards and the sample report, CSS only, behind the same reduced-motion and scripting guards.
+None left in the brief beyond the owner decisions below.
 
 ## Owner decisions still needed
 

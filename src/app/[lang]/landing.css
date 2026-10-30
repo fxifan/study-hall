@@ -78,6 +78,29 @@ html:has(.landing) {
     .draw.go .ln { animation: landing-write .5s var(--ease) forwards; animation-delay: calc(var(--i, 0) * 120ms); }
   }
 
+  /* ---------- scroll reveals (comprehensive brief §8) ----------
+     LandingEffects adds .rv to section headings, blocks and grid items below the fold, and .in as
+     each scrolls into view; --rv staggers items 70ms apart. Only opacity and transform change, so
+     nothing shifts. Without scripting, with reduced motion, or in print, nothing is hidden. */
+  @media screen and (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .rv {
+      --rv-delay: calc(var(--rv, 0) * 70ms);
+      --rv-t: opacity .56s var(--ease) var(--rv-delay), transform .56s var(--ease) var(--rv-delay);
+    }
+    /* Hiding is instant (it happens off screen); only arriving is animated. */
+    .rv:not(.in) { opacity: 0; transform: translateY(12px); }
+    .rv.in { transition: var(--rv-t); }
+    /* The rule above each step and safety item is drawn left to right as it arrives. */
+    .step.rv, .safety li.rv { position: relative; border-top-color: transparent; }
+    .step.rv::before, .safety li.rv::before {
+      content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 1px;
+      background: var(--hair); transform-origin: left; transform: scaleX(0);
+      transition: transform .7s var(--ease) calc(var(--rv-delay) + 120ms);
+    }
+    .safety li.rv::before { background: var(--cover-hair); }
+    .step.rv.in::before, .safety li.rv.in::before { transform: none; }
+  }
+
   /* ---------- buttons & links ---------- */
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: .55em;
@@ -318,6 +341,13 @@ html:has(.landing) {
   .plans { display: grid; gap: 24px; }
   .label { position: relative; background: var(--sheet); border-radius: 14px; padding: 34px 32px 28px; box-shadow: var(--shadow-2), inset 0 0 0 1px var(--hair); }
   .label::before { content: ""; position: absolute; inset: 9px; border: 1.5px solid var(--ink); border-radius: 8px; opacity: .8; pointer-events: none; }
+  /* Plan cards lift a little on hover or keyboard focus. "translate" leaves "transform" to the reveal. */
+  .label { transition: box-shadow .2s var(--ease), translate .2s var(--ease); }
+  .label.rv.in { transition: var(--rv-t), box-shadow .2s var(--ease), translate .2s var(--ease); }
+  .label:hover, .label:focus-within { box-shadow: 0 4px 8px rgba(27, 42, 65, .06), 0 30px 54px -18px rgba(27, 42, 65, .34), inset 0 0 0 1px var(--hair); }
+  @media (prefers-reduced-motion: no-preference) {
+    .label:hover, .label:focus-within { translate: 0 -2px; }
+  }
   .label-k { text-align: center; font: 500 .6875rem/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); }
   .label-name { margin-top: 10px; text-align: center; font-size: 1.125rem; }
   .price { display: flex; justify-content: center; align-items: baseline; gap: 8px; margin-top: 12px; }
