@@ -39,46 +39,57 @@ with **one hour of tutoring per session attended**, not A$79 with a tutor for th
   students with years of tutoring and teaching experience"); no university is named.
 - Hero, how-it-works and plan explanations rewritten to the brief's positioning.
 
+## Owner answers (30 Oct 2026), applied
+
+1. All supervisors are current medical students with years of tutoring and teaching experience: the
+   site now says so without qualification.
+2. Tutoring hour: no in-app booking. When a parent asks, the supervisor schedules the hour within the
+   session. The plan copy and FAQ say so (requests go to the contact email).
+3. Refunds: within 7 days of the first payment; none after that.
+4. Tutoring format: "one-to-one on the call, like Zoom tutoring". **Not applied**: it conflicts with the
+   child-safety rule that an adult is never alone on video with a student. The copy still says help is
+   never a private one-to-one video call until the owner picks a safe arrangement.
+5. Not registered for GST: every GST mention is removed from prices, sign-up and billing.
+6. Study Hall-cancelled sessions: families booked into that session get a credit to attend another
+   one (FAQ). Credits are handled by hand; the app doesn't track them. The privacy notice names the
+   operator: Feifan Wu, sole trader (no ABN shown). Privacy draft is now `2026-10-draft-4`.
+7. The Simplified Chinese copy is approved.
+
+## Phase 2: report-card localisation (done)
+
+- `src/lib/report-card.ts`: one structured report (date, attendance, goals, observations, supervisor
+  comment) with plain-text output. Labels live in the `reportCard` dictionary (en, zh). Anything a
+  person wrote is shown as written; only fixed demo text carries both languages.
+- Landing sample (`_landing/sample-data.ts`, `sample-report.tsx`): the brief's fictional "Alex" report
+  with an English / 简体中文 switch that changes the whole sample (labels, statuses, controls, copy as
+  text) without a reload. Labelled fictional in both languages; the hero sheet follows the page
+  language. The brief's 120-minute session is shown as 110 of 240 minutes, to match real sessions.
+- Parent page: "Session reports" for the last two weeks, built from recorded attendance and goals
+  plus the supervisor's comment once a report is approved (`src/lib/parent-reports.ts`), with the
+  same language switch and copy as text (`src/components/report-cards.tsx`). RLS limits it to the
+  parent's own children; e2e tests cover both families.
+- No schema change. Supervisor focus flags aren't shown to parents yet: parents can't read them, and
+  they belong in reports once the supervisor review step exists (spec Phase 2).
+
 ## Plan for later phases (each needs the owner's go-ahead)
 
-- **Phase 2, report localisation.** Sample report: move its labels into the landing dictionaries and
-  add an English / 简体中文 switch on the sample (client-side, no reload), using the brief's draft
-  translations and the fictional "Alex" sample. Parent reports: build on the existing dictionaries and
-  language cookie when the parent report view is built; free text (goals, supervisor notes) stays as
-  written and is labelled as such. No schema change expected.
 - **Phase 3, bilingual emails.** One shared template module (English first, separator, Simplified
-  Chinese) with plain-text fallback and HTML escaping, used by report emails when they exist. The
-  Supabase Auth templates (sign-up, login) are edited in the Supabase dashboard; the repo keeps the
-  source in `supabase/templates/`. Previews only; nothing sent.
-- **Phase 4, tutoring hour.** Proposal: a `tutoring_periods` record per attendance (session, student,
-  tutor, start, end, status) that the rostered tutor opens and closes from the session roster, shown on
-  the parent report; the plan's entitlement is "one per attended session". Needs the owner to decide
-  the booking and staffing model first (decisions 2 and 3).
+  Chinese) with plain-text fallback and HTML escaping, built on `reportText()`, used by report emails
+  when they exist. The Supabase Auth templates (sign-up, login) are edited in the Supabase dashboard;
+  the repo keeps the source in `supabase/templates/`. Previews only; nothing sent.
+- **Phase 4, tutoring hour.** Per the owner, scheduling stays manual. Optional: let the supervisor
+  record the hour on the session roster so it can appear on the parent report.
 - **Phase 5, motion.** Extend the existing IntersectionObserver reveals to section headings, steps,
   plan cards and the sample report, CSS only, behind the same reduced-motion and scripting guards.
 
 ## Owner decisions still needed
 
-1. Does "current medical students with years of tutoring and teaching experience" describe every
-   advertised supervisor? Until confirmed, the site says the team "currently includes" them.
-2. How the one-hour tutoring period is booked, staffed and recorded. The app doesn't schedule or
-   record it yet, so the A$149 plan advertises something the product can't yet show a parent.
-3. Whether the tutoring hour is one-to-one (by text) or small-group. The copy assumes neither; private
-   one-to-one video stays ruled out.
-4. Live Stripe isn't set up. Test mode now matches A$49 and A$149; live prices must be created to match
-   before launch.
-5. First-week refund conditions: how "the first week" is counted and how a refund is requested
-   (currently: email, then a manual Stripe refund).
-6. A fluent speaker's review of all Simplified Chinese copy.
-7. Policy and implementation gaps:
-   - "GST included" is shown as instructed. Confirm Study Hall is registered for GST; if it is, decide
-     whether receipts or tax invoices need to show GST (Stripe doesn't itemise it today).
-   - Zoom or Meet room settings (cloud recording off, who can record or share): the app can't enforce
-     these, so the "Study Hall doesn't record" answer covers the app only.
-   - What happens when Study Hall cancels a session (public holidays) and whether it's credited. The
-     FAQ no longer asks this question.
-   - How long data is kept after a subscription ends, and the legal entity name/ABN, for the privacy
-     notice.
-   - Child-safety escalation process beyond the contact email.
-   - Parent reports and report emails are promised on the landing page but not built yet (spec Phase 2).
-   - Which supervisors or tutors cover which subjects isn't recorded in the app.
+1. A safe format for one-to-one tutoring (see answer 4).
+2. Live Stripe isn't set up. Test mode matches A$49 and A$149; live prices must match before launch.
+3. How long data is kept after a subscription ends, for the privacy notice.
+4. Zoom or Meet room settings (cloud recording off, who can record or share): the app can't enforce
+   these, so "Study Hall doesn't record" covers the app only.
+5. Child-safety escalation process beyond the contact email.
+6. Parent report emails and the supervisor's report review aren't built yet (spec Phase 2), though
+   the landing page describes them.
+7. Which supervisors cover which subjects isn't recorded in the app.

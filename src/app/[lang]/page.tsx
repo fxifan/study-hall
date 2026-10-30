@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LanguageSwitch } from "@/components/language-switch";
 import { localizePath } from "@/i18n/config";
+import { en } from "@/i18n/dictionaries/en";
+import { zh } from "@/i18n/dictionaries/zh";
 import { fill } from "@/i18n/fill";
 import { helpScopeSummary } from "@/i18n/help-scope";
 import { getDictionary, getLocale } from "@/i18n/server";
@@ -10,6 +12,7 @@ import { LandingEffects } from "./_landing/landing-effects";
 import { LiveStatus } from "./_landing/live-status";
 import { Cross, Rich, Tick, Underline } from "./_landing/marks";
 import { PlanCards, PlanComparison } from "./_landing/pricing";
+import { sampleSentTime } from "./_landing/sample-data";
 import { ReportLines, SampleReport } from "./_landing/sample-report";
 import "./landing.css";
 
@@ -37,7 +40,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function LandingPage() {
-  const [{ landing: t, helpScope }, locale] = await Promise.all([getDictionary(), getLocale()]);
+  const [{ landing: t, helpScope, reportCard }, locale] = await Promise.all([getDictionary(), getLocale()]);
   // Filled into FAQ answers that mention them.
   const faqValues = { email: CONTACT_EMAIL, subjects: helpScopeSummary(helpScope, locale) };
   const mailto = (
@@ -112,13 +115,13 @@ export default async function LandingPage() {
                 <LiveStatus copy={t.live} locale={locale} />
               </div>
 
-              <figure className="sheet" aria-label={t.report.sheetLabel}>
+              <figure className="sheet" aria-label={reportCard.sampleTitle}>
                 <figcaption className="sheet-head">
-                  <span>{t.report.sheetLabel}</span>
-                  <span>{fill(t.report.sent, { time: "8:41pm" })}</span>
+                  <span>{reportCard.sampleTitle}</span>
+                  <span>{fill(t.report.sent, { time: sampleSentTime(locale) })}</span>
                 </figcaption>
-                <div className="ruled" lang="en">
-                  <ReportLines variant="full" circled />
+                <div className="ruled">
+                  <ReportLines variant="attended" lang={locale} t={reportCard} circled />
                 </div>
               </figure>
             </div>
@@ -200,7 +203,12 @@ export default async function LandingPage() {
           <p className="intro">{t.report.intro}</p>
           <div className="report-grid">
             <div className="report-col">
-              <SampleReport copy={t.report} />
+              {/* Both languages go to the browser so the sample can switch without a reload. */}
+              <SampleReport
+                copies={{ en: en.landing.report, zh: zh.landing.report }}
+                labels={{ en: en.reportCard, zh: zh.reportCard }}
+                initialLang={locale}
+              />
             </div>
             <div>
               <ol className="legend">

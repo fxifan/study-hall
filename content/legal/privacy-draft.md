@@ -2,7 +2,7 @@ DRAFT for review. This notice describes how the Study Hall app works today. It h
 
 ## Who we are
 
-Study Hall runs supervised online study sessions for school students in Victoria, Australia. Contact us at feifanwork1@gmail.com with questions, concerns or privacy requests.
+Study Hall is run by Feifan Wu, a sole trader, and offers supervised online study sessions for school students in Victoria, Australia. Contact us at feifanwork1@gmail.com with questions, concerns or privacy requests.
 
 ## What we collect
 

@@ -1,14 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { AppShell, AppShellFallback, ComingInPhase } from "@/components/app-shell";
+import { AppShell, AppShellFallback } from "@/components/app-shell";
+import { ReportCards } from "@/components/report-cards";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { localizePath } from "@/i18n/config";
+import { en } from "@/i18n/dictionaries/en";
+import { zh } from "@/i18n/dictionaries/zh";
 import { fill } from "@/i18n/fill";
 import { getDateLocale, getDictionary, getLocale } from "@/i18n/server";
 import { requireRole } from "@/lib/auth";
 import { ACTIVE_SUBSCRIPTION_STATUSES } from "@/lib/subscription-status";
 import { formatAud } from "@/lib/money";
+import { getParentReports } from "@/lib/parent-reports";
 import { createClient } from "@/lib/supabase/server";
 import { MELBOURNE, formatInZone } from "@/lib/time";
 import { openBillingPortal } from "./actions";
@@ -36,7 +40,7 @@ async function ParentHome({ searchParams }: Pick<PageProps<"/[lang]/parent">, "s
   ]);
   const supabase = await createClient();
   // RLS returns only this parent's students and subscriptions.
-  const [{ data: students }, { data: subscription }] = await Promise.all([
+  const [{ data: students }, { data: subscription }, reports] = await Promise.all([
     supabase
       .from("students")
       .select("id, first_name, last_initial, year_level, status, student_subjects(subject_id)")
@@ -55,6 +59,7 @@ async function ParentHome({ searchParams }: Pick<PageProps<"/[lang]/parent">, "s
         stripe_customer_id: string | null;
         plans: { name: string; price_cents: number } | null;
       }>(),
+    getParentReports(supabase),
   ]);
   const b = t.parent.billing;
   const until = subscription?.current_period_end
@@ -120,7 +125,16 @@ async function ParentHome({ searchParams }: Pick<PageProps<"/[lang]/parent">, "s
           </>
         )}
       </section>
-      <ComingInPhase phase={2}>{t.parent.reportsSoon}</ComingInPhase>
+      <section className="flex flex-col gap-3" data-testid="reports">
+        <h2 className="font-mono text-xs tracking-widest text-ink-soft uppercase">{t.parent.reports}</h2>
+        <p className="text-sm text-ink-soft">{t.parent.reportsIntro}</p>
+        {reports.length ? (
+          // Both label sets go to the browser so the list can switch language without a reload.
+          <ReportCards reports={reports} labels={{ en: en.reportCard, zh: zh.reportCard }} initialLang={locale} />
+        ) : (
+          <p className="text-ink-soft">{t.parent.reportsEmpty}</p>
+        )}
+      </section>
     </AppShell>
   );
 }

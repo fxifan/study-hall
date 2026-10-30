@@ -1,6 +1,6 @@
 import type { OnboardingCopy } from "./onboarding.en";
 
-/** Sign-up copy, Simplified Chinese. DRAFT: needs a native speaker's review before launch. */
+/** Sign-up copy, Simplified Chinese. Approved by the owner (30 Oct 2026); new strings need the same check. */
 export const onboardingZh: OnboardingCopy = {
   title: "注册",
   intro: "几分钟即可完成：添加孩子、同意自习规则，然后通过 Stripe 安全付款。",
@@ -8,12 +8,12 @@ export const onboardingZh: OnboardingCopy = {
     title: "付款前请了解",
     items: [
       "真人实时小组监督，周一至周四 16:00–20:00（墨尔本时间）。孩子可以选择参加任意场次。",
-      "孩子遇到难题时，可在我们目前支持的科目（{subjects}）范围内获得学业帮助，方式是应用内文字或小组讨论。“监督自习”套餐由监督老师在有空时回复，没有保证的回复时间。“自习 + 辅导”套餐在孩子每参加一节自习时包含一小时辅导，其余时间为有监督的独立自习。帮助绝不会以一对一私人视频的形式进行。",
+      "孩子遇到难题时，可在我们目前支持的科目（{subjects}）范围内获得学业帮助，方式是应用内文字或小组讨论。“监督自习”套餐由监督老师在有空时回复，没有保证的回复时间。“自习 + 辅导”套餐在孩子每参加一节自习时包含一小时辅导，由监督老师应您的要求安排，其余时间为有监督的独立自习。帮助绝不会以一对一私人视频的形式进行。",
       "摄像头对准双手和书桌，不必露脸。Study Hall 不录制视频、图片或音频。自习室在 Zoom 或 Google Meet 上进行。",
       "每位监督老师都持有经我们核实的儿童工作许可（WWCC）。成年人绝不会单独与您的孩子视频。",
       "每次自习后您会收到一份简短报告：出勤、目标和监督老师的客观记录。",
     ],
-    billing: "每名学生每周 {price} 起（含 GST），由 Stripe 按周收费。可随时取消，已付费的一周结束前仍可使用。第一周可应要求退款，第一周之后不提供退款。",
+    billing: "每名学生每周 {price} 起，由 Stripe 按周收费。可随时取消，已付费的一周结束前仍可使用。首次付款后 7 天内可申请退款，之后不提供退款。",
   },
   start: {
     title: "创建家长账户",
@@ -76,17 +76,17 @@ export const onboardingZh: OnboardingCopy = {
     required: "请勾选两项以继续。",
   },
   pay: {
-    summary: "{count} × {price} = 每周 {total}（含 GST）",
+    summary: "{count} × {price} = 每周 {total}",
     terms: [
-      "价格已含 GST。由 Stripe 以澳元按周收费，Study Hall 不会看到您的银行卡信息。",
+      "由 Stripe 以澳元按周收费，Study Hall 不会看到您的银行卡信息。",
       "可随时在账户中取消，已付费的一周结束前仍可使用。",
-      "如果不合适，第一周可应要求退款。第一周之后不提供退款。",
+      "如果不合适，可在首次付款后 7 天内申请退款，之后不提供退款。",
       "付款前有疑问？请发邮件至 {email}。",
     ],
     submit: "前往安全付款",
     needConsent: "请先添加孩子并同意规则。",
     needSubjects: "辅导套餐需要为每个孩子至少填写一门科目，方便辅导老师提前准备。",
-    tutoring: "孩子每参加一节自习，包含一小时辅导，其余时间为有监督的独立自习。辅导限于我们支持的科目，取决于该节安排的辅导老师，绝不会以一对一私人视频的形式进行。",
+    tutoring: "孩子每参加一节自习，包含一小时辅导，由监督老师应您的要求安排；其余时间为有监督的独立自习。辅导限于我们支持的科目，绝不会以一对一私人视频的形式进行。",
     supervision: "真人小组实时监督、学习目标与进度记录、监督老师有空时在支持的科目范围内回应求助，每次自习后发送报告。不包含专门的辅导时间。",
     notConfigured: "付款功能尚未开通。",
     cancelled: "付款已取消，未产生任何费用。",

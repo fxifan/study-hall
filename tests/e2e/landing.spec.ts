@@ -12,7 +12,7 @@ const BRIEF_QUESTIONS = [
   "What will I receive after each session?",
   "Can my child join alongside existing tutoring?",
   "How do subscriptions, cancellations and refunds work?",
-  "What happens if my child misses a session?",
+  "What happens if a session is cancelled or my child misses it?",
   "Who are the supervisors?",
   "How do I contact Study Hall?",
 ];
@@ -87,11 +87,11 @@ test("the sample report is labelled fictional and switches between examples", as
   await page.goto("/");
   const sample = page.locator("#report figure");
   await expect(sample).toContainText("Sample report · fictional student");
-  await expect(sample).toContainText("Supervisor: Phone visible once during the session.");
+  await expect(sample).toContainText("Supervisor observation: Phone visible once during the session.");
   await expect(page.locator("#report")).toContainText("aren't a measure of learning or a guarantee of results");
 
   await page.getByRole("button", { name: "Didn't attend" }).click();
-  await expect(sample).toContainText("Mia didn't attend today's session");
+  await expect(sample).toContainText("Alex didn't attend this session (4:00–8:00pm).");
   await expect(page.getByRole("button", { name: "Didn't attend" })).toHaveAttribute("aria-pressed", "true");
 });
 
@@ -104,27 +104,25 @@ test("pricing comes from the plans table and links to sign-up", async ({ page })
   await expect(card).toContainText("per student");
   await expect(card.getByRole("link", { name: /Start/ })).toHaveAttribute("href", "/onboarding");
   await expect(card).toContainText("Supervised Study");
-  await expect(card).toContainText("GST included");
   await expect(card).toContainText(/Tutoring\s*\.*\s*Not included/);
   await expect(card).toContainText("Years 7–12");
   // The tutoring limit sits beside the A$149 price and its button.
   const tutoring = page.getByTestId("plan-card").nth(1);
   await expect(tutoring).toContainText("Study + Tutoring");
   await expect(tutoring).toContainText("149");
-  await expect(tutoring).toContainText("GST included");
   await expect(tutoring).toContainText(
-    "Includes one hour of tutoring per session attended. The rest of the session is supervised independent study.",
+    "Includes one hour of tutoring per session attended, scheduled by the supervisor when you request it. The rest of the session is supervised independent study.",
   );
 
   const pricing = page.locator("#pricing");
-  await expect(pricing).toContainText("Prices include GST.");
   await expect(pricing).toContainText("keep access until the end of your paid week");
-  await expect(pricing).toContainText("Refunds aren't available after the first week.");
+  await expect(pricing).toContainText("Ask within 7 days of your first payment and we'll refund it. Refunds aren't available after that.");
+  // Study Hall isn't registered for GST, so prices don't mention it.
+  await expect(page.locator("body")).not.toContainText("GST");
   const table = page.getByTestId("plan-comparison");
   await expect(table.locator("thead")).toContainText(/Supervised Study\s*A\$49/);
   await expect(table.locator("thead")).toContainText(/Study \+ Tutoring\s*A\$149/);
   await expect(table.getByRole("row", { name: /Scheduled tutoring/ })).toContainText(/Not included\s*One hour per session attended/);
-  await expect(table.getByRole("row", { name: /^GST/ })).toContainText(/Included\s*Included/);
 });
 
 test("the FAQ answers every question in the brief", async ({ page }) => {
@@ -137,16 +135,18 @@ test("the FAQ answers every question in the brief", async ({ page }) => {
   await expect(faq).toContainText("under their own privacy terms");
   await faq.getByText("How do I contact Study Hall?").click();
   await expect(faq).toContainText(`Email ${CONTACT}`);
+  await faq.getByText("What happens if a session is cancelled or my child misses it?").click();
+  await expect(faq).toContainText("everyone booked into it gets a credit to attend another session instead");
   await faq.getByText("What happens if my child gets stuck?").click();
   await expect(faq).toContainText("VCE Mathematical Methods, General Mathematics, Chemistry, Biology, and Accounting");
 });
 
-test("the Chinese page is translated but keeps sample reports in English", async ({ page }) => {
+test("the Chinese page is translated, sample report included", async ({ page }) => {
   await page.goto("/zh");
   await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("让课后学习更有规律。");
-  await expect(page.locator("#report")).toContainText("报告目前以英文发送");
-  await expect(page.locator("#report .ruled")).toHaveAttribute("lang", "en");
+  await expect(page.locator("#report")).toContainText("报告可以用英文或简体中文阅读");
+  await expect(page.locator("#report figure")).toContainText("示例学习报告（虚构学生）");
   await expect(page.getByTestId("plan-card").first()).toContainText("/ 周");
   await expect(page.getByTestId("plan-card").nth(1)).toContainText("孩子每参加一节自习，包含一小时辅导");
   await expect(page.getByTestId("plan-comparison")).toContainText("每参加一节自习一小时");
@@ -175,7 +175,8 @@ test.describe("legal pages", () => {
   test("the privacy notice is clearly marked as a draft", async ({ page }) => {
     await page.goto("/legal/privacy");
     await expect(page.getByRole("note")).toContainText("Draft");
-    await expect(page.getByText(/Version 2026-10-draft-3/)).toBeVisible();
+    await expect(page.getByText(/Version 2026-10-draft-4/)).toBeVisible();
+    await expect(page.locator("article")).toContainText("run by Feifan Wu, a sole trader");
   });
 
   test("Chinese pages say legal text is English only", async ({ page }) => {

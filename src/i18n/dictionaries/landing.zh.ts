@@ -1,8 +1,8 @@
 import type { LandingCopy } from "./landing.en";
 
 /**
- * Landing page copy (Simplified Chinese). DRAFT: needs a native speaker's review before launch
- * (docs/product-changes-plan.md, owner decision 6). Marketing copy only; no legal text here.
+ * Landing page copy (Simplified Chinese). Approved by the owner (30 Oct 2026); new strings need the
+ * same check. Marketing copy only; no legal text here.
  * Parents are addressed as 您. "Study Hall" stays as the brand.
  */
 export const landingZh: LandingCopy = {
@@ -89,15 +89,10 @@ export const landingZh: LandingCopy = {
     title: "每次自习后，一份简短客观的报告。",
     intro: "报告根据自习中记录的内容生成：出勤、目标和监督老师的记录。每份报告格式相同、内容平实。",
     variantsLabel: "示例场景",
-    variants: { full: "全程参加", late: "迟到", absent: "未参加" },
-    sheetLabel: "示例报告 · 虚构学生",
+    variants: { attended: "出勤", absent: "未参加" },
     sent: "发送于 {time}",
-    copy: "复制为文字",
-    copied: "已复制",
-    copyFailed: "复制失败",
     footNote: "纯文字，方便转发到微信或 WhatsApp",
     absentNote: "在自习结束约 15 分钟后发送",
-    languageNote: "报告目前以英文发送，以下为英文示例。",
     legend: [
       { title: "时间来自自习记录", body: "孩子进入和离开时自动记录，监督老师会确认实际在场的学生。" },
       { title: "孩子自己设定的目标", body: "进入前写好，离开前由孩子标记：完成、部分完成或未完成。" },
@@ -107,14 +102,14 @@ export const landingZh: LandingCopy = {
     neverTitle: "报告中绝不会出现",
     never: "摄像头画面、与其他学生的比较，或对能力、态度的评判。",
     deliveryTitle: "如何送达",
-    delivery: "每次参加自习后通过邮件发送。纯文字版本方便转发到微信或 WhatsApp。报告目前以英文撰写。",
+    delivery: "每次参加自习后通过邮件发送。纯文字版本方便转发到微信或 WhatsApp。报告可以用英文或简体中文阅读；学习目标和监督老师的记录按原文显示。",
   },
   tutoring: {
     label: "自习与辅导",
     title: "有监督的自习，需要时可加辅导。",
     body: [
       "**监督自习**：在有人监督的时间里完成孩子已有的功课，包括作业、复习和练习。孩子可以在我们支持的科目范围内请求帮助，监督老师在有空时回复。不包含专门的辅导时间。",
-      "**自习 + 辅导**：**孩子每参加一节自习，包含一小时辅导**，其余时间为有监督的独立自习。一周参加四节，就是最多四次、每次一小时的辅导；辅导老师不会在整整四小时里一直陪着孩子。",
+      "**自习 + 辅导**：**孩子每参加一节自习，包含一小时辅导**，由监督老师应您的要求安排，其余时间为有监督的独立自习。一周参加四节，就是最多四次、每次一小时的辅导；辅导老师不会在整整四小时里一直陪着孩子。",
       "两种套餐都不能代替专业的补习或学科教学，我们也不承诺任何分数或成绩。",
     ],
     is: { title: "Study Hall 是", items: ["有安排、有监督的功课时间", "每节设定并标记目标", "在支持的科目范围内提供学业帮助", "给家长的客观报告"] },
@@ -150,7 +145,7 @@ export const landingZh: LandingCopy = {
       },
       {
         title: "经过核查的监督老师",
-        body: "我们目前的监督老师团队包括有多年辅导和教学经验的医学生。每位监督老师都必须持有经我们核实的儿童工作许可（Working with Children Check），没有有效且已核实的许可，系统不会安排其负责任何自习。",
+        body: "我们的监督老师都是在读医学生，拥有多年辅导和教学经验。每位监督老师都必须持有经我们核实的儿童工作许可（Working with Children Check），没有有效且已核实的许可，系统不会安排其负责任何自习。",
       },
       {
         title: "所有消息都会保留",
@@ -172,11 +167,11 @@ export const landingZh: LandingCopy = {
   pricing: {
     label: "价格",
     title: "两种按周套餐，随时取消。",
-    intro: "价格按学生计算，已含 GST。两种套餐都涵盖周一至周四 16:00–20:00（墨尔本时间）的自习，孩子不必每节都参加。",
+    intro: "价格按学生计算。两种套餐都涵盖周一至周四 16:00–20:00（墨尔本时间）的自习，孩子不必每节都参加。",
     checks: [
-      "价格已含 GST。通过 Stripe 以澳元按周收费。",
+      "通过 Stripe 以澳元按周收费。",
       "可随时在账户中取消，已付费的一周结束前仍可使用。",
-      "如果不合适，第一周可应要求退款。第一周之后不提供退款。",
+      "如果不合适，可在首次付款后 7 天内申请退款，之后不提供退款。",
     ],
     compare: {
       title: "套餐对比",
@@ -189,18 +184,15 @@ export const landingZh: LandingCopy = {
         help: "学业求助",
         tutoring: "安排的辅导时间",
         rest: "其余自习时间",
-        gst: "GST",
       },
       helpValue: "在支持的科目范围内，监督老师有空时回复",
       tutoringNone: "不包含",
       tutoringHour: "每参加一节自习一小时",
       restValue: "有监督的独立自习",
-      gstValue: "已含",
     },
     cardKicker: "Study Hall · 按周",
     per: "每名学生 / 周",
-    gst: "已含 GST",
-    tutoringNote: "孩子每参加一节自习，包含一小时辅导，其余时间为有监督的独立自习。",
+    tutoringNote: "孩子每参加一节自习，包含一小时辅导，由监督老师应您的要求安排；其余时间为有监督的独立自习。",
     rows: {
       sessions: "场次",
       sessionsUnlimited: "周一至周四任选",
@@ -220,7 +212,7 @@ export const landingZh: LandingCopy = {
       tutoringNone: "不包含",
     },
     cta: "开始注册",
-    ctaNote: "第一周可应要求退款，之后不提供退款。",
+    ctaNote: "首次付款后 7 天内可申请退款。",
     empty: "套餐即将公布。",
   },
   faq: {
@@ -232,7 +224,7 @@ export const landingZh: LandingCopy = {
         q: "Study Hall 是补习吗？",
         a: [
           "“监督自习”不是补习。这是有人监督的时间，用来完成孩子已有的功课：作业、复习和练习。孩子可以在我们支持的科目范围内求助，监督老师在有空时回复，但这不是上课，也不能代替补习老师。",
-          "“自习 + 辅导”在孩子每参加一节自习时包含一小时辅导，其余时间为有监督的独立自习。辅导限于我们支持的科目，取决于该节安排的辅导老师，绝不会以一对一私人视频的形式进行。",
+          "“自习 + 辅导”在孩子每参加一节自习时包含一小时辅导，其余时间为有监督的独立自习。如需安排辅导，请发邮件至 {email}，监督老师会在该节自习中安排时间。辅导限于我们支持的科目，绝不会以一对一私人视频的形式进行。",
         ],
       },
       {
@@ -271,14 +263,17 @@ export const landingZh: LandingCopy = {
         id: "billing",
         q: "订阅、取消和退款如何处理？",
         a: [
-          "套餐按学生计价，价格已含 GST，通过 Stripe 以澳元按周收费。您可以在账户中更换银行卡或取消订阅，已付费的一周结束前仍可使用。",
-          "如果第一周不合适，请发邮件至 {email}，我们会退款。第一周之后不提供退款。",
+          "套餐按学生计价，通过 Stripe 以澳元按周收费。您可以在账户中更换银行卡或取消订阅，已付费的一周结束前仍可使用。",
+          "如果不合适，请在首次付款后 7 天内发邮件至 {email}，我们会退款。之后不提供退款。",
         ],
       },
       {
         id: "missed",
-        q: "如果孩子缺席了怎么办？",
-        a: ["您会收到一行说明，告知孩子没有参加。孩子可以参加当周的任何其他场次。"],
+        q: "如果自习被取消，或孩子缺席了怎么办？",
+        a: [
+          "如果 Study Hall 取消了某节自习，已报名该节的家庭会获得补偿，可改为参加另一节自习。",
+          "如果孩子缺席，您会收到一行说明，告知孩子没有参加。孩子可以参加当周的任何其他场次。",
+        ],
       },
       {
         id: "needs",
@@ -289,7 +284,7 @@ export const landingZh: LandingCopy = {
         id: "supervisors",
         q: "监督老师是谁？",
         a: [
-          "我们目前的监督老师团队包括有多年辅导和教学经验的医学生。",
+          "我们的监督老师都是在读医学生，拥有多年辅导和教学经验。",
           "每位监督老师都持有经我们核实的儿童工作许可（WWCC）。我们会跟踪许可的到期日期，没有有效许可的人不能被安排负责自习。",
         ],
       },

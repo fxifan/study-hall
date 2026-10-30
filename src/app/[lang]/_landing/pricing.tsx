@@ -54,7 +54,6 @@ export async function PlanCards({ copy, signUpHref }: { copy: LandingCopy["prici
             <span className="amt">{formatPrice(plan.price_cents)}</span>
             <span className="per">{copy.per}</span>
           </p>
-          <p className="gst">{copy.gst}</p>
           {/* The tutoring limit sits next to the price and the button, not only in the FAQ. */}
           {plan.includes_tutoring && <p className="plan-note">{copy.tutoringNote}</p>}
           <ul className="rows">
@@ -90,7 +89,6 @@ export async function PlanComparison({ copy }: { copy: LandingCopy["pricing"]["c
     [copy.rows.help, same(copy.helpValue)],
     [copy.rows.tutoring, plans.map((p) => (p.includes_tutoring ? copy.tutoringHour : copy.tutoringNone))],
     [copy.rows.rest, same(copy.restValue)],
-    [copy.rows.gst, same(copy.gstValue)],
   ];
   return (
     <div className="compare">

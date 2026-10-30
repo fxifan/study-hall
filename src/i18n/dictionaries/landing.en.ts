@@ -99,15 +99,10 @@ export const landingEn = {
     intro:
       "Written from what was recorded in the session: attendance, goals and the supervisor's notes. Every report uses the same plain format.",
     variantsLabel: "Sample session",
-    variants: { full: "Full session", late: "Late start", absent: "Didn't attend" },
-    sheetLabel: "Sample report · fictional student",
+    variants: { attended: "Attended", absent: "Didn't attend" },
     sent: "Sent {time}",
-    copy: "Copy as text",
-    copied: "Copied",
-    copyFailed: "Copy failed",
     footNote: "Plain text for WhatsApp or WeChat",
     absentNote: "Sent about 15 minutes after the session ends",
-    languageNote: "",
     legend: [
       {
         title: "Times from the session",
@@ -128,14 +123,14 @@ export const landingEn = {
     never: "Webcam images, comparisons with other students, or judgements about ability or attitude.",
     deliveryTitle: "How it reaches you",
     delivery:
-      "By email after every session you book. A plain-text copy is easy to forward to WhatsApp or WeChat. Reports are written in English.",
+      "By email after every session you book. A plain-text copy is easy to forward to WhatsApp or WeChat. Reports can be read in English or Simplified Chinese; goals and supervisor notes stay as written.",
   },
   tutoring: {
     label: "Study and tutoring",
     title: "Supervised study, with tutoring if you want it.",
     body: [
       "**Supervised Study** is structured, supervised time for schoolwork your child already has: homework, revision and practice. They can request help within the subjects we support, and the supervisor responds when available. There's no dedicated tutoring hour.",
-      "**Study + Tutoring** includes **one hour of tutoring for each session your child attends**. The rest of the session is supervised independent study. Attend four sessions in a week and that's up to four one-hour tutoring periods; the tutor isn't with your child for the whole four hours.",
+      "**Study + Tutoring** includes **one hour of tutoring for each session your child attends**, scheduled by the supervisor when you request it. The rest of the session is supervised independent study. Attend four sessions in a week and that's up to four one-hour tutoring periods; the tutor isn't with your child for the whole four hours.",
       "Neither plan replaces specialist tutoring or teaching, and we don't promise particular marks or results.",
     ],
     is: { title: "Study Hall is", items: ["Scheduled, supervised time for schoolwork", "Goals set and marked every session", "Academic help within the subjects we support", "A factual report for parents"] },
@@ -172,7 +167,7 @@ export const landingEn = {
       },
       {
         title: "Checked supervisors",
-        body: "Our supervisor team currently includes medical students with years of tutoring and teaching experience. Every supervisor must hold a Working with Children Check that we've verified, and Study Hall won't assign anyone to a session without a current, verified check.",
+        body: "Our supervisors are current medical students with years of tutoring and teaching experience. Every supervisor must hold a Working with Children Check that we've verified, and Study Hall won't assign anyone to a session without a current, verified check.",
       },
       {
         title: "Messages are kept",
@@ -195,11 +190,11 @@ export const landingEn = {
     label: "Pricing",
     title: "Two weekly plans. Cancel any time.",
     intro:
-      "Prices are per student and include GST. Both plans cover sessions Monday to Thursday, 4:00–8:00pm Melbourne time, and your child doesn't have to come to every session.",
+      "Prices are per student. Both plans cover sessions Monday to Thursday, 4:00–8:00pm Melbourne time, and your child doesn't have to come to every session.",
     checks: [
-      "Prices include GST. Billed weekly in Australian dollars through Stripe.",
+      "Billed weekly in Australian dollars through Stripe.",
       "Cancel any time from your account and keep access until the end of your paid week.",
-      "Not right for you? We'll refund the first week on request. Refunds aren't available after the first week.",
+      "Not right for you? Ask within 7 days of your first payment and we'll refund it. Refunds aren't available after that.",
     ],
     compare: {
       title: "Compare the plans",
@@ -212,18 +207,16 @@ export const landingEn = {
         help: "Academic help requests",
         tutoring: "Scheduled tutoring",
         rest: "Remaining study time",
-        gst: "GST",
       },
       helpValue: "Within supported subjects, when a supervisor is available",
       tutoringNone: "Not included",
       tutoringHour: "One hour per session attended",
       restValue: "Supervised independent study",
-      gstValue: "Included",
     },
     cardKicker: "Study Hall · Weekly",
     per: "per student / week",
-    gst: "GST included",
-    tutoringNote: "Includes one hour of tutoring per session attended. The rest of the session is supervised independent study.",
+    tutoringNote:
+      "Includes one hour of tutoring per session attended, scheduled by the supervisor when you request it. The rest of the session is supervised independent study.",
     rows: {
       sessions: "Sessions",
       sessionsUnlimited: "Any, Mon–Thu",
@@ -243,7 +236,7 @@ export const landingEn = {
       tutoringNone: "Not included",
     },
     cta: "Start",
-    ctaNote: "First week refundable on request; no refunds after that.",
+    ctaNote: "Refundable within 7 days of your first payment.",
     empty: "Plans will be listed here soon.",
   },
   faq: {
@@ -255,7 +248,7 @@ export const landingEn = {
         q: "Is Study Hall tutoring?",
         a: [
           "Supervised Study isn't tutoring. It's supervised time to work on schoolwork your child already has: homework, revision and practice. They can ask for help within the subjects we support, and the supervisor responds when available, but it isn't a lesson or a replacement for a tutor.",
-          "Study + Tutoring includes one hour of tutoring for each session your child attends; the rest of the session is supervised independent study. Tutoring covers the subjects we support and depends on the tutor rostered for that session. It's never a private one-to-one video call.",
+          "Study + Tutoring includes one hour of tutoring for each session your child attends; the rest of the session is supervised independent study. Email {email} to request the hour and the supervisor will schedule it within the session. Tutoring covers the subjects we support and is never a private one-to-one video call.",
         ],
       },
       {
@@ -300,14 +293,17 @@ export const landingEn = {
         id: "billing",
         q: "How do subscriptions, cancellations and refunds work?",
         a: [
-          "Prices are per student, include GST, and are billed weekly in Australian dollars through Stripe. You can change your card or cancel from your account and keep access until the end of your paid week.",
-          "If the first week isn't right for you, email {email} and we'll refund it. Refunds aren't available after the first week.",
+          "Prices are per student and billed weekly in Australian dollars through Stripe. You can change your card or cancel from your account and keep access until the end of your paid week.",
+          "If Study Hall isn't right for you, email {email} within 7 days of your first payment and we'll refund it. Refunds aren't available after that.",
         ],
       },
       {
         id: "missed",
-        q: "What happens if my child misses a session?",
-        a: ["You'll get a one-line note saying they didn't attend. Your child can come to any other session that week."],
+        q: "What happens if a session is cancelled or my child misses it?",
+        a: [
+          "If Study Hall cancels a session, everyone booked into it gets a credit to attend another session instead.",
+          "If your child misses a session, you'll get a one-line note saying they didn't attend. They can come to any other session that week.",
+        ],
       },
       {
         id: "needs",
@@ -320,7 +316,7 @@ export const landingEn = {
         id: "supervisors",
         q: "Who are the supervisors?",
         a: [
-          "Our supervisor team currently includes medical students with years of tutoring and teaching experience.",
+          "Our supervisors are current medical students with years of tutoring and teaching experience.",
           "Every supervisor holds a Working with Children Check that we've verified. We track expiry dates, and no one can be assigned to a session without a current check.",
         ],
       },
