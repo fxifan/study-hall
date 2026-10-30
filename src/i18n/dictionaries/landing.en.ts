@@ -1,13 +1,15 @@
 /**
  * Landing page copy (English). Shape is the source for landing.zh.ts.
  * Rules from the product brief: no promises about grades or results, no invented policies, staff
- * credentials or usage numbers. Unknown policies are shown as owner notes by the page, not written here.
+ * credentials or usage numbers. Undecided policy is left out and listed for the owner
+ * (docs/comprehensive-brief-plan.md), never shown as a note on the public page.
  * **bold** marks emphasis in rich strings. {placeholders} are filled by the page.
  */
 export const landingEn = {
   meta: {
     title: "Study Hall · Supervised after-school study",
-    description: "Structured after-school study, live supervision, and a daily progress report for parents.",
+    description:
+      "Structured after-school study, live supervision, academic help when students get stuck, and clear progress reports for parents.",
   },
   nav: {
     skip: "Skip to content",
@@ -24,7 +26,7 @@ export const landingEn = {
     kicker: ["Online supervised study", "Years 7–12", "Victoria"],
     titleLead: "Make after-school study ",
     titleEm: "more consistent.",
-    lede: "Live supervised study, structured goals, help when students get stuck, and a short progress report for parents after each session.",
+    lede: "Live supervised study, structured goals, subject-specific academic help, and a progress report for parents after each session.",
     primary: "View plans",
     secondary: "See how it works",
   },
@@ -43,19 +45,19 @@ export const landingEn = {
     label: "How it works",
     title: "Structure, supervision, and a report.",
     intro:
-      "Study Hall helps students make steady progress on their own schoolwork: scheduled sessions, clear goals, a live human supervisor, and a short report for parents.",
+      "Study Hall gives students a structured place to work through homework, revision and practice. Students set goals, study in a supervised group, and can request academic help within the subjects we currently support. Parents receive a progress report after sessions.",
     steps: [
       {
         title: "Set goals",
-        body: "Before each session, your child writes up to three tasks they plan to work on, one line each.",
+        body: "Before each session, your child chooses up to three tasks they want to complete, one line each.",
       },
       {
-        title: "Study together",
+        title: "Study with supervision",
         body: "They join a scheduled group video room with a live human supervisor, camera on their hands and desk. Study blocks and breaks run on a shared timer.",
       },
       {
-        title: "Ask for help",
-        body: "Stuck? They send a short help request. The session supervisor responds when they're available, by text in the app or in a small group. It's help to get unstuck, not a private lesson.",
+        title: "Request academic help",
+        body: "Stuck? They send a short help request within the subjects we currently support. The response depends on supervisor availability and your plan, and comes by text in the app or in a small group, never a private video call.",
       },
       {
         title: "Review progress",
@@ -129,14 +131,15 @@ export const landingEn = {
       "By email after every session you book. A plain-text copy is easy to forward to WhatsApp or WeChat. Reports are written in English.",
   },
   tutoring: {
-    label: "Alongside tutoring",
-    title: "Designed to complement tutoring.",
+    label: "Study and tutoring",
+    title: "Supervised study, with tutoring if you want it.",
     body: [
-      "Tutoring helps students learn concepts. Study Hall gives them a structured place to work through homework, revision and practice between lessons.",
-      "Students can ask for help when they get stuck, and the session supervisor responds when they're available. The tutoring plan adds a dedicated tutor in the room who prepares from the subjects you list, and your child's questions go first. Either way, Study Hall isn't a replacement for specialist tutoring or teaching.",
+      "**Supervised Study** is structured, supervised time for schoolwork your child already has: homework, revision and practice. They can request help within the subjects we support, and the supervisor responds when available. There's no dedicated tutoring hour.",
+      "**Study + Tutoring** includes **one hour of tutoring for each session your child attends**. The rest of the session is supervised independent study. Attend four sessions in a week and that's up to four one-hour tutoring periods; the tutor isn't with your child for the whole four hours.",
+      "Neither plan replaces specialist tutoring or teaching, and we don't promise particular marks or results.",
     ],
-    is: { title: "Study Hall is", items: ["Scheduled, supervised time for schoolwork", "Goals set and marked every session", "Help to get unstuck, in a group setting", "A factual report for parents"] },
-    isNot: { title: "Study Hall isn't", items: ["Private one-to-one lessons", "A guaranteed response time", "A promise of better marks or ATARs", "Webcam recording or monitoring software"] },
+    is: { title: "Study Hall is", items: ["Scheduled, supervised time for schoolwork", "Goals set and marked every session", "Academic help within the subjects we support", "A factual report for parents"] },
+    isNot: { title: "Study Hall isn't", items: ["Unlimited one-to-one tutoring", "A guaranteed response time", "A promise of better marks or ATARs", "Webcam recording or monitoring software"] },
   },
   rules: {
     label: "House rules",
@@ -169,7 +172,7 @@ export const landingEn = {
       },
       {
         title: "Checked supervisors",
-        body: "Every supervisor must hold a Working with Children Check that we've verified. Study Hall won't assign anyone to a session without a current, verified check.",
+        body: "Our supervisor team currently includes medical students with years of tutoring and teaching experience. Every supervisor must hold a Working with Children Check that we've verified, and Study Hall won't assign anyone to a session without a current, verified check.",
       },
       {
         title: "Messages are kept",
@@ -181,7 +184,7 @@ export const landingEn = {
       },
       {
         title: "Parents stay in charge",
-        body: "Only a parent can create a student account, after agreeing to the house rules and privacy notice. Ask us to delete your child's data and we'll do it within 30 days.",
+        body: "Only a parent can create a student account, after agreeing to the house rules and privacy notice. Email us to delete your child's data and we'll do it within 30 days.",
       },
     ],
     foot: "No student-to-student messaging, profiles, rankings or feeds. No ads or trackers on student pages.",
@@ -190,16 +193,37 @@ export const landingEn = {
   },
   pricing: {
     label: "Pricing",
-    title: "Weekly plans, cancel any time.",
+    title: "Two weekly plans. Cancel any time.",
     intro:
-      "Prices are per student. Each plan covers sessions Monday to Thursday, 4:00–8:00pm Melbourne time. Your child doesn't have to come to every session.",
+      "Prices are per student and include GST. Both plans cover sessions Monday to Thursday, 4:00–8:00pm Melbourne time, and your child doesn't have to come to every session.",
     checks: [
-      "Billed weekly in Australian dollars through Stripe.",
-      "Cancel any time from your account; access continues to the end of the week you've paid for.",
-      "Not right for you? We'll refund the first week on request.",
+      "Prices include GST. Billed weekly in Australian dollars through Stripe.",
+      "Cancel any time from your account and keep access until the end of your paid week.",
+      "Not right for you? We'll refund the first week on request. Refunds aren't available after the first week.",
     ],
+    compare: {
+      title: "Compare the plans",
+      feature: "",
+      yes: "Yes",
+      rows: {
+        supervision: "Live group supervision",
+        goals: "Study goals and progress tracking",
+        reports: "Parent progress reports",
+        help: "Academic help requests",
+        tutoring: "Scheduled tutoring",
+        rest: "Remaining study time",
+        gst: "GST",
+      },
+      helpValue: "Within supported subjects, when a supervisor is available",
+      tutoringNone: "Not included",
+      tutoringHour: "One hour per session attended",
+      restValue: "Supervised independent study",
+      gstValue: "Included",
+    },
     cardKicker: "Study Hall · Weekly",
     per: "per student / week",
+    gst: "GST included",
+    tutoringNote: "Includes one hour of tutoring per session attended. The rest of the session is supervised independent study.",
     rows: {
       sessions: "Sessions",
       sessionsUnlimited: "Any, Mon–Thu",
@@ -213,11 +237,13 @@ export const landingEn = {
       for: "For",
       forValue: "Years 7–12",
       help: "Help",
-      helpSupervisor: "When the supervisor is free",
-      helpTutor: "Dedicated tutor, questions first",
+      helpValue: "Supported subjects, when available",
+      tutoring: "Tutoring",
+      tutoringValue: "1 hour per session attended",
+      tutoringNone: "Not included",
     },
     cta: "Start",
-    ctaNote: "First week refundable on request.",
+    ctaNote: "First week refundable on request; no refunds after that.",
     empty: "Plans will be listed here soon.",
   },
   faq: {
@@ -228,8 +254,8 @@ export const landingEn = {
         id: "tutoring",
         q: "Is Study Hall tutoring?",
         a: [
-          "Not on the supervision plan. It's supervised time to work on schoolwork your child already has: homework, revision and practice. They can ask for help when stuck, and the supervisor responds when available, but it isn't a lesson or a replacement for a tutor.",
-          "The tutoring plan adds a dedicated tutor in the room for the whole session. They see the subjects and current work you enter, and your child's questions go first. Help is by text in the app or in a small group, never one-to-one video.",
+          "Supervised Study isn't tutoring. It's supervised time to work on schoolwork your child already has: homework, revision and practice. They can ask for help within the subjects we support, and the supervisor responds when available, but it isn't a lesson or a replacement for a tutor.",
+          "Study + Tutoring includes one hour of tutoring for each session your child attends; the rest of the session is supervised independent study. Tutoring covers the subjects we support and depends on the tutor rostered for that session. It's never a private one-to-one video call.",
         ],
       },
       {
@@ -252,6 +278,7 @@ export const landingEn = {
         q: "What happens if my child gets stuck?",
         a: [
           "They send a short help request with the subject and what they're stuck on, and can see whether it's open, being handled or resolved. The session supervisor responds by text in the app, or in a breakout room with at least two students or a second adult.",
+          "Help covers the subjects we currently support: {subjects}. It depends on the supervisor rostered for that session, so not every subject can be covered at every moment.",
           "Response times depend on how busy the session is; there's no guaranteed response time, and it's never a private one-to-one video call.",
         ],
       },
@@ -273,13 +300,14 @@ export const landingEn = {
         id: "billing",
         q: "How do subscriptions, cancellations and refunds work?",
         a: [
-          "Plans are priced per student and billed weekly in Australian dollars through Stripe. You can change your card or cancel from your account; access continues to the end of the week you've paid for. If the first week isn't right for you, ask and we'll refund it.",
+          "Prices are per student, include GST, and are billed weekly in Australian dollars through Stripe. You can change your card or cancel from your account and keep access until the end of your paid week.",
+          "If the first week isn't right for you, email {email} and we'll refund it. Refunds aren't available after the first week.",
         ],
       },
       {
         id: "missed",
-        q: "What happens if a session is cancelled or my child misses it?",
-        a: ["If your child misses a session, you'll get a one-line note saying they didn't attend."],
+        q: "What happens if my child misses a session?",
+        a: ["You'll get a one-line note saying they didn't attend. Your child can come to any other session that week."],
       },
       {
         id: "needs",
@@ -292,7 +320,8 @@ export const landingEn = {
         id: "supervisors",
         q: "Who are the supervisors?",
         a: [
-          "Adults who hold a Working with Children Check that we've verified. We track expiry dates, and no one can be assigned to a session without a current check.",
+          "Our supervisor team currently includes medical students with years of tutoring and teaching experience.",
+          "Every supervisor holds a Working with Children Check that we've verified. We track expiry dates, and no one can be assigned to a session without a current check.",
         ],
       },
       {
@@ -301,6 +330,11 @@ export const landingEn = {
         a: [
           "No. A parent creates every student account and agrees to the house rules and privacy notice first. Your child then gets an email invite to log in.",
         ],
+      },
+      {
+        id: "contact",
+        q: "How do I contact Study Hall?",
+        a: ["Email {email} with questions, concerns about the service, or a request to delete your child's data."],
       },
     ],
   },
@@ -316,8 +350,8 @@ export const landingEn = {
     safety: "Safety & privacy",
     privacy: "Privacy notice",
     logIn: "Log in",
+    contact: "Contact",
   },
-  ownerNote: "Owner to confirm",
 };
 
 export type LandingCopy = typeof landingEn;

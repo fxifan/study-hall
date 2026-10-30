@@ -264,6 +264,13 @@ html:has(.landing) {
   .is-grid li svg { flex: none; width: 18px; height: 18px; margin-top: 4px; }
   .is-grid .not li { color: var(--ink-soft); }
   @media (max-width: 640px) { .is-grid { grid-template-columns: minmax(0, 1fr); } }
+  .scope { margin-top: 48px; max-width: 880px; }
+  .scope h3 { font: 500 .75rem/1.5 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); padding-bottom: 12px; border-bottom: 1px solid var(--hair); }
+  .scope-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; margin-top: 16px; }
+  .scope h4 { font-weight: 500; font-size: 1.0625rem; }
+  .scope ul { margin: 8px 0 0; padding-left: 1.1em; color: var(--ink-soft); font-size: 1.0625rem; line-height: 1.6; }
+  .scope-note { margin-top: 16px; color: var(--ink-soft); font-size: .9375rem; }
+  @media (max-width: 640px) { .scope-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; } }
 
   /* ---------- house rules ---------- */
   .rules-sheet { margin-top: 56px; max-width: 880px; }
@@ -294,7 +301,6 @@ html:has(.landing) {
   .cover :focus-visible { outline-color: var(--cover-pen); }
   .cover .link { color: var(--cover-ink); text-decoration-color: rgba(240, 138, 120, .6); }
   .cover .link:hover { text-decoration-color: var(--cover-pen); }
-  .cover .todo { color: var(--cover-pen); border-color: var(--cover-pen); }
   .safety { list-style: none; margin: 56px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 40px; }
   .safety li { border-top: 1px solid var(--cover-hair); padding: 24px 0 40px; }
   .safety .k { font: 500 .75rem/1 var(--mono); letter-spacing: .08em; color: var(--cover-pen); }
@@ -325,6 +331,16 @@ html:has(.landing) {
   .rows .val { text-align: right; }
   .label .btn { width: 100%; }
   .label-note { margin-top: 14px; text-align: center; font-size: .9375rem; color: var(--ink-soft); }
+  .gst { margin-top: 6px; text-align: center; font: 500 .75rem/1.4 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); }
+  .plan-note { margin-top: 16px; padding: 12px 14px; border: 1.5px solid var(--pen-faint); border-radius: var(--r-sm); font-size: .9375rem; line-height: 1.45; text-align: center; }
+  .compare { margin-top: 40px; }
+  .compare h3 { font: 500 .75rem/1.5 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); }
+  .compare table { margin-top: 12px; width: 100%; border-collapse: collapse; font-size: .9375rem; line-height: 1.4; }
+  .compare th, .compare td { padding: 10px 10px 10px 0; border-bottom: 1px solid var(--hair); text-align: left; vertical-align: top; }
+  .compare thead th { font-weight: 500; }
+  .compare thead th span { display: block; font: 500 .8125rem/1.4 var(--mono); color: var(--ink-soft); }
+  .compare tbody th { font-weight: 400; color: var(--ink-soft); width: 34%; }
+  @media (max-width: 400px) { .compare table { font-size: .8125rem; } }
   @media (max-width: 1000px) { .price-grid { grid-template-columns: minmax(0, 1fr); gap: 48px; } .label { max-width: 440px; } }
   @media (max-width: 400px) { .label { padding: 30px 22px 24px; } .rows { font-size: .8125rem; } }
 
@@ -342,8 +358,6 @@ html:has(.landing) {
   .faq .ans > * + * { margin-top: 12px; }
   @media (max-width: 600px) { .faq summary { font-size: 1.1875rem; padding: 18px 0; } .faq .ans { padding-right: 0; } }
 
-  /* ---------- owner notes (unconfirmed policy; must be gone before launch) ---------- */
-  .todo { display: inline-block; font: 500 .8125rem/1.45 var(--mono); padding: 4px 8px; border: 1px dashed var(--pen); border-radius: 3px; color: var(--pen); }
 
   /* ---------- end ---------- */
   .end .wrap { padding-bottom: 136px; }

@@ -2,7 +2,7 @@ DRAFT for review. This notice describes how the Study Hall app works today. It h
 
 ## Who we are
 
-Study Hall runs supervised online study sessions for school students in Victoria, Australia. [Owner to add: legal entity name, ABN and contact email.]
+Study Hall runs supervised online study sessions for school students in Victoria, Australia. Contact us at feifanwork1@gmail.com with questions, concerns or privacy requests.
 
 ## What we collect
 
@@ -31,14 +31,14 @@ Sessions run on Zoom or Google Meet. The supervisor watches the live room; Study
 
 ## Where it's stored
 
-Our database is hosted by Supabase in Sydney, Australia. The website is hosted by Vercel, with server code running in Sydney. Emails are sent through our email provider. [Owner to confirm: email provider and any other processors.]
+Our database is hosted by Supabase in Sydney, Australia. The website is hosted by Vercel, with server code running in Sydney. Sign-in and account emails are sent through Supabase, our login provider. Payments are processed by Stripe. The video room runs on Zoom or Google Meet.
 
 ## Keeping and deleting data
 
-You can ask us to delete your child's data at any time, and we'll do it within 30 days. [Owner to confirm: how long data is kept after a subscription ends, and the contact for deletion requests.]
+You can ask us to delete your child's data at any time by emailing feifanwork1@gmail.com, and we'll do it within 30 days. Deletion requests are handled by a person, not automatically.
 
 ## Child safety
 
 - Every supervisor must hold a Working with Children Check that we have verified.
 - An adult is never alone on video with a student. Help happens by text in the app, or in a breakout room with at least two students or a second adult.
-- [Owner to add: the child-safety contact and how concerns are handled.]
+- To raise a child-safety concern, email feifanwork1@gmail.com. If a child is in immediate danger, call 000.

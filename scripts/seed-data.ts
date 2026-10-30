@@ -1,13 +1,15 @@
 /**
- * Fixed IDs and accounts for the dev seed (spec §11 Phase 0): 1 org, 1 admin, 1 proctor, 1 room,
- * 1 schedule, 1 plan at A$49/week, and 2 test families. Shared by scripts/seed.ts and the tests.
+ * Fixed IDs and accounts for the dev seed (spec §11 Phase 0): 1 org, 1 admin, 1 proctor, 1 tutor,
+ * 1 room, 1 schedule, plans at A$49/week (Supervised Study) and A$149/week (Study + Tutoring), and
+ * 2 test families. Shared by scripts/seed.ts and the tests.
  * Fixed IDs make the seed idempotent: running it again updates rows instead of duplicating them.
  */
 
 export const SEED_IDS = {
   org: "00000000-0000-4000-8000-000000000001",
   plan: "00000000-0000-4000-8000-000000000101",
-  tutoringPlan: "00000000-0000-4000-8000-000000000102",
+  retiredTutoringPlan: "00000000-0000-4000-8000-000000000102", // A$79, replaced by the A$149 plan
+  tutoringPlan: "00000000-0000-4000-8000-000000000103",
   room: "00000000-0000-4000-8000-000000000201",
   schedule: "00000000-0000-4000-8000-000000000301",
   proctorCheck: "00000000-0000-4000-8000-000000000401",
@@ -37,4 +39,4 @@ export function seedEmail(account: SeedAccount, domain = process.env.SEED_EMAIL_
 }
 
 export const HOUSE_RULES_VERSION = "2026-10-v1";
-export const PRIVACY_VERSION = "2026-10-draft-2"; // replace with reviewed text before launch
+export const PRIVACY_VERSION = "2026-10-draft-3"; // replace with reviewed text before launch

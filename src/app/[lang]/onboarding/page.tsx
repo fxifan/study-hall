@@ -10,8 +10,10 @@ import { localizePath } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries/en";
 import type { OnboardingCopy } from "@/i18n/dictionaries/onboarding.en";
 import { fill } from "@/i18n/fill";
+import { helpScopeSummary } from "@/i18n/help-scope";
 import { getDictionary, getLocale } from "@/i18n/server";
 import { getCurrentProfile } from "@/lib/auth";
+import { CONTACT_EMAIL } from "@/lib/contact";
 import { ACTIVE_SUBSCRIPTION_STATUSES } from "@/lib/subscription-status";
 import { getCurrentLegalDocument } from "@/lib/legal";
 import { formatAud } from "@/lib/money";
@@ -26,7 +28,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function OnboardingPage({ searchParams }: PageProps<"/[lang]/onboarding">) {
-  const [{ onboarding: t, studies, common }, locale] = await Promise.all([getDictionary(), getLocale()]);
+  const [{ onboarding: t, studies, helpScope, common }, locale] = await Promise.all([getDictionary(), getLocale()]);
+  const scope = helpScopeSummary(helpScope, locale);
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 px-4 py-12">
       <div className="flex items-baseline justify-between gap-4">
@@ -40,7 +43,7 @@ export default async function OnboardingPage({ searchParams }: PageProps<"/[lang
         <p className="text-lg text-ink-soft">{t.intro}</p>
       </header>
       <Suspense fallback={<p className="font-mono text-sm text-ink-faint">{common.loading}</p>}>
-        <Onboarding t={t} studies={studies} searchParams={searchParams} />
+        <Onboarding t={t} studies={studies} scope={scope} searchParams={searchParams} />
       </Suspense>
     </main>
   );
@@ -59,10 +62,13 @@ const MESSAGES = (t: OnboardingCopy): Record<string, string> => ({
 async function Onboarding({
   t,
   studies,
+  scope,
   searchParams,
 }: {
   t: OnboardingCopy;
   studies: Dictionary["studies"];
+  /** The academic-help subjects, as one line. */
+  scope: string;
   searchParams: PageProps<"/[lang]/onboarding">["searchParams"];
 }) {
   const [profile, locale, query] = await Promise.all([getCurrentProfile(), getLocale(), searchParams]);
@@ -79,7 +85,7 @@ async function Onboarding({
       <h2 className="font-mono text-xs tracking-widest text-ink-soft uppercase">{t.included.title}</h2>
       <ul className="mt-3 flex list-disc flex-col gap-2 pl-5 text-ink-soft">
         {t.included.items.map((item) => (
-          <li key={item}>{item}</li>
+          <li key={item}>{fill(item, { subjects: scope })}</li>
         ))}
         {headlinePrice && <li>{fill(t.included.billing, { price: headlinePrice })}</li>}
       </ul>
@@ -200,7 +206,7 @@ async function Onboarding({
                     {s.student_subjects.length ? fill(studies.summary, { count: s.student_subjects.length }) : studies.none}
                   </summary>
                   <div className="pt-3">
-                    <StudiesForm student={s} subjects={subjects ?? []} selected={s.student_subjects} t={studies} />
+                    <StudiesForm student={s} subjects={subjects ?? []} selected={s.student_subjects} scope={scope} t={studies} />
                   </div>
                 </details>
               </li>
@@ -272,7 +278,7 @@ async function Onboarding({
               </p>
               <ul className="flex list-disc flex-col gap-1 pl-5 text-sm text-ink-soft">
                 {t.pay.terms.map((term) => (
-                  <li key={term}>{term}</li>
+                  <li key={term}>{fill(term, { email: CONTACT_EMAIL })}</li>
                 ))}
               </ul>
               {!stripeConfigured() || !plan.stripe_price_id ? (

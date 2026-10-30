@@ -50,6 +50,14 @@ async function main() {
         metadata: { app: "study-hall", plan_id: plan.id },
       });
       console.log(`Created price ${price.id} for "${plan.name}"`);
+    } else {
+      // Plans can be renamed; keep the product name Checkout shows in step.
+      const productId = typeof price.product === "string" ? price.product : price.product.id;
+      const product = await stripe.products.retrieve(productId);
+      if (product.name !== `Study Hall: ${plan.name}`) {
+        await stripe.products.update(productId, { name: `Study Hall: ${plan.name}` });
+        console.log(`Renamed product for "${plan.name}"`);
+      }
     }
     if (plan.stripe_price_id !== price.id) {
       const { error: updateError } = await db.from("plans").update({ stripe_price_id: price.id }).eq("id", plan.id);

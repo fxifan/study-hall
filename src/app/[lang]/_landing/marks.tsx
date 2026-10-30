@@ -70,12 +70,3 @@ export function Rich({ text }: { text: string }) {
     </>
   );
 }
-
-/** A visible note for the product owner where policy isn't decided yet. Must be gone before launch. */
-export function OwnerNote({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <p className="todo" data-owner-note>
-      <b>{label}:</b> {children}
-    </p>
-  );
-}

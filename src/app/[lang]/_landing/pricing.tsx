@@ -54,13 +54,17 @@ export async function PlanCards({ copy, signUpHref }: { copy: LandingCopy["prici
             <span className="amt">{formatPrice(plan.price_cents)}</span>
             <span className="per">{copy.per}</span>
           </p>
+          <p className="gst">{copy.gst}</p>
+          {/* The tutoring limit sits next to the price and the button, not only in the FAQ. */}
+          {plan.includes_tutoring && <p className="plan-note">{copy.tutoringNote}</p>}
           <ul className="rows">
             <Row label={copy.rows.sessions}>
               {plan.days_per_week ? fill(copy.rows.sessionsLimited, { n: plan.days_per_week }) : copy.rows.sessionsUnlimited}
             </Row>
             <Row label={copy.rows.hours}>{copy.rows.hoursValue}</Row>
             <Row label={copy.rows.supervised}>{copy.rows.supervisedValue}</Row>
-            <Row label={copy.rows.help}>{plan.includes_tutoring ? copy.rows.helpTutor : copy.rows.helpSupervisor}</Row>
+            <Row label={copy.rows.help}>{copy.rows.helpValue}</Row>
+            <Row label={copy.rows.tutoring}>{plan.includes_tutoring ? copy.rows.tutoringValue : copy.rows.tutoringNone}</Row>
             <Row label={copy.rows.report}>{copy.rows.reportValue}</Row>
             <Row label={copy.rows.for}>{copy.rows.forValue}</Row>
           </ul>
@@ -70,6 +74,53 @@ export async function PlanCards({ copy, signUpHref }: { copy: LandingCopy["prici
           <p className="label-note">{copy.ctaNote}</p>
         </div>
       ))}
+    </div>
+  );
+}
+
+/** Side-by-side comparison of the active plans (owner brief §3), columns in price order. */
+export async function PlanComparison({ copy }: { copy: LandingCopy["pricing"]["compare"] }) {
+  const plans = await getPublicPlans();
+  if (plans.length < 2) return null;
+  const same = (value: string) => plans.map(() => value);
+  const rows: [string, string[]][] = [
+    [copy.rows.supervision, same(copy.yes)],
+    [copy.rows.goals, same(copy.yes)],
+    [copy.rows.reports, same(copy.yes)],
+    [copy.rows.help, same(copy.helpValue)],
+    [copy.rows.tutoring, plans.map((p) => (p.includes_tutoring ? copy.tutoringHour : copy.tutoringNone))],
+    [copy.rows.rest, same(copy.restValue)],
+    [copy.rows.gst, same(copy.gstValue)],
+  ];
+  return (
+    <div className="compare">
+      <h3 id="compare-title">{copy.title}</h3>
+      <table aria-labelledby="compare-title" data-testid="plan-comparison">
+        <thead>
+          <tr>
+            <td />
+            {plans.map((plan) => (
+              <th key={plan.id} scope="col">
+                {plan.name}
+                <span>
+                  {plan.currency === "AUD" ? "A$" : plan.currency}
+                  {formatPrice(plan.price_cents)}
+                </span>
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map(([label, values]) => (
+            <tr key={label}>
+              <th scope="row">{label}</th>
+              {values.map((value, i) => (
+                <td key={plans[i].id}>{value}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

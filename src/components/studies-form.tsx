@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import type { Dictionary } from "@/i18n/dictionaries/en";
+import { fill } from "@/i18n/fill";
 import { saveStudies } from "@/lib/studies-actions";
 import { stagesForYear, type Subject } from "@/lib/subjects";
 
@@ -10,11 +11,14 @@ export function StudiesForm({
   student,
   subjects,
   selected,
+  scope,
   t,
 }: {
   student: { id: string; first_name: string; year_level: number; study_note: string | null };
   subjects: Subject[];
   selected: Selected[];
+  /** The academic-help subject scope, filled into t.scope. */
+  scope: string;
   t: Dictionary["studies"];
 }) {
   const chosen = new Map(selected.map((s) => [s.subject_id, s.wants_help]));
@@ -23,6 +27,7 @@ export function StudiesForm({
     <form action={saveStudies} className="flex flex-col gap-4" aria-label={`${t.title}: ${student.first_name}`}>
       <input type="hidden" name="studentId" value={student.id} />
       <p className="text-sm text-ink-soft">{t.intro}</p>
+      <p className="text-sm text-ink-soft">{fill(t.scope, { subjects: scope })}</p>
       {stages.map((stage) => (
         <fieldset key={stage} className="rounded-md border border-hair bg-sheet">
           <legend className="ml-3 px-1 font-mono text-xs tracking-widest text-ink-soft uppercase">{t[stage]}</legend>

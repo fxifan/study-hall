@@ -41,7 +41,7 @@ test.afterAll(async () => {
 test("a new parent signs up up to payment", async ({ page }) => {
   await logIn(page, parentEmail);
   await expect(page).toHaveURL("/onboarding");
-  await expect(page.getByText("Before you pay")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Before you pay" })).toBeVisible();
   await expect(page.getByText(/per student per week/)).toBeVisible();
 
   // 1. Details
@@ -78,8 +78,11 @@ test("a new parent signs up up to payment", async ({ page }) => {
 
   // 4. Plans: per-student totals, supervision first, then tutoring
   const summaries = page.getByTestId("checkout-summary");
-  await expect(summaries.nth(0)).toHaveText("1 × A$49 = A$49 per week");
-  await expect(summaries.nth(1)).toHaveText("1 × A$79 = A$79 per week");
+  await expect(summaries.nth(0)).toHaveText("1 × A$49 = A$49 per week, GST included");
+  await expect(summaries.nth(1)).toHaveText("1 × A$149 = A$149 per week, GST included");
+  await expect(page.locator("#pay")).toContainText("Includes one hour of tutoring per session attended.");
+  await expect(page.locator("#pay")).toContainText("Refunds aren't available after the first week.");
+  await expect(page.locator("#pay")).toContainText("Questions before you pay? Email feifanwork1@gmail.com.");
   if (!process.env.STRIPE_SECRET_KEY) {
     await expect(page.getByText("Payments aren't switched on yet.").first()).toBeVisible();
   } else {

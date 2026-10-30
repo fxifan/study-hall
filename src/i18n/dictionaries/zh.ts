@@ -45,7 +45,7 @@ export const zh: Dictionary = {
     back: "返回孩子列表",
     billing: {
       title: "账单",
-      active: "{plan} · {count} × {price} 每周 · {date} 续费",
+      active: "{plan} · {count} × {price} 每周（含 GST）· {date} 续费",
       cancelling: "{plan} · 已取消 · 可使用至 {date}",
       none: "还没有有效的套餐。",
       finish: "完成注册",
@@ -141,9 +141,19 @@ export const zh: Dictionary = {
     inactive: "已停用",
     manageSoon: "自习室、课表、套餐和监督老师（WWCC）管理。",
   },
+  helpScope: {
+    title: "目前提供帮助的科目",
+    vceLabel: "VCE",
+    vce: ["数学方法（Mathematical Methods）", "普通数学（General Mathematics）", "化学", "生物", "会计"],
+    juniorLabel: "7–10 年级",
+    junior: ["数学", "英语", "科学", "商业（Business and Commerce）"],
+    summary: "{vceLabel}：{vce}；{juniorLabel}：{junior}",
+    note: "能提供哪些科目的帮助取决于该节安排的监督老师，因此并非每个科目在任何时候都能覆盖。",
+  },
   studies: {
     title: "科目与当前学习内容",
     intro: "勾选孩子正在学习的科目，以及希望得到帮助的科目。每节自习前，监督老师和辅导老师都会看到这些信息。",
+    scope: "目前提供学业帮助的科目：{subjects}。孩子正在学习的其他科目也可以一并勾选。",
     junior: "7–10 年级",
     vce: "VCE（10–12 年级）",
     taking: "在学",

@@ -12,8 +12,14 @@ const BRIEF_QUESTIONS = [
   "What will I receive after each session?",
   "Can my child join alongside existing tutoring?",
   "How do subscriptions, cancellations and refunds work?",
-  "What happens if a session is cancelled or my child misses it?",
+  "What happens if my child misses a session?",
+  "Who are the supervisors?",
+  "How do I contact Study Hall?",
 ];
+
+const CONTACT = "feifanwork1@gmail.com";
+// Internal notes that must never reach a public page (owner brief §4, "Public content cleanup").
+const INTERNAL_NOTE = /owner to (confirm|add)|待负责人确认|\bTODO\b|\bTBC\b/i;
 
 async function expectNoSidewaysScroll(page: Page) {
   const { scrollWidth, innerWidth } = await page.evaluate(() => ({
@@ -28,10 +34,35 @@ test("leads with the brief's positioning and primary actions", async ({ page }) 
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Make after-school study more consistent.");
   await expect(page.locator(".hero").getByRole("link", { name: /view plans/i })).toHaveAttribute("href", "#pricing");
   await expect(page.locator(".hero").getByRole("link", { name: "See how it works" })).toHaveAttribute("href", "#how");
-  for (const title of ["Set goals", "Study together", "Ask for help", "Review progress"]) {
+  for (const title of ["Set goals", "Study with supervision", "Request academic help", "Review progress"]) {
     await expect(page.locator("#how").getByRole("heading", { name: title })).toBeVisible();
   }
-  await expect(page.locator("#tutoring")).toContainText("isn't a replacement for specialist tutoring");
+  await expect(page.locator("#tutoring")).toContainText("Neither plan replaces specialist tutoring or teaching");
+});
+
+test("no internal notes on public pages, and the contact email is shown", async ({ page }) => {
+  for (const path of ["/", "/zh", "/legal/privacy", "/legal/house-rules", "/onboarding", "/zh/onboarding", "/login"]) {
+    await page.goto(path);
+    await expect(page.locator("body"), path).not.toContainText(INTERNAL_NOTE);
+    await expect(page.locator("[data-owner-note], mark"), path).toHaveCount(0);
+  }
+  await page.goto("/");
+  await expect(page.locator("#safety")).toContainText(CONTACT);
+  await expect(page.locator("footer")).toContainText(CONTACT);
+  await expect(page.locator(`a[href="mailto:${CONTACT}"]`).first()).toBeVisible();
+  await page.goto("/legal/privacy");
+  await expect(page.locator("article")).toContainText(CONTACT);
+});
+
+test("academic help scope and supervisor background are published", async ({ page }) => {
+  await page.goto("/");
+  const scope = page.locator("#tutoring .scope");
+  for (const subject of ["Mathematical Methods", "General Mathematics", "Chemistry", "Biology", "Accounting", "Mathematics", "English", "Science", "Business and Commerce"]) {
+    await expect(scope.getByText(subject, { exact: true })).toBeVisible();
+  }
+  await expect(scope).toContainText("depends on the supervisor rostered for each session");
+  await expect(page.locator("#safety")).toContainText("medical students with years of tutoring and teaching experience");
+  await expect(page.locator("body")).not.toContainText(/University of Melbourne/);
 });
 
 test("every link goes somewhere real", async ({ page, request }) => {
@@ -72,11 +103,28 @@ test("pricing comes from the plans table and links to sign-up", async ({ page })
   await expect(card).toContainText("/ week");
   await expect(card).toContainText("per student");
   await expect(card.getByRole("link", { name: /Start/ })).toHaveAttribute("href", "/onboarding");
-  await expect(card).toContainText("When the supervisor is free");
-  const tutoring = page.getByTestId("plan-card").nth(1);
-  await expect(tutoring).toContainText("79");
-  await expect(tutoring).toContainText("Dedicated tutor, questions first");
+  await expect(card).toContainText("Supervised Study");
+  await expect(card).toContainText("GST included");
+  await expect(card).toContainText(/Tutoring\s*\.*\s*Not included/);
   await expect(card).toContainText("Years 7–12");
+  // The tutoring limit sits beside the A$149 price and its button.
+  const tutoring = page.getByTestId("plan-card").nth(1);
+  await expect(tutoring).toContainText("Study + Tutoring");
+  await expect(tutoring).toContainText("149");
+  await expect(tutoring).toContainText("GST included");
+  await expect(tutoring).toContainText(
+    "Includes one hour of tutoring per session attended. The rest of the session is supervised independent study.",
+  );
+
+  const pricing = page.locator("#pricing");
+  await expect(pricing).toContainText("Prices include GST.");
+  await expect(pricing).toContainText("keep access until the end of your paid week");
+  await expect(pricing).toContainText("Refunds aren't available after the first week.");
+  const table = page.getByTestId("plan-comparison");
+  await expect(table.locator("thead")).toContainText(/Supervised Study\s*A\$49/);
+  await expect(table.locator("thead")).toContainText(/Study \+ Tutoring\s*A\$149/);
+  await expect(table.getByRole("row", { name: /Scheduled tutoring/ })).toContainText(/Not included\s*One hour per session attended/);
+  await expect(table.getByRole("row", { name: /^GST/ })).toContainText(/Included\s*Included/);
 });
 
 test("the FAQ answers every question in the brief", async ({ page }) => {
@@ -87,6 +135,10 @@ test("the FAQ answers every question in the brief", async ({ page }) => {
   await faq.getByText("Is webcam footage recorded?").click();
   await expect(faq).toContainText("doesn't record or store video, images or audio");
   await expect(faq).toContainText("under their own privacy terms");
+  await faq.getByText("How do I contact Study Hall?").click();
+  await expect(faq).toContainText(`Email ${CONTACT}`);
+  await faq.getByText("What happens if my child gets stuck?").click();
+  await expect(faq).toContainText("VCE Mathematical Methods, General Mathematics, Chemistry, Biology, and Accounting");
 });
 
 test("the Chinese page is translated but keeps sample reports in English", async ({ page }) => {
@@ -96,6 +148,8 @@ test("the Chinese page is translated but keeps sample reports in English", async
   await expect(page.locator("#report")).toContainText("报告目前以英文发送");
   await expect(page.locator("#report .ruled")).toHaveAttribute("lang", "en");
   await expect(page.getByTestId("plan-card").first()).toContainText("/ 周");
+  await expect(page.getByTestId("plan-card").nth(1)).toContainText("孩子每参加一节自习，包含一小时辅导");
+  await expect(page.getByTestId("plan-comparison")).toContainText("每参加一节自习一小时");
 });
 
 test.describe("on a phone", () => {
@@ -121,7 +175,7 @@ test.describe("legal pages", () => {
   test("the privacy notice is clearly marked as a draft", async ({ page }) => {
     await page.goto("/legal/privacy");
     await expect(page.getByRole("note")).toContainText("Draft");
-    await expect(page.locator("mark").first()).toContainText("Owner to");
+    await expect(page.getByText(/Version 2026-10-draft-3/)).toBeVisible();
   });
 
   test("Chinese pages say legal text is English only", async ({ page }) => {

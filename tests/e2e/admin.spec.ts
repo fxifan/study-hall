@@ -58,8 +58,8 @@ test("schedule: generate sessions, WWCC gate on assignment, cancel and restore",
 test("plans and supervisors show their status", async ({ page }) => {
   await logInAsAdmin(page);
   await page.goto("/admin/plans");
-  await expect(page.getByRole("form", { name: "Unlimited weeknights" })).toContainText("A$49");
-  await expect(page.getByRole("form", { name: "Weeknights + tutoring" })).toContainText(/A\$79\s*Tutoring/);
+  await expect(page.getByRole("form", { name: "Supervised Study" })).toContainText("A$49");
+  await expect(page.getByRole("form", { name: "Study + Tutoring" })).toContainText(/A\$149\s*Tutoring/);
 
   await page.goto("/admin/proctors");
   const priya = page.getByTestId("supervisors").locator("li", { hasText: "Priya Proctor" });

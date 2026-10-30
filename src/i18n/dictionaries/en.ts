@@ -48,7 +48,7 @@ export const en = {
     back: "Back to your students",
     billing: {
       title: "Billing",
-      active: "{plan} · {count} × {price} per week · renews {date}",
+      active: "{plan} · {count} × {price} per week, GST included · renews {date}",
       cancelling: "{plan} · cancelled · access until {date}",
       none: "No active plan yet.",
       finish: "Finish sign-up",
@@ -144,9 +144,20 @@ export const en = {
     inactive: "inactive",
     manageSoon: "Rooms, schedule, plans and proctor (WWCC) management.",
   },
+  // Academic help scope (owner brief, Oct 2026). Shared by the landing page, sign-up and parent pages.
+  helpScope: {
+    title: "Subjects we currently help with",
+    vceLabel: "VCE",
+    vce: ["Mathematical Methods", "General Mathematics", "Chemistry", "Biology", "Accounting"],
+    juniorLabel: "Years 7–10",
+    junior: ["Mathematics", "English", "Science", "Business and Commerce"],
+    summary: "{vceLabel} {vce}; {juniorLabel} {junior}",
+    note: "Help depends on the supervisor rostered for each session, so not every subject can be covered at every moment.",
+  },
   studies: {
     title: "Subjects and current work",
     intro: "Tick the subjects your child takes, and any they'd like help with. Their supervisor and tutor see this before each session.",
+    scope: "Academic help currently covers {subjects}. You can still tick other subjects your child takes.",
     junior: "Years 7–10",
     vce: "VCE (Years 10–12)",
     taking: "Takes",

@@ -21,7 +21,7 @@ Supabase (Postgres, Auth, RLS) · Zod · Vitest · Playwright.
    ```bash
    npm install
    npm run db:migrate   # applies supabase/migrations to SUPABASE_DB_URL
-   npm run db:seed      # 1 org, admin, proctor, tutor, room, schedule, A$49 and A$79/week plans, 2 families
+   npm run db:seed      # 1 org, admin, proctor, tutor, room, schedule, A$49 and A$149/week plans, 2 families
    npm run dev
    ```
    Migrations can also be applied through the Supabase MCP server in [.mcp.json](.mcp.json) (that's
@@ -110,8 +110,9 @@ test card `4242 4242 4242 4242`, any future expiry and any CVC.
 
 ## Tutoring plan and study profiles
 
-- Plans with `includes_tutoring` (seeded: "Weeknights + tutoring", A$79/week per student) put a
-  dedicated tutor in the same room. Their students' help requests get `priority` (set by the database
+- Plans with `includes_tutoring` (seeded: "Study + Tutoring", A$149/week per student, one hour of
+  tutoring per session attended; the rest is supervised study) have a tutor rostered in the same room.
+  Scheduling and recording the hour itself is planned (docs/comprehensive-brief-plan.md, Phase 4). Their students' help requests get `priority` (set by the database
   from the family's plan), and the student page says so. Help stays text or small-group; there's no
   one-to-one video.
 - Parents record each child's subjects (taking / wants help, from the `subjects` list: Years 7–10 and

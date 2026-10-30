@@ -3,11 +3,13 @@ import Link from "next/link";
 import { LanguageSwitch } from "@/components/language-switch";
 import { localizePath } from "@/i18n/config";
 import { fill } from "@/i18n/fill";
+import { helpScopeSummary } from "@/i18n/help-scope";
 import { getDictionary, getLocale } from "@/i18n/server";
+import { CONTACT_EMAIL } from "@/lib/contact";
 import { LandingEffects } from "./_landing/landing-effects";
 import { LiveStatus } from "./_landing/live-status";
-import { Cross, OwnerNote, Rich, Tick, Underline } from "./_landing/marks";
-import { PlanCards } from "./_landing/pricing";
+import { Cross, Rich, Tick, Underline } from "./_landing/marks";
+import { PlanCards, PlanComparison } from "./_landing/pricing";
 import { ReportLines, SampleReport } from "./_landing/sample-report";
 import "./landing.css";
 
@@ -15,17 +17,6 @@ import "./landing.css";
  * The marketing page for "/" (design/landing.html), with the positioning from the product brief
  * (docs/product-changes-plan.md, Phase 1A). Copy lives in src/i18n/dictionaries/landing.*.ts.
  */
-
-// Policy the owner hasn't decided yet (plan: "Owner decisions"). Shown on the page, in English, so
-// they can't be missed; all must be resolved before launch.
-const OWNER_NOTES = {
-  recording: "Zoom/Meet room settings (cloud recording off, who can record or share) so this answer stays true.",
-  stuck: "Academic-help scope and the subjects supervisors can help with.",
-  billing: "Refunds beyond the first week, and GST wording.",
-  missed: "What happens when Study Hall cancels a session (e.g. public holidays), and whether missed or cancelled sessions are credited.",
-  supervisors: "Supervisor qualifications and training to describe here.",
-  contact: "Contact email for questions, concerns and deletion requests (set CHILD_SAFETY_CONTACT_EMAIL).",
-} as const;
 
 const SEGMENTS = [
   { kind: "doors", m: 10 },
@@ -46,9 +37,14 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function LandingPage() {
-  const [{ landing: t }, locale] = await Promise.all([getDictionary(), getLocale()]);
-  const contactEmail = process.env.CHILD_SAFETY_CONTACT_EMAIL;
-  const note = (key: keyof typeof OWNER_NOTES) => <OwnerNote label={t.ownerNote}>{OWNER_NOTES[key]}</OwnerNote>;
+  const [{ landing: t, helpScope }, locale] = await Promise.all([getDictionary(), getLocale()]);
+  // Filled into FAQ answers that mention them.
+  const faqValues = { email: CONTACT_EMAIL, subjects: helpScopeSummary(helpScope, locale) };
+  const mailto = (
+    <a className="link" href={`mailto:${CONTACT_EMAIL}`}>
+      {CONTACT_EMAIL}
+    </a>
+  );
 
   return (
     <div className="landing">
@@ -236,8 +232,26 @@ export default async function LandingPage() {
         <Section id="tutoring" n={4} label={t.tutoring.label} title={t.tutoring.title}>
           <div className="tutor-body">
             {t.tutoring.body.map((p) => (
-              <p key={p}>{p}</p>
+              <p key={p}>
+                <Rich text={p} />
+              </p>
             ))}
+          </div>
+          <div className="scope" aria-labelledby="scope-title">
+            <h3 id="scope-title">{helpScope.title}</h3>
+            <div className="scope-grid">
+              {(["vce", "junior"] as const).map((stage) => (
+                <div key={stage}>
+                  <h4>{helpScope[`${stage}Label`]}</h4>
+                  <ul>
+                    {helpScope[stage].map((subject) => (
+                      <li key={subject}>{subject}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+            <p className="scope-note">{helpScope.note}</p>
           </div>
           <div className="is-grid">
             <div>
@@ -305,16 +319,10 @@ export default async function LandingPage() {
             <Link className="link" href={localizePath("/legal/privacy", locale)}>
               {t.safety.privacyLink}
             </Link>
-            {contactEmail ? (
-              <span>
-                {t.safety.contact.split("{email}")[0]}
-                <a className="link" href={`mailto:${contactEmail}`}>
-                  {contactEmail}
-                </a>
-              </span>
-            ) : (
-              note("contact")
-            )}
+            <span>
+              {t.safety.contact.split("{email}")[0]}
+              {mailto}
+            </span>
           </div>
         </Section>
 
@@ -329,7 +337,7 @@ export default async function LandingPage() {
               </li>
             ))}
           </ul>
-          <div style={{ marginTop: 24 }}>{note("billing")}</div>
+          <PlanComparison copy={t.pricing.compare} />
         </Section>
 
         {/* 8. FAQ */}
@@ -343,9 +351,8 @@ export default async function LandingPage() {
                 </summary>
                 <div className="ans">
                   {item.a.map((p) => (
-                    <p key={p}>{p}</p>
+                    <p key={p}>{fill(p, faqValues)}</p>
                   ))}
-                  {item.id in OWNER_NOTES && note(item.id as keyof typeof OWNER_NOTES)}
                 </div>
               </details>
             ))}
@@ -385,6 +392,9 @@ export default async function LandingPage() {
                   <Tick />
                 </Link>
                 <p className="foot-small">{t.footer.tagline}</p>
+                <p className="foot-small">
+                  {t.footer.contact}: {mailto}
+                </p>
               </div>
               <nav aria-label={t.footer.nav}>
                 <a href="#rules">{t.footer.houseRules}</a>

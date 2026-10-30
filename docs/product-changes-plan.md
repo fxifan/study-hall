@@ -72,7 +72,8 @@ The plan as written:
 - Landing: replace "sign-up opens soon" with the real onboarding link.
 
 ### Phase 1C: tutoring plan and study profiles (owner request, 30 Oct 2026) — built
-- Owner decisions: A$79/week per student; same room with a dedicated tutor; tutoring students' help requests go first; any session Mon–Thu; intake widened to Years 7–12.
+- Superseded on pricing by [comprehensive-brief-plan.md](comprehensive-brief-plan.md): A$149/week with one hour of tutoring per session attended.
+- Owner decisions at the time: A$79/week per student; same room with a dedicated tutor; tutoring students' help requests go first; any session Mon–Thu; intake widened to Years 7–12.
 - `plans.includes_tutoring`, `sessions.tutor_id` / `rooms.default_tutor_id` with the WWCC gate, `help_requests.priority` from the family's plan.
 - Study profiles: `subjects` reference list, `student_subjects` (taking / wants help), `students.study_note` (≤200 chars, schoolwork only; no SAC or exam dates). Required before buying the tutoring plan.
 - Staff roster per session (`session_roster()`), admin subject demand page, landing, onboarding and privacy-draft copy (privacy draft version bumped to `2026-10-draft-2`).

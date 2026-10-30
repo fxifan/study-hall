@@ -57,9 +57,9 @@ test("a parent pays in Stripe test mode, and cancelling removes access", async (
   await page.getByLabel(/privacy & child safety notice, and I consent/).check();
   await page.getByRole("button", { name: "Agree" }).click();
   await expect(page.getByTestId("consent-done")).toBeVisible();
-  await expect(page.getByTestId("checkout-summary").first()).toHaveText("1 × A$49 = A$49 per week");
+  await expect(page.getByTestId("checkout-summary").first()).toHaveText("1 × A$49 = A$49 per week, GST included");
 
-  // Stripe's hosted Checkout, test mode. The first plan is supervision (A$49).
+  // Stripe's hosted Checkout, test mode. The first plan is Supervised Study (A$49).
   await page.getByRole("button", { name: "Continue to secure payment" }).first().click();
   await page.waitForURL(/checkout\.stripe\.com/, { timeout: 30_000 });
   // Choose "Card" (Klarna is also offered). Its accordion button sits under a cover, so click the label.
@@ -83,7 +83,7 @@ test("a parent pays in Stripe test mode, and cancelling removes access", async (
   // Back on Study Hall: payment confirmed, child active and enrolled
   await page.waitForURL(/\/parent\?welcome=1/, { timeout: 90_000 });
   await expect(page.getByRole("status")).toContainText("Payment received");
-  await expect(page.getByTestId("billing")).toContainText("Unlimited weeknights · 1 × A$49 per week · renews");
+  await expect(page.getByTestId("billing")).toContainText("Supervised Study · 1 × A$49 per week, GST included · renews");
 
   const { data: sub } = await admin
     .from("subscriptions")

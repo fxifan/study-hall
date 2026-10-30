@@ -6,6 +6,7 @@ import { AppShell, AppShellFallback } from "@/components/app-shell";
 import { StudiesForm } from "@/components/studies-form";
 import { localizePath } from "@/i18n/config";
 import { fill } from "@/i18n/fill";
+import { helpScopeSummary } from "@/i18n/help-scope";
 import { getDictionary, getLocale } from "@/i18n/server";
 import { requireRole } from "@/lib/auth";
 import type { Subject } from "@/lib/subjects";
@@ -46,7 +47,13 @@ async function StudentStudies({ params }: Pick<PageProps<"/[lang]/parent/student
       </Link>
       <section className="flex flex-col gap-3 rounded-md border border-hair bg-sheet px-4 py-4">
         <h2 className="font-mono text-xs tracking-widest text-ink-soft uppercase">{t.studies.title}</h2>
-        <StudiesForm student={student} subjects={subjects ?? []} selected={student.student_subjects} t={t.studies} />
+        <StudiesForm
+          student={student}
+          subjects={subjects ?? []}
+          selected={student.student_subjects}
+          scope={helpScopeSummary(t.helpScope, locale)}
+          t={t.studies}
+        />
       </section>
     </AppShell>
   );
