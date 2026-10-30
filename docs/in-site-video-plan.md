@@ -66,15 +66,28 @@ Set these in the account settings and lock them, so no meeting can override them
 - **Breakouts:** keep "Allow participants to return to the main session at any time" on, so a student
   can always leave a breakout.
 
-### Small app change
+### Breakout log (built 30 Oct 2026)
 
-A breakout log on `/proctor/session/[id]` records start, end, tutor and students. It refuses a log
-with one adult and one student. The log:
+The "Breakouts" section on `/proctor/session/[id]` records start, end, the adult running the
+breakout, an optional second adult, and the students. It's built on migration
+`20261030034208_breakout_log.sql`.
 
-- gives an audit trail for breakouts;
-- counts each A$149 student's tutoring hour (Phase 4 in `comprehensive-brief-plan.md`).
+- **The rule in the database.** `public.start_breakout` refuses a breakout without either two
+  students or a second adult. Every adult needs a verified WWCC valid on the session day. The form
+  disables "Start breakout" until the group qualifies, and shows the rule above it.
+- **One breakout at a time.** A student or an adult can't be in two open breakouts at once.
+- **Session window.** Breakouts can be logged from 10 minutes before the start until the end, the
+  same window as check-in. Ending one after the session closes records the session's end time.
+- **Who can use it.** Only the session's supervisor and tutor, and org admins, can log or read
+  breakouts. Parents and students can't.
+- **Append-only.** No one can edit or delete a breakout through the app; it's a child-safety record.
+- **Breakout minutes.** The roster shows each student's breakout minutes for the session, towards the
+  A$149 plan's tutoring hour (Phase 4 in `comprehensive-brief-plan.md`).
+- **Tests:** unit (`src/lib/breakouts.test.ts`), database (`tests/rls/breakouts.test.ts`) and browser
+  (`tests/e2e/breakouts.spec.ts`).
 
-It needs one small table and no video integration.
+A change of group, for example a student leaving, is logged by ending the breakout and starting a new
+one.
 
 ### What it doesn't cover
 

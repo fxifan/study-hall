@@ -3,12 +3,18 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { AppShell, AppShellFallback } from "@/components/app-shell";
+import { Button } from "@/components/ui/button";
 import { localizePath } from "@/i18n/config";
+import type { Dictionary } from "@/i18n/dictionaries/en";
 import { fill } from "@/i18n/fill";
 import { getDateLocale, getDictionary, getLocale } from "@/i18n/server";
 import { requireRole } from "@/lib/auth";
+import { breakoutMinutes, breakoutMinutesByStudent, type LoggedBreakout } from "@/lib/breakouts";
+import { sessionWindow } from "@/lib/session-timer";
 import { createClient } from "@/lib/supabase/server";
 import { MELBOURNE, formatInZone } from "@/lib/time";
+import { endBreakout } from "../../actions";
+import { BreakoutForm } from "./breakout-form";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getDictionary()).roles.proctor };
@@ -44,20 +50,27 @@ async function SessionRoster({ params }: Pick<PageProps<"/[lang]/proctor/session
   ]);
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
   const supabase = await createClient();
-  // RLS: staff only see sessions they're assigned to; the roster function checks the same.
-  const [{ data: session }, { data: roster }] = await Promise.all([
-    supabase.from("sessions").select("id, starts_at, ends_at, rooms(name)").eq("id", id).maybeSingle<{
+  // RLS: staff only see sessions they're assigned to; the roster and breakout functions check the same.
+  const [{ data: session }, { data: roster }, { data: breakoutRows }, { data: adultRows }] = await Promise.all([
+    supabase.from("sessions").select("id, starts_at, ends_at, status, rooms(name)").eq("id", id).maybeSingle<{
       id: string;
       starts_at: string;
       ends_at: string;
+      status: string;
       rooms: { name: string } | null;
     }>(),
     supabase.rpc("session_roster", { p_session: id }),
+    supabase.rpc("session_breakouts", { p_session: id }),
+    supabase.rpc("breakout_adults", { p_session: id }),
   ]);
   if (!session) notFound();
   const s = t.proctor.session;
   const students: RosterRow[] = roster ?? [];
+  const breakouts: LoggedBreakout[] = breakoutRows ?? [];
+  const breakoutTotals = breakoutMinutesByStudent(breakouts, session.ends_at);
   const when = `${formatInZone(session.starts_at, t.formats.longDate, MELBOURNE, dateLocale)}, ${formatInZone(session.starts_at, t.formats.time, MELBOURNE, dateLocale)}`;
+  // Same window as check-in and public.start_breakout.
+  const open = session.status !== "cancelled" && sessionWindow(session.starts_at, session.ends_at).open;
 
   return (
     <AppShell profile={profile} title={`${session.rooms?.name ?? t.proctor.room} · ${when}`}>
@@ -67,6 +80,16 @@ async function SessionRoster({ params }: Pick<PageProps<"/[lang]/proctor/session
       <p className="font-mono text-sm text-ink-soft">
         {fill(s.summary, { count: students.length, tutoring: students.filter((r) => r.tutoring).length })}
       </p>
+      <Breakouts
+        sessionId={session.id}
+        endsAt={session.ends_at}
+        open={open}
+        breakouts={breakouts}
+        adults={adultRows ?? []}
+        students={students.map((r) => ({ id: r.student_id, name: `${r.first_name} ${r.last_initial}.` }))}
+        t={s.breakouts}
+        time={(iso) => formatInZone(iso, t.formats.time, MELBOURNE, dateLocale)}
+      />
       {students.length ? (
         <ul className="divide-y divide-rule rounded-md border border-hair bg-sheet" data-testid="roster">
           {students.map((r) => (
@@ -78,6 +101,11 @@ async function SessionRoster({ params }: Pick<PageProps<"/[lang]/proctor/session
                 <span className="font-mono text-xs text-ink-soft">{fill(t.student.year, { year: r.year_level })}</span>
                 {r.tutoring && (
                   <span className="rounded-full border border-pen-faint px-2 font-mono text-xs text-pen">{s.tutoring}</span>
+                )}
+                {(breakoutTotals.get(r.student_id) ?? 0) > 0 && (
+                  <span className="font-mono text-xs text-ink-soft">
+                    {fill(s.breakoutTime, { minutes: breakoutTotals.get(r.student_id) ?? 0 })}
+                  </span>
                 )}
               </div>
               {r.subjects.length ? (
@@ -108,5 +136,82 @@ async function SessionRoster({ params }: Pick<PageProps<"/[lang]/proctor/session
       )}
       <p className="text-xs text-ink-faint">{s.privacy}</p>
     </AppShell>
+  );
+}
+
+/** The Zoom breakout log: the rule, the form while the session runs, and what's been logged. */
+function Breakouts({
+  sessionId,
+  endsAt,
+  open,
+  breakouts,
+  adults,
+  students,
+  t,
+  time,
+}: {
+  sessionId: string;
+  endsAt: string;
+  open: boolean;
+  breakouts: LoggedBreakout[];
+  adults: { id: string; name: string; session_role: "tutor" | "supervisor" | null }[];
+  students: { id: string; name: string }[];
+  t: Dictionary["proctor"]["session"]["breakouts"];
+  time: (iso: string) => string;
+}) {
+  const busyStudentIds = breakouts.filter((b) => !b.ended_at).flatMap((b) => b.students.map((s) => s.id));
+  return (
+    <section className="flex flex-col gap-3 rounded-md border border-hair bg-sheet px-4 py-3" data-testid="breakouts">
+      <h2 className="font-medium">{t.heading}</h2>
+      <p className="text-sm font-medium text-pen">{t.rule}</p>
+      {open ? (
+        adults.length ? (
+          <>
+            <p className="text-sm text-ink-soft">{t.howTo}</p>
+            <BreakoutForm
+              key={breakouts.length}
+              sessionId={sessionId}
+              adults={adults}
+              students={students}
+              busyStudentIds={busyStudentIds}
+              t={t}
+            />
+          </>
+        ) : (
+          <p className="text-sm text-ink-soft">{t.noAdults}</p>
+        )
+      ) : (
+        <p className="text-sm text-ink-soft">{t.closed}</p>
+      )}
+      {breakouts.length ? (
+        <ul className="divide-y divide-rule border-t border-rule text-sm" data-testid="breakout-list">
+          {breakouts.map((b) => (
+            <li key={b.id} className="flex flex-wrap items-baseline gap-x-3 gap-y-1 py-2">
+              <span className="font-mono text-xs text-ink-soft">
+                {b.ended_at
+                  ? fill(t.range, { start: time(b.started_at), end: time(b.ended_at), minutes: breakoutMinutes(b, endsAt) })
+                  : fill(t.open, { start: time(b.started_at) })}
+              </span>
+              <span>{b.students.map((s) => s.name).join(", ")}</span>
+              <span className="text-ink-soft">
+                {b.second_adult_name
+                  ? fill(t.withSecond, { name: b.adult_name, second: b.second_adult_name })
+                  : fill(t.runBy, { name: b.adult_name })}
+              </span>
+              {!b.ended_at && (
+                <form action={endBreakout} className="ml-auto">
+                  <input type="hidden" name="breakoutId" value={b.id} />
+                  <Button type="submit" variant="outline" size="sm">
+                    {t.end}
+                  </Button>
+                </form>
+              )}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-sm text-ink-faint">{t.empty}</p>
+      )}
+    </section>
   );
 }
