@@ -10,4 +10,14 @@ describe("role areas", () => {
     expect(canEnterArea("parent", "student")).toBe(false);
     expect(roleForPath("/proctor/session/1")).toBe("proctor");
   });
+
+  it("gives independent tutors /app, and keeps them out of Study Hall's areas", () => {
+    expect(roleForPath("/app")).toBe("tutor");
+    expect(roleForPath("/app/log")).toBe("tutor");
+    expect(roleForPath("/apply")).toBeNull();
+    expect(roleForPath("/tutors")).toBeNull(); // the public tutor landing page
+    expect(canEnterArea("tutor", "tutor")).toBe(true);
+    expect(canEnterArea("tutor", "proctor")).toBe(false);
+    expect(canEnterArea("admin", "tutor")).toBe(false);
+  });
 });

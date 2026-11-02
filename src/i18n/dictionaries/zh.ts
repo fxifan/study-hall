@@ -12,7 +12,7 @@ export const zh: Dictionary = {
     logOut: "退出登录",
     phase: "第 {n} 阶段",
   },
-  roles: { parent: "家长", student: "学生", proctor: "监督老师", admin: "管理员" },
+  roles: { parent: "家长", student: "学生", proctor: "监督老师", admin: "管理员", tutor: "辅导老师" },
   studentStatus: { invited: "已邀请", active: "使用中", paused: "已暂停", cancelled: "已取消" },
   formats: { longDate: "M月d日 EEEE", time: "HH:mm" },
   landing: landingZh,
