@@ -76,3 +76,22 @@ export async function sendEmail({
   const body = (await response.json()) as { id?: string };
   return { delivered: true, id: body.id ?? "" };
 }
+
+/**
+ * How tutor reports and invoices reach families:
+ *   "own" (default): the tutor sends from their own email app (a pre-filled mailto: link, or the
+ *          phone's share sheet for the PDF), then confirms. No sending domain needed, and the email
+ *          comes from the tutor's own address.
+ *   "app": Study Hall sends through Resend. Needs RESEND_API_KEY and REPORTS_FROM_EMAIL on a
+ *          domain verified in Resend. Overdue reminders are only sent in this mode.
+ * Default is "app" only when a key is set and the sender isn't Resend's shared test address;
+ * TUTOR_EMAIL_MODE=app|own overrides (e.g. "app" to test with onboarding@resend.dev or the outbox).
+ */
+export type TutorEmailMode = "own" | "app";
+
+export function tutorEmailMode(): TutorEmailMode {
+  const forced = process.env.TUTOR_EMAIL_MODE;
+  if (forced === "app" || forced === "own") return forced;
+  const from = process.env.REPORTS_FROM_EMAIL ?? "";
+  return process.env.RESEND_API_KEY && from && !/@resend\.dev>?\s*$/i.test(from) ? "app" : "own";
+}

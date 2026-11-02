@@ -1,4 +1,4 @@
-import { renderEmail, type EmailBlock, type EmailSection, type RenderedEmail } from "@/lib/email/bilingual";
+import { plainTextBody, renderEmail, type EmailBlock, type EmailSection, type RenderedEmail } from "@/lib/email/bilingual";
 import { formatBsb, longDate, longDateZh, type InvoiceView } from "./invoice-data";
 import { formatCents } from "./invoice-math";
 
@@ -88,4 +88,13 @@ export function reminderEmail(invoice: InvoiceView): RenderedEmail {
     sections: sections(invoice, "reminder"),
     brand: name,
   });
+}
+
+/**
+ * The same invoice or reminder as plain text, for the tutor to send from their own email app with
+ * the PDF attached (while Study Hall has no verified sending domain).
+ */
+export function ownInvoiceEmail(invoice: InvoiceView, kind: "invoice" | "reminder"): { subject: string; body: string } {
+  const rendered = kind === "invoice" ? invoiceEmail(invoice) : reminderEmail(invoice);
+  return { subject: rendered.subject, body: plainTextBody(sections(invoice, kind), `Thanks,\n${invoice.seller.displayName}`) };
 }

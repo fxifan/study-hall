@@ -142,3 +142,16 @@ ${sections.map(sectionHtml).join(`\n${separator}\n`)}
   const text = `${sections.map(sectionText).join("\n\n---\n\n")}\n`;
   return { subject: fullSubject, html, text };
 }
+
+/**
+ * The plain-text body only, for an email the tutor sends from their own app (mailto: or share).
+ * No footer; language headings only when there's more than one language.
+ */
+export function plainTextBody(sections: EmailSection[], signOff?: string): string {
+  const parts = sections.map((section) => {
+    const lines = section.blocks.map((b) => blockText(b, section.colon));
+    return (sections.length > 1 ? [section.label, ...lines] : lines).join("\n\n");
+  });
+  const body = parts.join("\n\n---\n\n");
+  return signOff ? `${body}\n\n${signOff}` : body;
+}

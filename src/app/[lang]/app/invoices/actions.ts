@@ -2,7 +2,7 @@
 
 import { refresh } from "next/cache";
 import { z } from "zod";
-import { EmailError, sendEmail } from "@/lib/email/send";
+import { EmailError, sendEmail, tutorEmailMode } from "@/lib/email/send";
 import { createClient } from "@/lib/supabase/server";
 import { studentName } from "@/lib/tutor/format";
 import { loadInvoice, sellerSnapshot } from "@/lib/tutor/invoice-data";
@@ -113,6 +113,7 @@ export async function sendInvoice(id: string): Promise<ActionResult> {
   const me = await requireTutorAction();
   if (!canWork({ plan: me.tutor.plan, trialEndsAt: me.tutor.trial_ends_at })) return { ok: false, error: blockedMessage("trial_ended") };
   if (!z.uuid().safeParse(id).success) return { ok: false, error: "Invoice not found." };
+  if (tutorEmailMode() !== "app") return { ok: false, error: "Sending from Study Hall isn't set up. Send it from your own email." };
   const supabase = await createClient();
   const invoice = await loadInvoice(supabase, id, { tutor: me.tutor, email: me.profile.email });
   if (!invoice) return { ok: false, error: "Invoice not found." };
@@ -146,6 +147,34 @@ export async function sendInvoice(id: string): Promise<ActionResult> {
     console.error("Invoice email failed", e instanceof EmailError ? e.message : e);
     return { ok: false, error: "Couldn't send the invoice. Nothing was sent; try again." };
   }
+}
+
+/**
+ * The tutor emailed or shared the invoice themselves: fix its contents and mark it sent, exactly as
+ * sendInvoice does after Study Hall emails it.
+ */
+export async function markInvoiceSent(id: string): Promise<ActionResult> {
+  const me = await requireTutorAction();
+  if (!canWork({ plan: me.tutor.plan, trialEndsAt: me.tutor.trial_ends_at })) return { ok: false, error: blockedMessage("trial_ended") };
+  if (!z.uuid().safeParse(id).success) return { ok: false, error: "Invoice not found." };
+  const supabase = await createClient();
+  const invoice = await loadInvoice(supabase, id, { tutor: me.tutor, email: me.profile.email });
+  if (!invoice) return { ok: false, error: "Invoice not found." };
+  if (invoice.storedStatus !== "draft") return { ok: false, error: "This invoice has already been sent." };
+  if (!invoice.lines.length || invoice.totalCents <= 0) return { ok: false, error: "Add at least one line first." };
+  if (invoice.gstRegistered && !invoice.seller.abn) return { ok: false, error: "A tax invoice needs your ABN. Add it in Settings." };
+  const { error } = await supabase
+    .from("tutor_invoices")
+    .update({
+      status: "sent",
+      sent_at: new Date().toISOString(),
+      sent_to: `${invoice.family.parentEmail} (your email)`,
+      seller: sellerSnapshot(me.tutor, me.profile.email),
+    })
+    .eq("id", id);
+  if (error) return { ok: false, error: "Couldn't save." };
+  refresh();
+  return { ok: true, message: "Marked as sent." };
 }
 
 export async function setPaid(formData: FormData) {

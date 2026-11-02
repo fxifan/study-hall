@@ -7,6 +7,7 @@ import { langsFor, type Draft, type FamilyReportLang, type ReportBody } from "@/
 import type { ReportMeta } from "@/lib/report/render";
 import { createClient } from "@/lib/supabase/server";
 import { sessionWhen, shortWhen, studentName } from "@/lib/tutor/format";
+import { tutorEmailMode } from "@/lib/email/send";
 import { requireTutor } from "@/lib/tutor/server";
 import { formatInZone } from "@/lib/time";
 import { Loading, Notice, TutorShell, appHref, secondaryButton } from "../../_components/shell";
@@ -112,6 +113,7 @@ async function Report({ params, searchParams }: Pick<PageProps<"/[lang]/app/repo
         langs={langs}
         meta={meta}
         parentEmail={family.parent_email}
+        emailMode={tutorEmailMode()}
         sent={r.sent_at ? { at: formatInZone(r.sent_at, "d MMM yyyy, h:mmaaa"), to: r.sent_to ?? "" } : null}
       />
 

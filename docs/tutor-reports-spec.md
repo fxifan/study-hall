@@ -28,7 +28,7 @@ session on that family's next invoice. Budget: ≤ A$200/month total infrastruct
 | --- | --- | --- |
 | 1. Name and domain | Build the MVP inside Study Hall | Routes in this app: `/tutors` (landing), `/app/*` (tutor app), `/admin/costs` |
 | 2. Stripe Connect or bank transfer | Advertise the price, don't link Stripe | Bank transfer only; `src/lib/payments.ts` returns no payment link. Solo (A$15/month) is advertised; founders switch tutors to Solo at `/admin/costs` |
-| 3. Sending domain | Don't worry yet | Sent from `REPORTS_FROM_EMAIL` as "‹Tutor› via Study Hall", Reply-To the tutor |
+| 3. Sending domain | Don't worry yet; no domain verified until there's traction | Default: tutors send from their **own email** (pre-filled email, or the phone's share sheet with the invoice PDF attached), then tap "I've sent it". Once a domain is verified in Resend, Study Hall sends as "‹Tutor› via Study Hall" with Reply-To the tutor, and overdue reminders go out automatically (`tutorEmailMode()` in `src/lib/email/send.ts`) |
 | 4. Free plan limits | 14 days free instead of a report count | 14-day trial, then drafting, sending and invoicing pause until Solo. Fair use (300 AI drafts/month) applies to every plan |
 | 5. Shared report code | Reuse what you can | Same repo, so imported directly: the bilingual email layout (`src/lib/email/bilingual.ts`, generalised to 1–2 languages and a brand line), copy-to-clipboard hook, time helpers, auth/roles, report wording rules (ported into the prompt) |
 

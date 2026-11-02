@@ -1,4 +1,4 @@
-import { EmailError, sendEmail } from "@/lib/email/send";
+import { EmailError, sendEmail, tutorEmailMode } from "@/lib/email/send";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { OVERDUE_REMINDER_DAYS } from "@/lib/tutor/config";
 import { loadInvoice } from "@/lib/tutor/invoice-data";
@@ -10,6 +10,8 @@ import { addDaysToDateKey, dateKeyOf } from "@/lib/time";
  * Daily (vercel.json), the tutor product's only scheduled job (spec §7):
  *   1. Sent invoices past their due date (Melbourne) become overdue.
  *   2. One reminder per invoice, 7 days after the due date, unless the tutor turned reminders off.
+ *      Only when Study Hall sends email itself (tutorEmailMode() === "app"); until then tutors send
+ *      reminders from their own email, from the invoice page.
  * Vercel Cron sends "Authorization: Bearer <CRON_SECRET>"; anything else is refused.
  */
 export const maxDuration = 60;
@@ -29,6 +31,7 @@ export async function GET(request: Request) {
     .lt("due_date", today)
     .select("id");
   if (error) return Response.json({ error: error.message }, { status: 500 });
+  if (tutorEmailMode() !== "app") return Response.json({ overdue: overdue?.length ?? 0, reminded: 0, failed: [], reminders: "off: no sending domain" });
 
   const { data: due } = await admin
     .from("tutor_invoices")

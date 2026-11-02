@@ -6,12 +6,16 @@ import { getLocale } from "@/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import { hasCjk, longDate, loadInvoice } from "@/lib/tutor/invoice-data";
 import { formatCents } from "@/lib/tutor/invoice-math";
+import { ownInvoiceEmail } from "@/lib/tutor/invoice-email";
+import { invoiceFilename } from "@/lib/tutor/invoice-pdf";
+import { tutorEmailMode } from "@/lib/email/send";
 import { requireTutor } from "@/lib/tutor/server";
 import { formatInZone } from "@/lib/time";
 import { deleteInvoice, setPaid } from "../actions";
 import { Loading, Notice, TutorShell, appHref, primaryButton, secondaryButton } from "../../_components/shell";
 import { STATUS_STYLE } from "../../_components/styles";
 import { InvoiceEditor } from "./invoice-editor";
+import { OwnEmailSend } from "./own-send";
 
 export const metadata: Metadata = { title: "Invoice" };
 
@@ -30,6 +34,8 @@ async function Invoice({ params, searchParams }: Pick<PageProps<"/[lang]/app/inv
   const invoice = await loadInvoice(await createClient(), id, { tutor: me.tutor, email: me.profile.email });
   if (!invoice) notFound();
   const pdfHref = `/api/tutor/invoices/${invoice.id}/pdf`;
+  const own = tutorEmailMode() === "own";
+  const ownProps = { invoiceId: invoice.id, to: invoice.family.parentEmail, pdfHref, filename: invoiceFilename(invoice) };
 
   return (
     <TutorShell
@@ -75,6 +81,16 @@ async function Invoice({ params, searchParams }: Pick<PageProps<"/[lang]/app/inv
             gstRegistered={invoice.gstRegistered}
             parentEmail={invoice.family.parentEmail}
             pdfHref={pdfHref}
+            ownSend={
+              own ? (
+                <OwnEmailSend
+                  {...ownProps}
+                  {...ownInvoiceEmail(invoice, "invoice")}
+                  mode="invoice"
+                  disabled={invoice.gstRegistered && !invoice.seller.abn ? "Add your ABN in Settings before sending a tax invoice." : null}
+                />
+              ) : null
+            }
           />
           <form action={deleteInvoice}>
             <input type="hidden" name="id" value={invoice.id} />
@@ -124,6 +140,12 @@ async function Invoice({ params, searchParams }: Pick<PageProps<"/[lang]/app/inv
               </li>
             ))}
           </ul>
+          {own && invoice.status === "overdue" && (
+            <section className="flex flex-col gap-2">
+              <h2 className="font-medium">Send a reminder</h2>
+              <OwnEmailSend {...ownProps} {...ownInvoiceEmail(invoice, "reminder")} mode="reminder" />
+            </section>
+          )}
           <div className="grid grid-cols-2 gap-2">
             <form action={setPaid}>
               <input type="hidden" name="id" value={invoice.id} />

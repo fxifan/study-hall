@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, type ReactNode } from "react";
 import { computeLines, computeTotals, formatCents, type LineInput } from "@/lib/tutor/invoice-math";
 import { saveInvoice, sendInvoice } from "../actions";
 import { field, primaryButton, secondaryButton } from "../../_components/styles";
@@ -22,12 +22,15 @@ export function InvoiceEditor({
   gstRegistered,
   parentEmail,
   pdfHref,
+  ownSend,
 }: {
   id: string;
   initial: { issueDate: string; dueDate: string; lines: LineInput[] };
   gstRegistered: boolean;
   parentEmail: string;
   pdfHref: string;
+  /** Own-email mode: the share/download/mailto panel, built from the saved invoice. */
+  ownSend: ReactNode | null;
 }) {
   const [lines, setLines] = useState<EditLine[]>(initial.lines.map(toEdit));
   const [issueDate, setIssueDate] = useState(initial.issueDate);
@@ -129,23 +132,31 @@ export function InvoiceEditor({
           Preview PDF
         </a>
       </div>
-      <button
-        type="button"
-        className={primaryButton}
-        disabled={pending}
-        onClick={() => {
-          if (!window.confirm(`Email this invoice (${formatCents(totals.totalCents)}) to ${parentEmail}? It can't be edited afterwards.`)) return;
-          run(async () => {
-            if (dirty) {
-              const saved = await save();
-              if (!saved.ok) return saved;
-            }
-            return sendInvoice(id);
-          });
-        }}
-      >
-        {pending ? "Working…" : `Send to ${parentEmail}`}
-      </button>
+      {ownSend ? (
+        dirty ? (
+          <p className="text-sm text-ink-soft">Save your changes, then send it.</p>
+        ) : (
+          ownSend
+        )
+      ) : (
+        <button
+          type="button"
+          className={primaryButton}
+          disabled={pending}
+          onClick={() => {
+            if (!window.confirm(`Email this invoice (${formatCents(totals.totalCents)}) to ${parentEmail}? It can't be edited afterwards.`)) return;
+            run(async () => {
+              if (dirty) {
+                const saved = await save();
+                if (!saved.ok) return saved;
+              }
+              return sendInvoice(id);
+            });
+          }}
+        >
+          {pending ? "Working…" : `Send to ${parentEmail}`}
+        </button>
+      )}
     </div>
   );
 }

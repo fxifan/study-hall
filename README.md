@@ -193,17 +193,20 @@ decisions made are in [docs/tutor-reports-spec.md](docs/tutor-reports-spec.md).
 - **Log a session** at `/app/log`: pick the student, record a voice note (≤ 3 min, MediaRecorder) or
   type notes. `/api/tutor/draft` transcribes (audio is never stored), saves the transcript, then drafts
   the report (`src/lib/report`: schema, prompt, grounding, sensitive screen). The tutor edits English
-  and 中文 side by side at `/app/reports/<id>` and taps Send (email via Resend) or copies the text.
+  and 中文 side by side at `/app/reports/<id>`, then sends it from their own email app (or copies the
+  text for WeChat/WhatsApp). Once a sending domain is verified in Resend, Study Hall sends it instead.
 - **Invoices**: unbilled sessions per family (`/app/families/<id>`) → draft invoice → edit lines →
-  PDF (`@react-pdf/renderer`) emailed with bank-transfer details → mark paid. "Tax invoice" with GST
+  PDF (`@react-pdf/renderer`) with bank-transfer details, shared from the tutor's phone or own email
+  (or emailed by Study Hall once a domain is verified) → mark paid. "Tax invoice" with GST
   for GST-registered tutors, plain "Invoice" otherwise (`src/lib/tutor/invoice-math.ts`).
-- **Cron**: `/api/cron/tutor-invoices` (daily) marks overdue invoices and sends one reminder 7 days
-  after the due date unless the tutor turned reminders off.
+- **Cron**: `/api/cron/tutor-invoices` (daily) marks overdue invoices. With a verified sending domain it
+  also sends one reminder 7 days after the due date (unless the tutor turned reminders off); without
+  one, overdue invoices get a "Send a reminder" button that opens the tutor's own email.
 - **Founders**: `/admin/costs` shows monthly usage and estimated cost per active tutor, and switches
   tutors to Solo (no Stripe for tutors yet).
 - **Env**: `OPENAI_API_KEY`, `RESEND_API_KEY`, `REPORTS_FROM_EMAIL`, `TUTOR_DATA_KEY`, `CRON_SECRET`
-  (see `.env.example`). Without OpenAI/Resend keys, local dev uses a stand-in drafter and writes
-  emails to `email-previews/outbox/`.
+  (see `.env.example`; `TUTOR_EMAIL_MODE` picks own-email vs Study Hall sending). Without an OpenAI
+  key, local dev uses a stand-in drafter.
 - **Tests**: `npm test` (report schema, grounding, sensitive content, rendering, invoice maths, plans,
   encryption); `npm run test:rls` includes `tests/rls/tutor-isolation.test.ts` (tutor A can't see or
   touch tutor B's rows; sent invoices/reports are fixed); `npm run report:eval` runs the fixture notes

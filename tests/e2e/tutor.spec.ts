@@ -55,8 +55,12 @@ test("sign up, log a session, send the report, invoice it", async ({ page }) => 
   await page.click('button:has-text("Draft report")');
   await expect(page).toHaveURL(/\/app\/reports\//, { timeout: 30_000 });
   await expect(page.getByText("Session", { exact: false }).first()).toBeVisible();
-  await page.click('button:has-text("Send to")');
-  await expect(page.getByText(/Sent to|test mode/)).toBeVisible({ timeout: 15_000 });
+  // No sending domain locally: the report opens in the tutor's own email app, then they confirm.
+  const mail = page.getByRole("link", { name: /Open in my email/ });
+  await expect(mail).toHaveAttribute("href", new RegExp(`^mailto:parent-${email.replace(/[.]/g, "\\.")}\\?subject=Mia%20K\\.`));
+  await mail.click();
+  await page.click('button:has-text("I\'ve sent it")');
+  await expect(page.getByText(/Sent from your email to/)).toBeVisible({ timeout: 15_000 });
 
   // GST-registered, then invoice the session.
   await page.goto("/app/settings");
@@ -72,7 +76,9 @@ test("sign up, log a session, send the report, invoice it", async ({ page }) => 
   await expect(page.getByText("GST included")).toBeVisible();
   const pdf = await page.request.get(page.url().replace(/\/app\/invoices\/([^?]+).*/, "/api/tutor/invoices/$1/pdf"));
   expect(pdf.headers()["content-type"]).toBe("application/pdf");
-  await page.click('button:has-text("Send to")');
+  await expect(page.getByRole("link", { name: "1. Download PDF" })).toHaveAttribute("download", "Tax-invoice-INV-0001.pdf");
+  await page.getByRole("link", { name: "2. Open email" }).click();
+  await page.click('button:has-text("I\'ve sent it")');
   await expect(page.getByRole("button", { name: "Mark as paid" })).toBeVisible({ timeout: 20_000 });
   await page.click('button:has-text("Mark as paid")');
   await expect(page.getByText("Marked as paid.")).toBeVisible();

@@ -5,6 +5,7 @@ import { maskTail, tryDecrypt } from "@/lib/tutor/crypto";
 import { formatCents } from "@/lib/tutor/invoice-math";
 import { accessFor, draftsThisMonth, requireTutor } from "@/lib/tutor/server";
 import { formatInZone } from "@/lib/time";
+import { tutorEmailMode } from "@/lib/email/send";
 import { saveSettings } from "../actions";
 import { Loading, Notice, TutorShell, field, labelClass, primaryButton } from "../_components/shell";
 import { PlanBanner } from "../_components/plan-banner";
@@ -125,6 +126,12 @@ async function Settings({ searchParams }: Pick<PageProps<"/[lang]/app/settings">
             <input type="checkbox" name="reminders" value="on" defaultChecked={t.overdue_reminders} className="size-5" />
             Email one reminder to the family 7 days after an invoice is overdue
           </label>
+          {tutorEmailMode() === "own" && (
+            <p className="text-xs text-ink-soft">
+              Automatic reminders start once Study Hall sends email for you. For now, overdue invoices have a &quot;Send a reminder&quot; button
+              that opens your own email.
+            </p>
+          )}
         </section>
 
         <button type="submit" className={primaryButton}>

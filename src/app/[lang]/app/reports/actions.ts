@@ -6,7 +6,7 @@ import { LlmError, llmConfigured, openAiLlm } from "@/lib/llm";
 import { translateReport } from "@/lib/report/generate";
 import { reportEmail, type ReportMeta } from "@/lib/report/render";
 import { isEmptyContent, langsFor, reportBodySchema, reportContentSchema, type FamilyReportLang, type ReportBody } from "@/lib/report/schema";
-import { EmailError, sendEmail } from "@/lib/email/send";
+import { EmailError, sendEmail, tutorEmailMode } from "@/lib/email/send";
 import { createClient } from "@/lib/supabase/server";
 import { draftReport } from "@/lib/tutor/drafting";
 import { sessionWhen, studentName } from "@/lib/tutor/format";
@@ -95,6 +95,7 @@ export async function sendReport(id: string, body: ReportBody): Promise<ActionRe
   if (!canWork({ plan: me.tutor.plan, trialEndsAt: me.tutor.trial_ends_at })) return { ok: false, error: blockedMessage("trial_ended") };
   const parsed = reportBodySchema.safeParse(body);
   if (!idSchema.safeParse(id).success || !parsed.success) return { ok: false, error: "Some items are too long or empty." };
+  if (tutorEmailMode() !== "app") return { ok: false, error: "Sending from Study Hall isn't set up. Use \"Open in my email\"." };
   const { supabase, report } = await loadReport(id);
   if (!report) return { ok: false, error: "Report not found." };
   if (report.sent_at) return { ok: false, error: "This report has already been sent." };
@@ -136,21 +137,29 @@ export async function sendReport(id: string, body: ReportBody): Promise<ActionRe
   }
 }
 
-/** The tutor pasted it into WeChat/WhatsApp instead: record it as shared, so history shows it. */
-export async function markShared(id: string, body: ReportBody): Promise<ActionResult> {
+/**
+ * The tutor sent it themselves: pasted into WeChat/WhatsApp ("text"), or from their own email app
+ * ("email"). Records the final version as sent so history shows it.
+ */
+export async function markShared(id: string, body: ReportBody, via: "text" | "email" = "text"): Promise<ActionResult> {
   await requireTutorAction();
   const parsed = reportBodySchema.safeParse(body);
   if (!idSchema.safeParse(id).success || !parsed.success) return { ok: false, error: "Some items are too long or empty." };
   const { supabase, report } = await loadReport(id);
   if (!report || report.sent_at) return { ok: false, error: "Already sent." };
-  const langs = langsFor(report.tutor_sessions.tutor_students.tutor_families.report_lang);
+  const family = report.tutor_sessions.tutor_students.tutor_families;
+  const langs = langsFor(family.report_lang);
+  const final: ReportBody = Object.fromEntries(langs.map((l) => [l, parsed.data[l]]).filter(([, c]) => c));
+  if (langs.some((l) => !final[l] || isEmptyContent(final[l]!))) {
+    return { ok: false, error: langs.length > 1 ? "Fill in both languages first." : "The report is empty." };
+  }
   const { error } = await supabase
     .from("tutor_reports")
-    .update({ final_json: parsed.data, sent_at: new Date().toISOString(), sent_to: "copied as text", langs })
+    .update({ final_json: final, sent_at: new Date().toISOString(), sent_to: via === "email" ? `${family.parent_email} (your email)` : "copied as text", langs })
     .eq("id", report.id);
   if (error) return { ok: false, error: "Couldn't save." };
   refresh();
-  return { ok: true, message: "Marked as shared." };
+  return { ok: true, message: via === "email" ? "Marked as sent." : "Marked as shared." };
 }
 
 export async function deleteTranscript(formData: FormData) {

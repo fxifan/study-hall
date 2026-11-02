@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { useCopyText } from "@/components/report-cards";
-import { LABELS, reportText, type ReportMeta } from "@/lib/report/render";
+import { mailtoHref, MAILTO_SAFE_LENGTH } from "@/lib/mailto";
+import { LABELS, reportEmail, reportText, type ReportMeta } from "@/lib/report/render";
 import { WORD_LIMIT, wordCount, type ReportBody, type ReportContent, type ReportLang } from "@/lib/report/schema";
 import { markShared, saveReport, sendReport, translateAgain } from "../actions";
 import { field, primaryButton, secondaryButton } from "../../_components/styles";
@@ -34,6 +35,7 @@ export function ReportEditor({
   meta,
   parentEmail,
   sent,
+  emailMode,
 }: {
   reportId: string;
   initial: ReportBody;
@@ -41,6 +43,8 @@ export function ReportEditor({
   meta: ReportMeta;
   parentEmail: string;
   sent: { at: string; to: string } | null;
+  /** "own": the tutor sends from their own email app (no sending domain yet); "app": Study Hall sends. */
+  emailMode: "own" | "app";
 }) {
   // The English version is always kept: Chinese is translated from it.
   const shown: ReportLang[] = sent ? langs : (["en", ...langs.filter((l) => l !== "en")] as ReportLang[]);
@@ -49,6 +53,7 @@ export function ReportEditor({
   const [pending, start] = useTransition();
   const [copyState, copy] = useCopyText();
   const [dirty, setDirty] = useState(false);
+  const [opened, setOpened] = useState(false);
 
   const update = (lang: ReportLang, next: ReportContent) => {
     setBody((b) => ({ ...b, [lang]: next }));
@@ -64,12 +69,18 @@ export function ReportEditor({
 
   const sendBody: ReportBody = Object.fromEntries(langs.map((l) => [l, body[l]]));
   const text = reportText(tidy(sendBody), meta, langs);
+  const mailto = mailtoHref({ to: parentEmail, subject: reportEmail(tidy(sendBody), meta, langs).subject, body: text });
 
   if (sent) {
     return (
       <div className="flex flex-col gap-4">
         <p className="rounded-md border border-hair bg-sheet px-3 py-2 text-sm">
-          {sent.to === "copied as text" ? "Shared as text" : `Sent to ${sent.to}`} · {sent.at}
+          {sent.to === "copied as text"
+            ? "Shared as text"
+            : sent.to.endsWith("(your email)")
+              ? `Sent from your email to ${sent.to.replace(" (your email)", "")}`
+              : `Sent to ${sent.to}`}{" "}
+          · {sent.at}
         </p>
         <pre className="rounded-lg border border-hair bg-sheet p-4 font-sans text-sm whitespace-pre-wrap">{text}</pre>
         <button type="button" className={secondaryButton} onClick={() => copy(text)}>
@@ -115,16 +126,41 @@ export function ReportEditor({
       )}
 
       <div className="sticky bottom-16 flex flex-col gap-2 rounded-lg border border-hair bg-paper/95 p-3 backdrop-blur sm:bottom-2">
-        <button
-          type="button"
-          className={primaryButton}
-          disabled={pending}
-          onClick={() => {
-            if (window.confirm(`Send this report to ${parentEmail}?`)) run(() => sendReport(reportId, tidy(body)));
-          }}
-        >
-          {pending ? "Working…" : `Send to ${parentEmail}`}
-        </button>
+        {emailMode === "app" ? (
+          <button
+            type="button"
+            className={primaryButton}
+            disabled={pending}
+            onClick={() => {
+              if (window.confirm(`Send this report to ${parentEmail}?`)) run(() => sendReport(reportId, tidy(body)));
+            }}
+          >
+            {pending ? "Working…" : `Send to ${parentEmail}`}
+          </button>
+        ) : opened ? (
+          <div className="grid grid-cols-[1fr_auto] gap-2">
+            <button type="button" className={primaryButton} disabled={pending} onClick={() => run(() => markShared(reportId, tidy(body), "email"))}>
+              {pending ? "Working…" : "I've sent it"}
+            </button>
+            <a className={secondaryButton} href={mailto}>
+              Open again
+            </a>
+          </div>
+        ) : (
+          <a
+            className={primaryButton}
+            href={mailto}
+            onClick={() => {
+              setOpened(true);
+              if (dirty) run(() => saveReport(reportId, tidy(body)));
+            }}
+          >
+            Open in my email (to {parentEmail})
+          </a>
+        )}
+        {emailMode === "own" && text.length > MAILTO_SAFE_LENGTH && (
+          <p className="text-xs text-ink-soft">Long report: if your email app cuts it off, use Copy text and paste it instead.</p>
+        )}
         <div className="grid grid-cols-3 gap-2">
           <button type="button" className={secondaryButton} disabled={pending || !dirty} onClick={() => run(() => saveReport(reportId, tidy(body)))}>
             {dirty ? "Save" : "Saved"}
