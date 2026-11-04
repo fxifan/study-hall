@@ -92,3 +92,50 @@ test("a parent can't use the tutor app", async ({ page }) => {
   await expect(page).toHaveURL(/\/parent/);
   expect((await page.request.post("/api/tutor/draft", { multipart: { notes: "x" } })).status()).toBe(401);
 });
+
+test("dashboard: /tutors opens it, schedule a lesson, save and copy a Zoom link, calendar feed", async ({ page, context }) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  const dashEmail = `e2e-dash-${Date.now()}@studyhall.test`;
+  const { data: org } = await admin.from("orgs").select("id").limit(1).single();
+  const user = await admin.auth.admin.createUser({ email: dashEmail, email_confirm: true, app_metadata: { role: "tutor", org_id: org!.id } });
+  const id = user.data.user!.id;
+  try {
+    await admin.from("tutors").insert({ id, display_name: "Dana Tutor" });
+    const fam = await admin.from("tutor_families").insert({ tutor_id: id, parent_name: "P", parent_email: `p-${dashEmail}` }).select("id").single();
+    await admin.from("tutor_students").insert({ tutor_id: id, family_id: fam.data!.id, first_name: "Zoe", last_initial: "Q", year_level: 10, subjects: ["Biology"], goals: "Cell biology" });
+    const { data } = await admin.auth.admin.generateLink({ type: "magiclink", email: dashEmail });
+    await page.goto(`/auth/confirm?token_hash=${data.properties!.hashed_token}&type=magiclink`);
+
+    await page.goto("/tutors");
+    await expect(page).toHaveURL(/\/app$/);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Dana");
+    await expect(page.getByText("Cell biology")).toBeVisible();
+
+    await page.getByRole("button", { name: "Schedule a lesson" }).first().click();
+    const dialog = page.locator("dialog[open]");
+    await dialog.locator("select").first().selectOption({ label: "Zoe Q." });
+    await dialog.locator('input[type="time"]').fill("23:30");
+    await dialog.getByRole("button", { name: "Schedule" }).click();
+    await expect(page.locator("dialog[open]")).toHaveCount(0);
+    await expect(page.locator('button[title^="Zoe Q., 11:30pm"]:visible')).toHaveCount(1);
+
+    const links = page.locator("#meeting-links");
+    await page.getByRole("button", { name: "Add a meeting link" }).click();
+    await links.locator("#new-link-url").fill("https://example.com/meeting");
+    await links.getByPlaceholder("My regular classroom").fill("Zoe's room");
+    await links.getByRole("button", { name: "Save link" }).click();
+    await expect(links.getByText("Only Zoom links")).toBeVisible();
+    await links.locator("#new-link-url").fill("https://zoom.us/j/1234567890");
+    await links.getByRole("button", { name: "Save link" }).click();
+    await expect(links.getByText("Zoe's room")).toBeVisible();
+    await links.getByRole("button", { name: "Copy" }).click();
+    await expect(links.getByText("Copied ✓")).toBeVisible();
+
+    await page.getByRole("button", { name: "Set up calendar link" }).click();
+    const webcal = await page.getByRole("link", { name: "Add to Apple Calendar" }).getAttribute("href");
+    const ics = await (await page.request.get(webcal!.replace("webcal://", "http://"))).text();
+    expect(ics).toContain("SUMMARY:Tutoring: Zoe Q. (Biology)");
+  } finally {
+    await admin.auth.admin.deleteUser(id);
+  }
+});

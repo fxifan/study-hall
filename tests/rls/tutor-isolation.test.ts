@@ -77,7 +77,18 @@ afterAll(async () => {
   for (const t of [a, b]) if (t) await admin.auth.admin.deleteUser(t.id); // cascades to every tutor_* row
 });
 
-const TABLES = ["tutors", "tutor_families", "tutor_students", "tutor_sessions", "tutor_reports", "tutor_invoices", "tutor_invoice_lines", "tutor_usage_events"];
+const TABLES = [
+  "tutors",
+  "tutor_families",
+  "tutor_students",
+  "tutor_sessions",
+  "tutor_reports",
+  "tutor_invoices",
+  "tutor_invoice_lines",
+  "tutor_usage_events",
+  "tutor_lessons",
+  "tutor_meeting_links",
+];
 
 describe("tutor isolation", () => {
   it("tutor A reads only their own rows in every tutor table", async () => {
@@ -212,5 +223,42 @@ describe("invoices", () => {
     expect(rewrite.error?.code).toBe("42501");
     const forget = await a.client.from("tutor_reports").update({ transcript: null }).eq("id", a.reportId);
     expect(forget.error).toBeNull();
+  });
+});
+
+describe("dashboard: lessons, meeting links, calendar feed", () => {
+  it("tutor A can't see, schedule for, or link to tutor B's students and links", async () => {
+    const bLink = await b.client
+      .from("tutor_meeting_links")
+      .insert({ tutor_id: b.id, name: "B room", url: "https://zoom.us/j/1234567890" })
+      .select("id")
+      .single();
+    expect(bLink.error).toBeNull();
+    const bLesson = await b.client
+      .from("tutor_lessons")
+      .insert({ tutor_id: b.id, student_id: b.studentId, starts_at: new Date().toISOString(), duration_min: 60, meeting_link_id: bLink.data!.id })
+      .select("id")
+      .single();
+    expect(bLesson.error).toBeNull();
+
+    expect((await a.client.from("tutor_lessons").select("id").eq("id", bLesson.data!.id)).data).toEqual([]);
+    expect((await a.client.from("tutor_meeting_links").select("id").eq("id", bLink.data!.id)).data).toEqual([]);
+    const forB = await a.client.from("tutor_lessons").insert({ tutor_id: a.id, student_id: b.studentId, starts_at: new Date().toISOString(), duration_min: 60 });
+    expect(forB.error).not.toBeNull();
+    const withBLink = await a.client
+      .from("tutor_lessons")
+      .insert({ tutor_id: a.id, student_id: a.studentId, starts_at: new Date().toISOString(), duration_min: 60, meeting_link_id: bLink.data!.id });
+    expect(withBLink.error).not.toBeNull();
+    const claimSession = await a.client
+      .from("tutor_lessons")
+      .insert({ tutor_id: a.id, student_id: a.studentId, starts_at: new Date().toISOString(), duration_min: 60, session_id: b.sessionId });
+    expect(claimSession.error).not.toBeNull();
+    const move = await a.client.from("tutor_lessons").update({ duration_min: 15 }).eq("id", bLesson.data!.id).select("id");
+    expect(move.data).toEqual([]);
+  });
+
+  it("tutors can't set their own calendar feed token (it's the feed's credential)", async () => {
+    const set = await a.client.from("tutors").update({ calendar_feed_token: "a".repeat(32) }).eq("id", a.id);
+    expect(set.error?.code).toBe("42501");
   });
 });

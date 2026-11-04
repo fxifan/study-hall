@@ -27,17 +27,22 @@ export function LogForm({
   initialStudentId,
   reportPath,
   blocked,
+  lessonId = null,
+  initialSubjects = null,
 }: {
   students: LogStudent[];
   defaults: { date: string; startTime: string; durationMin: number };
   initialStudentId: string | null;
   reportPath: string;
   blocked: string | null;
+  /** Logging a scheduled lesson: the lesson is marked done once the session is saved. */
+  lessonId?: string | null;
+  initialSubjects?: string[] | null;
 }) {
   const router = useRouter();
   const [studentId, setStudentId] = useState(initialStudentId ?? (students.length === 1 ? students[0].id : ""));
   const student = students.find((s) => s.id === studentId);
-  const [subjects, setSubjects] = useState<string[]>(student?.subjects.slice(0, 1) ?? []);
+  const [subjects, setSubjects] = useState<string[]>(initialSubjects ?? student?.subjects.slice(0, 1) ?? []);
   const [otherSubject, setOtherSubject] = useState("");
   const [date, setDate] = useState(defaults.date);
   const [startTime, setStartTime] = useState(defaults.startTime);
@@ -122,6 +127,7 @@ export function LogForm({
     body.set("durationMin", String(duration));
     body.set("subjects", [...subjects, ...otherSubject.split(",")].map((s) => s.trim()).filter(Boolean).join(","));
     body.set("notes", notes);
+    if (lessonId) body.set("lessonId", lessonId);
     if (audio) {
       body.set("audio", audio.blob, "note");
       body.set("audioSeconds", String(Math.round(audio.seconds)));

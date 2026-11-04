@@ -47,8 +47,10 @@ export function openAiLlm(): Llm {
         signal: AbortSignal.timeout(45_000),
       });
       if (!response.ok) {
-        // The body can echo the request; log the status only.
-        throw new LlmError(`Drafting service error (${response.status}).`);
+        // Keep only OpenAI's error type and code (e.g. invalid_api_key, model_not_found,
+        // insufficient_quota): the message can echo part of the key or the request.
+        const err = ((await response.json().catch(() => null)) as { error?: { type?: string; code?: string } } | null)?.error;
+        throw new LlmError(`Drafting service error (${response.status} ${err?.code ?? err?.type ?? "unknown"}).`);
       }
       const body = (await response.json()) as {
         model?: string;

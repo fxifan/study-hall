@@ -45,6 +45,10 @@ export function AddStudentForm({
         </label>
       </div>
       <label className={labelClass}>
+        What they need help with (optional)
+        <input name="goals" className={field} maxLength={300} placeholder="e.g. Exam technique for SACs; chain rule; essay structure" />
+      </label>
+      <label className={labelClass}>
         Notes (optional, private to you)
         <input name="notes" className={field} maxLength={500} placeholder="e.g. Tuesdays 4pm, prefers worked examples" />
       </label>
