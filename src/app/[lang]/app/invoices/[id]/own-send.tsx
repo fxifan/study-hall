@@ -65,7 +65,7 @@ export function OwnEmailSend({
   if (disabled) return <p className="text-sm text-ink-soft">{disabled}</p>;
 
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-hair bg-sheet p-3">
+    <div className="flex flex-col gap-2 dash-card p-3">
       <p className="text-sm text-ink-soft">
         Send it from your own email to <strong className="text-ink">{to}</strong>, with the PDF attached.
       </p>

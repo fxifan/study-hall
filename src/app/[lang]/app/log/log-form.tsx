@@ -209,7 +209,7 @@ export function LogForm({
         </div>
       </fieldset>
 
-      <section aria-label="Voice note" className="flex flex-col items-center gap-3 rounded-lg border border-hair bg-sheet p-5 text-center">
+      <section aria-label="Voice note" className="flex flex-col items-center gap-3 dash-card p-5 text-center">
         {recording ? (
           <>
             <p className="font-mono text-3xl tabular-nums" aria-live="polite">

@@ -135,7 +135,7 @@ async function StudentHome({ searchParams }: Pick<PageProps<"/[lang]/student">, 
         </p>
       )}
 
-      <section className="flex flex-col gap-3 rounded-md border border-hair bg-sheet p-5" data-testid="today">
+      <section className="flex flex-col gap-3 dash-card p-5" data-testid="today">
         <p className="font-mono text-xs tracking-widest text-ink-soft uppercase">
           {fill(s.today, { room: session.rooms?.name ?? "" })}
         </p>
@@ -188,7 +188,7 @@ async function StudentHome({ searchParams }: Pick<PageProps<"/[lang]/student">, 
             {[1, 2, 3].map((n) => {
               const goal = goals?.find((g) => g.position === n);
               return (
-                <fieldset key={n} className="grid gap-2 rounded-md border border-hair bg-sheet p-3 sm:grid-cols-[10rem_1fr]">
+                <fieldset key={n} className="grid gap-2 dash-card p-3 sm:grid-cols-[10rem_1fr]">
                   <legend className="px-1 font-mono text-xs text-ink-soft">{fill(s.goals.placeholder, { n })}</legend>
                   <Input name={`subject${n}`} list="my-subjects" maxLength={60} aria-label={`${s.goals.subject} ${n}`} placeholder={s.goals.subject} defaultValue={goal?.subject ?? ""} />
                   <Input
@@ -221,7 +221,7 @@ async function StudentHome({ searchParams }: Pick<PageProps<"/[lang]/student">, 
           <form action={markGoals} className="flex flex-col gap-4">
             <p className="text-sm text-ink-soft">{s.goals.outcomeIntro}</p>
             {goals?.map((g) => (
-              <fieldset key={g.id} className="flex flex-col gap-2 rounded-md border border-hair bg-sheet p-4">
+              <fieldset key={g.id} className="flex flex-col gap-2 dash-card p-4">
                 <legend className="px-1">
                   {g.subject && <span className="text-ink-soft">{g.subject} · </span>}
                   {g.text}
@@ -279,7 +279,7 @@ async function StudentHome({ searchParams }: Pick<PageProps<"/[lang]/student">, 
           {requests?.length ? (
             <>
               <h3 className="font-mono text-xs tracking-widest text-ink-soft uppercase">{s.help.yours}</h3>
-              <ul className="divide-y divide-rule rounded-md border border-hair bg-sheet">
+              <ul className="divide-y divide-rule dash-card">
                 {requests.map((r) => (
                   <li key={r.id} className="flex flex-col gap-2 px-4 py-3">
                     <div className="flex justify-between gap-4">
@@ -315,7 +315,7 @@ async function StudentHome({ searchParams }: Pick<PageProps<"/[lang]/student">, 
       )}
 
       {rules && (
-        <details className="rounded-md border border-hair bg-sheet px-4 py-3">
+        <details className="dash-card px-4 py-3">
           <summary className="cursor-pointer">{s.rulesTitle}</summary>
           <ol lang="en" className="mt-2 list-decimal pl-6 text-sm leading-relaxed">
             {rules.body

@@ -117,7 +117,7 @@ async function Report({ params, searchParams }: Pick<PageProps<"/[lang]/app/repo
         sent={r.sent_at ? { at: formatInZone(r.sent_at, "d MMM yyyy, h:mmaaa"), to: r.sent_to ?? "" } : null}
       />
 
-      <details className="rounded-lg border border-hair bg-sheet px-4 py-3 text-sm">
+      <details className="dash-card px-4 py-3 text-sm">
         <summary className="cursor-pointer">Your {r.source === "voice" ? "transcript" : "notes"} (private)</summary>
         {r.transcript ? (
           <>

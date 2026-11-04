@@ -46,7 +46,7 @@ async function Students({ searchParams }: Pick<PageProps<"/[lang]/app/students">
       {families?.length ? (
         <ul className="flex flex-col gap-3">
           {families.map((f) => (
-            <li key={f.id} className="rounded-lg border border-hair bg-sheet">
+            <li key={f.id} className="dash-card">
               <Link href={appHref(`/app/families/${f.id}`, locale)} className="flex items-baseline justify-between gap-3 border-b border-rule px-4 py-2.5">
                 <span className="font-medium">{f.parent_name}</span>
                 <span className="text-xs text-ink-soft">{LANG_LABELS[f.report_lang]} · invoices →</span>

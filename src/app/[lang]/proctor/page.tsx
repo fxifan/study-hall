@@ -87,7 +87,7 @@ async function ProctorHome() {
         {formatInZone(start, t.formats.longDate, MELBOURNE, dateLocale)} · {t.proctor.melbourneTime}
       </p>
       {todays.length ? (
-        <ul className="divide-y divide-rule rounded-md border border-hair bg-sheet" data-testid="today-sessions">
+        <ul className="divide-y divide-rule dash-card" data-testid="today-sessions">
           {todays.map((s) => row(s, false))}
         </ul>
       ) : (
@@ -96,7 +96,7 @@ async function ProctorHome() {
       <section className="flex flex-col gap-3">
         <h2 className="text-xl font-medium">{t.proctor.upcoming}</h2>
         {later.length ? (
-          <ul className="divide-y divide-rule rounded-md border border-hair bg-sheet" data-testid="upcoming-sessions">
+          <ul className="divide-y divide-rule dash-card" data-testid="upcoming-sessions">
             {later.map((s) => row(s, true))}
           </ul>
         ) : (

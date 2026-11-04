@@ -10,7 +10,7 @@ export function SignUpForm({ termsHref, privacyHref, loginHref }: { termsHref: s
   const [state, action, pending] = useActionState<SignUpState, FormData>(signUpTutor, { status: "idle" });
   if (state.status === "sent") {
     return (
-      <p role="status" className="rounded-lg border border-hair bg-sheet p-4">
+      <p role="status" className="dash-card p-4">
         Check <strong>{state.email}</strong> for a sign-in link. Open it on this phone or computer to start your 14-day free trial.
       </p>
     );

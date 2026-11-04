@@ -29,7 +29,7 @@ export function StudiesForm({
       <p className="text-sm text-ink-soft">{t.intro}</p>
       <p className="text-sm text-ink-soft">{fill(t.scope, { subjects: scope })}</p>
       {stages.map((stage) => (
-        <fieldset key={stage} className="rounded-md border border-hair bg-sheet">
+        <fieldset key={stage} className="dash-card">
           <legend className="ml-3 px-1 font-mono text-xs tracking-widest text-ink-soft uppercase">{t[stage]}</legend>
           <table className="w-full text-sm">
             <thead>

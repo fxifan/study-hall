@@ -90,7 +90,7 @@ async function Family({ params, searchParams }: Pick<PageProps<"/[lang]/app/fami
         <h2 className="text-lg font-medium">Unbilled sessions</h2>
         {unbilled?.length ? (
           <>
-            <ul className="divide-y divide-rule rounded-lg border border-hair bg-sheet text-sm">
+            <ul className="divide-y divide-rule dash-card text-sm">
               {unbilled.map((s) => (
                 <li key={s.id} className="flex items-center justify-between gap-3 px-4 py-2.5">
                   <span>
@@ -112,7 +112,7 @@ async function Family({ params, searchParams }: Pick<PageProps<"/[lang]/app/fami
             <p className="text-sm text-ink-soft">
               {unbilled.length} {unbilled.length === 1 ? "session" : "sessions"}, {formatCents(total)}
             </p>
-            <form action={createInvoice} className="flex flex-col gap-3 rounded-lg border border-hair bg-sheet p-4">
+            <form action={createInvoice} className="flex flex-col gap-3 dash-card p-4">
               <input type="hidden" name="familyId" value={f.id} />
               <div className="grid grid-cols-2 gap-2">
                 <label className={labelClass}>
@@ -138,7 +138,7 @@ async function Family({ params, searchParams }: Pick<PageProps<"/[lang]/app/fami
       <section className="flex flex-col gap-2">
         <h2 className="text-lg font-medium">Invoices</h2>
         {f.tutor_invoices.length ? (
-          <ul className="divide-y divide-rule rounded-lg border border-hair bg-sheet">
+          <ul className="divide-y divide-rule dash-card">
             {f.tutor_invoices
               .toSorted((a, b) => b.number - a.number)
               .map((i) => {
@@ -162,7 +162,7 @@ async function Family({ params, searchParams }: Pick<PageProps<"/[lang]/app/fami
 
       <section className="flex flex-col gap-2">
         <h2 className="text-lg font-medium">Family details</h2>
-        <form action={updateFamily} className="flex flex-col gap-3 rounded-lg border border-hair bg-sheet p-4">
+        <form action={updateFamily} className="flex flex-col gap-3 dash-card p-4">
           <input type="hidden" name="id" value={f.id} />
           <label className={labelClass}>
             Parent&apos;s name

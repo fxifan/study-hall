@@ -97,7 +97,7 @@ async function Students({ searchParams }: Pick<PageProps<"/[lang]/admin/students
         </Button>
       </form>
       {rows.length ? (
-        <div className="overflow-x-auto rounded-md border border-hair bg-sheet">
+        <div className="overflow-x-auto dash-card">
           <table className="w-full text-sm" data-testid="students">
             <thead>
               <tr className="border-b border-rule text-left text-ink-soft">

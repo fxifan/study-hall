@@ -1,14 +1,11 @@
 /*
- * Tutor dashboard refinement: same layout, navy + cream + Newsreader, with depth and one warm
- * accent (coral, from the Study Hall pen). Scoped to `.dash` so the rest of the site is unchanged
- * until this direction is rolled out.
- *
- * Inside `.dash` the brand variables are re-pointed (surfaces a step lighter than the page, softer
- * secondary text with better contrast, coral as --pen), so existing utilities like bg-sheet,
- * text-ink-soft and border-hair pick up the refined palette without touching every class.
+ * Site-wide UI components for the refined Study Hall look (Nov 2026): buttons (primary coral,
+ * secondary raised, tertiary text), cards, pills, fields, metric cards, the tutor calendar and
+ * dialogs. Tokens are --dash-* on :root (light and dark); brand tokens live in globals.css.
+ * First built for the tutor dashboard, then rolled out to the whole site.
  */
 
-.dash {
+:root {
   /* Light theme */
   --dash-page: #f6f2e8;
   --dash-surface: #fffdf8;
@@ -34,18 +31,10 @@
   --dash-ui: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, var(--font-cjk), sans-serif;
   --dash-ease: cubic-bezier(0.2, 0.7, 0.3, 1);
 
-  --sheet: var(--dash-surface);
-  --paper-deep: var(--dash-surface-2);
-  --ink: var(--dash-text);
-  --ink-soft: var(--dash-text-2);
-  --ink-faint: var(--dash-text-3);
-  --hair: var(--dash-border);
-  --rule: var(--dash-border);
-  --pen: var(--dash-accent-text);
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .dash {
+  :root:not([data-theme="light"]) {
     --dash-page: #111a28;
     --dash-surface: #19263c;
     --dash-surface-2: #1f2e48;
@@ -65,7 +54,7 @@
     --dash-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.045);
   }
 }
-:root[data-theme="dark"] .dash {
+:root[data-theme="dark"] {
   --dash-page: #111a28;
   --dash-surface: #19263c;
   --dash-surface-2: #1f2e48;
@@ -85,7 +74,13 @@
   --dash-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.045);
 }
 
-.dash :focus-visible {
+/* Inside the tutor dashboard, borders and quiet fills use the softer surface tokens. */
+.dash {
+  --rule: var(--dash-border);
+  --paper-deep: var(--dash-surface-2);
+}
+
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
   outline: 2px solid var(--dash-accent);
   outline-offset: 2px;
 }
@@ -547,8 +542,8 @@ a.dash-pill:hover {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .dash *,
-  .dash *::before,
+  [class*="dash-"],
+  [class*="dash-"]::before,
   .dash dialog[open] {
     transition: none !important;
     animation: none !important;
@@ -558,4 +553,11 @@ a.dash-pill:hover {
   .dash-event:hover {
     transform: none;
   }
+}
+
+/* Native checkboxes, radios and range inputs take the accent. */
+input[type="checkbox"],
+input[type="radio"],
+input[type="range"] {
+  accent-color: var(--coral);
 }

@@ -19,7 +19,7 @@ export function PlanBanner({ access }: { access: Access }) {
   }
   if (access.plan === "trial" && access.trialDaysLeft !== null) {
     return (
-      <p className="rounded-md border border-hair bg-sheet px-3 py-2 text-sm">
+      <p className="dash-card px-3 py-2 text-sm">
         Free trial: {access.trialDaysLeft} {access.trialDaysLeft === 1 ? "day" : "days"} left. Then Solo is {formatCents(PLANS.solo.priceCentsPerMonth)}/month.
       </p>
     );

@@ -69,12 +69,12 @@ async function ParentHome({ searchParams }: Pick<PageProps<"/[lang]/parent">, "s
   return (
     <AppShell profile={profile} title={t.parent.heading}>
       {query.welcome === "1" && subscription && (
-        <p role="status" className="rounded-md border border-hair bg-sheet px-4 py-3">
+        <p role="status" className="dash-card px-4 py-3">
           {b.welcome}
         </p>
       )}
       {students?.length ? (
-        <ul className="divide-y divide-rule rounded-md border border-hair bg-sheet" data-testid="student-list">
+        <ul className="divide-y divide-rule dash-card" data-testid="student-list">
           {students.map((s) => (
             <li key={s.id} className="flex items-baseline justify-between gap-4 px-4 py-3">
               <span>
@@ -96,7 +96,7 @@ async function ParentHome({ searchParams }: Pick<PageProps<"/[lang]/parent">, "s
         <p className="text-ink-soft">{t.parent.empty}</p>
       )}
 
-      <section className="flex flex-col gap-3 rounded-md border border-hair bg-sheet px-4 py-4" data-testid="billing">
+      <section className="flex flex-col gap-3 dash-card px-4 py-4" data-testid="billing">
         <h2 className="font-mono text-xs tracking-widest text-ink-soft uppercase">{b.title}</h2>
         {subscription?.plans ? (
           <>

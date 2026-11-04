@@ -45,7 +45,7 @@ async function StudentStudies({ params }: Pick<PageProps<"/[lang]/parent/student
       <Link href={localizePath("/parent", locale)} className="text-sm text-ink-soft underline-offset-4 hover:underline">
         ← {t.parent.back}
       </Link>
-      <section className="flex flex-col gap-3 rounded-md border border-hair bg-sheet px-4 py-4">
+      <section className="flex flex-col gap-3 dash-card px-4 py-4">
         <h2 className="font-mono text-xs tracking-widest text-ink-soft uppercase">{t.studies.title}</h2>
         <StudiesForm
           student={student}

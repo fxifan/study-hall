@@ -19,7 +19,6 @@ import type { DashDay, DashItem, DashLink } from "./_dashboard/types";
 import { PlanBanner } from "./_components/plan-banner";
 import { TutorShell, appHref, yearLabel } from "./_components/shell";
 import { CalendarClock, CalendarDays, Users, Wallet, type LucideIcon } from "lucide-react";
-import "./_dashboard/dashboard.css";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
