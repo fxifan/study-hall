@@ -52,7 +52,7 @@ test.afterAll(async () => {
   }
 });
 
-test("a student sets goals, joins, asks for help, marks goals and leaves", async ({ page, context }) => {
+test("a student sets goals, joins, asks for help, marks goals and leaves", async ({ page }) => {
   const { data, error } = await admin.auth.admin.generateLink({ type: "magiclink", email: seedEmail("studentA") });
   if (error) throw error;
   await page.goto(`/auth/confirm?token_hash=${data.properties.hashed_token}&type=magiclink`);
@@ -69,11 +69,11 @@ test("a student sets goals, joins, asks for help, marks goals and leaves", async
   await page.getByRole("button", { name: "Save goals" }).click();
   const join = page.getByRole("link", { name: "Join session" });
   await expect(join).toHaveAttribute("target", "_blank");
-  // Don't load the external page in the test; check where the check-in route sends us instead.
-  await context.route(`${VIDEO_URL}**`, (route) => route.fulfill({ status: 200, body: "video room" }));
-  const [popup] = await Promise.all([context.waitForEvent("page"), join.click()]);
-  await popup.waitForURL(VIDEO_URL);
-  await popup.close();
+  // Follow the link without loading the external page: the join route records check-in, then
+  // redirects to the room's video link.
+  const res = await page.request.get((await join.getAttribute("href"))!, { maxRedirects: 0 });
+  expect(res.status()).toBe(307);
+  expect(res.headers().location).toBe(VIDEO_URL);
 
   const attendance = await admin
     .from("attendance")
