@@ -189,7 +189,10 @@ previews of every email to `email-previews/`. Nothing is sent by these commands.
 A separate product for independent tutors, built inside Study Hall: brief, founder answers and the
 decisions made are in [docs/tutor-reports-spec.md](docs/tutor-reports-spec.md).
 
-- **Sign up** at `/tutors` (14-day free trial). Tutors have the `tutor` role and land on `/app`.
+- **Sign up** at `/tutors` (14-day free trial). Tutors have the `tutor` role; signed in, `/tutors`
+  takes them to their dashboard at `/app`: metrics, a week/month lesson calendar (schedule,
+  reschedule, cancel, log), students and what they need help with, saved Zoom links, and a private
+  calendar link for Apple/Google/Outlook. Details in the spec's "Tutor dashboard" section.
 - **Log a session** at `/app/log`: pick the student, record a voice note (≤ 3 min, MediaRecorder) or
   type notes. `/api/tutor/draft` transcribes (audio is never stored), saves the transcript, then drafts
   the report (`src/lib/report`: schema, prompt, grounding, sensitive screen). The tutor edits English

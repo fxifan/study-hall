@@ -30,6 +30,7 @@ const fields = z.object({
     .transform((v) => [...new Set(v.split(",").map((s) => s.trim()).filter(Boolean))].slice(0, 10).map((s) => s.slice(0, 40))),
   notes: z.string().max(5000),
   audioSeconds: z.coerce.number().min(0).max(MAX_AUDIO_SECONDS + 5).optional(),
+  lessonId: z.uuid().optional(),
 });
 
 const fail = (status: number, error: string, extra: object = {}) => Response.json({ error, ...extra }, { status });
@@ -62,6 +63,7 @@ export async function POST(request: Request) {
     subjects: formData.get("subjects") ?? "",
     notes: formData.get("notes") ?? "",
     audioSeconds: formData.get("audioSeconds") ?? undefined,
+    lessonId: formData.get("lessonId") || undefined,
   });
   if (!parsed.success) return fail(400, "Check the session details and try again.");
   const input = parsed.data;
@@ -111,6 +113,11 @@ export async function POST(request: Request) {
     .select("id")
     .single();
   if (reportError) return fail(500, "Couldn't save the note.");
+
+  // Logged from a scheduled lesson: mark the lesson done (it now points at this session).
+  if (input.lessonId) {
+    await supabase.from("tutor_lessons").update({ session_id: session.id }).eq("id", input.lessonId).is("session_id", null);
+  }
 
   const drafted = await draftReport(supabase, me.profile.id, report.id);
   return Response.json({ reportId: report.id, draftError: drafted.ok ? null : drafted.error });

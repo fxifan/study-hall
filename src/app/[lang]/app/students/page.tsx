@@ -72,7 +72,9 @@ async function Students({ searchParams }: Pick<PageProps<"/[lang]/app/students">
       ) : (
         <p className="text-ink-soft">No students yet.</p>
       )}
-      <h2 className="mt-2 text-lg font-medium">Add a student</h2>
+      <h2 id="add" className="mt-2 scroll-mt-4 text-lg font-medium">
+        Add a student
+      </h2>
       <AddStudentForm
         families={(families ?? []).map((f) => ({ id: f.id, parent_name: f.parent_name }))}
         defaultLang={me.tutor.report_langs.length > 1 ? "both" : me.tutor.report_langs[0]}

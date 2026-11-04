@@ -68,3 +68,28 @@ session on that family's next invoice. Budget: ≤ A$200/month total infrastruct
 1 minute of `gpt-4o-mini-transcribe` (~US$0.003) + one draft and, for Chinese, one translation
 (~1–2k tokens on `gpt-4.1-mini`, ~US$0.001–0.002) + one email ≈ **A$0.007–0.01**, under the A$0.02
 target. Real numbers: `/admin/costs` (from `tutor_usage_events`) and `npm run report:eval`.
+
+## Tutor dashboard (brief of 4 Nov 2026)
+
+`/tutors` is the public page for signed-out visitors; a signed-in tutor who opens it is sent to the
+dashboard at `/app` (the proxy). The dashboard replaces the old "Today" page.
+
+| Area | Status | How |
+| --- | --- | --- |
+| Greeting, date, quick actions (log, schedule, add student, add link) | Working | `src/app/[lang]/app/page.tsx` |
+| Metrics: active students, earned this week, lessons this week, upcoming | Working, real data | `computeMetrics()` in `src/lib/tutor/dashboard.ts`. Definitions are on the cards: earnings are logged sessions at their rate (what's invoiced), not payments received |
+| Calendar, week and month | Working | Week: a time grid on wide screens, a list per day on phones. Click an empty hour or "+ Add" to schedule; click a lesson for details |
+| Create, view, reschedule, cancel, delete lessons; weekly repeats | Working | `tutor_lessons` table, `dashboard-actions.ts`. Rescheduling = editing date/time (no drag and drop) |
+| Log a scheduled lesson | Working | "Log this lesson" opens `/app/log?lesson=<id>` prefilled; once logged, the lesson shows as done and links to its report. Past lessons not yet logged show in red |
+| Student overview | Working | Up to 5 students, soonest lesson first: year, subjects, "what they need help with" (new `goals` field), next lesson, active status |
+| Class links (Zoom) | Working | Paste, name, optionally tie to a student, copy, open, edit, delete. Only Zoom meeting/personal-room links are accepted. Lessons can use a saved link. Nothing creates Zoom meetings |
+| Apple / Google / Outlook calendar | **Working, one-way** | A private iCalendar subscription URL (`/api/tutor/calendar/<token>.ics`). Apple: `webcal://` link; Google: "Add by URL" link. Stable UIDs mean reschedules update in place and cancellations show as cancelled. Shows when a calendar app last fetched it. Reset (new URL) and turn off |
+| Two-way Google sync (import the tutor's own events) | Not built, labelled "Not available yet" | Needs Google OAuth (Calendar API scopes, Google app verification), stored refresh tokens, and a sync job. Apple has no OAuth API: two-way would mean CalDAV with an app-specific password |
+
+Notes and limits
+- Calendar subscriptions refresh on the calendar app's schedule: Apple about hourly (we ask for
+  hourly with `REFRESH-INTERVAL`), Google every few hours up to a day. It's one-way.
+- The feed URL is a credential: anyone with it sees lesson times, students' first names and last
+  initials, subjects, meeting links and lesson notes. Tutors can reset or turn it off; it never
+  includes families, reports or money.
+- Lessons don't bill anything by themselves; logging one creates the billable session, as before.

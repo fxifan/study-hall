@@ -89,7 +89,9 @@ export async function proxy(request: NextRequest) {
   const isLogin = path === "/login";
   // Sign-up: open to signed-out visitors and parents; the checkout return page needs a session.
   const isOnboarding = path === "/onboarding" || path.startsWith("/onboarding/");
-  if (!area && !isLogin && !isOnboarding) return serve();
+  // The tutor product's public page: signed-in tutors go straight to their dashboard (/app).
+  const isTutorLanding = path === "/tutors";
+  if (!area && !isLogin && !isOnboarding && !(isTutorLanding && userId)) return serve();
 
   if (!userId) {
     return isLogin || path === "/onboarding" ? serve() : finish(NextResponse.redirect(at("/login")), response);
@@ -102,6 +104,9 @@ export async function proxy(request: NextRequest) {
     return isLogin ? serve() : finish(NextResponse.redirect(at("/login?error=no-profile")), response);
   }
 
+  if (isTutorLanding) {
+    return role === "tutor" ? finish(NextResponse.redirect(at(ROLE_HOME.tutor)), response) : serve();
+  }
   if (isOnboarding) {
     return role === "parent" ? serve() : finish(NextResponse.redirect(at(ROLE_HOME[role])), response);
   }

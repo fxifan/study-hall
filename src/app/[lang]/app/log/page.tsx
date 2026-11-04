@@ -5,6 +5,7 @@ import { getLocale } from "@/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import { accessFor, requireTutor } from "@/lib/tutor/server";
 import { dateKeyOf, formatInZone } from "@/lib/time";
+import { shortWhen } from "@/lib/tutor/format";
 import { AddStudentForm } from "../students/add-student-form";
 import { Loading, TutorShell, appHref } from "../_components/shell";
 import { blockedMessage } from "../_components/plan-banner";
@@ -47,14 +48,31 @@ async function Log({ searchParams }: Pick<PageProps<"/[lang]/app/log">, "searchP
   }));
   const now = new Date();
   const studentParam = typeof query.student === "string" ? query.student : null;
+  // From the dashboard calendar: log a scheduled lesson, with its student and time filled in.
+  const lessonParam = typeof query.lesson === "string" && /^[0-9a-f-]{36}$/i.test(query.lesson) ? query.lesson : null;
+  const { data: lesson } = lessonParam
+    ? await supabase
+        .from("tutor_lessons")
+        .select("id, student_id, starts_at, duration_min, subjects, session_id")
+        .eq("id", lessonParam)
+        .is("session_id", null)
+        .maybeSingle()
+    : { data: null };
 
   return (
     <TutorShell tutor={me} title="Log a session" current="log">
+      {lesson && <p className="text-sm text-ink-soft">Logging your scheduled lesson on {shortWhen(lesson.starts_at)}.</p>}
       {students.length ? (
         <LogForm
           students={students}
-          defaults={{ date: dateKeyOf(now), startTime: defaultStart(now), durationMin: 60 }}
-          initialStudentId={students.some((s) => s.id === studentParam) ? studentParam : null}
+          defaults={
+            lesson
+              ? { date: dateKeyOf(lesson.starts_at), startTime: formatInZone(lesson.starts_at, "HH:mm"), durationMin: lesson.duration_min }
+              : { date: dateKeyOf(now), startTime: defaultStart(now), durationMin: 60 }
+          }
+          initialStudentId={lesson?.student_id ?? (students.some((s) => s.id === studentParam) ? studentParam : null)}
+          lessonId={lesson?.id ?? null}
+          initialSubjects={lesson?.subjects.length ? lesson.subjects : null}
           reportPath={appHref("/app/reports", locale)}
           blocked={access.ok ? null : blockedMessage(access.reason)}
         />

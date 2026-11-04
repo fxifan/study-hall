@@ -36,6 +36,7 @@ const studentFields = {
   yearLevel: z.coerce.number().int().min(0).max(12),
   subjects,
   notes: text(500),
+  goals: text(300),
 };
 
 function form(formData: FormData, keys: string[]) {
@@ -49,7 +50,7 @@ export async function addStudent(formData: FormData) {
   const { profile } = await requireTutorAction();
   const parsed = z
     .object({ ...studentFields, familyId: z.union([z.uuid(), z.literal("new")]) })
-    .safeParse(form(formData, ["firstName", "lastInitial", "yearLevel", "subjects", "notes", "familyId"]));
+    .safeParse(form(formData, ["firstName", "lastInitial", "yearLevel", "subjects", "notes", "goals", "familyId"]));
   if (!parsed.success) return back("/app/students", "?error=student");
   const supabase = await createClient();
 
@@ -82,6 +83,7 @@ export async function addStudent(formData: FormData) {
       year_level: parsed.data.yearLevel,
       subjects: parsed.data.subjects,
       notes: parsed.data.notes || null,
+      goals: parsed.data.goals || null,
     })
     .select("id")
     .single();
@@ -125,7 +127,7 @@ export async function updateStudent(formData: FormData) {
   const id = z.uuid().safeParse(formData.get("id"));
   const parsed = z
     .object({ ...studentFields, familyId: z.uuid() })
-    .safeParse(form(formData, ["firstName", "lastInitial", "yearLevel", "subjects", "notes", "familyId"]));
+    .safeParse(form(formData, ["firstName", "lastInitial", "yearLevel", "subjects", "notes", "goals", "familyId"]));
   if (!id.success) return back("/app/students");
   if (!parsed.success) return back(`/app/students/${id.data}`, "?error=student");
   const { error } = await (await createClient())
@@ -137,6 +139,7 @@ export async function updateStudent(formData: FormData) {
       year_level: parsed.data.yearLevel,
       subjects: parsed.data.subjects,
       notes: parsed.data.notes || null,
+      goals: parsed.data.goals || null,
     })
     .eq("id", id.data);
   return back(`/app/students/${id.data}`, error ? "?error=student" : "?saved=student");

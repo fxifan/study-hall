@@ -27,6 +27,7 @@ type Row = {
   year_level: number;
   subjects: string[];
   notes: string | null;
+  goals: string | null;
   tutor_families: { parent_name: string } | null;
 };
 type Session = {
@@ -45,7 +46,7 @@ async function Student({ params, searchParams }: Pick<PageProps<"/[lang]/app/stu
   const [{ data: s }, { data: sessions }, { data: families }] = await Promise.all([
     supabase
       .from("tutor_students")
-      .select("id, family_id, first_name, last_initial, year_level, subjects, notes, tutor_families(parent_name)")
+      .select("id, family_id, first_name, last_initial, year_level, subjects, notes, goals, tutor_families(parent_name)")
       .eq("id", id)
       .maybeSingle<Row>(),
     supabase
@@ -140,6 +141,10 @@ async function Student({ params, searchParams }: Pick<PageProps<"/[lang]/app/stu
         <label className={labelClass}>
           Subjects (comma-separated)
           <input name="subjects" className={field} defaultValue={s.subjects.join(", ")} maxLength={400} />
+        </label>
+        <label className={labelClass}>
+          What they need help with
+          <input name="goals" className={field} defaultValue={s.goals ?? ""} maxLength={300} />
         </label>
         <label className={labelClass}>
           Notes (private to you)

@@ -12,7 +12,7 @@ import type { Tutor } from "@/lib/tutor/server";
  * now, like Study Hall's admin pages; reports and emails are bilingual.
  */
 const NAV = [
-  { key: "today", href: "/app", label: "Today" },
+  { key: "today", href: "/app", label: "Dashboard" },
   { key: "log", href: "/app/log", label: "Log" },
   { key: "students", href: "/app/students", label: "Students" },
   { key: "invoices", href: "/app/invoices", label: "Invoices" },
@@ -30,18 +30,24 @@ export async function TutorShell({
   current,
   children,
   back,
+  wide = false,
+  hideTitle = false,
 }: {
   tutor: Tutor;
   title: string;
   current?: NavKey;
   children: ReactNode;
   back?: { href: string; label: string };
+  /** The dashboard uses a wider page; everything else stays at a comfortable reading width. */
+  wide?: boolean;
+  /** The page renders its own heading (the dashboard greeting). */
+  hideTitle?: boolean;
 }) {
   const locale = await getLocale();
   return (
     <div className="flex flex-1 flex-col pb-20 sm:pb-0" lang="en">
       <header className="border-b border-rule bg-sheet">
-        <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-3 px-4 py-3">
+        <div className={`mx-auto flex w-full ${wide ? "max-w-6xl" : "max-w-3xl"} items-center justify-between gap-3 px-4 py-3`}>
           <Link href={appHref("/app", locale)} className="font-mono text-xs tracking-widest text-pen uppercase">
             {TUTOR_PRODUCT_NAME}
           </Link>
@@ -64,13 +70,13 @@ export async function TutorShell({
           </form>
         </div>
       </header>
-      <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-5 px-4 py-5 sm:py-8">
+      <main className={`mx-auto flex w-full ${wide ? "max-w-6xl" : "max-w-3xl"} flex-1 flex-col gap-5 px-4 py-5 sm:py-8`}>
         {back && (
           <Link href={appHref(back.href, locale)} className="text-sm text-ink-soft hover:text-ink">
             ← {back.label}
           </Link>
         )}
-        <h1 className="text-2xl font-medium tracking-tight sm:text-3xl">{title}</h1>
+        {!hideTitle && <h1 className="text-2xl font-medium tracking-tight sm:text-3xl">{title}</h1>}
         {children}
       </main>
       <nav

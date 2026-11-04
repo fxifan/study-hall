@@ -22,12 +22,14 @@ export type TutorRow = {
   overdue_reminders: boolean;
   plan: TutorPlan;
   trial_ends_at: string;
+  calendar_feed_token: string | null;
+  calendar_feed_fetched_at: string | null;
 };
 
 export type Tutor = { profile: CurrentProfile; tutor: TutorRow };
 
 const TUTOR_COLUMNS =
-  "id, display_name, business_name, abn, gst_registered, default_rate_cents, bank_account_name, bank_bsb_enc, bank_acct_enc, report_langs, invoice_due_days, overdue_reminders, plan, trial_ends_at";
+  "id, display_name, business_name, abn, gst_registered, default_rate_cents, bank_account_name, bank_bsb_enc, bank_acct_enc, report_langs, invoice_due_days, overdue_reminders, plan, trial_ends_at, calendar_feed_token, calendar_feed_fetched_at";
 
 const loadTutor = cache(async (id: string): Promise<TutorRow | null> => {
   const supabase = await createClient();
