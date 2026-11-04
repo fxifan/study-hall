@@ -66,10 +66,12 @@ test("admins manage bilingual report templates", async ({ page }) => {
 test("rooms say when Zoom isn't connected, and keep the manual link", async ({ page }) => {
   test.skip(Boolean(process.env.ZOOM_CLIENT_ID), "Zoom is configured locally");
   await logIn(page, "admin");
+  // The room's name is real data (admins rename it), so read it rather than assume the seed's.
+  const name = (await admin.from("rooms").select("name").eq("id", SEED_IDS.room).single()).data!.name as string;
   await page.goto("/admin/rooms");
   await expect(page.getByTestId("zoom-status")).toContainText("Zoom isn't connected");
-  await expect(page.getByRole("form", { name: "Zoom: Room 1" }).getByRole("button", { name: "Create Zoom meeting" })).toBeDisabled();
-  await expect(page.getByRole("form", { name: "Room 1" }).getByLabel(/Video link/)).toBeVisible();
+  await expect(page.getByRole("form", { name: `Zoom: ${name}`, exact: true }).getByRole("button", { name: "Create Zoom meeting" })).toBeDisabled();
+  await expect(page.getByRole("form", { name, exact: true }).getByLabel(/Video link/)).toBeVisible();
 });
 
 test("admins can use the supervisor pages; supervisors can't use admin pages", async ({ page }) => {

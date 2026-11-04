@@ -344,6 +344,7 @@ export const en = {
       proctors: "Proctors",
       reports: "Reports",
       metrics: "Metrics",
+      tutors: "Tutors",
       costs: "Tutor costs",
       supervise: "Supervise",
     },

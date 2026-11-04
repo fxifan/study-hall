@@ -19,13 +19,16 @@ async function logInAsAdmin(page: Page) {
 test("rooms: capacity is editable", async ({ page }) => {
   await logInAsAdmin(page);
   await page.getByRole("navigation", { name: "Admin" }).getByRole("link", { name: "Rooms" }).click();
-  const room = page.getByRole("form", { name: "Room 1" });
+  // Real data: read the room's current name and capacity, and put the capacity back afterwards.
+  const before = (await admin.from("rooms").select("name, capacity").eq("id", SEED_IDS.room).single()).data!;
+  const room = page.getByRole("form", { name: before.name as string, exact: true });
+  const changed = before.capacity === 35 ? 36 : 35;
   try {
-    await room.getByLabel("Capacity").fill("35");
+    await room.getByLabel("Capacity").fill(String(changed));
     await room.getByRole("button", { name: "Save room" }).click();
-    await expect.poll(async () => (await admin.from("rooms").select("capacity").eq("id", SEED_IDS.room).single()).data?.capacity).toBe(35);
+    await expect.poll(async () => (await admin.from("rooms").select("capacity").eq("id", SEED_IDS.room).single()).data?.capacity).toBe(changed);
   } finally {
-    await admin.from("rooms").update({ capacity: 40 }).eq("id", SEED_IDS.room);
+    await admin.from("rooms").update({ capacity: before.capacity }).eq("id", SEED_IDS.room);
   }
 });
 
