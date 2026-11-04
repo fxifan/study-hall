@@ -182,7 +182,9 @@ previews of every email to `email-previews/`. Nothing is sent by these commands.
   DST-safe).
 - **Theme.** Brand tokens from the landing design (`paper`, `sheet`, `ink`, `pen`, `rule`, `cover`;
   Newsreader + JetBrains Mono) are in [src/app/globals.css](src/app/globals.css), and shadcn/ui's
-  tokens map onto them.
+  tokens map onto them. Coral (`--coral`, #F07862) is the one accent: primary buttons, active
+  states, focus. Shared components (`dash-btn--primary|secondary|ghost`, `dash-card`, `dash-pill`,
+  `dash-field`, the tutor calendar) are in [src/app/ui.css](src/app/ui.css).
 
 ## Tutor reports and billing (`/tutors`, `/app`)
 

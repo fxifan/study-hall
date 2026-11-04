@@ -41,7 +41,7 @@ async function Rooms({ searchParams }: Pick<PageProps<"/[lang]/admin/rooms">, "s
   ]);
 
   const form = (room: Room | null) => (
-    <form key={room?.id ?? "new"} action={saveRoom} className="grid gap-2 rounded-md border border-hair bg-sheet p-4 sm:grid-cols-2" aria-label={room?.name ?? r.add}>
+    <form key={room?.id ?? "new"} action={saveRoom} className="grid gap-2 dash-card p-4 sm:grid-cols-2" aria-label={room?.name ?? r.add}>
       {room && <input type="hidden" name="id" value={room.id} />}
       <label className="flex flex-col gap-1 text-sm">
         {r.name}
@@ -103,7 +103,7 @@ async function Rooms({ searchParams }: Pick<PageProps<"/[lang]/admin/rooms">, "s
   return (
     <AdminFrame title={r.title} current="rooms">
       {notice && (
-        <p role={notice.role} className="rounded-md border border-hair bg-sheet px-3 py-2 text-sm">
+        <p role={notice.role} className="dash-card px-3 py-2 text-sm">
           {notice.text}
         </p>
       )}

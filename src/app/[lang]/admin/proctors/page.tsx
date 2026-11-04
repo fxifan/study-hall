@@ -60,7 +60,7 @@ async function Proctors({ searchParams }: Pick<PageProps<"/[lang]/admin/proctors
                   : fill(p.verifiedOn, { date: formatLongDate(latest.verified_at) });
           const warn = !latest || !latest.verified_at || latest.wwcc_expiry <= soon;
           return (
-            <li key={sup.id} className="flex flex-col gap-3 rounded-md border border-hair bg-sheet p-4">
+            <li key={sup.id} className="flex flex-col gap-3 dash-card p-4">
               <div className="flex flex-wrap items-baseline justify-between gap-3">
                 <span className="font-medium">{sup.full_name ?? sup.email}</span>
                 <span className={`font-mono text-xs ${warn ? "text-pen" : "text-ink-soft"}`}>{status}</span>

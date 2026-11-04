@@ -69,7 +69,7 @@ export function InvoiceEditor({
 
       <ul className="flex flex-col gap-3">
         {lines.map((l, i) => (
-          <li key={i} className="flex flex-col gap-2 rounded-lg border border-hair bg-sheet p-3">
+          <li key={i} className="flex flex-col gap-2 dash-card p-3">
             <textarea
               className={`${field} h-auto min-h-11 py-2`}
               rows={2}

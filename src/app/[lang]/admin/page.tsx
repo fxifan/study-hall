@@ -51,7 +51,7 @@ async function AdminHome() {
       </dl>
       <section className="flex flex-col gap-2">
         <h2 className="font-mono text-xs tracking-widest text-ink-soft uppercase">{t.admin.plans}</h2>
-        <ul className="divide-y divide-rule rounded-md border border-hair bg-sheet">
+        <ul className="divide-y divide-rule dash-card">
           {plans.data?.map((p) => (
             <li key={p.id} className="flex justify-between gap-4 px-4 py-3">
               <span>{p.name}</span>
@@ -69,7 +69,7 @@ async function AdminHome() {
 
 function Stat({ label, value, warn = false }: { label: string; value: number; warn?: boolean }) {
   return (
-    <div className="rounded-md border border-hair bg-sheet px-4 py-3">
+    <div className="dash-card px-4 py-3">
       <dt className="font-mono text-xs text-ink-soft uppercase">{label}</dt>
       <dd className={`text-3xl ${warn ? "text-pen" : ""}`}>{value}</dd>
     </div>

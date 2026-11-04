@@ -65,7 +65,7 @@ async function Invoices({ searchParams }: Pick<PageProps<"/[lang]/app/invoices">
       <section className="flex flex-col gap-2">
         <h2 className="text-lg font-medium">Ready to invoice</h2>
         {byFamily.size ? (
-          <ul className="divide-y divide-rule rounded-lg border border-hair bg-sheet">
+          <ul className="divide-y divide-rule dash-card">
             {[...byFamily].map(([familyId, f]) => (
               <li key={familyId}>
                 <Link href={appHref(`/app/families/${familyId}#invoice`, locale)} className="flex items-center justify-between gap-3 px-4 py-3">
@@ -86,7 +86,7 @@ async function Invoices({ searchParams }: Pick<PageProps<"/[lang]/app/invoices">
         <h2 className="text-lg font-medium">All invoices</h2>
         {outstanding > 0 && <p className="text-sm text-ink-soft">Outstanding: {formatCents(outstanding)}</p>}
         {rows.length ? (
-          <ul className="divide-y divide-rule rounded-lg border border-hair bg-sheet">
+          <ul className="divide-y divide-rule dash-card">
             {rows.map((i) => (
               <li key={i.id}>
                 <Link href={appHref(`/app/invoices/${i.id}`, locale)} className="flex items-center justify-between gap-3 px-4 py-3">

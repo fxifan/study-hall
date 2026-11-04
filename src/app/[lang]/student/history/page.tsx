@@ -43,7 +43,7 @@ async function History() {
           {sessions.map((session) => {
             const a = session.attendance[0];
             return (
-              <li key={session.id} className="rounded-md border border-hair bg-sheet px-4 py-3">
+              <li key={session.id} className="dash-card px-4 py-3">
                 <p className="font-medium">{formatInZone(session.starts_at, t.formats.longDate, MELBOURNE, dateLocale)}</p>
                 <p className="font-mono text-sm text-ink-soft">
                   {a?.check_in_at

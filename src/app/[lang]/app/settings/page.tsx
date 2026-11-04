@@ -39,7 +39,7 @@ async function Settings({ searchParams }: Pick<PageProps<"/[lang]/app/settings">
       {error && <Notice tone="error">{error}</Notice>}
 
       <form action={saveSettings} className="flex flex-col gap-6">
-        <section className="flex flex-col gap-3 rounded-lg border border-hair bg-sheet p-4">
+        <section className="flex flex-col gap-3 dash-card p-4">
           <h2 className="font-medium">You</h2>
           <label className={labelClass}>
             Your name (shown to parents)
@@ -77,7 +77,7 @@ async function Settings({ searchParams }: Pick<PageProps<"/[lang]/app/settings">
           </fieldset>
         </section>
 
-        <section className="flex flex-col gap-3 rounded-lg border border-hair bg-sheet p-4">
+        <section className="flex flex-col gap-3 dash-card p-4">
           <h2 className="font-medium">ABN and GST</h2>
           <label className={labelClass}>
             ABN (optional unless you&apos;re registered for GST)
@@ -97,7 +97,7 @@ async function Settings({ searchParams }: Pick<PageProps<"/[lang]/app/settings">
           </p>
         </section>
 
-        <section className="flex flex-col gap-3 rounded-lg border border-hair bg-sheet p-4">
+        <section className="flex flex-col gap-3 dash-card p-4">
           <h2 className="font-medium">Bank details for invoices</h2>
           <p className="text-xs text-ink-soft">
             Printed on your invoices so families can pay by bank transfer. Encrypted before they&apos;re saved. Leave the number fields blank to keep
@@ -139,7 +139,7 @@ async function Settings({ searchParams }: Pick<PageProps<"/[lang]/app/settings">
         </button>
       </form>
 
-      <section className="flex flex-col gap-2 rounded-lg border border-hair bg-sheet p-4 text-sm">
+      <section className="flex flex-col gap-2 dash-card p-4 text-sm">
         <h2 className="font-medium">Plan</h2>
         <PlanBanner access={access} />
         <p>

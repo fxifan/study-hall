@@ -83,7 +83,7 @@ async function Schedule({ searchParams }: Pick<PageProps<"/[lang]/admin/schedule
         </p>
       )}
       {typeof query.created === "string" && (
-        <p role="status" className="rounded-md border border-hair bg-sheet px-3 py-2 text-sm">
+        <p role="status" className="dash-card px-3 py-2 text-sm">
           {fill(s.generated, {
             sessions: query.created,
             staffed: String(query.staffed ?? 0),
@@ -94,7 +94,7 @@ async function Schedule({ searchParams }: Pick<PageProps<"/[lang]/admin/schedule
       )}
 
       {schedules?.map((rule) => (
-        <form key={rule.id} action={saveSchedule} className="flex flex-col gap-3 rounded-md border border-hair bg-sheet p-4" aria-label={s.rule}>
+        <form key={rule.id} action={saveSchedule} className="flex flex-col gap-3 dash-card p-4" aria-label={s.rule}>
           <input type="hidden" name="id" value={rule.id} />
           <p className="font-medium">
             {s.rule} · {rule.rooms?.name}
@@ -193,7 +193,7 @@ async function Schedule({ searchParams }: Pick<PageProps<"/[lang]/admin/schedule
           </form>
         </div>
         {sessions?.length ? (
-          <ul className="divide-y divide-rule rounded-md border border-hair bg-sheet text-sm" data-testid="upcoming-sessions">
+          <ul className="divide-y divide-rule dash-card text-sm" data-testid="upcoming-sessions">
             {sessions.map((session) => {
               const cancelled = session.status === "cancelled";
               return (

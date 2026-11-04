@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useCopyText } from "@/components/report-cards";
 import { setCalendarFeed } from "../dashboard-actions";
-import { primaryButton, secondaryButton } from "../_components/styles";
+import { primaryButton, secondaryButton } from "./ui";
 
 /**
  * Calendar connections. What works today is a private subscription link (an iCalendar feed):
@@ -25,18 +25,20 @@ export function CalendarConnections({ feedUrl, lastFetched }: { feedUrl: string 
   const google = feedUrl ? `https://calendar.google.com/calendar/r?cid=${encodeURIComponent(webcal)}` : "";
 
   return (
-    <section aria-labelledby="connections-title" className="flex flex-col gap-3 rounded-lg border border-hair bg-sheet p-4">
+    <section aria-labelledby="connections-title" className="dash-card flex flex-col gap-3 p-4 sm:p-5">
       <header>
-        <h2 id="connections-title" className="text-lg font-medium">
+        <span className="dash-label">Sync</span>
+        <h2 id="connections-title" className="text-xl font-medium">
           Your calendars
         </h2>
         <p className="text-sm text-ink-soft">Show your lessons in the calendar you already use.</p>
       </header>
 
-      <div className="flex flex-col gap-3 rounded-md border border-hair p-3">
+      <div className="dash-inset flex flex-col gap-3 p-3">
         <div className="flex items-center justify-between gap-3">
           <h3 className="font-medium">Apple, Google or Outlook calendar</h3>
-          <span className={`shrink-0 rounded-full border px-2 py-0.5 text-xs ${feedUrl ? "border-ink text-ink" : "border-hair text-ink-soft"}`}>
+          <span className={`dash-pill shrink-0 px-2 py-0.5 text-xs ${feedUrl ? "dash-pill--accent" : ""}`}>
+            {feedUrl && <span className="dash-dot" aria-hidden="true" />}
             {feedUrl ? "Link on" : "Not set up"}
           </span>
         </div>
@@ -53,19 +55,19 @@ export function CalendarConnections({ feedUrl, lastFetched }: { feedUrl: string 
                 Add to Google Calendar ↗
               </a>
             </div>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-              <button type="button" className="underline-offset-4 hover:underline" onClick={() => copy(feedUrl)}>
+            <div className="flex flex-wrap items-center gap-1">
+              <button type="button" className="dash-btn dash-btn--ghost" onClick={() => copy(feedUrl)}>
                 {copyState === "copied" ? "Link copied" : copyState === "failed" ? "Couldn't copy" : "Copy link (Outlook, other apps)"}
               </button>
               <button
                 type="button"
-                className="text-ink-soft underline-offset-4 hover:underline"
+                className="dash-btn dash-btn--ghost"
                 disabled={pending}
                 onClick={() => window.confirm("Make a new link? Calendars using the old one will stop updating.") && run(true)}
               >
                 Reset link
               </button>
-              <button type="button" className="text-ink-soft underline-offset-4 hover:text-pen hover:underline" disabled={pending} onClick={() => window.confirm("Turn off the calendar link?") && run(false)}>
+              <button type="button" className="dash-btn dash-btn--ghost" disabled={pending} onClick={() => window.confirm("Turn off the calendar link?") && run(false)}>
                 Turn off
               </button>
             </div>
@@ -84,10 +86,10 @@ export function CalendarConnections({ feedUrl, lastFetched }: { feedUrl: string 
         )}
       </div>
 
-      <div className="flex flex-col gap-1 rounded-md border border-dashed border-rule p-3">
+      <div className="dash-inset flex flex-col gap-1 border-dashed bg-transparent p-3">
         <div className="flex items-center justify-between gap-3">
           <h3 className="font-medium text-ink-soft">Two-way Google Calendar sync</h3>
-          <span className="shrink-0 rounded-full border border-hair px-2 py-0.5 text-xs text-ink-faint">Not available yet</span>
+          <span className="dash-pill shrink-0 px-2 py-0.5 text-xs text-ink-faint">Not available yet</span>
         </div>
         <p className="text-sm text-ink-faint">Seeing your other events here (to spot clashes) needs a direct Google connection. It&apos;s planned, not built.</p>
       </div>

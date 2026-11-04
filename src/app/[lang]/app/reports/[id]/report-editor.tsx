@@ -74,7 +74,7 @@ export function ReportEditor({
   if (sent) {
     return (
       <div className="flex flex-col gap-4">
-        <p className="rounded-md border border-hair bg-sheet px-3 py-2 text-sm">
+        <p className="dash-card px-3 py-2 text-sm">
           {sent.to === "copied as text"
             ? "Shared as text"
             : sent.to.endsWith("(your email)")
@@ -82,7 +82,7 @@ export function ReportEditor({
               : `Sent to ${sent.to}`}{" "}
           · {sent.at}
         </p>
-        <pre className="rounded-lg border border-hair bg-sheet p-4 font-sans text-sm whitespace-pre-wrap">{text}</pre>
+        <pre className="dash-card p-4 font-sans text-sm whitespace-pre-wrap">{text}</pre>
         <button type="button" className={secondaryButton} onClick={() => copy(text)}>
           {copyState === "copied" ? "Copied" : copyState === "failed" ? "Couldn't copy" : "Copy as text"}
         </button>
@@ -206,7 +206,7 @@ function LanguageColumn({
   const words = wordCount(content, lang);
   const setList = (key: (typeof LIST_KEYS)[number], items: string[]) => onChange({ ...content, [key]: items });
   return (
-    <section lang={lang} className="flex flex-col gap-3 rounded-lg border border-hair bg-sheet p-4" aria-label={t.name}>
+    <section lang={lang} className="flex flex-col gap-3 dash-card p-4" aria-label={t.name}>
       <header className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="font-mono text-xs tracking-widest text-ink-soft uppercase">
           {t.name}

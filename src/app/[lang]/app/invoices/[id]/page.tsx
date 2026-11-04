@@ -101,7 +101,7 @@ async function Invoice({ params, searchParams }: Pick<PageProps<"/[lang]/app/inv
         </>
       ) : (
         <>
-          <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 rounded-lg border border-hair bg-sheet p-4 text-sm">
+          <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 dash-card p-4 text-sm">
             <dt className="text-ink-soft">Total</dt>
             <dd className="font-medium">
               {formatCents(invoice.totalCents)}
@@ -132,7 +132,7 @@ async function Invoice({ params, searchParams }: Pick<PageProps<"/[lang]/app/inv
               </>
             )}
           </dl>
-          <ul className="divide-y divide-rule rounded-lg border border-hair bg-sheet text-sm">
+          <ul className="divide-y divide-rule dash-card text-sm">
             {invoice.lines.map((l) => (
               <li key={l.id} className="flex justify-between gap-3 px-4 py-2">
                 <span>{l.description}</span>

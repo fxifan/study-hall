@@ -40,7 +40,7 @@ async function Reports() {
     <AdminFrame title={r.title} current="reports">
       <p className="text-sm text-ink-soft">{r.intro}</p>
       {cards.length ? (
-        <ul className="divide-y divide-rule rounded-md border border-hair bg-sheet text-sm" data-testid="report-queue">
+        <ul className="divide-y divide-rule dash-card text-sm" data-testid="report-queue">
           {cards.map((card) => {
             const [sessionId, studentId] = card.id.split(":");
             const email = reportEmail(card, origin);

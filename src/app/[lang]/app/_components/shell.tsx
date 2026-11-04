@@ -57,7 +57,7 @@ export async function TutorShell({
                 key={n.key}
                 href={appHref(n.href, locale)}
                 aria-current={n.key === current ? "page" : undefined}
-                className={n.key === current ? "font-medium text-ink" : "text-ink-soft hover:text-ink"}
+                className={`dash-ui rounded-md px-2 py-1 text-[13px] font-medium transition-colors ${n.key === current ? "bg-[var(--dash-accent-soft)] text-[var(--dash-accent-text)]" : "text-ink-soft hover:text-ink"}`}
               >
                 {n.label}
               </Link>
@@ -88,9 +88,9 @@ export async function TutorShell({
             key={n.key}
             href={appHref(n.href, locale)}
             aria-current={n.key === current ? "page" : undefined}
-            className={`flex h-14 items-center justify-center text-xs ${n.key === current ? "font-semibold text-ink" : "text-ink-soft"}`}
+            className={`dash-ui flex h-14 items-center justify-center text-xs ${n.key === current ? "font-semibold text-[var(--dash-accent-text)]" : "text-ink-soft"}`}
           >
-            {n.key === "log" ? <span className="rounded-full bg-ink px-3 py-1.5 text-paper">+ Log</span> : n.label}
+            {n.key === "log" ? <span className="rounded-full bg-[var(--coral)] px-3 py-1.5 font-semibold text-[var(--coral-ink)] shadow-sm">+ Log</span> : n.label}
           </Link>
         ))}
       </nav>

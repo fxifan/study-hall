@@ -72,7 +72,7 @@ async function Student({ params, searchParams }: Pick<PageProps<"/[lang]/app/stu
 
       <h2 className="text-lg font-medium">Reports</h2>
       {sessions?.length ? (
-        <ul className="divide-y divide-rule rounded-lg border border-hair bg-sheet">
+        <ul className="divide-y divide-rule dash-card">
           {sessions.map((x) => (
             <li key={x.id} className="flex items-center justify-between gap-3 px-4 py-3">
               {x.tutor_reports ? (
@@ -104,7 +104,7 @@ async function Student({ params, searchParams }: Pick<PageProps<"/[lang]/app/stu
       )}
 
       <h2 className="text-lg font-medium">Details</h2>
-      <form action={updateStudent} className="flex flex-col gap-3 rounded-lg border border-hair bg-sheet p-4">
+      <form action={updateStudent} className="flex flex-col gap-3 dash-card p-4">
         <input type="hidden" name="id" value={s.id} />
         <div className="grid grid-cols-[1fr_5rem] gap-2">
           <label className={labelClass}>

@@ -16,7 +16,7 @@ export function AddStudentForm({
 }) {
   const [familyId, setFamilyId] = useState(families.length ? "" : "new");
   return (
-    <form action={addStudent} className="flex flex-col gap-4 rounded-lg border border-hair bg-sheet p-4">
+    <form action={addStudent} className="flex flex-col gap-4 dash-card p-4">
       {next && <input type="hidden" name="next" value={next} />}
       <div className="grid grid-cols-[1fr_5rem] gap-2">
         <label className={labelClass}>

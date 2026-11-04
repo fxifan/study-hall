@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useDashboard } from "./lesson-dialog";
-import { primaryButton, secondaryButton } from "../_components/styles";
+import { primaryButton, secondaryButton } from "./ui";
 
 export function QuickActions({ logHref, addStudentHref }: { logHref: string; addStudentHref: string }) {
   const { openCreate } = useDashboard();

@@ -1,0 +1,563 @@
+/*
+ * Site-wide UI components for the refined Study Hall look (Nov 2026): buttons (primary coral,
+ * secondary raised, tertiary text), cards, pills, fields, metric cards, the tutor calendar and
+ * dialogs. Tokens are --dash-* on :root (light and dark); brand tokens live in globals.css.
+ * First built for the tutor dashboard, then rolled out to the whole site.
+ */
+
+:root {
+  /* Light theme */
+  --dash-page: #f6f2e8;
+  --dash-surface: #fffdf8;
+  --dash-surface-2: #f8f3e8;
+  --dash-surface-hover: #f1eadb;
+  --dash-border: rgba(27, 42, 65, 0.1);
+  --dash-border-strong: rgba(27, 42, 65, 0.18);
+  --dash-text: #18263c;
+  --dash-text-2: #3e4b61;
+  --dash-text-3: #6b7486;
+  --dash-accent: #f07862;
+  --dash-accent-hover: #f38a76;
+  --dash-accent-press: #e2654e;
+  --dash-accent-ink: #1d120f; /* text on coral: dark for contrast (~7:1) */
+  --dash-accent-text: #c24d37; /* coral as text on cream */
+  --dash-accent-soft: rgba(240, 120, 98, 0.12);
+  --dash-accent-soft-2: rgba(240, 120, 98, 0.2);
+  --dash-accent-wash: rgba(240, 120, 98, 0.06);
+  --dash-accent-line: rgba(218, 96, 74, 0.55);
+  --dash-shadow: 0 1px 2px rgba(27, 42, 65, 0.06), 0 8px 24px -16px rgba(27, 42, 65, 0.28);
+  --dash-shadow-hover: 0 2px 4px rgba(27, 42, 65, 0.08), 0 14px 32px -16px rgba(27, 42, 65, 0.35);
+  --dash-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  --dash-ui: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, var(--font-cjk), sans-serif;
+  --dash-ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --dash-page: #111a28;
+    --dash-surface: #19263c;
+    --dash-surface-2: #1f2e48;
+    --dash-surface-hover: #25365a;
+    --dash-border: rgba(238, 232, 218, 0.08);
+    --dash-border-strong: rgba(238, 232, 218, 0.16);
+    --dash-text: #f3eee3;
+    --dash-text-2: #c6cdd9;
+    --dash-text-3: #929cae;
+    --dash-accent-text: #f4917f;
+    --dash-accent-soft: rgba(240, 120, 98, 0.13);
+    --dash-accent-soft-2: rgba(240, 120, 98, 0.22);
+    --dash-accent-wash: rgba(240, 120, 98, 0.07);
+    --dash-accent-line: rgba(240, 120, 98, 0.55);
+    --dash-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 12px 28px -18px rgba(0, 0, 0, 0.7);
+    --dash-shadow-hover: 0 2px 6px rgba(0, 0, 0, 0.3), 0 18px 36px -18px rgba(0, 0, 0, 0.8);
+    --dash-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.045);
+  }
+}
+:root[data-theme="dark"] {
+  --dash-page: #111a28;
+  --dash-surface: #19263c;
+  --dash-surface-2: #1f2e48;
+  --dash-surface-hover: #25365a;
+  --dash-border: rgba(238, 232, 218, 0.08);
+  --dash-border-strong: rgba(238, 232, 218, 0.16);
+  --dash-text: #f3eee3;
+  --dash-text-2: #c6cdd9;
+  --dash-text-3: #929cae;
+  --dash-accent-text: #f4917f;
+  --dash-accent-soft: rgba(240, 120, 98, 0.13);
+  --dash-accent-soft-2: rgba(240, 120, 98, 0.22);
+  --dash-accent-wash: rgba(240, 120, 98, 0.07);
+  --dash-accent-line: rgba(240, 120, 98, 0.55);
+  --dash-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 12px 28px -18px rgba(0, 0, 0, 0.7);
+  --dash-shadow-hover: 0 2px 6px rgba(0, 0, 0, 0.3), 0 18px 36px -18px rgba(0, 0, 0, 0.8);
+  --dash-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.045);
+}
+
+/* Inside the tutor dashboard, borders and quiet fills use the softer surface tokens. */
+.dash {
+  --rule: var(--dash-border);
+  --paper-deep: var(--dash-surface-2);
+}
+
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--dash-accent);
+  outline-offset: 2px;
+}
+
+/* ---- Surfaces ------------------------------------------------------------------------------- */
+
+.dash-card {
+  background: var(--dash-surface);
+  border: 1px solid var(--dash-border);
+  border-radius: 14px;
+  box-shadow: var(--dash-highlight), var(--dash-shadow);
+}
+.dash-inset {
+  background: var(--dash-surface-2);
+  border: 1px solid var(--dash-border);
+  border-radius: 10px;
+}
+
+/* Small UI labels in a clean sans, next to the serif. */
+.dash-label {
+  font-family: var(--dash-ui);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dash-text-3);
+}
+.dash-ui {
+  font-family: var(--dash-ui);
+}
+
+/* ---- Buttons: primary (coral), secondary (raised surface), tertiary (text) ------------------ */
+
+.dash-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.75rem; /* 44px touch target on phones */
+  padding: 0 1rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  font-family: var(--dash-ui);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    transform 150ms var(--dash-ease),
+    box-shadow 150ms var(--dash-ease),
+    background-color 150ms var(--dash-ease),
+    border-color 150ms var(--dash-ease),
+    color 150ms var(--dash-ease);
+}
+@media (min-width: 640px) {
+  .dash-btn {
+    min-height: 2.375rem;
+  }
+}
+.dash-btn:hover {
+  transform: translateY(-1px);
+}
+.dash-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+.dash-btn:disabled,
+.dash-btn[aria-disabled="true"] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.dash-btn--primary {
+  background: var(--dash-accent);
+  color: var(--dash-accent-ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 1px 2px rgba(0, 0, 0, 0.18), 0 6px 16px -8px rgba(240, 120, 98, 0.6);
+}
+.dash-btn--primary:hover {
+  background: var(--dash-accent-hover);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 2px 4px rgba(0, 0, 0, 0.2), 0 10px 22px -8px rgba(240, 120, 98, 0.7);
+}
+.dash-btn--primary:active {
+  background: var(--dash-accent-press);
+}
+
+.dash-btn--secondary {
+  background: var(--dash-surface-2);
+  border-color: var(--dash-border-strong);
+  color: var(--dash-text);
+  box-shadow: var(--dash-highlight), 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+.dash-btn--secondary:hover {
+  background: var(--dash-surface-hover);
+  border-color: var(--dash-accent-line);
+  box-shadow: var(--dash-highlight), var(--dash-shadow-hover);
+}
+
+.dash-btn--ghost {
+  min-height: 2.25rem;
+  padding: 0 0.6rem;
+  color: var(--dash-text-2);
+  font-weight: 500;
+}
+.dash-btn--ghost:hover {
+  transform: none;
+  background: var(--dash-accent-soft);
+  color: var(--dash-accent-text);
+}
+
+/* Inline text action (View all, Edit…). */
+.dash-link {
+  font-family: var(--dash-ui);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--dash-accent-text);
+  text-underline-offset: 4px;
+  transition: color 150ms var(--dash-ease);
+}
+.dash-link:hover {
+  text-decoration: underline;
+}
+
+/* Segmented control (Week / Month). */
+.dash-segment {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  border-radius: 10px;
+  background: var(--dash-surface-2);
+  border: 1px solid var(--dash-border);
+}
+.dash-segment > a {
+  padding: 0.4rem 0.85rem;
+  border-radius: 7px;
+  font-family: var(--dash-ui);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--dash-text-2);
+  transition: background-color 150ms var(--dash-ease), color 150ms var(--dash-ease);
+}
+.dash-segment > a:hover {
+  color: var(--dash-text);
+}
+.dash-segment > a[aria-current="page"] {
+  background: var(--dash-accent);
+  color: var(--dash-accent-ink);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Square icon buttons (calendar ← →). */
+.dash-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.25rem;
+  height: 2.25rem;
+  padding: 0 0.7rem;
+  border-radius: 10px;
+  border: 1px solid var(--dash-border-strong);
+  background: var(--dash-surface-2);
+  font-family: var(--dash-ui);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--dash-text);
+  transition: background-color 150ms var(--dash-ease), border-color 150ms var(--dash-ease), transform 150ms var(--dash-ease);
+}
+.dash-icon-btn:hover {
+  background: var(--dash-surface-hover);
+  border-color: var(--dash-accent-line);
+}
+.dash-icon-btn:active {
+  transform: scale(0.96);
+}
+
+/* Fields. */
+.dash-field {
+  height: 2.75rem;
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--dash-border-strong);
+  background: var(--dash-surface-2);
+  padding: 0 0.75rem;
+  font-size: 1rem;
+  color: var(--dash-text);
+  transition: border-color 150ms var(--dash-ease), box-shadow 150ms var(--dash-ease);
+}
+.dash-field:hover {
+  border-color: var(--dash-accent-line);
+}
+.dash-field:focus {
+  outline: none;
+  border-color: var(--dash-accent);
+  box-shadow: 0 0 0 3px var(--dash-accent-soft-2);
+}
+.dash-field[aria-invalid="true"] {
+  border-color: var(--dash-accent);
+}
+@media (min-width: 640px) {
+  .dash-field {
+    height: 2.375rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Pills ("waiting on you", statuses). */
+.dash-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font-family: var(--dash-ui);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  background: var(--dash-surface);
+  border: 1px solid var(--dash-border-strong);
+  color: var(--dash-text-2);
+  transition: background-color 150ms var(--dash-ease), border-color 150ms var(--dash-ease), color 150ms var(--dash-ease);
+}
+a.dash-pill:hover {
+  border-color: var(--dash-accent-line);
+  color: var(--dash-text);
+}
+.dash-pill--accent {
+  background: var(--dash-accent-soft);
+  border-color: var(--dash-accent-line);
+  color: var(--dash-accent-text);
+}
+.dash-dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+/* ---- Metric cards ---------------------------------------------------------------------------- */
+
+.dash-metric {
+  transition: transform 180ms var(--dash-ease), box-shadow 180ms var(--dash-ease), border-color 180ms var(--dash-ease);
+}
+.dash-metric:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--dash-highlight), var(--dash-shadow-hover);
+  border-color: var(--dash-border-strong);
+}
+.dash-metric-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9px;
+  background: var(--dash-accent-soft-2);
+  color: var(--dash-accent-text);
+}
+.dash-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+  font-family: var(--dash-ui);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  background: var(--dash-surface-2);
+  color: var(--dash-text-2);
+}
+.dash-trend--up {
+  background: var(--dash-accent-soft);
+  color: var(--dash-accent-text);
+}
+
+/* ---- Calendar -------------------------------------------------------------------------------- */
+
+.dash-grid-col {
+  border-left: 1px solid var(--dash-border);
+}
+/* Today: a quiet coral wash; the coral day pill and the "now" line do the rest. */
+.dash-grid-col--today {
+  background: var(--dash-accent-wash);
+}
+.dash-day-head {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  border-radius: 8px;
+  padding: 0.2rem 0.5rem;
+  font-family: var(--dash-ui);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--dash-text-2);
+}
+.dash-day-head--today {
+  background: var(--dash-accent);
+  color: var(--dash-accent-ink);
+}
+
+/* Empty hour: invisible until hovered/focused, then a soft coral "+ 4pm". */
+.dash-slot {
+  display: block;
+  width: 100%;
+  border-bottom: 1px solid var(--dash-border);
+  text-align: left;
+  transition: background-color 120ms var(--dash-ease);
+}
+.dash-slot > span {
+  opacity: 0;
+  margin: 3px;
+  display: inline-block;
+  border-radius: 6px;
+  padding: 0.1rem 0.35rem;
+  font-family: var(--dash-ui);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--dash-accent-text);
+  transition: opacity 120ms var(--dash-ease);
+}
+.dash-slot:hover,
+.dash-slot:focus-visible {
+  background: var(--dash-accent-soft);
+  outline: none;
+}
+.dash-slot:hover > span,
+.dash-slot:focus-visible > span {
+  opacity: 1;
+}
+
+.dash-event {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  text-align: left;
+  font-family: var(--dash-ui);
+  transition: transform 150ms var(--dash-ease), box-shadow 150ms var(--dash-ease), background-color 150ms var(--dash-ease);
+}
+.dash-event:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--dash-shadow-hover);
+  z-index: 10;
+}
+.dash-event:active {
+  transform: scale(0.98);
+}
+/* Booked and still to come: the accent. */
+.dash-event--scheduled {
+  background: var(--dash-accent-soft-2);
+  border-color: var(--dash-accent-line);
+  color: var(--dash-text);
+}
+.dash-event--scheduled .dash-event-time {
+  color: var(--dash-accent-text);
+}
+/* Happened but not logged yet: a dashed coral outline asking for attention. */
+.dash-event--due {
+  background: var(--dash-surface);
+  border: 1px dashed var(--dash-accent);
+  color: var(--dash-accent-text);
+}
+/* Logged: quiet. */
+.dash-event--done {
+  background: var(--dash-surface-2);
+  border-color: var(--dash-border);
+  color: var(--dash-text-3);
+}
+.dash-event--cancelled {
+  background: transparent;
+  border: 1px dashed var(--dash-border-strong);
+  color: var(--dash-text-3);
+  text-decoration: line-through;
+}
+
+/* Current time on today's column. */
+.dash-now {
+  position: absolute;
+  left: -1px;
+  right: 0;
+  height: 2px;
+  background: var(--dash-accent);
+  pointer-events: none;
+  z-index: 5;
+}
+.dash-now::before {
+  content: "";
+  position: absolute;
+  left: -4px;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--dash-accent);
+}
+
+/* ---- Students -------------------------------------------------------------------------------- */
+
+.dash-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  background: var(--dash-accent-soft);
+  color: var(--dash-accent-text);
+  font-family: var(--dash-ui);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+.dash-row {
+  border-radius: 10px;
+  transition: background-color 150ms var(--dash-ease);
+}
+.dash-row:hover {
+  background: var(--dash-surface-2);
+}
+
+/* ---- Dialog ---------------------------------------------------------------------------------- */
+
+.dash dialog {
+  background: var(--dash-surface);
+  border: 1px solid var(--dash-border-strong);
+  border-radius: 16px;
+  color: var(--dash-text);
+  box-shadow: var(--dash-highlight), 0 30px 60px -20px rgba(0, 0, 0, 0.6);
+}
+.dash dialog[open] {
+  animation: dash-dialog-in 180ms var(--dash-ease);
+}
+.dash dialog::backdrop {
+  background: rgba(8, 12, 20, 0.55);
+}
+@keyframes dash-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.985);
+  }
+}
+
+/* Chips for subject toggles in the dialog. */
+.dash-chip {
+  height: 2.25rem;
+  border-radius: 999px;
+  border: 1px solid var(--dash-border-strong);
+  padding: 0 0.85rem;
+  font-family: var(--dash-ui);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--dash-text-2);
+  background: var(--dash-surface-2);
+  transition: background-color 150ms var(--dash-ease), border-color 150ms var(--dash-ease), color 150ms var(--dash-ease);
+}
+.dash-chip:hover {
+  border-color: var(--dash-accent-line);
+}
+.dash-chip[aria-pressed="true"] {
+  background: var(--dash-accent);
+  border-color: var(--dash-accent);
+  color: var(--dash-accent-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [class*="dash-"],
+  [class*="dash-"]::before,
+  .dash dialog[open] {
+    transition: none !important;
+    animation: none !important;
+  }
+  .dash-btn:hover,
+  .dash-metric:hover,
+  .dash-event:hover {
+    transform: none;
+  }
+}
+
+/* Native checkboxes, radios and range inputs take the accent. */
+input[type="checkbox"],
+input[type="radio"],
+input[type="range"] {
+  accent-color: var(--coral);
+}

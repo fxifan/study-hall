@@ -68,7 +68,7 @@ export default async function TutorsLanding() {
               <li>✓ Invoices and tax invoices (GST or not) with your bank details</li>
             </ul>
           </div>
-          <div className="rounded-xl border border-hair bg-sheet p-5 shadow-sm">
+          <div className="dash-card p-5 shadow-sm">
             <h2 className="mb-4 text-lg font-medium">Start your 14-day free trial</h2>
             <SignUpForm termsHref={href("/tutors/terms")} privacyHref={href("/tutors/privacy")} loginHref={href("/login")} />
           </div>
@@ -95,7 +95,7 @@ export default async function TutorsLanding() {
           </div>
           <figure className="flex flex-col gap-2">
             <figcaption className="text-sm text-ink-soft">What the parent gets (fictional example, as copied into WeChat):</figcaption>
-            <pre className="rounded-xl border border-hair bg-sheet p-4 font-sans text-sm leading-relaxed whitespace-pre-wrap">{SAMPLE}</pre>
+            <pre className="dash-card p-4 font-sans text-sm leading-relaxed whitespace-pre-wrap">{SAMPLE}</pre>
           </figure>
         </section>
 
@@ -104,7 +104,7 @@ export default async function TutorsLanding() {
             Pricing
           </h2>
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-xl border border-hair bg-sheet p-5">
+            <div className="dash-card p-5">
               <h3 className="font-medium">{PLANS.trial.name}</h3>
               <p className="my-2 text-3xl">A$0</p>
               <p className="text-sm text-ink-soft">Everything, for {PLANS.trial.days} days. No card needed.</p>

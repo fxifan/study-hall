@@ -78,7 +78,7 @@ async function Costs({ searchParams }: Pick<PageProps<"/[lang]/admin/costs">, "s
           ["Cost per active tutor", active ? formatAudCents(cost.total / active) : "–"],
           ["AI drafts + translations", String(drafts)],
         ].map(([label, value]) => (
-          <div key={label} className="rounded-md border border-hair bg-sheet px-4 py-3">
+          <div key={label} className="dash-card px-4 py-3">
             <p className="text-xs text-ink-soft">{label}</p>
             <p className="text-2xl tabular-nums">{value}</p>
           </div>

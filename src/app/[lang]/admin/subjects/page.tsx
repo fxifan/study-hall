@@ -80,7 +80,7 @@ async function Subjects() {
     <AdminFrame title={a.title} current="subjects">
       <p className="text-sm text-ink-soft">{a.intro}</p>
       {rows.length ? (
-        <div className="overflow-x-auto rounded-md border border-hair bg-sheet">
+        <div className="overflow-x-auto dash-card">
           <table className="w-full text-sm" data-testid="subject-demand">
             <thead>
               <tr className="border-b border-rule text-left text-ink-soft">
@@ -113,7 +113,7 @@ async function Subjects() {
       <section className="flex flex-col gap-3">
         <h2 className="text-xl font-medium">{a.students}</h2>
         {tutoringStudents?.length ? (
-          <ul className="divide-y divide-rule rounded-md border border-hair bg-sheet text-sm" data-testid="tutoring-students">
+          <ul className="divide-y divide-rule dash-card text-sm" data-testid="tutoring-students">
             {tutoringStudents.map((s) => {
               const subjects = s.student_subjects
                 .filter((x) => x.subjects)

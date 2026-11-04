@@ -161,7 +161,7 @@ async function SessionRoster({ params }: Pick<PageProps<"/[lang]/proctor/session
         time={(iso) => formatInZone(iso, t.formats.time, MELBOURNE, dateLocale)}
       />
       {students.length ? (
-        <ul className="divide-y divide-rule rounded-md border border-hair bg-sheet" data-testid="roster">
+        <ul className="divide-y divide-rule dash-card" data-testid="roster">
           {students.map((r) => (
             <li key={r.student_id} className="flex flex-col gap-2 px-4 py-3">
               <div className="flex flex-wrap items-baseline gap-3">
@@ -347,7 +347,7 @@ function Breakouts({
 }) {
   const busyStudentIds = breakouts.filter((b) => !b.ended_at).flatMap((b) => b.students.map((s) => s.id));
   return (
-    <section className="flex flex-col gap-3 rounded-md border border-hair bg-sheet px-4 py-3" data-testid="breakouts">
+    <section className="flex flex-col gap-3 dash-card px-4 py-3" data-testid="breakouts">
       <h2 className="font-medium">{t.heading}</h2>
       <p className="text-sm font-medium text-pen">{t.rule}</p>
       {open ? (

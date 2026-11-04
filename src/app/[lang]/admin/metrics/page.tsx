@@ -116,25 +116,25 @@ async function Metrics({ searchParams }: Pick<PageProps<"/[lang]/admin/metrics">
       </form>
       <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4" data-testid="metric-stats">
         {stats.map(([label, value]) => (
-          <div key={label} className="rounded-md border border-hair bg-sheet px-4 py-3">
+          <div key={label} className="dash-card px-4 py-3">
             <dt className="text-sm text-ink-soft">{label}</dt>
             <dd className="text-2xl">{value}</dd>
           </div>
         ))}
       </dl>
       <div className="grid gap-3 sm:grid-cols-2">
-        <section className="rounded-md border border-hair bg-sheet px-4 py-3 text-sm" data-testid="metric-funnel">
+        <section className="dash-card px-4 py-3 text-sm" data-testid="metric-funnel">
           <h2 className="mb-1 font-mono text-xs tracking-widest text-ink-soft uppercase">{m.funnel}</h2>
           {m.started}: {data.funnel.started} → {m.consented}: {data.funnel.consented} → {m.paid}: {data.funnel.paid}
         </section>
-        <section className="rounded-md border border-hair bg-sheet px-4 py-3 text-sm">
+        <section className="dash-card px-4 py-3 text-sm">
           <h2 className="mb-1 font-mono text-xs tracking-widest text-ink-soft uppercase">{m.reports}</h2>
           {m.sent}: {data.reports.sent} · {m.failed}: {data.reports.failed} · {m.awaiting}: {data.reports.awaiting}
         </section>
       </div>
       <section className="flex flex-col gap-2">
         <h2 className="text-xl font-medium">{m.weeks}</h2>
-        <div className="overflow-x-auto rounded-md border border-hair bg-sheet">
+        <div className="overflow-x-auto dash-card">
           <table className="w-full text-sm" data-testid="metric-weeks">
             <thead>
               <tr className="border-b border-rule text-left text-ink-soft">
