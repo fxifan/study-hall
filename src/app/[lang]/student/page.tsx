@@ -188,8 +188,14 @@ async function StudentHome({ searchParams }: Pick<PageProps<"/[lang]/student">, 
             {[1, 2, 3].map((n) => {
               const goal = goals?.find((g) => g.position === n);
               return (
-                <fieldset key={n} className="grid gap-2 rounded-md border border-hair bg-sheet p-3 sm:grid-cols-[10rem_1fr]">
-                  <legend className="px-1 font-mono text-xs text-ink-soft">{fill(s.goals.placeholder, { n })}</legend>
+                // One compact row per task: number, subject, task, minutes; what they'll show underneath.
+                <div
+                  key={n}
+                  className="grid grid-cols-[1.5rem_1fr] gap-x-3 gap-y-2 rounded-md border border-hair bg-sheet p-3 sm:grid-cols-[1.5rem_9rem_1fr_6.5rem]"
+                >
+                  <span className="row-span-3 pt-1.5 font-serif text-lg text-pen italic sm:row-span-2" aria-hidden="true">
+                    {n}
+                  </span>
                   <Input name={`subject${n}`} list="my-subjects" maxLength={60} aria-label={`${s.goals.subject} ${n}`} placeholder={s.goals.subject} defaultValue={goal?.subject ?? ""} />
                   <Input
                     name={`goal${n}`}
@@ -199,18 +205,24 @@ async function StudentHome({ searchParams }: Pick<PageProps<"/[lang]/student">, 
                     defaultValue={goal?.text ?? ""}
                   />
                   <Input
+                    name={`minutes${n}`}
+                    type="number"
+                    min={5}
+                    max={240}
+                    step={5}
+                    aria-label={`${s.goals.minutes} ${n}`}
+                    placeholder={s.goals.minutesShort}
+                    defaultValue={goal?.est_minutes ?? ""}
+                  />
+                  <Input
                     name={`expected${n}`}
                     maxLength={140}
                     aria-label={`${s.goals.expected} ${n}`}
                     placeholder={`${s.goals.expected}: ${s.goals.expectedPlaceholder}`}
                     defaultValue={goal?.expected_output ?? ""}
-                    className="sm:col-span-2"
+                    className="sm:col-span-3"
                   />
-                  <label className="flex items-center gap-2 text-sm text-ink-soft sm:col-span-2">
-                    {s.goals.minutes}
-                    <Input name={`minutes${n}`} type="number" min={5} max={240} step={5} className="w-24" defaultValue={goal?.est_minutes ?? ""} />
-                  </label>
-                </fieldset>
+                </div>
               );
             })}
             <Button type="submit" variant="outline" className="self-start">

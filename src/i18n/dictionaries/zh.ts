@@ -77,6 +77,7 @@ export const zh: Dictionary = {
       expected: "完成后能拿出什么成果（可选）",
       expectedPlaceholder: "例如：解题过程、作文提纲、测验分数",
       minutes: "预计分钟（可选）",
+      minutesShort: "分钟",
       save: "保存目标",
       outcomeTitle: "完成得怎么样？",
       outcomeIntro: "离开前标记每项任务，家长的报告会显示这些内容以及你上传的作业。",

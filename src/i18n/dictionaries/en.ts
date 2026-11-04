@@ -80,6 +80,7 @@ export const en = {
       expected: "What you'll have to show (optional)",
       expectedPlaceholder: "e.g. worked answers, essay plan, quiz score",
       minutes: "Minutes (optional)",
+      minutesShort: "Minutes",
       save: "Save goals",
       outcomeTitle: "How did it go?",
       outcomeIntro: "Mark each task before you leave. Your parent's report shows these, and any work you upload.",
