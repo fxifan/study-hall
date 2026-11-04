@@ -29,7 +29,10 @@ export async function transcribe(audio: Blob, filename: string): Promise<string>
     body: form,
     signal: AbortSignal.timeout(60_000),
   });
-  if (!response.ok) throw new TranscribeError(`Transcription service error (${response.status}).`);
+  if (!response.ok) {
+    const err = ((await response.json().catch(() => null)) as { error?: { type?: string; code?: string } } | null)?.error;
+    throw new TranscribeError(`Transcription service error (${response.status} ${err?.code ?? err?.type ?? "unknown"}).`);
+  }
   const body = (await response.json()) as { text?: string };
   return (body.text ?? "").trim();
 }
