@@ -194,7 +194,7 @@ export function LogForm({
               type="button"
               aria-pressed={subjects.includes(s)}
               onClick={() => toggle(s)}
-              className={`h-9 rounded-full border px-3 text-sm ${subjects.includes(s) ? "border-ink bg-ink text-paper" : "border-hair bg-sheet"}`}
+              className="dash-chip"
             >
               {s}
             </button>
@@ -215,7 +215,7 @@ export function LogForm({
             <p className="font-mono text-3xl tabular-nums" aria-live="polite">
               {mmss(seconds)} <span className="text-base text-ink-faint">/ 3:00</span>
             </p>
-            <button type="button" onClick={stopRecording} className="flex size-20 items-center justify-center rounded-full bg-pen text-paper" aria-label="Stop recording">
+            <button type="button" onClick={stopRecording} className="flex size-20 items-center justify-center rounded-full bg-[var(--coral)] text-[var(--coral-ink)] shadow-[0_6px_16px_-8px_rgba(240,120,98,0.7)] transition-transform hover:scale-105 active:scale-95" aria-label="Stop recording">
               <span className="size-6 rounded-sm bg-paper" />
             </button>
             <p className="text-sm text-ink-soft">Say what you covered, what went well, what&apos;s next, and any homework.</p>
@@ -240,7 +240,7 @@ export function LogForm({
               type="button"
               onClick={startRecording}
               disabled={stage === "working"}
-              className="flex size-20 items-center justify-center rounded-full bg-pen text-paper shadow-sm"
+              className="flex size-20 items-center justify-center rounded-full bg-[var(--coral)] text-[var(--coral-ink)] shadow-[0_6px_16px_-8px_rgba(240,120,98,0.7)] transition-transform hover:scale-105 active:scale-95 shadow-sm"
               aria-label="Record a voice note"
             >
               <svg viewBox="0 0 24 24" className="size-8" fill="currentColor" aria-hidden="true">
