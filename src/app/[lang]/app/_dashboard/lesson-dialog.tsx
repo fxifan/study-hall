@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { createContext, useContext, useEffect, useRef, useState, useTransition, type ReactNode } from "react";
 import { deleteLesson, saveLesson, setLessonCancelled } from "../dashboard-actions";
-import { field, labelClass, primaryButton, secondaryButton } from "../_components/styles";
+import { field, labelClass, primaryButton, secondaryButton } from "./ui";
 import { useCopyText } from "@/components/report-cards";
 import type { DashItem, DashLink, DashStudent } from "./types";
 
@@ -70,7 +70,7 @@ export function DashboardProvider({
         ref={ref}
         onClose={() => setMode(null)}
         onClick={(e) => e.target === e.currentTarget && setMode(null)}
-        className="m-auto w-[min(32rem,calc(100vw-2rem))] rounded-lg border border-hair bg-sheet p-0 text-ink shadow-xl backdrop:bg-ink/30"
+        className="m-auto w-[min(32rem,calc(100vw-2rem))] p-0"
         aria-labelledby="lesson-dialog-title"
       >
         {mode && (
@@ -141,20 +141,20 @@ function LessonDetails({
           </p>
         </div>
         <span
-          className={`shrink-0 rounded-full border px-2 py-0.5 text-xs ${needsLogging ? "border-pen text-pen" : item.status === "done" ? "border-hair bg-paper-deep text-ink-soft" : "border-hair text-ink-soft"}`}
+          className={`dash-pill shrink-0 px-2 py-0.5 text-xs ${needsLogging || item.status === "scheduled" ? "dash-pill--accent" : ""}`}
         >
           {needsLogging ? "Not logged yet" : STATUS_TEXT[item.status]}
         </span>
       </header>
       {item.subjects.length > 0 && <p className="text-sm">{item.subjects.join(", ")}</p>}
-      {item.notes && <p className="rounded-md bg-paper-deep px-3 py-2 text-sm">{item.notes}</p>}
+      {item.notes && <p className="dash-inset px-3 py-2 text-sm">{item.notes}</p>}
       {link && (
-        <div className="flex flex-wrap items-center gap-2 rounded-md border border-hair px-3 py-2 text-sm">
+        <div className="dash-inset flex flex-wrap items-center gap-1 px-3 py-1.5 text-sm">
           <span className="mr-auto truncate">{link.name}</span>
-          <button type="button" className="font-medium underline-offset-4 hover:underline" onClick={() => copy(link.url)}>
+          <button type="button" className="dash-btn dash-btn--ghost" onClick={() => copy(link.url)}>
             {copyState === "copied" ? "Copied" : copyState === "failed" ? "Couldn't copy" : "Copy link"}
           </button>
-          <a className="font-medium underline-offset-4 hover:underline" href={link.url} target="_blank" rel="noreferrer">
+          <a className="dash-btn dash-btn--ghost" href={link.url} target="_blank" rel="noreferrer">
             Open ↗
           </a>
         </div>
@@ -189,7 +189,7 @@ function LessonDetails({
             </button>
             <button
               type="button"
-              className={`${secondaryButton} text-pen`}
+              className={`${secondaryButton} !text-[var(--dash-accent-text)]`}
               disabled={pending}
               onClick={() => window.confirm("Delete this lesson?") && run(() => deleteLesson(item.lessonId!))}
             >
@@ -198,7 +198,7 @@ function LessonDetails({
           </div>
         )}
         {item.kind === "session" && <p className="text-xs text-ink-faint">Logged without a scheduled lesson.</p>}
-        <button type="button" className="text-sm text-ink-soft hover:text-ink" onClick={onClose}>
+        <button type="button" className="dash-btn dash-btn--ghost" onClick={onClose}>
           Close
         </button>
       </div>
@@ -245,7 +245,7 @@ function LessonForm({
         <Link className={primaryButton} href={studentsHref} onClick={onDone}>
           Add a student
         </Link>
-        <button type="button" className="text-sm text-ink-soft hover:text-ink" onClick={onDone}>
+        <button type="button" className="dash-btn dash-btn--ghost" onClick={onDone}>
           Close
         </button>
       </>
@@ -328,7 +328,7 @@ function LessonForm({
               type="button"
               aria-pressed={subjects.includes(s)}
               onClick={() => setSubjects((cur) => (cur.includes(s) ? cur.filter((x) => x !== s) : [...cur, s]))}
-              className={`h-9 rounded-full border px-3 text-sm ${subjects.includes(s) ? "border-ink bg-ink text-paper" : "border-hair bg-sheet"}`}
+              className="dash-chip"
             >
               {s}
             </button>

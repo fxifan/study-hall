@@ -18,6 +18,8 @@ import { StudentScheduleButton } from "./_dashboard/student-schedule-button";
 import type { DashDay, DashItem, DashLink } from "./_dashboard/types";
 import { PlanBanner } from "./_components/plan-banner";
 import { TutorShell, appHref, yearLabel } from "./_components/shell";
+import { CalendarClock, CalendarDays, Users, Wallet, type LucideIcon } from "lucide-react";
+import "./_dashboard/dashboard.css";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
@@ -161,6 +163,7 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/[lang]/app">, "searc
 
   return (
     <TutorShell tutor={me} title="Dashboard" current="today" wide hideTitle>
+      <div className="dash flex flex-col gap-6">
       <DashboardProvider
         students={students.map((s) => ({ id: s.id, name: studentName(s), subjects: s.subjects }))}
         links={links}
@@ -170,13 +173,19 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/[lang]/app">, "searc
         studentsHref={appHref("/app/students#add", locale)}
       >
         <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <h1 className="text-3xl font-medium tracking-tight">
+          <div className="flex flex-col gap-1.5">
+            <span className="dash-label">{formatInZone(now, "EEEE d MMMM")}</span>
+            <h1 className="text-[2rem] leading-tight font-medium tracking-tight sm:text-4xl">
               {greeting}, {me.tutor.display_name.split(" ")[0]}
             </h1>
             <p className="text-ink-soft">
-              {formatInZone(now, "EEEE d MMMM")} ·{" "}
-              {todayCount ? `${todayCount} ${todayCount === 1 ? "lesson" : "lessons"} today` : "No lessons today"}
+              {todayCount ? (
+                <>
+                  You have <span className="font-medium text-[var(--dash-accent-text)]">{todayCount} {todayCount === 1 ? "lesson" : "lessons"}</span> today.
+                </>
+              ) : (
+                "No lessons today."
+              )}
             </p>
           </div>
           <QuickActions logHref={appHref("/app/log", locale)} addStudentHref={appHref("/app/students#add", locale)} />
@@ -189,22 +198,24 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/[lang]/app">, "searc
           </p>
         )}
         {(unlogged > 0 || drafts > 0 || unbilled.length > 0) && (
-          <ul aria-label="Waiting on you" className="flex flex-wrap gap-2 text-sm">
+          <ul aria-label="Waiting on you" className="flex flex-wrap items-center gap-2">
+            <li className="dash-label mr-1">Waiting on you</li>
             {unlogged > 0 && (
-              <li className="rounded-full border border-pen/60 px-3 py-1 text-pen">
-                {unlogged} past {unlogged === 1 ? "lesson" : "lessons"} not logged (red in the calendar)
+              <li className="dash-pill dash-pill--accent">
+                <span className="dash-dot" aria-hidden="true" />
+                {unlogged} past {unlogged === 1 ? "lesson" : "lessons"} not logged
               </li>
             )}
             {drafts > 0 && (
               <li>
-                <Link className="block rounded-full border border-hair bg-sheet px-3 py-1 hover:bg-paper-deep" href={appHref("/app/students", locale)}>
+                <Link className="dash-pill" href={appHref("/app/students", locale)}>
                   {drafts} {drafts === 1 ? "report" : "reports"} not sent yet
                 </Link>
               </li>
             )}
             {unbilled.length > 0 && (
               <li>
-                <Link className="block rounded-full border border-hair bg-sheet px-3 py-1 hover:bg-paper-deep" href={appHref("/app/invoices", locale)}>
+                <Link className="dash-pill" href={appHref("/app/invoices", locale)}>
                   {formatCents(unbilledCents)} unbilled · invoice it
                 </Link>
               </li>
@@ -212,21 +223,26 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/[lang]/app">, "searc
           </ul>
         )}
 
-        <section aria-label="This week" className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <Metric label="Active students" value={String(metrics.activeStudents)} note="Taught in 30 days or booked" />
+        <section aria-label="This week" className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+          <Metric icon={Users} label="Active students" value={String(metrics.activeStudents)} note="Taught in 30 days or booked" />
           <Metric
+            icon={Wallet}
             label="Earned this week"
             value={formatCents(metrics.earningsThisWeekCents).replace(/\.00$/, "")}
-            note={`From logged sessions · last week ${formatCents(metrics.earningsLastWeekCents).replace(/\.00$/, "")}`}
-            trend={metrics.earningsThisWeekCents - metrics.earningsLastWeekCents}
+            note="From logged sessions"
+            trend={{
+              delta: metrics.earningsThisWeekCents - metrics.earningsLastWeekCents,
+              text: `${formatCents(Math.abs(metrics.earningsThisWeekCents - metrics.earningsLastWeekCents)).replace(/\.00$/, "")} vs last week`,
+            }}
           />
           <Metric
+            icon={CalendarDays}
             label="Lessons this week"
             value={String(metrics.lessonsThisWeek)}
-            note={`Done and booked · last week ${metrics.lessonsLastWeek}`}
-            trend={metrics.lessonsThisWeek - metrics.lessonsLastWeek}
+            note="Done and booked"
+            trend={{ delta: metrics.lessonsThisWeek - metrics.lessonsLastWeek, text: `${Math.abs(metrics.lessonsThisWeek - metrics.lessonsLastWeek)} vs last week` }}
           />
-          <Metric label="Upcoming lessons" value={String(metrics.upcomingLessons)} note="Booked in the next 7 days" />
+          <Metric icon={CalendarClock} label="Upcoming lessons" value={String(metrics.upcomingLessons)} note="Booked in the next 7 days" />
         </section>
 
         <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
@@ -236,6 +252,7 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/[lang]/app">, "searc
             days={days}
             items={items}
             hours={hours}
+            nowMin={days.some((d) => d.isToday) ? Number(formatInZone(now, "H")) * 60 + Number(formatInZone(now, "m")) : null}
             nav={{
               prev: href(view, step(-1)),
               next: href(view, step(1)),
@@ -245,48 +262,57 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/[lang]/app">, "searc
             }}
           />
 
-          <section aria-labelledby="students-title" className="flex flex-col gap-3 rounded-lg border border-hair bg-sheet p-4">
-            <header className="flex items-baseline justify-between gap-3">
-              <h2 id="students-title" className="text-lg font-medium">
-                Students
-              </h2>
-              <Link className="text-sm text-ink-soft underline-offset-4 hover:text-ink hover:underline" href={appHref("/app/students", locale)}>
+          <section aria-labelledby="students-title" className="dash-card flex flex-col gap-3 p-4 sm:p-5">
+            <header className="flex items-end justify-between gap-3">
+              <div className="flex flex-col">
+                <span className="dash-label">Who you teach</span>
+                <h2 id="students-title" className="text-xl font-medium">
+                  Students
+                </h2>
+              </div>
+              <Link className="dash-link" href={appHref("/app/students", locale)}>
                 View all{students.length > 5 ? ` ${students.length}` : ""} →
               </Link>
             </header>
             {overview.length ? (
-              <ul className="flex flex-col divide-y divide-rule">
+              <ul className="-mx-2 flex flex-col gap-1">
                 {overview.map((s) => {
                   const next = nextLesson.get(s.id);
                   const active = Boolean(next) || recentlyTaught.has(s.id);
                   return (
-                    <li key={s.id} className="flex flex-col gap-1 py-3">
-                      <div className="flex items-baseline justify-between gap-2">
-                        <Link href={appHref(`/app/students/${s.id}`, locale)} className="font-medium underline-offset-4 hover:underline">
-                          {studentName(s)}
-                        </Link>
-                        <span className="flex items-center gap-1.5 text-xs text-ink-soft">
-                          <span className={`size-1.5 rounded-full ${active ? "bg-ink" : "bg-rule"}`} aria-hidden="true" />
-                          {active ? "Active" : "No recent lessons"}
-                        </span>
-                      </div>
-                      <p className="text-sm text-ink-soft">
-                        {yearLabel(s.year_level)}
-                        {s.subjects.length ? ` · ${s.subjects.join(", ")}` : ""}
-                      </p>
-                      {s.goals && <p className="text-sm">{s.goals}</p>}
-                      <div className="flex items-center justify-between gap-2 text-xs text-ink-soft">
-                        <span>{next ? `Next: ${formatInZone(next, "EEE d MMM, h:mmaaa")}` : "No lesson booked"}</span>
-                        <StudentScheduleButton studentId={s.id} name={s.first_name} />
+                    <li key={s.id} className="dash-row flex gap-3 px-2 py-2.5">
+                      <span className="dash-avatar" aria-hidden="true">
+                        {s.first_name.slice(0, 1)}
+                        {s.last_initial}
+                      </span>
+                      <div className="flex min-w-0 flex-1 flex-col gap-1">
+                        <div className="flex items-baseline justify-between gap-2">
+                          <Link href={appHref(`/app/students/${s.id}`, locale)} className="font-medium underline-offset-4 hover:underline">
+                            {studentName(s)}
+                          </Link>
+                          <span className={`dash-ui flex items-center gap-1.5 text-[11px] font-medium ${active ? "text-[var(--dash-accent-text)]" : "text-ink-faint"}`}>
+                            <span className={`size-1.5 rounded-full ${active ? "bg-[var(--dash-accent)]" : "bg-[var(--dash-border-strong)]"}`} aria-hidden="true" />
+                            {active ? "Active" : "No recent lessons"}
+                          </span>
+                        </div>
+                        <p className="dash-ui text-xs text-ink-faint">
+                          {yearLabel(s.year_level)}
+                          {s.subjects.length ? ` · ${s.subjects.join(", ")}` : ""}
+                        </p>
+                        {s.goals && <p className="text-sm leading-snug text-ink-soft">{s.goals}</p>}
+                        <div className="dash-ui flex items-center justify-between gap-2 text-xs text-ink-soft">
+                          <span className="truncate whitespace-nowrap">{next ? `Next · ${formatInZone(next, "EEE d MMM, h:mmaaa")}` : "No lesson booked"}</span>
+                          <StudentScheduleButton studentId={s.id} name={s.first_name} />
+                        </div>
                       </div>
                     </li>
                   );
                 })}
               </ul>
             ) : (
-              <div className="flex flex-col gap-2 rounded-md border border-dashed border-rule p-4 text-sm text-ink-soft">
+              <div className="dash-inset flex flex-col gap-2 border-dashed p-4 text-sm text-ink-soft">
                 <p>No students yet. Add your first student to schedule lessons and write reports.</p>
-                <Link className="font-medium text-ink underline-offset-4 hover:underline" href={appHref("/app/students#add", locale)}>
+                <Link className="dash-link" href={appHref("/app/students#add", locale)}>
                   Add a student →
                 </Link>
               </div>
@@ -299,23 +325,44 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/[lang]/app">, "searc
           <CalendarConnections feedUrl={feedUrl} lastFetched={lastFetched} />
         </div>
       </DashboardProvider>
+      </div>
     </TutorShell>
   );
 }
 
-function Metric({ label, value, note, trend }: { label: string; value: string; note: string; trend?: number }) {
+function Metric({
+  icon: Icon,
+  label,
+  value,
+  note,
+  trend,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string;
+  note: string;
+  trend?: { delta: number; text: string };
+}) {
   return (
-    <div className="flex flex-col gap-1 rounded-lg border border-hair bg-sheet px-4 py-3">
-      <span className="font-mono text-[11px] tracking-wider text-ink-soft uppercase">{label}</span>
-      <span className="flex items-baseline gap-2">
-        <span className="font-serif text-3xl tabular-nums">{value}</span>
-        {trend !== undefined && trend !== 0 && (
-          <span className={`text-xs ${trend > 0 ? "text-ink" : "text-ink-soft"}`} aria-label={trend > 0 ? "up on last week" : "down on last week"}>
-            {trend > 0 ? "▲" : "▼"}
+    <div className="dash-card dash-metric flex flex-col gap-3 p-4">
+      <div className="flex items-center justify-between gap-2">
+        <span className="dash-label">{label}</span>
+        <span className="dash-metric-icon" aria-hidden="true">
+          <Icon size={16} strokeWidth={2} />
+        </span>
+      </div>
+      <span className="font-serif text-[2.25rem] leading-none tracking-tight tabular-nums">{value}</span>
+      <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+        {trend && trend.delta !== 0 && (
+          <span className={`dash-trend ${trend.delta > 0 ? "dash-trend--up" : ""}`}>
+            <span aria-hidden="true">{trend.delta > 0 ? "↑" : "↓"}</span>
+            <span className="sr-only">{trend.delta > 0 ? "Up" : "Down"}</span>
+            {trend.text}
           </span>
         )}
+        {trend && trend.delta === 0 && <span className="dash-trend">Same as last week</span>}
+        <span className="dash-ui text-xs text-ink-faint">{note}</span>
       </span>
-      <span className="text-xs text-ink-faint">{note}</span>
     </div>
   );
 }

@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useCopyText } from "@/components/report-cards";
 import { deleteMeetingLink, saveMeetingLink } from "../dashboard-actions";
-import { field, labelClass, primaryButton, secondaryButton } from "../_components/styles";
+import { field, labelClass, primaryButton, secondaryButton } from "./ui";
 import type { DashLink, DashStudent } from "./types";
 
 /**
@@ -13,18 +13,19 @@ import type { DashLink, DashStudent } from "./types";
 export function MeetingLinks({ links, students }: { links: DashLink[]; students: DashStudent[] }) {
   const [editing, setEditing] = useState<string | null>(null);
   return (
-    <section id="meeting-links" aria-labelledby="links-title" className="flex flex-col gap-3 rounded-lg border border-hair bg-sheet p-4">
+    <section id="meeting-links" aria-labelledby="links-title" className="dash-card flex flex-col gap-3 p-4 sm:p-5">
       <header>
-        <h2 id="links-title" className="text-lg font-medium">
+        <span className="dash-label">Online lessons</span>
+        <h2 id="links-title" className="text-xl font-medium">
           Class links
         </h2>
         <p className="text-sm text-ink-soft">Your Zoom links, ready to copy before class.</p>
       </header>
       {links.length ? (
-        <ul className="flex flex-col divide-y divide-rule">
+        <ul className="flex flex-col gap-2">
           {links.map((link) =>
             editing === link.id ? (
-              <li key={link.id} className="py-3">
+              <li key={link.id} className="dash-inset p-3">
                 <LinkForm link={link} students={students} onDone={() => setEditing(null)} />
               </li>
             ) : (
@@ -33,13 +34,13 @@ export function MeetingLinks({ links, students }: { links: DashLink[]; students:
           )}
         </ul>
       ) : (
-        <p className="rounded-md border border-dashed border-rule px-3 py-4 text-center text-sm text-ink-soft">
+        <p className="dash-inset border-dashed px-3 py-5 text-center text-sm text-ink-soft">
           No links yet. Paste your Zoom link below to keep it one tap away.
         </p>
       )}
       {editing === null && (
-        <details className="group rounded-md border border-hair px-3 py-2" open={links.length === 0}>
-          <summary className="cursor-pointer text-sm font-medium">+ Add a Zoom link</summary>
+        <details className="dash-inset group px-3 py-2.5" open={links.length === 0}>
+          <summary className="dash-ui cursor-pointer text-sm font-semibold text-[var(--dash-accent-text)]">+ Add a Zoom link</summary>
           <div className="pt-3">
             <LinkForm link={null} students={students} onDone={() => undefined} />
           </div>
@@ -54,12 +55,12 @@ function LinkRow({ link, onEdit }: { link: DashLink; onEdit: () => void }) {
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
   return (
-    <li className="flex flex-col gap-2 py-3">
+    <li className="dash-inset flex flex-col gap-2 p-3 transition-colors hover:border-[var(--dash-border-strong)]">
       <div className="flex items-baseline justify-between gap-3">
         <span className="font-medium">{link.name}</span>
-        {link.studentName && <span className="shrink-0 rounded-full border border-hair px-2 py-0.5 text-xs text-ink-soft">{link.studentName}</span>}
+        {link.studentName && <span className="dash-pill shrink-0 px-2 py-0.5 text-xs">{link.studentName}</span>}
       </div>
-      <span className="truncate font-mono text-xs text-ink-soft">{link.url.replace(/^https:\/\//, "")}</span>
+      <span className="truncate font-mono text-xs text-ink-faint">{link.url.replace(/^https:\/\//, "")}</span>
       <div className="flex flex-wrap gap-2">
         <button type="button" className={`${primaryButton} min-w-24`} onClick={() => copy(link.url)} aria-live="polite">
           {copyState === "copied" ? "Copied ✓" : copyState === "failed" ? "Couldn't copy" : "Copy"}
@@ -67,13 +68,14 @@ function LinkRow({ link, onEdit }: { link: DashLink; onEdit: () => void }) {
         <a className={secondaryButton} href={link.url} target="_blank" rel="noreferrer">
           Open ↗
         </a>
-        <button type="button" className="ml-auto h-11 px-2 text-sm text-ink-soft hover:text-ink sm:h-9" onClick={onEdit}>
+        <span className="ml-auto flex gap-1">
+        <button type="button" className="dash-btn dash-btn--ghost" onClick={onEdit}>
           Edit
         </button>
         <button
           type="button"
           disabled={pending}
-          className="h-11 px-2 text-sm text-ink-soft hover:text-pen sm:h-9"
+          className="dash-btn dash-btn--ghost"
           onClick={() =>
             window.confirm(`Delete "${link.name}"?`) &&
             start(async () => {
@@ -84,6 +86,7 @@ function LinkRow({ link, onEdit }: { link: DashLink; onEdit: () => void }) {
         >
           Delete
         </button>
+        </span>
       </div>
       {error && (
         <p role="alert" className="text-sm text-pen">
