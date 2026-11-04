@@ -38,10 +38,25 @@ const loadTutor = cache(async (id: string): Promise<TutorRow | null> => {
   return data;
 });
 
-/** Pages: the signed-in tutor (redirects anyone else). */
+/**
+ * Admins (the founders) can use the tutor app too, as their own tutor workspace: the first visit
+ * creates their tutors row, on Solo at no charge. RLS keys every tutor table to auth.uid(), so an
+ * admin's workspace holds only their own families and reports, never another tutor's.
+ */
+async function ensureAdminWorkspace(profile: CurrentProfile): Promise<TutorRow | null> {
+  const name = (profile.fullName || profile.email.split("@")[0]).slice(0, 80);
+  const service = createAdminClient();
+  const { error } = await service.from("tutors").upsert({ id: profile.id, display_name: name, plan: "solo" }, { onConflict: "id", ignoreDuplicates: true });
+  if (error) console.error("Admin tutor workspace", error.code, error.message);
+  const { data, error: readError } = await service.from("tutors").select(TUTOR_COLUMNS).eq("id", profile.id).maybeSingle<TutorRow>();
+  if (readError) console.error("Admin tutor workspace read", readError.code, readError.message);
+  return data;
+}
+
+/** Pages: the signed-in tutor, or an admin using their own workspace (redirects anyone else). */
 export async function requireTutor(): Promise<Tutor> {
   const profile = await requireRole("tutor");
-  const tutor = await loadTutor(profile.id);
+  const tutor = (await loadTutor(profile.id)) ?? (profile.role === "admin" ? await ensureAdminWorkspace(profile) : null);
   if (!tutor) throw new Error("This tutor account has no profile row.");
   return { profile, tutor };
 }
@@ -57,7 +72,7 @@ export async function refreshTutorAfterCheckout(): Promise<Tutor> {
 /** Server Actions and Route Handlers: the signed-in tutor, or null. */
 export async function currentTutor(): Promise<Tutor | null> {
   const profile = await getCurrentProfile();
-  if (!profile || profile.role !== "tutor") return null;
+  if (!profile || (profile.role !== "tutor" && profile.role !== "admin")) return null;
   const tutor = await loadTutor(profile.id);
   return tutor ? { profile, tutor } : null;
 }

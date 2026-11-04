@@ -347,6 +347,7 @@ export const en = {
       tutors: "Tutors",
       costs: "Tutor costs",
       supervise: "Supervise",
+      tutorApp: "Tutor app",
     },
     saved: "Saved.",
     rooms: {

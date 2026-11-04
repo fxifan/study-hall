@@ -18,6 +18,8 @@ describe("role areas", () => {
     expect(roleForPath("/tutors")).toBeNull(); // the public tutor landing page
     expect(canEnterArea("tutor", "tutor")).toBe(true);
     expect(canEnterArea("tutor", "proctor")).toBe(false);
-    expect(canEnterArea("admin", "tutor")).toBe(false);
+    expect(canEnterArea("admin", "tutor")).toBe(true); // their own tutor workspace
+    expect(canEnterArea("tutor", "admin")).toBe(false);
+    expect(canEnterArea("proctor", "tutor")).toBe(false);
   });
 });

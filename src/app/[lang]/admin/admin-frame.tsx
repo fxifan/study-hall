@@ -28,6 +28,9 @@ export async function AdminFrame({ title, current, children }: { title: string; 
         <Link href={localizePath("/proctor", locale)} className="text-ink-soft hover:text-ink sm:ml-auto">
           {t.adminPages.nav.supervise} →
         </Link>
+        <Link href={localizePath("/app", locale)} className="text-ink-soft hover:text-ink">
+          {t.adminPages.nav.tutorApp} →
+        </Link>
       </nav>
       {children}
     </AppShell>

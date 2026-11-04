@@ -57,3 +57,18 @@ test("admins grant, suspend and restore tutor access", async ({ page }) => {
   }
 });
 
+
+test("admins can open the tutor app as their own workspace", async ({ page }) => {
+  await logIn(page, "admin");
+  await page.getByRole("navigation", { name: "Admin" }).getByRole("link", { name: /Tutor app/ }).click();
+  await expect(page).toHaveURL("/app");
+  const { data: me } = await admin.from("profiles").select("id").eq("email", seedEmail("admin")).single();
+  const row = (await admin.from("tutors").select("plan").eq("id", me!.id).single()).data;
+  expect(row?.plan).toBe("solo");
+  await page.goto("/app/settings");
+  await expect(page.getByText(/Solo plan/)).toBeVisible();
+  // Supervisors still can't.
+  await logIn(page, "proctor");
+  await page.goto("/app");
+  await expect(page).toHaveURL("/proctor");
+});
