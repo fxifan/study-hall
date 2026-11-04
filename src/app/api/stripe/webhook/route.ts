@@ -2,6 +2,7 @@ import type Stripe from "stripe";
 import { syncSubscription } from "@/lib/billing";
 import { siteOrigin } from "@/lib/site";
 import { getStripe } from "@/lib/stripe";
+import { syncTutorSubscription } from "@/lib/tutor/billing";
 
 /**
  * Stripe webhook (spec §6). Verifies the signature, then mirrors subscription state into the
@@ -24,14 +25,17 @@ export async function POST(request: Request) {
     case "checkout.session.completed": {
       const session = event.data.object;
       if (session.mode === "subscription" && typeof session.subscription === "string") {
-        await syncSubscription(await stripe.subscriptions.retrieve(session.subscription), origin);
+        const subscription = await stripe.subscriptions.retrieve(session.subscription);
+        if (subscription.metadata.tutor_id) await syncTutorSubscription(subscription);
+        else await syncSubscription(subscription, origin);
       }
       break;
     }
     case "customer.subscription.created":
     case "customer.subscription.updated":
     case "customer.subscription.deleted":
-      await syncSubscription(event.data.object, origin);
+      if (event.data.object.metadata.tutor_id) await syncTutorSubscription(event.data.object);
+      else await syncSubscription(event.data.object, origin);
       break;
   }
   return Response.json({ received: true });

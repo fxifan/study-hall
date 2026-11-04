@@ -7,6 +7,10 @@ import { accessFor, draftsThisMonth, requireTutor } from "@/lib/tutor/server";
 import { formatInZone } from "@/lib/time";
 import { tutorEmailMode } from "@/lib/email/send";
 import { saveSettings } from "../actions";
+import { openTutorPortal, startSoloCheckout } from "../billing-actions";
+import { stripeConfigured } from "@/lib/stripe";
+import { syncTutorCheckout } from "@/lib/tutor/billing";
+import { refreshTutorAfterCheckout } from "@/lib/tutor/server";
 import { Loading, Notice, TutorShell, field, labelClass, primaryButton } from "../_components/shell";
 import { PlanBanner } from "../_components/plan-banner";
 
@@ -26,7 +30,10 @@ const ERRORS: Record<string, string> = {
 };
 
 async function Settings({ searchParams }: Pick<PageProps<"/[lang]/app/settings">, "searchParams">) {
-  const [me, query] = await Promise.all([requireTutor(), searchParams]);
+  const [first, query] = await Promise.all([requireTutor(), searchParams]);
+  // Back from Stripe Checkout: record the payment now, even if the webhook hasn't arrived.
+  const paid = typeof query.checkout === "string" && stripeConfigured() && (await syncTutorCheckout(query.checkout, first.tutor.id));
+  const me = paid ? await refreshTutorAfterCheckout() : first;
   const t = me.tutor;
   const [access, used] = await Promise.all([accessFor(t), draftsThisMonth(t.id)]);
   const bsb = maskTail(tryDecrypt(t.bank_bsb_enc), 3);
@@ -150,7 +157,22 @@ async function Settings({ searchParams }: Pick<PageProps<"/[lang]/app/settings">
         <p className="text-ink-soft">
           AI drafts this month: {used} of {MONTHLY_DRAFT_CAP} (fair use).
         </p>
-        {t.plan !== "solo" && <p>To upgrade, email {SUPPORT_EMAIL}. Online payment is coming soon.</p>}
+        {paid && <p role="status">Thanks: you&apos;re on Solo.</p>}
+        {!stripeConfigured() ? (
+          t.plan !== "solo" && <p>To upgrade, email {SUPPORT_EMAIL}.</p>
+        ) : t.plan === "solo" && t.stripe_customer_id ? (
+          <form action={openTutorPortal}>
+            <button type="submit" className="underline underline-offset-4">
+              Manage billing (card, receipts, cancel)
+            </button>
+          </form>
+        ) : t.plan !== "solo" ? (
+          <form action={startSoloCheckout}>
+            <button type="submit" className={primaryButton}>
+              Upgrade to Solo, {formatCents(PLANS.solo.priceCentsPerMonth)}/month
+            </button>
+          </form>
+        ) : null}
       </section>
     </TutorShell>
   );

@@ -127,9 +127,9 @@ None left in the brief beyond the owner decisions below.
 ## Owner decisions still needed
 
 1. Live Stripe isn't set up. Test mode matches A$49 and A$149; live prices must match before launch.
-2. How long data is kept after a subscription ends, for the privacy notice.
-3. Zoom or Meet room settings (cloud recording off, who can record or share): the app can't enforce
-   these, so "Study Hall doesn't record" covers the app only.
+2. ~~Data retention~~ (4 Nov 2026): a family's data is deleted automatically 7 days after their
+   subscription ends (`src/lib/retention.ts`, daily cron); privacy notice `2026-11-draft-8`.
+3. ~~Zoom recording~~ (4 Nov 2026): recording is off in Study Hall's Zoom rooms. No ABN for now.
 4. Child-safety escalation process beyond the contact email.
 5. Parent report emails and the supervisor's report review aren't built yet (spec Phase 2), though
    the landing page describes them. The bilingual email template for them is ready.

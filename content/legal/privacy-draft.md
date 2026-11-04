@@ -21,7 +21,7 @@ Study Hall is run by Feifan Wu, a sole trader, and offers supervised online stud
 
 ## The video room
 
-Sessions run on Zoom or Google Meet. A supervisor is present in the live room; Study Hall doesn't record it. The video provider processes the call under its own privacy terms.
+Sessions run on Zoom or Google Meet. A supervisor is present in the live room. Recording is turned off in Study Hall's Zoom rooms, and Study Hall doesn't record sessions. The video provider processes the call under its own privacy terms.
 
 ## Who can see what
 
@@ -36,7 +36,9 @@ Our database is hosted by Supabase in Sydney, Australia. The website is hosted b
 
 ## Keeping and deleting data
 
-You can ask us to delete your child's data at any time by emailing feifanwork1@gmail.com, and we'll do it within 30 days. Deletion requests are handled by a person, not automatically.
+When your subscription ends, we keep your family's data for 7 days (in case you resubscribe), then delete it automatically: your account, your children's accounts and details, their session plans, attendance, reports, messages and uploaded work. Stripe keeps its own payment records, as the law requires.
+
+You can also ask us to delete your child's data at any time by emailing feifanwork1@gmail.com, and we'll do it within 30 days.
 
 ## Child safety
 

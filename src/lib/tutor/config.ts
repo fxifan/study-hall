@@ -11,7 +11,7 @@ export const PLANS = {
   trial: { name: "Free trial", days: 14, priceCentsPerMonth: 0 },
   /**
    * Advertised only (owner decision, spec §11.2): Stripe isn't linked for this product yet.
-   * Founders switch a tutor to Solo by hand at /admin/costs after they pay.
+   * Tutors pay in Settings (Stripe Checkout); admins can also switch Solo on by hand at /admin/costs.
    */
   solo: { name: "Solo", priceCentsPerMonth: 1500 },
 } as const;

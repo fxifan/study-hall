@@ -24,12 +24,13 @@ export type TutorRow = {
   trial_ends_at: string;
   calendar_feed_token: string | null;
   calendar_feed_fetched_at: string | null;
+  stripe_customer_id: string | null;
 };
 
 export type Tutor = { profile: CurrentProfile; tutor: TutorRow };
 
 const TUTOR_COLUMNS =
-  "id, display_name, business_name, abn, gst_registered, default_rate_cents, bank_account_name, bank_bsb_enc, bank_acct_enc, report_langs, invoice_due_days, overdue_reminders, plan, trial_ends_at, calendar_feed_token, calendar_feed_fetched_at";
+  "id, display_name, business_name, abn, gst_registered, default_rate_cents, bank_account_name, bank_bsb_enc, bank_acct_enc, report_langs, invoice_due_days, overdue_reminders, plan, trial_ends_at, calendar_feed_token, calendar_feed_fetched_at, stripe_customer_id";
 
 const loadTutor = cache(async (id: string): Promise<TutorRow | null> => {
   const supabase = await createClient();
@@ -43,6 +44,14 @@ export async function requireTutor(): Promise<Tutor> {
   const tutor = await loadTutor(profile.id);
   if (!tutor) throw new Error("This tutor account has no profile row.");
   return { profile, tutor };
+}
+
+/** After a checkout sync: read the tutor row again, past the request cache. */
+export async function refreshTutorAfterCheckout(): Promise<Tutor> {
+  const profile = await requireRole("tutor");
+  const supabase = await createClient();
+  const { data } = await supabase.from("tutors").select(TUTOR_COLUMNS).eq("id", profile.id).single<TutorRow>();
+  return { profile, tutor: data! };
 }
 
 /** Server Actions and Route Handlers: the signed-in tutor, or null. */

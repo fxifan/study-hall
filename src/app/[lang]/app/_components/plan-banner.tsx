@@ -1,10 +1,10 @@
-import { MONTHLY_DRAFT_CAP, PLANS, SUPPORT_EMAIL } from "@/lib/tutor/config";
+import { MONTHLY_DRAFT_CAP, PLANS } from "@/lib/tutor/config";
 import { formatCents } from "@/lib/tutor/invoice-math";
 import type { Access } from "@/lib/tutor/plan";
 
 export function blockedMessage(reason: "trial_ended" | "fair_use"): string {
   return reason === "trial_ended"
-    ? `Your 14-day free trial has ended. To keep drafting and sending reports and invoices, upgrade to Solo (${formatCents(PLANS.solo.priceCentsPerMonth)}/month): email ${SUPPORT_EMAIL}. Your students, reports and invoices are all still here.`
+    ? `Your 14-day free trial has ended. To keep drafting and sending reports and invoices, upgrade to Solo (${formatCents(PLANS.solo.priceCentsPerMonth)}/month) in Settings. Your students, reports and invoices are all still here.`
     : `You've used this month's fair-use allowance of ${MONTHLY_DRAFT_CAP} AI drafts. It resets on the 1st. You can still edit and send reports you've already drafted.`;
 }
 

@@ -1,8 +1,9 @@
+import { ACTIVE_SUBSCRIPTION_STATUSES } from "@/lib/subscription-status";
 import { MONTHLY_DRAFT_CAP, PLANS, type TutorPlan } from "./config";
 
 /**
  * Plan rules (docs/tutor-reports-spec.md §3.6, §7, owner decisions §11): a 14-day free trial, then
- * Solo (A$15/month, switched on by hand until Stripe is linked). Both have the fair-use cap.
+ * Solo (A$15/month, paid through Stripe, or switched on by hand by an admin). Both have the fair-use cap.
  *
  * When the trial has ended without Solo, the tutor can still read, copy and export everything and
  * mark invoices paid, but can't draft or send new reports or create or send invoices.
@@ -40,4 +41,9 @@ export function draftAccess(state: PlanState, now = new Date()): Access {
 
 export function planLabel(plan: TutorPlan): string {
   return PLANS[plan].name;
+}
+
+/** Solo while a Stripe subscription is active (including past_due, as for families); trial otherwise. */
+export function planForStatus(status: string): "solo" | "trial" {
+  return (ACTIVE_SUBSCRIPTION_STATUSES as readonly string[]).includes(status) ? "solo" : "trial";
 }

@@ -1,12 +1,16 @@
 /**
- * One-off Stripe setup for the Study Hall account, in TEST mode. Safe to re-run.
+ * One-off Stripe setup for the Study Hall account. Test mode by default. Safe to re-run.
  *   npm run stripe:setup
  *   npm run stripe:setup -- --webhook https://study-hall-murex.vercel.app/api/stripe/webhook
+ * Live mode (owner only, in their own terminal; the key is never saved or printed):
+ *   STRIPE_SECRET_KEY=sk_live_… npm run stripe:setup -- --live --webhook https://<site>/api/stripe/webhook
+ *   This points plans.stripe_price_id at the live prices, so test checkouts stop working after it.
  *
  * 1. For each active plan: a Stripe product and weekly AUD price (lookup key study-hall-<plan id>),
  *    saved to plans.stripe_price_id. Price changes need a new price; this script never edits one.
  * 2. A Customer Portal configuration: update card, see invoices, switch plan, cancel at the end of
  *    the paid week with an optional reason (owner decision 2026-10-30; reasons feed churn metrics).
+ * 2b. The tutor product's Solo plan: A$15/month (lookup key study-hall-tutor-solo).
  * 3. With --webhook <url>: a webhook endpoint for that URL. Its signing secret is written to
  *    .stripe-webhook-secret (gitignored) instead of being printed.
  */
@@ -25,7 +29,11 @@ const WEBHOOK_EVENTS: Stripe.WebhookEndpointCreateParams.EnabledEvent[] = [
 
 async function main() {
   const key = requireEnv("STRIPE_SECRET_KEY");
-  if (!/^(sk|rk)_test_/.test(key)) throw new Error("Use a TEST secret key (sk_test_…). This script won't touch live mode.");
+  const live = process.argv.includes("--live");
+  if (live ? !/^(sk|rk)_live_/.test(key) : !/^(sk|rk)_test_/.test(key)) {
+    throw new Error(live ? "--live needs a live secret key (sk_live_…)." : "Use a TEST secret key (sk_test_…), or pass --live with a live key.");
+  }
+  console.log(live ? "LIVE mode" : "Test mode");
   const stripe = new Stripe(key);
   const site = (process.env.NEXT_PUBLIC_PRODUCTION_URL || "https://study-hall-murex.vercel.app").replace(/\/$/, "");
   const db = createAdminClient();
@@ -107,6 +115,39 @@ async function main() {
     ? await stripe.billingPortal.configurations.update(existing.id, portal)
     : await stripe.billingPortal.configurations.create(portal);
   console.log(`Customer Portal configuration ${config.id}`);
+
+  // 2b. Tutor Solo plan
+  const tutorKey = "study-hall-tutor-solo";
+  let tutorPrice = (await stripe.prices.list({ lookup_keys: [tutorKey], limit: 1 })).data[0];
+  if (!tutorPrice) {
+    const product = await stripe.products.create({ name: "Study Hall for Tutors: Solo", metadata: { app: "study-hall", product: "tutor" } });
+    tutorPrice = await stripe.prices.create({
+      product: product.id,
+      unit_amount: 1500,
+      currency: "aud",
+      recurring: { interval: "month" },
+      lookup_key: tutorKey,
+      metadata: { app: "study-hall", product: "tutor" },
+    });
+    console.log(`Created tutor Solo price ${tutorPrice.id}`);
+  }
+  console.log(`Tutor Solo -> ${tutorPrice.id}`);
+  const tutorPortal: Stripe.BillingPortal.ConfigurationCreateParams = {
+    business_profile: { privacy_policy_url: `${site}/legal/privacy`, terms_of_service_url: `${site}/tutors/terms` },
+    default_return_url: `${site}/app/settings`,
+    features: {
+      customer_update: { enabled: true, allowed_updates: ["email", "address", "tax_id"] },
+      invoice_history: { enabled: true },
+      payment_method_update: { enabled: true },
+      subscription_cancel: { enabled: true, mode: "at_period_end" },
+    },
+    metadata: { app: "study-hall-tutor" },
+  };
+  const existingTutor = configs.data.find((c) => c.metadata?.app === "study-hall-tutor");
+  const tutorConfig = existingTutor
+    ? await stripe.billingPortal.configurations.update(existingTutor.id, tutorPortal)
+    : await stripe.billingPortal.configurations.create(tutorPortal);
+  console.log(`Tutor Customer Portal configuration ${tutorConfig.id}`);
 
   // 3. Webhook endpoint (optional)
   const webhookFlag = process.argv.indexOf("--webhook");
