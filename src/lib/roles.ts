@@ -1,4 +1,8 @@
-export const ROLES = ["parent", "student", "proctor", "admin"] as const;
+/**
+ * `tutor` is an independent tutor using the session-report product at /app
+ * (docs/tutor-reports-spec.md). Study Hall's own room tutors are `proctor` accounts.
+ */
+export const ROLES = ["parent", "student", "proctor", "admin", "tutor"] as const;
 export type Role = (typeof ROLES)[number];
 
 export const ROLE_HOME: Record<Role, string> = {
@@ -6,6 +10,7 @@ export const ROLE_HOME: Record<Role, string> = {
   student: "/student",
   proctor: "/proctor",
   admin: "/admin",
+  tutor: "/app",
 };
 
 /** Admins can also use the supervisor pages, for the sessions they supervise or tutor themselves. */
