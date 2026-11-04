@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { signUpTutor, type SignUpState } from "./actions";
 
-const input = "h-12 w-full rounded-lg border border-input bg-sheet px-3 text-base";
+const input = "dash-field !h-12 !text-base";
 
 export function SignUpForm({ termsHref, privacyHref, loginHref }: { termsHref: string; privacyHref: string; loginHref: string }) {
   const [state, action, pending] = useActionState<SignUpState, FormData>(signUpTutor, { status: "idle" });
@@ -44,7 +44,7 @@ export function SignUpForm({ termsHref, privacyHref, loginHref }: { termsHref: s
           {state.message}
         </p>
       )}
-      <button type="submit" disabled={pending} className="h-12 rounded-lg bg-ink text-base font-medium text-paper disabled:opacity-50">
+      <button type="submit" disabled={pending} className="dash-btn dash-btn--primary h-12 text-base">
         {pending ? "Sending…" : "Start free trial"}
       </button>
       <p className="text-sm text-ink-soft">

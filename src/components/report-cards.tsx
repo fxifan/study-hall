@@ -96,7 +96,7 @@ export function ReportCards({
           onChange={setLang}
           label={t.language}
           className="inline-flex rounded-full border border-hair p-0.5 text-sm"
-          buttonClassName="rounded-full px-3 py-1 text-ink-soft aria-pressed:bg-ink aria-pressed:text-paper"
+          buttonClassName="rounded-full px-3 py-1 text-ink-soft aria-pressed:bg-[var(--coral)] aria-pressed:text-[var(--coral-ink)]"
         />
         <p className="text-xs text-ink-faint">{t.asWritten}</p>
       </div>
