@@ -96,7 +96,7 @@ export function ReportCards({
           onChange={setLang}
           label={t.language}
           className="inline-flex rounded-full border border-hair p-0.5 text-sm"
-          buttonClassName="rounded-full px-3 py-1 text-ink-soft aria-pressed:bg-ink aria-pressed:text-paper"
+          buttonClassName="rounded-full px-3 py-1 text-ink-soft aria-pressed:bg-[var(--coral)] aria-pressed:text-[var(--coral-ink)]"
         />
         <p className="text-xs text-ink-faint">{t.asWritten}</p>
       </div>
@@ -114,7 +114,7 @@ export function ReportCards({
 function ReportCard({ report, lang, t }: { report: ReportCardData; lang: ReportLang; t: ReportLabels }) {
   const [copyState, copy] = useCopyText();
   return (
-    <article lang={HTML_LANG[lang]} className="rounded-md border border-hair bg-sheet px-4 py-3">
+    <article lang={HTML_LANG[lang]} className="dash-card px-4 py-3">
       <header className="flex flex-wrap items-baseline justify-between gap-2">
         <h3 className="font-medium">
           {report.student} · {report.date[lang]}

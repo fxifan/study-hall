@@ -90,7 +90,7 @@ async function Student({ params }: Pick<PageProps<"/[lang]/admin/students/[id]">
     .filter((x) => x.subjects)
     .sort((a, b) => Number(b.wants_help) - Number(a.wants_help) || a.subjects!.sort - b.subjects!.sort);
   const sources = t.onboarding.details.sources;
-  const section = "flex flex-col gap-2 rounded-md border border-hair bg-sheet px-4 py-3";
+  const section = "flex flex-col gap-2 dash-card px-4 py-3";
   const heading = "font-mono text-xs tracking-widest text-ink-soft uppercase";
 
   return (
@@ -197,7 +197,7 @@ async function Student({ params }: Pick<PageProps<"/[lang]/admin/students/[id]">
       <section className="flex flex-col gap-2" data-testid="student-help">
         <h2 className={heading}>{s.help}</h2>
         {help?.length ? (
-          <ul className="divide-y divide-rule rounded-md border border-hair bg-sheet text-sm">
+          <ul className="divide-y divide-rule dash-card text-sm">
             {help.map((h) => (
               <li key={h.id} className="flex flex-col gap-0.5 px-4 py-2">
                 <span>

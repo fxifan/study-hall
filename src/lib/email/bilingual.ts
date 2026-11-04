@@ -101,9 +101,27 @@ export function renderBilingualEmail({
   en: EmailSection;
   zh: EmailSection;
 }): RenderedEmail {
-  const fullSubject = `${subject.en} · ${subject.zh}`;
+  return renderEmail({ subject: `${subject.en} · ${subject.zh}`, sections: [en, zh] });
+}
+
+/**
+ * The same layout with any number of language sections (one for a single-language email), and an
+ * optional brand line in place of "Study Hall" (tutor reports carry the tutor's business name).
+ */
+export function renderEmail({
+  subject: fullSubject,
+  sections,
+  brand = "Study Hall",
+  htmlLang = "en",
+}: {
+  subject: string;
+  sections: EmailSection[];
+  brand?: string;
+  htmlLang?: string;
+}): RenderedEmail {
+  const separator = `<tr><td style="padding:8px 28px;"><hr style="border:0;border-top:1px solid ${RULE};margin:0;"></td></tr>`;
   const html = `<!doctype html>
-<html lang="en">
+<html lang="${escapeHtml(htmlLang)}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -113,16 +131,27 @@ export function renderBilingualEmail({
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f3ec;">
 <tr><td align="center" style="padding:24px 12px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:8px;">
-<tr><td style="padding:24px 28px 0;font-family:${FONT};font-size:16px;font-weight:600;color:${INK};">Study Hall</td></tr>
-${sectionHtml(en)}
-<tr><td style="padding:8px 28px;"><hr style="border:0;border-top:1px solid ${RULE};margin:0;"></td></tr>
-${sectionHtml(zh)}
+<tr><td style="padding:24px 28px 0;font-family:${FONT};font-size:16px;font-weight:600;color:${INK};">${escapeHtml(brand)}</td></tr>
+${sections.map(sectionHtml).join(`\n${separator}\n`)}
 </table>
 </td></tr>
 </table>
 </body>
 </html>
 `;
-  const text = `${sectionText(en)}\n\n---\n\n${sectionText(zh)}\n`;
+  const text = `${sections.map(sectionText).join("\n\n---\n\n")}\n`;
   return { subject: fullSubject, html, text };
+}
+
+/**
+ * The plain-text body only, for an email the tutor sends from their own app (mailto: or share).
+ * No footer; language headings only when there's more than one language.
+ */
+export function plainTextBody(sections: EmailSection[], signOff?: string): string {
+  const parts = sections.map((section) => {
+    const lines = section.blocks.map((b) => blockText(b, section.colon));
+    return (sections.length > 1 ? [section.label, ...lines] : lines).join("\n\n");
+  });
+  const body = parts.join("\n\n---\n\n");
+  return signOff ? `${body}\n\n${signOff}` : body;
 }

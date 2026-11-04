@@ -69,7 +69,7 @@ async function Templates() {
           <section key={kind} className="flex flex-col gap-2">
             <h2 className="text-xl font-medium">{a[kind]}</h2>
             {list.length ? (
-              <div className="divide-y divide-rule rounded-md border border-hair bg-sheet" data-testid={`templates-${kind}`}>
+              <div className="divide-y divide-rule dash-card" data-testid={`templates-${kind}`}>
                 {list.map(row)}
               </div>
             ) : (

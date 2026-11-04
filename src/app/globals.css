@@ -1,9 +1,13 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "./ui.css";
 
 /*
- * Theme: the "exercise book" direction from design/landing.html. Cream paper, navy ink, red pen.
+ * Theme: the "exercise book" direction from design/landing.html. Cream paper, navy ink, coral pen.
+ * Refined (Nov 2026): surfaces a step lighter than the page for depth, higher-contrast secondary
+ * text, and coral (#F07862) as the one accent: primary actions, active states, focus. Component
+ * classes (buttons, cards, pills, the calendar) are in ui.css.
  * Brand tokens (--paper, --ink, --pen …) are lifted from that file's :root and exposed to Tailwind as
  * bg-paper, text-ink, border-rule, font-serif, font-mono, etc. shadcn/ui's semantic tokens
  * (--background, --primary …) are mapped onto them, so components pick up the palette for free.
@@ -27,12 +31,14 @@
   --paper-deep: #eee7d7;
   --sheet: #fffdf8;
   --ink: #1b2a41;
-  --ink-soft: #4a5770;
-  --ink-faint: #7f8899;
+  --ink-soft: #3e4b61;
+  --ink-faint: #6b7486;
   --hair: rgba(27, 42, 65, 0.14);
   --rule: #d3deeb;
-  --pen: #bf3a2b;
-  --pen-faint: rgba(191, 58, 43, 0.42);
+  --pen: #c24d37;
+  --pen-faint: rgba(194, 77, 55, 0.42);
+  --coral: #f07862;
+  --coral-ink: #1d120f;
   --cover: #1b2a41;
   --cover-ink: #f6f2e8;
   --cover-soft: #bac2cf;
@@ -44,8 +50,8 @@
   --card-foreground: var(--ink);
   --popover: var(--sheet);
   --popover-foreground: var(--ink);
-  --primary: var(--ink);
-  --primary-foreground: var(--paper);
+  --primary: var(--coral);
+  --primary-foreground: var(--coral-ink);
   --secondary: var(--paper-deep);
   --secondary-foreground: var(--ink);
   --muted: var(--paper-deep);
@@ -55,7 +61,7 @@
   --destructive: var(--pen);
   --border: var(--hair);
   --input: var(--hair);
-  --ring: var(--ink-faint);
+  --ring: var(--coral);
   --chart-1: var(--ink);
   --chart-2: var(--pen);
   --chart-3: var(--ink-soft);
@@ -81,14 +87,14 @@
   :root:not([data-theme="light"]) {
     --paper: #111a28;
     --paper-deep: #0c1420;
-    --sheet: #172338;
-    --ink: #eee8da;
-    --ink-soft: #b3bbc9;
-    --ink-faint: #7e889a;
-    --hair: rgba(238, 232, 218, 0.14);
+    --sheet: #19263c;
+    --ink: #f3eee3;
+    --ink-soft: #c6cdd9;
+    --ink-faint: #929cae;
+    --hair: rgba(238, 232, 218, 0.12);
     --rule: rgba(150, 178, 215, 0.16);
-    --pen: #ee7563;
-    --pen-faint: rgba(238, 117, 99, 0.4);
+    --pen: #f4917f;
+    --pen-faint: rgba(240, 120, 98, 0.4);
     --cover: #1c2b44;
     --cover-ink: #eee8da;
     --cover-soft: #aeb7c6;
@@ -99,14 +105,14 @@
 :root[data-theme="dark"] {
   --paper: #111a28;
   --paper-deep: #0c1420;
-  --sheet: #172338;
-  --ink: #eee8da;
-  --ink-soft: #b3bbc9;
-  --ink-faint: #7e889a;
-  --hair: rgba(238, 232, 218, 0.14);
+  --sheet: #19263c;
+  --ink: #f3eee3;
+  --ink-soft: #c6cdd9;
+  --ink-faint: #929cae;
+  --hair: rgba(238, 232, 218, 0.12);
   --rule: rgba(150, 178, 215, 0.16);
-  --pen: #ee7563;
-  --pen-faint: rgba(238, 117, 99, 0.4);
+  --pen: #f4917f;
+  --pen-faint: rgba(240, 120, 98, 0.4);
   --cover: #1c2b44;
   --cover-ink: #eee8da;
   --cover-soft: #aeb7c6;

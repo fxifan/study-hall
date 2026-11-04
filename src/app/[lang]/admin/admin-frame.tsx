@@ -5,7 +5,7 @@ import { localizePath } from "@/i18n/config";
 import { getDictionary, getLocale } from "@/i18n/server";
 import { requireRole } from "@/lib/auth";
 
-const SECTIONS = ["overview", "rooms", "schedule", "students", "subjects", "templates", "reports", "metrics", "plans", "proctors"] as const;
+const SECTIONS = ["overview", "rooms", "schedule", "students", "subjects", "templates", "reports", "metrics", "plans", "proctors", "costs"] as const;
 type Section = (typeof SECTIONS)[number];
 
 /** Admin page frame: checks the role, then the shell plus section navigation. */
@@ -19,7 +19,7 @@ export async function AdminFrame({ title, current, children }: { title: string; 
             key={section}
             href={localizePath(section === "overview" ? "/admin" : `/admin/${section}`, locale)}
             aria-current={section === current ? "page" : undefined}
-            className={section === current ? "font-medium text-ink" : "text-ink-soft hover:text-ink"}
+            className={section === current ? "font-medium text-pen underline decoration-2 underline-offset-[10px]" : "text-ink-soft hover:text-ink"}
           >
             {t.adminPages.nav[section]}
           </Link>

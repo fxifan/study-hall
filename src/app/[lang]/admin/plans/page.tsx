@@ -32,7 +32,7 @@ async function Plans() {
     <AdminFrame title={p.title} current="plans">
       <p className="text-sm text-ink-soft">{p.intro}</p>
       {plans?.map((plan) => (
-        <form key={plan.id} action={savePlan} className="flex flex-col gap-3 rounded-md border border-hair bg-sheet p-4" aria-label={plan.name}>
+        <form key={plan.id} action={savePlan} className="flex flex-col gap-3 dash-card p-4" aria-label={plan.name}>
           <input type="hidden" name="id" value={plan.id} />
           <div className="flex flex-wrap items-baseline justify-between gap-3">
             <span className="text-2xl">

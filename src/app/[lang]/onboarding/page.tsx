@@ -91,7 +91,7 @@ async function Onboarding({
   const headlinePrice = plans?.[0] ? formatAud(plans[0].price_cents) : "";
 
   const included = (
-    <section className="rounded-md border border-hair bg-sheet p-5">
+    <section className="dash-card p-5">
       <h2 className="font-mono text-xs tracking-widest text-ink-soft uppercase">{t.included.title}</h2>
       <ul className="mt-3 flex list-disc flex-col gap-2 pl-5 text-ink-soft">
         {t.included.items.map((item) => (
@@ -137,7 +137,7 @@ async function Onboarding({
 
   if (activeSubs?.length) {
     return (
-      <section className="flex flex-col gap-3 rounded-md border border-hair bg-sheet p-5">
+      <section className="flex flex-col gap-3 dash-card p-5">
         <h2 className="text-2xl font-medium">{t.done.title}</h2>
         <p className="text-ink-soft">{t.done.body}</p>
         <Link className={buttonVariants({ size: "lg" }) + " self-start"} href={localizePath("/parent", locale)}>
@@ -191,7 +191,7 @@ async function Onboarding({
 
       <Step n={2} title={t.steps.children}>
         {students?.length ? (
-          <ul className="divide-y divide-rule rounded-md border border-hair bg-sheet" data-testid="onboarding-children">
+          <ul className="divide-y divide-rule dash-card" data-testid="onboarding-children">
             {students.map((s) => (
               <li key={s.id} className="flex flex-col gap-2 px-4 py-3">
                 <div className="flex items-center justify-between gap-4">
@@ -240,7 +240,7 @@ async function Onboarding({
           <form action={recordConsent} className="flex flex-col gap-4">
             <p className="text-ink-soft">{t.consent.intro}</p>
             {houseRules && (
-              <ol lang="en" className="list-decimal rounded-md border border-hair bg-sheet py-3 pr-4 pl-9 text-sm leading-relaxed">
+              <ol lang="en" className="list-decimal dash-card py-3 pr-4 pl-9 text-sm leading-relaxed">
                 {houseRules.body
                   .split("\n")
                   .filter((l) => l.startsWith("- "))
@@ -275,7 +275,7 @@ async function Onboarding({
         {(plans ?? []).map((plan) => {
           const count = pending.filter(agreed).length || pending.length || 1;
           return (
-            <form key={plan.id} action={startCheckout} className="flex flex-col gap-3 rounded-md border border-hair bg-sheet p-5">
+            <form key={plan.id} action={startCheckout} className="flex flex-col gap-3 dash-card p-5">
               <input type="hidden" name="planId" value={plan.id} />
               <p className="text-lg">{plan.name}</p>
               <p className="text-sm text-ink-soft">{plan.includes_tutoring ? t.pay.tutoring : t.pay.supervision}</p>

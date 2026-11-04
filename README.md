@@ -182,4 +182,37 @@ previews of every email to `email-previews/`. Nothing is sent by these commands.
   DST-safe).
 - **Theme.** Brand tokens from the landing design (`paper`, `sheet`, `ink`, `pen`, `rule`, `cover`;
   Newsreader + JetBrains Mono) are in [src/app/globals.css](src/app/globals.css), and shadcn/ui's
-  tokens map onto them.
+  tokens map onto them. Coral (`--coral`, #F07862) is the one accent: primary buttons, active
+  states, focus. Shared components (`dash-btn--primary|secondary|ghost`, `dash-card`, `dash-pill`,
+  `dash-field`, the tutor calendar) are in [src/app/ui.css](src/app/ui.css).
+
+## Tutor reports and billing (`/tutors`, `/app`)
+
+A separate product for independent tutors, built inside Study Hall: brief, founder answers and the
+decisions made are in [docs/tutor-reports-spec.md](docs/tutor-reports-spec.md).
+
+- **Sign up** at `/tutors` (14-day free trial). Tutors have the `tutor` role; signed in, `/tutors`
+  takes them to their dashboard at `/app`: metrics, a week/month lesson calendar (schedule,
+  reschedule, cancel, log), students and what they need help with, saved Zoom links, and a private
+  calendar link for Apple/Google/Outlook. Details in the spec's "Tutor dashboard" section.
+- **Log a session** at `/app/log`: pick the student, record a voice note (≤ 3 min, MediaRecorder) or
+  type notes. `/api/tutor/draft` transcribes (audio is never stored), saves the transcript, then drafts
+  the report (`src/lib/report`: schema, prompt, grounding, sensitive screen). The tutor edits English
+  and 中文 side by side at `/app/reports/<id>`, then sends it from their own email app (or copies the
+  text for WeChat/WhatsApp). Once a sending domain is verified in Resend, Study Hall sends it instead.
+- **Invoices**: unbilled sessions per family (`/app/families/<id>`) → draft invoice → edit lines →
+  PDF (`@react-pdf/renderer`) with bank-transfer details, shared from the tutor's phone or own email
+  (or emailed by Study Hall once a domain is verified) → mark paid. "Tax invoice" with GST
+  for GST-registered tutors, plain "Invoice" otherwise (`src/lib/tutor/invoice-math.ts`).
+- **Cron**: `/api/cron/tutor-invoices` (daily) marks overdue invoices. With a verified sending domain it
+  also sends one reminder 7 days after the due date (unless the tutor turned reminders off); without
+  one, overdue invoices get a "Send a reminder" button that opens the tutor's own email.
+- **Founders**: `/admin/costs` shows monthly usage and estimated cost per active tutor, and switches
+  tutors to Solo (no Stripe for tutors yet).
+- **Env**: `OPENAI_API_KEY`, `RESEND_API_KEY`, `REPORTS_FROM_EMAIL`, `TUTOR_DATA_KEY`, `CRON_SECRET`
+  (see `.env.example`; `TUTOR_EMAIL_MODE` picks own-email vs Study Hall sending). Without an OpenAI
+  key, local dev uses a stand-in drafter.
+- **Tests**: `npm test` (report schema, grounding, sensitive content, rendering, invoice maths, plans,
+  encryption); `npm run test:rls` includes `tests/rls/tutor-isolation.test.ts` (tutor A can't see or
+  touch tutor B's rows; sent invoices/reports are fixed); `npm run report:eval` runs the fixture notes
+  through the real model.

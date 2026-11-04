@@ -108,7 +108,7 @@ export function HelpQueue({
   time: (iso: string) => string;
 }) {
   return (
-    <section className="flex flex-col gap-2 rounded-md border border-hair bg-sheet px-4 py-3" data-testid="help-queue">
+    <section className="flex flex-col gap-2 dash-card px-4 py-3" data-testid="help-queue">
       <h2 className={heading}>{t.helpQueue}</h2>
       <p className="text-xs text-pen">{t.helpRule}</p>
       {help.length ? (
@@ -182,7 +182,7 @@ export function ReportReview({
   t: Dictionary["proctor"]["session"]["review"];
 }) {
   return (
-    <section className="flex flex-col gap-3 rounded-md border border-hair bg-sheet px-4 py-3" data-testid="report-review">
+    <section className="flex flex-col gap-3 dash-card px-4 py-3" data-testid="report-review">
       <h2 className={heading}>{t.title}</h2>
       <p className="text-sm text-ink-soft">{t.intro}</p>
       {cards.length > 0 && <ReportCards reports={cards} labels={{ en: en.reportCard, zh: zh.reportCard }} initialLang={locale} />}
