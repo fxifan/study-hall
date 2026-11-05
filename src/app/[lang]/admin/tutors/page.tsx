@@ -40,7 +40,7 @@ async function Tutors({ searchParams }: Pick<PageProps<"/[lang]/admin/tutors">, 
   const admin = createAdminClient();
   const ids = (rows: { tutor_id: string }[] | null) => rows ?? [];
 
-  const [tutors, profiles, users, families, students, sessions, lessons, reports, invoices] = await Promise.all([
+  const [tutors, profiles, users, families, students, sessions, lessons, reports, invoices, resources] = await Promise.all([
     admin.from("tutors").select("id, display_name, plan, trial_ends_at, created_at").order("created_at"),
     admin.from("profiles").select("id, email").eq("role", "tutor"),
     admin.auth.admin.listUsers({ perPage: 1000 }),
@@ -50,7 +50,15 @@ async function Tutors({ searchParams }: Pick<PageProps<"/[lang]/admin/tutors">, 
     admin.from("tutor_lessons").select("tutor_id, starts_at, status"),
     admin.from("tutor_reports").select("tutor_id, sent_at"),
     admin.from("tutor_invoices").select("tutor_id, status, total_cents"),
+    admin.from("tutor_resources").select("tutor_id, status"),
   ]);
+  const resourceCount = new Map<string, { all: number; approved: number }>();
+  for (const r of resources.data ?? []) {
+    const c = resourceCount.get(r.tutor_id as string) ?? { all: 0, approved: 0 };
+    c.all++;
+    if (r.status === "approved") c.approved++;
+    resourceCount.set(r.tutor_id as string, c);
+  }
   const email = new Map((profiles.data ?? []).map((p) => [p.id as string, p.email as string]));
   const auth = new Map((users.data?.users ?? []).map((u) => [u.id, u]));
   const activity = tutorActivity({
@@ -127,7 +135,7 @@ async function Tutors({ searchParams }: Pick<PageProps<"/[lang]/admin/tutors">, 
       </form>
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[46rem] text-sm" data-testid="tutor-table">
+        <table className="w-full min-w-[52rem] text-sm" data-testid="tutor-table">
           <thead className="text-left text-ink-soft">
             <tr>
               <th className="py-1 font-normal">Tutor</th>
@@ -136,6 +144,7 @@ async function Tutors({ searchParams }: Pick<PageProps<"/[lang]/admin/tutors">, 
               <th className="py-1 text-right font-normal">Sessions (30d)</th>
               <th className="py-1 text-right font-normal">Upcoming</th>
               <th className="py-1 text-right font-normal">Reports sent</th>
+              <th className="py-1 text-right font-normal">Resources</th>
               <th className="py-1 text-right font-normal">Invoiced / paid</th>
               <th className="py-1 font-normal" />
             </tr>
@@ -170,6 +179,10 @@ async function Tutors({ searchParams }: Pick<PageProps<"/[lang]/admin/tutors">, 
                   <td className="text-right tabular-nums">
                     {t.a.reportsSent}
                     <span className="text-ink-soft"> of {t.a.reportsDrafted}</span>
+                  </td>
+                  <td className="text-right tabular-nums">
+                    {resourceCount.get(t.id)?.all ?? 0}
+                    <span className="text-ink-soft"> ({resourceCount.get(t.id)?.approved ?? 0} approved)</span>
                   </td>
                   <td className="text-right tabular-nums">
                     {formatAudCents(t.a.invoicedCents)}

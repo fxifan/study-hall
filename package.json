@@ -17,7 +17,8 @@
     "stripe:setup": "tsx scripts/stripe-setup.ts",
     "emails": "tsx scripts/emails.ts",
     "grant-admin": "tsx scripts/grant-admin.ts",
-    "report:eval": "tsx --conditions=react-server scripts/report-eval.ts"
+    "report:eval": "tsx --conditions=react-server scripts/report-eval.ts",
+    "curriculum:import": "tsx scripts/curriculum-import.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

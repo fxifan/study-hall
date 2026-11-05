@@ -57,8 +57,8 @@ for **VCE (Units 1–4) and Years 7–10**. Everything else from the brainstorm 
     comprehension, language and grammar, and short writing tasks, marked against a rubric rather
     than a single answer, and are built on general skills, not set texts.
   - VCE English: **general writing tips**, not practice sets. These are guides for the tutor to
-    share, organised by the study design's outcomes (analytical text response, comparative, argument
-    analysis, creating texts). They cover essay structure, topic-sentence and evidence habits,
+    share, organised by the study design's outcomes (reading and responding to texts, creating texts, analysing
+    argument). They cover essay structure, topic-sentence and evidence habits,
     analysing language and common mistakes, and never reference a set text's content. One
     "writing tips" sheet per outcome; the tutor can tailor it (for example "for a Year 12 who loses
     marks on structure").
@@ -177,3 +177,27 @@ Still open:
 - humanities, Psychology and VCE English practice sets;
 - sharing sets between tutors;
 - families opening sets directly in the app.
+
+## Built (version 1, 5 Nov 2026)
+
+Decisions made while building, for review:
+
+- **Printing:** the print pages (student copy and tutor copy) use the browser's "Save as PDF", not
+  the invoice PDF renderer. Its built-in fonts can't show maths symbols (√, π, ∫). Maths is plain
+  text with Unicode symbols; no maths renderer is needed.
+- **Answer check:** one extra call per set for maths and science. The checker sees the proposed
+  answer, but is told to solve first. A failed or skipped check flags every question it missed;
+  nothing passes silently. Tutors can re-run it after editing.
+- **Limits** count creations from the usage log (`purpose = 'resource'`), so deleting a resource
+  doesn't give a trial slot back. Regenerating one question and re-checking answers are logged as
+  `resource_edit` and don't count. Report drafts now count only `purpose = 'report'`.
+- **Editing** an approved resource sends it back to draft, so tutors approve what they hand out.
+- **Admins** see a resources count per tutor on `/admin/tutors`, never the content.
+- **Curriculum data:** `scripts/curriculum-data.ts` covers Units 3 and 4 of the six VCE subjects and
+  VCE English, plus Years 7–10 Maths, Science and English by strand (116 points). Codes are left
+  empty rather than guessed, and VCE Units 1 and 2 are still to add. All points are imported
+  unpublished; review them at `/admin/curriculum`. The Years 7–10 summaries are general by strand:
+  tighten them per year from the VCAA documents.
+- **Local testing:** `TUTOR_RESOURCES_OFFLINE=1` uses a fixed offline model, which is never used in
+  production.
+- The tutor app's phone menu now has six items; "Dashboard" shows as "Home" there.

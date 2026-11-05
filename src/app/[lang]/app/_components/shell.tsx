@@ -12,10 +12,11 @@ import type { Tutor } from "@/lib/tutor/server";
  * now, like Study Hall's admin pages; reports and emails are bilingual.
  */
 const NAV = [
-  { key: "today", href: "/app", label: "Dashboard" },
+  { key: "today", href: "/app", label: "Dashboard", short: "Home" },
   { key: "log", href: "/app/log", label: "Log" },
   { key: "students", href: "/app/students", label: "Students" },
   { key: "invoices", href: "/app/invoices", label: "Invoices" },
+  { key: "resources", href: "/app/resources", label: "Resources" },
   { key: "settings", href: "/app/settings", label: "Settings" },
 ] as const;
 export type NavKey = (typeof NAV)[number]["key"];
@@ -81,7 +82,7 @@ export async function TutorShell({
       </main>
       <nav
         aria-label="Main"
-        className="fixed inset-x-0 bottom-0 z-10 grid grid-cols-5 border-t border-rule bg-sheet pb-[env(safe-area-inset-bottom)] sm:hidden"
+        className="fixed inset-x-0 bottom-0 z-10 grid grid-cols-6 border-t border-rule bg-sheet pb-[env(safe-area-inset-bottom)] sm:hidden"
       >
         {NAV.map((n) => (
           <Link
@@ -90,7 +91,13 @@ export async function TutorShell({
             aria-current={n.key === current ? "page" : undefined}
             className={`dash-ui flex h-14 items-center justify-center text-xs ${n.key === current ? "font-semibold text-[var(--dash-accent-text)]" : "text-ink-soft"}`}
           >
-            {n.key === "log" ? <span className="rounded-full bg-[var(--coral)] px-3 py-1.5 font-semibold text-[var(--coral-ink)] shadow-sm">+ Log</span> : n.label}
+            {n.key === "log" ? (
+              <span className="rounded-full bg-[var(--coral)] px-3 py-1.5 font-semibold text-[var(--coral-ink)] shadow-sm">+ Log</span>
+            ) : "short" in n ? (
+              n.short
+            ) : (
+              n.label
+            )}
           </Link>
         ))}
       </nav>

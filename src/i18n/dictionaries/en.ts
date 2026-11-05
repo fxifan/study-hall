@@ -346,6 +346,7 @@ export const en = {
       metrics: "Metrics",
       tutors: "Tutors",
       costs: "Tutor costs",
+      curriculum: "Curriculum",
       supervise: "Supervise",
       tutorApp: "Tutor app",
     },
