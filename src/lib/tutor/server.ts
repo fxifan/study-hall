@@ -89,6 +89,7 @@ export async function draftsThisMonth(tutorId: string, now = new Date()): Promis
     .select("id", { count: "exact", head: true })
     .eq("tutor_id", tutorId)
     .eq("kind", "llm_tokens")
+    .eq("purpose", "report") // resources have their own cap (src/lib/tutor/resources)
     .gte("created_at", monthStart(now).toISOString());
   if (error) throw error;
   return count ?? 0;
@@ -99,7 +100,12 @@ export async function accessFor(tutor: TutorRow): Promise<Access> {
 }
 
 /** Usage logging (spec §7). Service role: tutors can read their usage but not write it. */
-export async function logUsage(tutorId: string, kind: "transcribe_seconds" | "llm_tokens" | "email", amount: number) {
-  const { error } = await createAdminClient().from("tutor_usage_events").insert({ tutor_id: tutorId, kind, amount });
+export async function logUsage(
+  tutorId: string,
+  kind: "transcribe_seconds" | "llm_tokens" | "email",
+  amount: number,
+  purpose: "report" | "resource" | "resource_edit" = "report",
+) {
+  const { error } = await createAdminClient().from("tutor_usage_events").insert({ tutor_id: tutorId, kind, amount, purpose });
   if (error) console.error("Usage event not recorded", kind, error.message);
 }

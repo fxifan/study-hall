@@ -44,3 +44,8 @@ export const UNIT_COSTS_USD = {
 export const AUD_PER_USD = 1.55;
 
 export const SUPPORT_EMAIL = "feifanwork1@gmail.com";
+
+/** AI resources (docs/tutor-resources-spec.md §4, owner decisions 5 Nov 2026). */
+export const MONTHLY_RESOURCE_CAP = 60;
+/** Practice sets and writing tips a trial tutor can make in total. */
+export const TRIAL_RESOURCE_LIMIT = 3;

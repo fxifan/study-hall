@@ -88,6 +88,7 @@ const TABLES = [
   "tutor_usage_events",
   "tutor_lessons",
   "tutor_meeting_links",
+  "tutor_resources",
 ];
 
 describe("tutor isolation", () => {
@@ -260,5 +261,48 @@ describe("dashboard: lessons, meeting links, calendar feed", () => {
   it("tutors can't set their own calendar feed token (it's the feed's credential)", async () => {
     const set = await a.client.from("tutors").update({ calendar_feed_token: "a".repeat(32) }).eq("id", a.id);
     expect(set.error?.code).toBe("42501");
+  });
+});
+
+describe("resources and curriculum (docs/tutor-resources-spec.md)", () => {
+  it("tutors keep their resources to themselves and can't write curriculum or resource usage", async () => {
+    const points = await admin
+      .from("curriculum_points")
+      .insert([
+        { framework: "vce", subject: `RLS ${stamp}`, unit_or_level: "Unit 3", area: "A", summary: "Published point", is_published: true },
+        { framework: "vce", subject: `RLS ${stamp}`, unit_or_level: "Unit 3", area: "A", summary: "Unpublished point", is_published: false },
+      ])
+      .select("id, is_published");
+    if (points.error) throw points.error;
+    const pointId = points.data.find((p) => p.is_published)!.id;
+    try {
+      const content = { instructions: "", questions: [] };
+      const mine = await b.client
+        .from("tutor_resources")
+        .insert({ tutor_id: b.id, kind: "practice_set", title: "B's set", framework: "vce", subject: "X", unit_or_level: "Unit 3", point_ids: [pointId], content })
+        .select("id")
+        .single();
+      expect(mine.error).toBeNull();
+      expect((await a.client.from("tutor_resources").select("id").eq("id", mine.data!.id)).data).toEqual([]);
+      expect((await a.client.from("tutor_resources").update({ title: "hijack" }).eq("id", mine.data!.id).select("id")).data).toEqual([]);
+      const forged = await a.client
+        .from("tutor_resources")
+        .insert({ tutor_id: b.id, kind: "practice_set", title: "forged", framework: "vce", subject: "X", unit_or_level: "Unit 3", point_ids: [pointId], content });
+      expect(forged.error).not.toBeNull();
+
+      // Tutors read published points only, and can't write them.
+      const read = await a.client.from("curriculum_points").select("summary").eq("subject", `RLS ${stamp}`);
+      expect(read.data?.map((r) => r.summary)).toEqual(["Published point"]);
+      expect((await a.client.from("curriculum_points").insert({ framework: "vce", subject: "x", unit_or_level: "y", area: "z", summary: "w" })).error).not.toBeNull();
+      expect((await a.client.from("curriculum_points").update({ summary: "changed" }).eq("id", pointId).select("id")).data ?? []).toEqual([]);
+      // ...or log their own resource usage (it's what the trial limit counts).
+      expect((await a.client.from("tutor_usage_events").insert({ tutor_id: a.id, kind: "llm_tokens", amount: 0, purpose: "resource" })).error).not.toBeNull();
+
+      // Admins see no tutor's resources through RLS (counts only, via the server).
+      const founder = await signInAs("admin");
+      expect((await founder.from("tutor_resources").select("id").eq("id", mine.data!.id)).data).toEqual([]);
+    } finally {
+      await admin.from("curriculum_points").delete().eq("subject", `RLS ${stamp}`);
+    }
   });
 });
