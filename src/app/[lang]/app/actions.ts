@@ -1,5 +1,6 @@
 "use server";
 
+import { track } from "@/lib/events";
 import { z } from "zod";
 import { encryptSecret } from "@/lib/tutor/crypto";
 import { createClient } from "@/lib/supabase/server";
@@ -88,6 +89,7 @@ export async function addStudent(formData: FormData) {
     .select("id")
     .single();
   if (error) return back("/app/students", "?error=student");
+  await track({ name: "student_record_created", product: "tutors", role: "tutor", userId: profile.id, email: profile.email, objectType: "tutor_student", objectId: student.id, dedupeKey: `student:${student.id}` });
   const next = String(formData.get("next") ?? "");
   if (next === "log") return back("/app/log", `?student=${student.id}`);
   return back("/app/students", "?saved=student");

@@ -1,3 +1,4 @@
+import { trackSubscription } from "@/lib/subscription-events";
 import "server-only";
 import type Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
@@ -43,6 +44,7 @@ export async function syncTutorSubscription(subscription: Stripe.Subscription): 
     .update({ plan: planForStatus(subscription.status), stripe_customer_id: customer })
     .eq("id", tutorId);
   if (error) throw error;
+  await trackSubscription(subscription, "tutors", "tutor", tutorId);
 }
 
 export async function syncTutorCheckout(sessionId: string, tutorId: string): Promise<boolean> {

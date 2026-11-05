@@ -1,5 +1,6 @@
 "use server";
 
+import { track } from "@/lib/events";
 import { z } from "zod";
 import { emailLimitKind, isReservedTestEmail } from "@/lib/email";
 import { siteOrigin } from "@/lib/site";
@@ -55,6 +56,7 @@ export async function signUpTutor(_prev: SignUpState, formData: FormData): Promi
       await admin.auth.admin.deleteUser(created.user.id);
       return { status: "error", message: "Couldn't create your account. Try again in a minute." };
     }
+    await track({ name: "user_signed_up", product: "tutors", role: "tutor", userId: created.user.id, email, props: { plan: "trial" }, dedupeKey: `signup:${created.user.id}` });
   }
 
   // Seeded and test addresses can't receive mail: don't burn the auth email quota on them.

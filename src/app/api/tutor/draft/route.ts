@@ -1,3 +1,4 @@
+import { track } from "@/lib/events";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { MAX_AUDIO_BYTES, MAX_AUDIO_SECONDS } from "@/lib/tutor/config";
@@ -85,8 +86,11 @@ export async function POST(request: Request) {
     try {
       const type = audio.type || "audio/webm";
       const ext = type.includes("mp4") || type.includes("m4a") || type.includes("aac") ? "m4a" : type.includes("ogg") ? "ogg" : "webm";
+      await track({ name: "voice_note_uploaded", product: "tutors", role: "tutor", userId: me.profile.id, email: me.profile.email, props: { seconds: Math.round(input.audioSeconds ?? 0) } });
       transcript = await transcribe(audio, `note.${ext}`);
+      await track({ name: "transcription_completed", product: "tutors", role: "tutor", userId: me.profile.id, email: me.profile.email, props: { seconds: Math.round(input.audioSeconds ?? 0) } });
     } catch (e) {
+      await track({ name: "transcription_failed", product: "tutors", role: "tutor", userId: me.profile.id, email: me.profile.email, props: { error: e instanceof TranscribeError ? "transcribe_error" : "unknown" } });
       console.error("Transcription failed", e instanceof TranscribeError ? e.message : e);
       return fail(502, "Couldn't transcribe the voice note. Try again, or type your notes.", { retry: true });
     }
@@ -120,5 +124,16 @@ export async function POST(request: Request) {
   }
 
   const drafted = await draftReport(supabase, me.profile.id, report.id);
+  await track({
+    name: drafted.ok ? "lesson_report_generated" : "lesson_report_failed",
+    product: "tutors",
+    role: "tutor",
+    userId: me.profile.id,
+    email: me.profile.email,
+    objectType: "tutor_report",
+    objectId: report.id,
+    props: { kind: hasAudio ? "voice" : "typed" },
+    dedupeKey: drafted.ok ? `report_generated:${report.id}` : undefined,
+  });
   return Response.json({ reportId: report.id, draftError: drafted.ok ? null : drafted.error });
 }

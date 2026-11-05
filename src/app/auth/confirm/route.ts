@@ -1,3 +1,4 @@
+import { track } from "@/lib/events";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 import { DEFAULT_LOCALE, LOCALE_COOKIE, isLocale, localizePath } from "@/i18n/config";
@@ -36,8 +37,15 @@ export async function GET(request: NextRequest) {
 
   if (!userId) return to("/login?error=link");
 
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", userId).maybeSingle();
+  const { data: profile } = await supabase.from("profiles").select("role, created_at").eq("id", userId).maybeSingle();
   if (!isRole(profile?.role)) return to("/login?error=no-profile");
+  const role = profile.role;
+  const product = role === "tutor" ? "tutors" : role === "admin" ? "platform" : "study_hall";
+  await track({ name: "user_logged_in", product, role, userId });
+  // A parent account is created by its first login link; count that once as the sign-up.
+  if (role === "parent" && Date.parse(profile.created_at as string) > Date.now() - 2 * 3600_000) {
+    await track({ name: "user_signed_up", product: "study_hall", role, userId, dedupeKey: `signup:${userId}` });
+  }
   if (profile.role === "parent") {
     // A parent who hasn't subscribed yet carries on with sign-up.
     const { data: active } = await supabase

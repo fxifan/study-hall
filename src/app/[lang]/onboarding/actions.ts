@@ -1,5 +1,6 @@
 "use server";
 
+import { track } from "@/lib/events";
 import { createHash } from "node:crypto";
 import { refresh } from "next/cache";
 import { cookies, headers } from "next/headers";
@@ -291,6 +292,7 @@ export async function startCheckout(formData: FormData) {
       cancel_url: `${origin}${localizePath("/onboarding", locale)}?checkout=cancelled#pay`,
     });
     checkoutUrl = session.url;
+    await track({ name: "onboarding_completed", product: "study_hall", role: "parent", userId: parent.id, email: parent.email, props: { plan: planId }, dedupeKey: `onboarding:${parent.id}` });
   } catch (error) {
     console.error("Creating Checkout session failed", error);
   }
