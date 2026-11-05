@@ -22,7 +22,7 @@ type Nav = {
   month: string;
 };
 
-const HOUR_PX = 48;
+const HOUR_PX = 40;
 
 function itemClass(item: DashItem): string {
   if (item.status === "cancelled") return "dash-event dash-event--cancelled";
@@ -230,12 +230,12 @@ function WeekView({
                     onClick={() => openItem(item)}
                     style={{ top: top + 1, height }}
                     className={`${itemClass(item)} absolute inset-x-1 overflow-hidden px-2 py-1 text-[11px] leading-tight`}
-                    title={`${item.studentName}, ${item.timeLabel}–${item.endLabel}`}
+                    title={`${item.studentName}${item.subjects.length ? ` (${item.subjects.join(", ")})` : ""}, ${item.timeLabel}–${item.endLabel}`}
                   >
                     <span className="block truncate font-semibold">{item.studentName}</span>
                     <span className="dash-event-time block truncate tabular-nums opacity-90">
                       {item.timeLabel}
-                      {statusWord(item) ? ` · ${statusWord(item)}` : ""}
+                      {statusWord(item) ? ` · ${statusWord(item)}` : item.subjects[0] ? ` · ${item.subjects[0]}` : ""}
                     </span>
                   </button>
                 );

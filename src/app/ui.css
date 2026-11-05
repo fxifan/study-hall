@@ -32,6 +32,15 @@
     --dash-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.7);
     --dash-ui: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, var(--font-cjk), sans-serif;
     --dash-ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+    /* Secondary information colours (dashboard review, Nov 2026), used sparingly: muted blue for
+       scheduling, muted green for completed and paid. Coral stays the one action colour. */
+    --dash-blue: #5d82b5;
+    --dash-blue-soft: rgba(93, 130, 181, 0.14);
+    --dash-blue-line: rgba(93, 130, 181, 0.5);
+    --dash-blue-text: #3f6496;
+    --dash-green: #5e9a78;
+    --dash-green-soft: rgba(94, 154, 120, 0.14);
+    --dash-green-text: #3d7a58;
 
   }
 
@@ -54,6 +63,13 @@
       --dash-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 12px 28px -18px rgba(0, 0, 0, 0.7);
       --dash-shadow-hover: 0 2px 6px rgba(0, 0, 0, 0.3), 0 18px 36px -18px rgba(0, 0, 0, 0.8);
       --dash-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.045);
+      --dash-blue: #86a8d8;
+      --dash-blue-soft: rgba(134, 168, 216, 0.24);
+      --dash-blue-line: rgba(134, 168, 216, 0.65);
+      --dash-blue-text: #a9c3e8;
+      --dash-green: #7fbf98;
+      --dash-green-soft: rgba(127, 191, 152, 0.2);
+      --dash-green-text: #9fd3b3;
     }
   }
   :root[data-theme="dark"] {
@@ -74,6 +90,13 @@
     --dash-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 12px 28px -18px rgba(0, 0, 0, 0.7);
     --dash-shadow-hover: 0 2px 6px rgba(0, 0, 0, 0.3), 0 18px 36px -18px rgba(0, 0, 0, 0.8);
     --dash-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.045);
+    --dash-blue: #86a8d8;
+    --dash-blue-soft: rgba(134, 168, 216, 0.24);
+    --dash-blue-line: rgba(134, 168, 216, 0.65);
+    --dash-blue-text: #a9c3e8;
+    --dash-green: #7fbf98;
+    --dash-green-soft: rgba(127, 191, 152, 0.2);
+    --dash-green-text: #9fd3b3;
   }
 
   /* Inside the tutor dashboard, borders and quiet fills use the softer surface tokens. */
@@ -352,8 +375,8 @@
     color: var(--dash-text-2);
   }
   .dash-trend--up {
-    background: var(--dash-accent-soft);
-    color: var(--dash-accent-text);
+    background: var(--dash-green-soft);
+    color: var(--dash-green-text);
   }
 
   /* ---- Calendar -------------------------------------------------------------------------------- */
@@ -426,14 +449,14 @@
   .dash-event:active {
     transform: scale(0.98);
   }
-  /* Booked and still to come: the accent. */
+  /* Booked and still to come: scheduling blue. */
   .dash-event--scheduled {
-    background: var(--dash-accent-soft-2);
-    border-color: var(--dash-accent-line);
+    background: var(--dash-blue-soft);
+    border-color: var(--dash-blue-line);
     color: var(--dash-text);
   }
   .dash-event--scheduled .dash-event-time {
-    color: var(--dash-accent-text);
+    color: var(--dash-blue-text);
   }
   /* Happened but not logged yet: a dashed coral outline asking for attention. */
   .dash-event--due {
@@ -441,11 +464,40 @@
     border: 1px dashed var(--dash-accent);
     color: var(--dash-accent-text);
   }
-  /* Logged: quiet. */
+  /* Logged: quiet, with a touch of completed green. */
   .dash-event--done {
+    background: var(--dash-green-soft);
+    border-color: transparent;
+    color: var(--dash-text-2);
+  }
+  .dash-event--done .dash-event-time {
+    color: var(--dash-green-text);
+  }
+  /* Small status tags in the side panels. */
+  .dash-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    border-radius: 999px;
+    padding: 0.05rem 0.45rem;
+    font-family: var(--dash-ui);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    white-space: nowrap;
     background: var(--dash-surface-2);
-    border-color: var(--dash-border);
-    color: var(--dash-text-3);
+    color: var(--dash-text-2);
+  }
+  .dash-tag--now {
+    background: var(--dash-accent-soft-2);
+    color: var(--dash-accent-text);
+  }
+  .dash-tag--blue {
+    background: var(--dash-blue-soft);
+    color: var(--dash-blue-text);
+  }
+  .dash-tag--green {
+    background: var(--dash-green-soft);
+    color: var(--dash-green-text);
   }
   .dash-event--cancelled {
     background: transparent;

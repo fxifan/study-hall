@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calendarItems, checkZoomUrl, computeMetrics, monthGridStart, weekStartKey, type LessonRow, type SessionRow } from "./dashboard";
+import { calendarItems, checkZoomUrl, computeMetrics, monthGridStart, nextAction, weekStartKey, type LessonRow, type SessionRow } from "./dashboard";
 import { buildIcs, foldLine } from "./ics";
 
 // Wednesday 4 Nov 2026, 10:00 in Melbourne (AEDT, UTC+11).
@@ -40,14 +40,32 @@ describe("metrics", () => {
       activeStudents: 3, // ava, leo, mia
       earningsThisWeekCents: 6000 + 9000,
       earningsLastWeekCents: 7000,
-      lessonsThisWeek: 3, // s1, s2, l1
-      lessonsLastWeek: 1,
+      lessonsCompletedThisWeek: 2, // s1, s2 (booked l1 doesn't count until it's logged)
+      lessonsCompletedLastWeek: 1,
+      hasLastWeek: true,
       upcomingLessons: 2, // l1, l2
+      weekStartKey: "2026-11-02",
+      weekEndKey: "2026-11-08",
     });
   });
 
-  it("is all zeros for a new tutor", () => {
-    expect(computeMetrics([], [], now)).toEqual({ activeStudents: 0, earningsThisWeekCents: 0, earningsLastWeekCents: 0, lessonsThisWeek: 0, lessonsLastWeek: 0, upcomingLessons: 0 });
+  it("is all zeros for a new tutor, with no comparison", () => {
+    expect(computeMetrics([], [], now)).toMatchObject({ activeStudents: 0, earningsThisWeekCents: 0, lessonsCompletedThisWeek: 0, hasLastWeek: false, upcomingLessons: 0 });
+  });
+});
+
+describe("next action", () => {
+  const names = new Map([["ava", "Ava C."]]);
+  const base = { studentCount: 1, lessons: [] as LessonRow[], linkUrl: () => null as string | null, names, unloggedCount: 0, unbilledCents: 0, now };
+  it("follows what the tutor most likely needs next", () => {
+    expect(nextAction({ ...base, studentCount: 0 })).toEqual({ kind: "add_student" });
+    expect(nextAction(base)).toEqual({ kind: "schedule_lesson" });
+    const soon = lesson("l1", at("2026-11-04", "10:10"));
+    expect(nextAction({ ...base, lessons: [soon], linkUrl: () => "https://zoom.us/j/1234567890" })).toMatchObject({ kind: "open_class", studentName: "Ava C." });
+    expect(nextAction({ ...base, lessons: [soon] })).toEqual({ kind: "default" }); // no link: nothing to open
+    expect(nextAction({ ...base, lessons: [soon], unloggedCount: 2 })).toEqual({ kind: "log_session", count: 2 });
+    const later = lesson("l2", at("2026-11-06", "16:00"));
+    expect(nextAction({ ...base, lessons: [later], unbilledCents: 6000 })).toEqual({ kind: "create_invoice", cents: 6000 });
   });
 });
 

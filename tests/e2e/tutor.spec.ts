@@ -109,7 +109,11 @@ test("dashboard: /tutors opens it, schedule a lesson, save and copy a Zoom link,
     await page.goto("/tutors");
     await expect(page).toHaveURL(/\/app$/);
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Dana");
-    await expect(page.getByText("Cell biology")).toBeVisible();
+    await expect(page.getByTestId("students-panel")).toContainText("Year 10 · Biology");
+    // A student but nothing booked: scheduling is the main action.
+    await expect(page.getByTestId("dashboard-actions")).toHaveAttribute("data-next", "schedule_lesson");
+    await expect(page.getByTestId("upcoming-lessons")).toContainText("Nothing booked yet.");
+    await expect(page.getByTestId("payments-panel")).toContainText("Nothing outstanding");
 
     await page.getByRole("button", { name: "Schedule a lesson" }).first().click();
     const dialog = page.locator("dialog[open]");
@@ -117,10 +121,11 @@ test("dashboard: /tutors opens it, schedule a lesson, save and copy a Zoom link,
     await dialog.locator('input[type="time"]').fill("23:30");
     await dialog.getByRole("button", { name: "Schedule" }).click();
     await expect(page.locator("dialog[open]")).toHaveCount(0);
-    await expect(page.locator('button[title^="Zoe Q., 11:30pm"]:visible')).toHaveCount(1);
+    await expect(page.locator('button[title^="Zoe Q."][title*="11:30pm"]:visible')).toHaveCount(1);
+    await expect(page.getByTestId("upcoming-lessons")).toContainText("Zoe Q.");
 
     const links = page.locator("#meeting-links");
-    await page.getByRole("button", { name: "Add a meeting link" }).click();
+    await page.getByRole("button", { name: "Add a class link" }).click();
     await links.locator("#new-link-url").fill("https://example.com/meeting");
     await links.getByPlaceholder("My regular classroom").fill("Zoe's room");
     await links.getByRole("button", { name: "Save link" }).click();
@@ -130,6 +135,9 @@ test("dashboard: /tutors opens it, schedule a lesson, save and copy a Zoom link,
     await expect(links.getByText("Zoe's room")).toBeVisible();
     await links.getByRole("button", { name: "Copy" }).click();
     await expect(links.getByText("Copied ✓")).toBeVisible();
+    // The lesson now has a class link one tap away (Zoe's own link).
+    await page.reload();
+    await expect(page.getByTestId("upcoming-lessons").getByRole("link", { name: /Open Zoe's room/ })).toHaveAttribute("href", "https://zoom.us/j/1234567890");
 
     await page.getByRole("button", { name: "Set up calendar link" }).click();
     const webcal = await page.getByRole("link", { name: "Add to Apple Calendar" }).getAttribute("href");
