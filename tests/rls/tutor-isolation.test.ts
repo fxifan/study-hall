@@ -306,3 +306,15 @@ describe("resources and curriculum (docs/tutor-resources-spec.md)", () => {
     }
   });
 });
+
+describe("product events (docs/events.md)", () => {
+  it("no signed-in user can read or write analytics events", async () => {
+    const read = await a.client.from("product_events").select("id").limit(1);
+    expect(read.error ?? read.data?.length === 0).toBeTruthy();
+    const write = await a.client.from("product_events").insert({ name: "user_signed_up", product: "tutors" });
+    expect(write.error).not.toBeNull();
+    const founder = await signInAs("admin");
+    const adminRead = await founder.from("product_events").select("id").limit(1);
+    expect(adminRead.error ?? adminRead.data?.length === 0).toBeTruthy();
+  });
+});

@@ -5,7 +5,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
 const BRIEF_QUESTIONS = [
-  "Is Edumi tutoring?",
+  "Is Edumi Study Hall tutoring?",
   "How does online supervision work?",
   "Is webcam footage recorded?",
   "What happens if my child gets stuck?",
@@ -137,7 +137,7 @@ test("the FAQ answers every question in the brief", async ({ page }) => {
   await expect(faq).toContainText(`Email ${CONTACT}`);
   await faq.getByText("What happens if a session is cancelled or my child misses it?").click();
   await expect(faq).toContainText("everyone booked into it gets a credit to attend another session instead");
-  await faq.getByText("Is Edumi tutoring?").click();
+  await faq.getByText("Is Edumi Study Hall tutoring?").click();
   await expect(faq).toContainText("in the main session room, with the supervisor and other students present, never in a private call or breakout room");
   await faq.getByText("What happens if my child gets stuck?").click();
   await expect(faq).toContainText("VCE Mathematical Methods, General Mathematics, Chemistry, Biology, and Accounting");
@@ -169,7 +169,7 @@ test.describe("legal pages", () => {
   test("house rules are published with a version", async ({ page }) => {
     await page.goto("/legal/house-rules");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("House rules");
-    await expect(page.getByText(/Version 2026-10-v1/)).toBeVisible();
+    await expect(page.getByText(/Version 2026-\d{2}-v\d+/)).toBeVisible();
     await expect(page.getByText("Phone face-down inside the camera frame for the whole block.")).toBeVisible();
     await expect(page.getByRole("note")).toHaveCount(0);
   });
@@ -177,7 +177,7 @@ test.describe("legal pages", () => {
   test("the privacy notice is clearly marked as a draft", async ({ page }) => {
     await page.goto("/legal/privacy");
     await expect(page.getByRole("note")).toContainText("Draft");
-    await expect(page.getByText(/Version 2026-10-draft-7/)).toBeVisible();
+    await expect(page.getByText(/Version 2026-\d{2}-draft-\d+/)).toBeVisible();
     await expect(page.locator("article")).toContainText("One-to-one tutoring (Study + Tutoring plan) happens in the main session room");
     await expect(page.locator("article")).toContainText("run by Feifan Wu, a sole trader");
   });

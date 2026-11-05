@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { CONTACT_EMAIL } from "@/lib/contact";
 import { Wordmark } from "@/components/wordmark";
 import { signOut } from "@/app/auth/actions";
 import { LanguageSwitch } from "@/components/language-switch";
@@ -33,6 +34,11 @@ export async function AppShell({ profile, title, children }: { profile: CurrentP
         <h1 className="text-3xl font-medium tracking-tight">{title}</h1>
         {children}
       </main>
+      <footer className="mx-auto w-full max-w-5xl px-4 pb-6 text-xs text-ink-faint">
+        <a href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("Edumi: problem or feedback")}`} className="underline-offset-4 hover:underline">
+          {t.common.reportProblem}
+        </a>
+      </footer>
     </div>
   );
 }

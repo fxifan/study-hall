@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { signOut } from "@/app/auth/actions";
 import { localizePath, type Locale } from "@/i18n/config";
 import { getLocale } from "@/i18n/server";
-import { TUTOR_PRODUCT_NAME } from "@/lib/tutor/config";
+import { SUPPORT_EMAIL, TUTOR_PRODUCT_NAME } from "@/lib/tutor/config";
 import type { Tutor } from "@/lib/tutor/server";
 
 /**
@@ -102,9 +102,21 @@ export async function TutorShell({
           </Link>
         ))}
       </nav>
+      <footer className="mx-auto hidden w-full max-w-3xl px-4 pb-6 text-xs text-ink-faint sm:block">
+        <a href={problemHref()} className="underline-offset-4 hover:underline">
+          Report a problem or send feedback
+        </a>
+      </footer>
       <p className="sr-only">Signed in as {tutor.tutor.display_name}</p>
     </div>
   );
+}
+
+/** A support email with no personal content prefilled: the tutor writes what they want to share. */
+function problemHref(): string {
+  const subject = encodeURIComponent(`${TUTOR_PRODUCT_NAME}: problem or feedback`);
+  const body = encodeURIComponent("What were you trying to do, and what happened?\n\n(Please don't include students' or parents' details.)");
+  return `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
 }
 
 export function Loading() {

@@ -209,6 +209,11 @@ export function LogForm({
         </div>
       </fieldset>
 
+      <p className="text-xs text-ink-soft" data-testid="recording-notice">
+        <strong className="font-medium text-ink">About voice notes:</strong> your recording is sent to our transcription provider to turn
+        it into text, then deleted. We never store the audio; the transcript is kept with the report so you can check it, and you can
+        delete it any time. Please don&apos;t say students&apos; full names or anything sensitive.
+      </p>
       <section aria-label="Voice note" className="flex flex-col items-center gap-3 dash-card p-5 text-center">
         {recording ? (
           <>
@@ -279,7 +284,7 @@ export function LogForm({
         </button>
       )}
       <p className="text-xs text-ink-faint">
-        Nothing is sent to the parent until you review the report and tap Send. Voice notes are deleted as soon as they&apos;re transcribed.
+        Nothing is sent to the parent until you review the report and tap Send.
       </p>
     </form>
   );

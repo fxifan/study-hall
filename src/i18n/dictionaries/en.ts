@@ -11,6 +11,7 @@ export const en = {
     description: "Edumi: education, made intelligent. Supervised online study for Years 7–12 (Edumi Study Hall) and an AI-powered workspace for tutors (Edumi for Tutors).",
   },
   common: {
+    reportProblem: "Report a problem or send feedback",
     loading: "Loading…",
     logOut: "Log out",
     phase: "Phase {n}",

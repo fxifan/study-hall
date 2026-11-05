@@ -8,6 +8,7 @@ export const zh: Dictionary = {
     description: "为 7–12 年级学生提供有老师监督的线上自习，帮助学生保持专注、对自己的学习负责。",
   },
   common: {
+    reportProblem: "反馈问题或建议",
     loading: "加载中…",
     logOut: "退出登录",
     phase: "第 {n} 阶段",

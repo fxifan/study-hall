@@ -74,9 +74,15 @@ export async function track(event: {
     }
     // Study Hall events about a student: a test student (seeded, *.test) is test data too.
     if (!isTest && event.objectType === "student" && event.objectId) {
-      const { data } = await admin.from("students").select("profiles!students_profile_id_fkey(email)").eq("id", event.objectId).maybeSingle();
-      const email = (data?.profiles as unknown as { email: string } | null)?.email ?? "";
-      isTest = isReservedTestEmail(email);
+      const { data } = await admin
+        .from("students")
+        .select("profiles!students_profile_id_fkey(email), parent_students(profiles(email))")
+        .eq("id", event.objectId)
+        .maybeSingle();
+      const own = (data?.profiles as unknown as { email: string } | null)?.email ?? "";
+      const parents = ((data?.parent_students as unknown as { profiles: { email: string } | null }[]) ?? []).map((p) => p.profiles?.email ?? "");
+      // A student with no login of their own is judged by their parents' accounts.
+      isTest = [own, ...parents].some((e) => e && isReservedTestEmail(e));
     }
     const { error } = await admin.from("product_events").insert({
       name: event.name,
