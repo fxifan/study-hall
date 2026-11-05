@@ -95,7 +95,7 @@ export async function sendReport(id: string, body: ReportBody): Promise<ActionRe
   if (!canWork({ plan: me.tutor.plan, trialEndsAt: me.tutor.trial_ends_at })) return { ok: false, error: blockedMessage("trial_ended") };
   const parsed = reportBodySchema.safeParse(body);
   if (!idSchema.safeParse(id).success || !parsed.success) return { ok: false, error: "Some items are too long or empty." };
-  if (tutorEmailMode() !== "app") return { ok: false, error: "Sending from Study Hall isn't set up. Use \"Open in my email\"." };
+  if (tutorEmailMode() !== "app") return { ok: false, error: "Sending from Edumi isn't set up. Use \"Open in my email\"." };
   const { supabase, report } = await loadReport(id);
   if (!report) return { ok: false, error: "Report not found." };
   if (report.sent_at) return { ok: false, error: "This report has already been sent." };

@@ -1,7 +1,7 @@
 /**
  * Session checklist and work evidence (owner brief, 30 Oct 2026): a student plans tasks, marks them
  * with a result, uploads a photo; a supervisor adds a check-in; the parent's report shows what was
- * marked, what was uploaded (not marked by Study Hall) and the check-in; another family can't open
+ * marked, what was uploaded (not marked by Edumi) and the check-in; another family can't open
  * the file. Restores what it changes.
  */
 import { expect, test, type Page } from "@playwright/test";
@@ -144,12 +144,12 @@ test("the parent's report separates marked work, uploads and check-ins", async (
   await expect(card).toContainText("Mathematical Methods · Exercise 4B, questions 1–15");
   await expect(card).toContainText("Result: 12/15");
   await expect(card.getByRole("link", { name: "exercise-4b.png" })).toHaveAttribute("href", `/api/evidence/${pastEvidenceId}`);
-  await expect(card).toContainText("Uploaded by the student. Study Hall hasn't checked or marked it.");
+  await expect(card).toContainText("Uploaded by the student. Edumi hasn't checked or marked it.");
   await expect(card).toContainText(/Supervisor observation\s*Asked for help with schoolwork during the session\./);
 
   await page.getByRole("button", { name: "简体中文" }).click();
   await expect(card).toContainText("学生在自习期间提出了学业求助。");
-  await expect(card).toContainText("由学生上传，Study Hall 未检查或批改。");
+  await expect(card).toContainText("由学生上传，Edumi 未检查或批改。");
 
   const res = await page.request.get(`/api/evidence/${pastEvidenceId}`, { maxRedirects: 0 });
   expect(res.status()).toBe(302);

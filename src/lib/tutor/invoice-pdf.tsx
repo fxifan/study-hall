@@ -15,19 +15,19 @@ import { formatCents } from "./invoice-math";
  * parent's email in "Bill to" rather than printed as blank boxes.
  */
 const s = StyleSheet.create({
-  page: { padding: 48, fontSize: 10, fontFamily: "Helvetica", color: "#1b2a41" },
+  page: { padding: 48, fontSize: 10, fontFamily: "Helvetica", color: "#25283b" },
   row: { flexDirection: "row", justifyContent: "space-between" },
   title: { fontSize: 22, fontFamily: "Helvetica-Bold", marginBottom: 4 },
   muted: { color: "#5b6472" },
   label: { color: "#5b6472", fontSize: 8, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 3 },
   block: { marginBottom: 18 },
-  th: { flexDirection: "row", borderBottomWidth: 1, borderColor: "#1b2a41", paddingBottom: 4, marginBottom: 4, fontFamily: "Helvetica-Bold" },
+  th: { flexDirection: "row", borderBottomWidth: 1, borderColor: "#25283b", paddingBottom: 4, marginBottom: 4, fontFamily: "Helvetica-Bold" },
   tr: { flexDirection: "row", paddingVertical: 4, borderBottomWidth: 0.5, borderColor: "#d3deeb" },
   desc: { flex: 1, paddingRight: 8 },
   num: { width: 60, textAlign: "right" },
   totals: { marginTop: 10, marginLeft: "auto", width: 220 },
   totalRow: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 2 },
-  grand: { fontFamily: "Helvetica-Bold", fontSize: 12, borderTopWidth: 1, borderColor: "#1b2a41", paddingTop: 4, marginTop: 2 },
+  grand: { fontFamily: "Helvetica-Bold", fontSize: 12, borderTopWidth: 1, borderColor: "#25283b", paddingTop: 4, marginTop: 2 },
   pay: { marginTop: 28, padding: 12, borderWidth: 1, borderColor: "#d3deeb" },
 });
 

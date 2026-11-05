@@ -3,7 +3,7 @@ import type { ReportBody, ReportContent, ReportLang } from "./schema";
 
 /**
  * Renderings of a tutor report from its JSON (docs/tutor-reports-spec.md §3.4, §4): plain text for
- * WeChat/WhatsApp, and the parent email (one or both languages, English first, using Study Hall's
+ * WeChat/WhatsApp, and the parent email (one or both languages, English first, using Edumi's
  * email layout). Empty sections are left out; nothing here adds content.
  */
 export type ReportMeta = {

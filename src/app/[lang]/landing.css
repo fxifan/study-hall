@@ -1,6 +1,5 @@
 /*
- * Landing page styles, ported from design/landing.html and scoped under .landing so they can't
- * leak into the app. Brand colour tokens (--paper, --ink, --pen …) come from globals.css; the
+ * Landing page styles (Edumi), scoped under .landing so they can't leak into the app. Brand colour tokens (--paper, --ink, --pen …) come from globals.css; the
  * extra tokens below are landing-only. The design's ".js" hook is replaced by
  * @media (scripting: enabled), and LandingEffects adds .go to start the pen-stroke reveals.
  */
@@ -23,11 +22,15 @@ html:has(.landing) {
 
 .landing {
   --cover-hair: rgba(246, 242, 232, .16);
-  --cover-pen: #F08A78;
+  --cover-pen: #C4B9FF;
+  /* Edumi: the page's accent strokes and numbers use lavender (errors keep the global --pen). */
+  --pen: var(--brand);
+  --pen-faint: rgba(169, 154, 255, .5);
   --shadow-1: 0 1px 2px rgba(27, 42, 65, .07), 0 2px 6px rgba(27, 42, 65, .05);
   --shadow-2: 0 2px 4px rgba(27, 42, 65, .05), 0 22px 44px -16px rgba(27, 42, 65, .26);
   --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .1 0 0 0 0 .16 0 0 0 0 .25 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.11'/%3E%3C/svg%3E");
-  --serif: var(--font-newsreader), Georgia, "Times New Roman", var(--font-cjk), serif;
+  --serif: var(--font-manrope), var(--font-inter), ui-sans-serif, system-ui, var(--font-cjk), sans-serif;
+  --sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", var(--font-cjk), sans-serif;
   --mono: var(--font-jetbrains-mono), ui-monospace, Menlo, Consolas, var(--font-cjk), monospace;
   --r-sm: 3px;
   --r-md: 6px;
@@ -38,10 +41,9 @@ html:has(.landing) {
 
   flex: 1;
   background-color: var(--paper);
-  background-image: var(--grain);
   color: var(--ink);
-  font-family: var(--serif);
-  font-size: 1.125rem;
+  font-family: var(--sans);
+  font-size: 1.0625rem;
   line-height: 1.6;
   font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
@@ -60,7 +62,7 @@ html:has(.landing) {
 
   a { color: inherit; }
   p { margin: 0; text-wrap: pretty; }
-  h1, h2, h3 { margin: 0; font-weight: 500; text-wrap: balance; }
+  h1, h2, h3 { margin: 0; font-family: var(--serif); font-weight: 700; letter-spacing: -.025em; text-wrap: balance; }
   b, strong { font-weight: 600; }
   :focus-visible { outline: 2px solid var(--pen); outline-offset: 3px; border-radius: 2px; }
   ol, ul { list-style: none; }
@@ -108,8 +110,8 @@ html:has(.landing) {
     font: 500 1.0625rem/1 var(--serif); text-decoration: none; cursor: pointer; white-space: nowrap;
     transition: transform .18s var(--ease), box-shadow .18s var(--ease), background-color .18s;
   }
-  .btn-primary { background: var(--coral); color: var(--coral-ink); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25), 0 1px 2px rgba(0, 0, 0, .18), 0 6px 16px -8px rgba(240, 120, 98, .6); }
-  .btn-primary:hover { transform: translateY(-1px); background: var(--dash-accent-hover); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25), 0 2px 4px rgba(0, 0, 0, .2), 0 10px 22px -8px rgba(240, 120, 98, .7); }
+  .btn-primary { background: var(--coral); color: var(--coral-ink); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25), 0 1px 2px rgba(0, 0, 0, .18), 0 6px 16px -8px rgba(53, 54, 111, .45); }
+  .btn-primary:hover { transform: translateY(-1px); background: var(--dash-accent-hover); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25), 0 2px 4px rgba(0, 0, 0, .2), 0 10px 22px -8px rgba(53, 54, 111, .55); }
   .btn-primary:active { transform: translateY(0); box-shadow: none; }
   .btn .arr { transition: transform .18s var(--ease); }
   .btn:hover .arr { transform: translateX(3px); }
@@ -152,7 +154,7 @@ html:has(.landing) {
     pointer-events: none;
   }
   .sec-mark { grid-column: 1; text-align: right; padding-top: .3rem; }
-  .sec-num { display: block; font-style: italic; font-size: 2.25rem; line-height: 1; color: var(--pen); }
+  .sec-num { display: block; font-family: var(--serif); font-weight: 700; font-size: 2.25rem; line-height: 1; color: var(--pen); }
   .sec-label { display: block; margin-top: .65rem; font: 500 .6875rem/1.35 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); }
   .sec-body { grid-column: 2; min-width: 0; }
   .kicker { font: 500 .75rem/1.5 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); }
@@ -173,8 +175,8 @@ html:has(.landing) {
   .hero .wrap { padding-top: 64px; padding-bottom: 120px; }
   .hero-date { display: block; font: 500 .8125rem/1.3 var(--mono); color: var(--pen); padding-top: 1.5rem; }
   .hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 430px); gap: 56px; align-items: center; }
-  h1 { margin-top: 22px; font-size: clamp(2.6rem, 1.1rem + 4.6vw, 4.75rem); line-height: 1.02; letter-spacing: -.024em; }
-  h1 em { position: relative; font-style: italic; white-space: nowrap; }
+  h1 { margin-top: 22px; font-size: clamp(2.4rem, 1rem + 3.6vw, 4rem); line-height: 1.04; letter-spacing: -.03em; }
+  h1 em { position: relative; font-style: normal; color: var(--brand); white-space: normal; }
   h1 .uline { position: absolute; left: -1%; bottom: -.14em; width: 102%; height: .3em; }
   h1 .uline path { stroke-width: 2.6; vector-effect: non-scaling-stroke; }
   h1 .uline path + path { stroke-width: 1.8; }
@@ -209,7 +211,7 @@ html:has(.landing) {
   /* ---------- how it works ---------- */
   .steps { list-style: none; margin: 56px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 44px 32px; }
   .step { border-top: 1px solid var(--hair); padding-top: 20px; }
-  .step-k { font-style: italic; font-size: 1.25rem; color: var(--pen); line-height: 1; }
+  .step-k { font-family: var(--serif); font-weight: 700; font-size: 1.25rem; color: var(--pen); line-height: 1; }
   .step h3 { margin-top: 14px; font-size: 1.375rem; line-height: 1.2; letter-spacing: -.01em; }
   .step p { margin-top: 12px; font-size: 1.0625rem; line-height: 1.55; color: var(--ink-soft); }
   @media (max-width: 1180px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -306,7 +308,7 @@ html:has(.landing) {
   }
   .rules::before { content: ""; position: absolute; top: 0; bottom: 0; left: 70px; width: 4px; border-left: 1px solid var(--pen-faint); border-right: 1px solid var(--pen-faint); }
   .rules li { display: grid; grid-template-columns: 70px minmax(0, 1fr); column-gap: 26px; }
-  .rules .n { text-align: center; font-style: italic; color: var(--pen); }
+  .rules .n { text-align: center; font-weight: 700; color: var(--pen); }
   .rules-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 24px; padding: 14px 24px 16px 100px; border-top: 1px solid var(--rule); font-size: 1rem; color: var(--ink-soft); }
   @media (max-width: 640px) {
     .rules { --rl: 36px; --ro: -9px; font-size: 1.0625rem; padding-right: 18px; }
@@ -322,7 +324,7 @@ html:has(.landing) {
   .cover .sec-label { color: var(--cover-soft); }
   .cover .intro { color: var(--cover-soft); }
   .cover :focus-visible { outline-color: var(--cover-pen); }
-  .cover .link { color: var(--cover-ink); text-decoration-color: rgba(240, 138, 120, .6); }
+  .cover .link { color: var(--cover-ink); text-decoration-color: rgba(169, 154, 255, .6); }
   .cover .link:hover { text-decoration-color: var(--cover-pen); }
   .safety { list-style: none; margin: 56px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 40px; }
   .safety li { border-top: 1px solid var(--cover-hair); padding: 24px 0 40px; }
@@ -431,3 +433,14 @@ html:has(.landing) {
     .btn, .btn .arr { transition: none; }
   }
 }
+
+/* Edumi platform band (rebrand): midnight indigo strip with the tagline and both products. */
+.landing .edumi-band { background: var(--cover); color: var(--cover-ink); font-size: .9375rem; }
+.landing .edumi-band-in { max-width: 1240px; margin: 0 auto; padding: 10px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 20px; }
+.landing .edumi-band .dim { color: var(--cover-soft); }
+.landing .edumi-band b { font-family: var(--serif); font-weight: 700; color: #fff; }
+.landing .edumi-band-links { display: flex; gap: 6px; }
+.landing .edumi-band-links a { padding: 4px 10px; border-radius: 999px; text-decoration: none; color: var(--cover-soft); transition: background-color .15s, color .15s; }
+.landing .edumi-band-links a:hover { color: #fff; background: rgba(169, 154, 255, .16); }
+.landing .edumi-band-links a[aria-current="page"] { color: var(--midnight, #171a35); background: var(--lavender, #a99aff); font-weight: 600; }
+

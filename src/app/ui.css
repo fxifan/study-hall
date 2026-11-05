@@ -1,5 +1,5 @@
 /*
- * Site-wide UI components for the refined Study Hall look (Nov 2026): buttons (primary coral,
+ * Site-wide UI components for the Edumi look (Nov 2026): buttons (primary indigo,
  * secondary raised, tertiary text), cards, pills, fields, metric cards, the tutor calendar and
  * dialogs. Tokens are --dash-* on :root (light and dark); brand tokens live in globals.css.
  * First built for the tutor dashboard, then rolled out to the whole site.
@@ -9,94 +9,102 @@
 @layer components {
   :root {
     /* Light theme */
-    --dash-page: #f6f2e8;
-    --dash-surface: #fffdf8;
-    --dash-surface-2: #f8f3e8;
-    --dash-surface-hover: #f1eadb;
-    --dash-border: rgba(27, 42, 65, 0.1);
-    --dash-border-strong: rgba(27, 42, 65, 0.18);
-    --dash-text: #18263c;
-    --dash-text-2: #3e4b61;
-    --dash-text-3: #6b7486;
-    --dash-accent: #f07862;
-    --dash-accent-hover: #f38a76;
-    --dash-accent-press: #e2654e;
-    --dash-accent-ink: #1d120f; /* text on coral: dark for contrast (~7:1) */
-    --dash-accent-text: #c24d37; /* coral as text on cream */
-    --dash-accent-soft: rgba(240, 120, 98, 0.12);
-    --dash-accent-soft-2: rgba(240, 120, 98, 0.2);
-    --dash-accent-wash: rgba(240, 120, 98, 0.06);
-    --dash-accent-line: rgba(218, 96, 74, 0.55);
-    --dash-shadow: 0 1px 2px rgba(27, 42, 65, 0.06), 0 8px 24px -16px rgba(27, 42, 65, 0.28);
-    --dash-shadow-hover: 0 2px 4px rgba(27, 42, 65, 0.08), 0 14px 32px -16px rgba(27, 42, 65, 0.35);
+    --dash-page: #f8f9fc;
+    --dash-surface: #ffffff;
+    --dash-surface-2: #f3f4fa;
+    --dash-surface-hover: #eceef7;
+    --dash-border: #e6e8f0;
+    --dash-border-strong: #d5d8e5;
+    --dash-text: #25283b;
+    --dash-text-2: #475069;
+    --dash-text-3: #667085;
+    --dash-accent: #35366f;
+    --dash-accent-hover: #42448a;
+    --dash-accent-press: #2a2b5a;
+    --dash-accent-ink: #ffffff; /* white on deep indigo (11:1) */
+    --dash-accent-text: #5b4bd1; /* lavender as text on white */
+    --dash-accent-soft: rgba(169, 154, 255, 0.18);
+    --dash-accent-soft-2: rgba(169, 154, 255, 0.3);
+    --dash-accent-wash: rgba(169, 154, 255, 0.08);
+    --dash-accent-line: rgba(91, 75, 209, 0.5);
+    --dash-shadow: 0 1px 2px rgba(23, 26, 53, 0.05), 0 8px 24px -16px rgba(23, 26, 53, 0.18);
+    --dash-shadow-hover: 0 2px 4px rgba(23, 26, 53, 0.06), 0 14px 32px -16px rgba(23, 26, 53, 0.26);
     --dash-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.7);
-    --dash-ui: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, var(--font-cjk), sans-serif;
+    --dash-ui: var(--font-inter), ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, var(--font-cjk), sans-serif;
     --dash-ease: cubic-bezier(0.2, 0.7, 0.3, 1);
     /* Secondary information colours (dashboard review, Nov 2026), used sparingly: muted blue for
-       scheduling, muted green for completed and paid. Coral stays the one action colour. */
+       scheduling, green for completed and paid. Indigo/lavender stay the action colours. */
     --dash-blue: #5d82b5;
     --dash-blue-soft: rgba(93, 130, 181, 0.14);
     --dash-blue-line: rgba(93, 130, 181, 0.5);
     --dash-blue-text: #3f6496;
-    --dash-green: #5e9a78;
-    --dash-green-soft: rgba(94, 154, 120, 0.14);
-    --dash-green-text: #3d7a58;
+    --dash-green: #16a36a;
+    --dash-green-soft: rgba(22, 163, 106, 0.12);
+    --dash-green-text: #0f7a4f;
 
   }
 
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --dash-page: #111a28;
-      --dash-surface: #19263c;
-      --dash-surface-2: #1f2e48;
-      --dash-surface-hover: #25365a;
-      --dash-border: rgba(238, 232, 218, 0.08);
-      --dash-border-strong: rgba(238, 232, 218, 0.16);
-      --dash-text: #f3eee3;
-      --dash-text-2: #c6cdd9;
-      --dash-text-3: #929cae;
-      --dash-accent-text: #f4917f;
-      --dash-accent-soft: rgba(240, 120, 98, 0.13);
-      --dash-accent-soft-2: rgba(240, 120, 98, 0.22);
-      --dash-accent-wash: rgba(240, 120, 98, 0.07);
-      --dash-accent-line: rgba(240, 120, 98, 0.55);
-      --dash-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 12px 28px -18px rgba(0, 0, 0, 0.7);
-      --dash-shadow-hover: 0 2px 6px rgba(0, 0, 0, 0.3), 0 18px 36px -18px rgba(0, 0, 0, 0.8);
-      --dash-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.045);
+      --dash-accent: #a99aff;
+      --dash-accent-hover: #b8abff;
+      --dash-accent-press: #9686f5;
+      --dash-accent-ink: #171a35;
+      --dash-page: #12142b;
+      --dash-surface: #1b1e3d;
+      --dash-surface-2: #22264a;
+      --dash-surface-hover: #2a2f58;
+      --dash-border: rgba(234, 230, 255, 0.09);
+      --dash-border-strong: rgba(234, 230, 255, 0.17);
+      --dash-text: #f1f0fa;
+      --dash-text-2: #c9cbe0;
+      --dash-text-3: #9a9cb8;
+      --dash-accent-text: #c4b9ff;
+      --dash-accent-soft: rgba(169, 154, 255, 0.16);
+      --dash-accent-soft-2: rgba(169, 154, 255, 0.26);
+      --dash-accent-wash: rgba(169, 154, 255, 0.07);
+      --dash-accent-line: rgba(169, 154, 255, 0.55);
+      --dash-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 28px -18px rgba(0, 0, 0, 0.75);
+      --dash-shadow-hover: 0 2px 6px rgba(0, 0, 0, 0.35), 0 18px 36px -18px rgba(0, 0, 0, 0.85);
+      --dash-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.05);
       --dash-blue: #86a8d8;
       --dash-blue-soft: rgba(134, 168, 216, 0.24);
       --dash-blue-line: rgba(134, 168, 216, 0.65);
       --dash-blue-text: #a9c3e8;
-      --dash-green: #7fbf98;
-      --dash-green-soft: rgba(127, 191, 152, 0.2);
-      --dash-green-text: #9fd3b3;
+      --dash-green: #4cc98f;
+      --dash-green-soft: rgba(76, 201, 143, 0.16);
+      --dash-green-text: #7fdcb0;
     }
   }
   :root[data-theme="dark"] {
-    --dash-page: #111a28;
-    --dash-surface: #19263c;
-    --dash-surface-2: #1f2e48;
-    --dash-surface-hover: #25365a;
-    --dash-border: rgba(238, 232, 218, 0.08);
-    --dash-border-strong: rgba(238, 232, 218, 0.16);
-    --dash-text: #f3eee3;
-    --dash-text-2: #c6cdd9;
-    --dash-text-3: #929cae;
-    --dash-accent-text: #f4917f;
-    --dash-accent-soft: rgba(240, 120, 98, 0.13);
-    --dash-accent-soft-2: rgba(240, 120, 98, 0.22);
-    --dash-accent-wash: rgba(240, 120, 98, 0.07);
-    --dash-accent-line: rgba(240, 120, 98, 0.55);
-    --dash-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 12px 28px -18px rgba(0, 0, 0, 0.7);
-    --dash-shadow-hover: 0 2px 6px rgba(0, 0, 0, 0.3), 0 18px 36px -18px rgba(0, 0, 0, 0.8);
-    --dash-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.045);
+    --dash-accent: #a99aff;
+      --dash-accent-hover: #b8abff;
+      --dash-accent-press: #9686f5;
+      --dash-accent-ink: #171a35;
+      --dash-page: #12142b;
+    --dash-surface: #1b1e3d;
+    --dash-surface-2: #22264a;
+    --dash-surface-hover: #2a2f58;
+    --dash-border: rgba(234, 230, 255, 0.09);
+    --dash-border-strong: rgba(234, 230, 255, 0.17);
+    --dash-text: #f1f0fa;
+    --dash-text-2: #c9cbe0;
+    --dash-text-3: #9a9cb8;
+    --dash-accent-text: #c4b9ff;
+    --dash-accent-soft: rgba(169, 154, 255, 0.16);
+    --dash-accent-soft-2: rgba(169, 154, 255, 0.26);
+    --dash-accent-wash: rgba(169, 154, 255, 0.07);
+    --dash-accent-line: rgba(169, 154, 255, 0.55);
+    --dash-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 28px -18px rgba(0, 0, 0, 0.75);
+    --dash-shadow-hover: 0 2px 6px rgba(0, 0, 0, 0.35), 0 18px 36px -18px rgba(0, 0, 0, 0.85);
+    --dash-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.05);
     --dash-blue: #86a8d8;
     --dash-blue-soft: rgba(134, 168, 216, 0.24);
     --dash-blue-line: rgba(134, 168, 216, 0.65);
     --dash-blue-text: #a9c3e8;
-    --dash-green: #7fbf98;
-    --dash-green-soft: rgba(127, 191, 152, 0.2);
-    --dash-green-text: #9fd3b3;
+    --dash-green: #4cc98f;
+    --dash-green-soft: rgba(76, 201, 143, 0.16);
+    --dash-green-text: #7fdcb0;
   }
 
   /* Inside the tutor dashboard, borders and quiet fills use the softer surface tokens. */
@@ -137,7 +145,7 @@
     font-family: var(--dash-ui);
   }
 
-  /* ---- Buttons: primary (coral), secondary (raised surface), tertiary (text) ------------------ */
+  /* ---- Buttons: primary (indigo; lavender in dark), secondary (raised surface), tertiary (text) ------------------ */
 
   .dash-btn {
     display: inline-flex;
@@ -182,11 +190,11 @@
   .dash-btn--primary {
     background: var(--dash-accent);
     color: var(--dash-accent-ink);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 1px 2px rgba(0, 0, 0, 0.18), 0 6px 16px -8px rgba(240, 120, 98, 0.6);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 1px 2px rgba(0, 0, 0, 0.18), 0 6px 16px -8px rgba(53, 54, 111, 0.45);
   }
   .dash-btn--primary:hover {
     background: var(--dash-accent-hover);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 2px 4px rgba(0, 0, 0, 0.2), 0 10px 22px -8px rgba(240, 120, 98, 0.7);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 2px 4px rgba(0, 0, 0, 0.2), 0 10px 22px -8px rgba(53, 54, 111, 0.55);
   }
   .dash-btn--primary:active {
     background: var(--dash-accent-press);
@@ -384,7 +392,7 @@
   .dash-grid-col {
     border-left: 1px solid var(--dash-border);
   }
-  /* Today: a quiet coral wash; the coral day pill and the "now" line do the rest. */
+  /* Today: a quiet lavender wash; the accent day pill and the "now" line do the rest. */
   .dash-grid-col--today {
     background: var(--dash-accent-wash);
   }
@@ -404,7 +412,7 @@
     color: var(--dash-accent-ink);
   }
 
-  /* Empty hour: invisible until hovered/focused, then a soft coral "+ 4pm". */
+  /* Empty hour: invisible until hovered/focused, then a soft accent "+ 4pm". */
   .dash-slot {
     display: block;
     width: 100%;
@@ -458,7 +466,7 @@
   .dash-event--scheduled .dash-event-time {
     color: var(--dash-blue-text);
   }
-  /* Happened but not logged yet: a dashed coral outline asking for attention. */
+  /* Happened but not logged yet: a dashed accent outline asking for attention. */
   .dash-event--due {
     background: var(--dash-surface);
     border: 1px dashed var(--dash-accent);

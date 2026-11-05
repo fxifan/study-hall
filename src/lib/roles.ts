@@ -1,6 +1,6 @@
 /**
  * `tutor` is an independent tutor using the session-report product at /app
- * (docs/tutor-reports-spec.md). Study Hall's own room tutors are `proctor` accounts.
+ * (docs/tutor-reports-spec.md). Edumi's own room tutors are `proctor` accounts.
  */
 export const ROLES = ["parent", "student", "proctor", "admin", "tutor"] as const;
 export type Role = (typeof ROLES)[number];

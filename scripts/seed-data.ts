@@ -57,5 +57,5 @@ export const STARTER_TEMPLATES: { id: string; kind: "observation" | "comment"; e
   { id: "00000000-0000-4000-8000-000000000512", kind: "comment", en: "Set three goals and marked each one before leaving.", zh: "设定了三个学习目标，并在离开前逐一标记。" },
 ];
 
-export const HOUSE_RULES_VERSION = "2026-10-v1";
-export const PRIVACY_VERSION = "2026-11-draft-8"; // replace with reviewed text before launch
+export const HOUSE_RULES_VERSION = "2026-11-v2";
+export const PRIVACY_VERSION = "2026-11-draft-9"; // replace with reviewed text before launch

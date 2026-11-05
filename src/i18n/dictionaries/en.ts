@@ -8,7 +8,7 @@ import { onboardingEn } from "./onboarding.en";
 
 export const en = {
   meta: {
-    description: "Supervised online study sessions for Years 7–12 that help students stay engaged and accountable.",
+    description: "Edumi: education, made intelligent. Supervised online study for Years 7–12 (Edumi Study Hall) and an AI-powered workspace for tutors (Edumi for Tutors).",
   },
   common: {
     loading: "Loading…",
@@ -27,7 +27,7 @@ export const en = {
     emailPlaceholder: "you@example.com",
     submit: "Email me a login link",
     sending: "Sending…",
-    sent: "If {email} has a Study Hall account, a login link is on its way. It expires in an hour.",
+    sent: "If {email} has a Edumi account, a login link is on its way. It expires in an hour.",
     errors: {
       invalid_email: "Enter a valid email address.",
       rate_limited: "You just asked for a link. Wait a minute and try again.",
@@ -36,7 +36,7 @@ export const en = {
     },
     linkErrors: {
       link: "That login link has expired or was already used. Ask for a new one below.",
-      "no-profile": "Your account isn't set up yet. Contact Study Hall if this keeps happening.",
+      "no-profile": "Your account isn't set up yet. Contact Edumi if this keeps happening.",
     },
   },
   parent: {
@@ -56,7 +56,7 @@ export const en = {
       finish: "Finish sign-up",
       manage: "Manage billing",
       manageHelp: "Change plan, update your card or cancel. Moving up starts now and you pay the difference for this week; moving down starts at your next renewal. Moving to Study + Tutoring? Add your child's subjects first.",
-      welcome: "Payment received. Welcome to Study Hall! Your child will get a login email.",
+      welcome: "Payment received. Welcome to Edumi! Your child will get a login email.",
     },
   },
   student: {
@@ -91,7 +91,7 @@ export const en = {
       saveOutcomes: "Save",
       evidence: {
         title: "Photo or file of your work (optional)",
-        help: "JPG, PNG, WebP or PDF, up to 10 MB, three per task. Your parent can see it; Study Hall doesn't mark it.",
+        help: "JPG, PNG, WebP or PDF, up to 10 MB, three per task. Your parent can see it; Edumi doesn't mark it.",
         add: "Add photo or file",
         uploading: "Uploading…",
         remove: "Remove",
@@ -249,23 +249,23 @@ export const en = {
   // Chinese below it (src/lib/email). The contact address is filled in, identical in both.
   emails: {
     label: "English",
-    footer: "Questions or concerns? Email {email}. Study Hall is run by Feifan Wu, a sole trader.",
+    footer: "Questions or concerns? Email {email}. Edumi is run by Feifan Wu, a sole trader.",
     login: {
-      subject: "Your Study Hall login link",
-      heading: "Log in to Study Hall",
+      subject: "Your Edumi login link",
+      heading: "Log in to Edumi",
       body: "Use this link to log in. It works once and expires in an hour.",
       button: "Log in",
       ignore: "If you didn't ask for this, you can ignore this email.",
     },
     signup: {
-      subject: "Confirm your email for Study Hall",
+      subject: "Confirm your email for Edumi",
       heading: "Confirm your email",
       body: "Use this link to confirm your email and carry on signing up. It works once and expires in an hour.",
       button: "Continue sign-up",
-      ignore: "If you didn't sign up for Study Hall, you can ignore this email.",
+      ignore: "If you didn't sign up for Edumi, you can ignore this email.",
     },
     report: {
-      subject: "Study Hall report: {name}, {date}",
+      subject: "Edumi report: {name}, {date}",
       heading: "Session report: {name}",
       button: "See all reports",
     },
@@ -295,7 +295,7 @@ export const en = {
     result: "Result",
     note: "Student's note",
     evidence: "Work uploaded",
-    evidenceNote: "Uploaded by the student. Study Hall hasn't checked or marked it.",
+    evidenceNote: "Uploaded by the student. Edumi hasn't checked or marked it.",
     comment: "Supervisor comment",
     asWritten: "Goals and supervisor notes are shown as they were written.",
     copy: "Copy as text",
@@ -539,7 +539,7 @@ export const en = {
     },
   },
   legal: {
-    draft: "Draft: this notice hasn't been reviewed yet and will be replaced before Study Hall opens.",
+    draft: "Draft: this notice hasn't been reviewed yet and will be replaced before Edumi opens.",
     englishOnly: "Legal documents are in English only.",
     version: "Version {version} · published {date}",
   },

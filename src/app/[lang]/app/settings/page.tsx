@@ -135,7 +135,7 @@ async function Settings({ searchParams }: Pick<PageProps<"/[lang]/app/settings">
           </label>
           {tutorEmailMode() === "own" && (
             <p className="text-xs text-ink-soft">
-              Automatic reminders start once Study Hall sends email for you. For now, overdue invoices have a &quot;Send a reminder&quot; button
+              Automatic reminders start once Edumi sends email for you. For now, overdue invoices have a &quot;Send a reminder&quot; button
               that opens your own email.
             </p>
           )}

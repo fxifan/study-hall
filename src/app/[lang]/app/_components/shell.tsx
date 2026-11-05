@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Wordmark } from "@/components/wordmark";
 import type { ReactNode } from "react";
 import { signOut } from "@/app/auth/actions";
 import { localizePath, type Locale } from "@/i18n/config";
@@ -9,7 +10,7 @@ import type { Tutor } from "@/lib/tutor/server";
 /**
  * Frame for the tutor product (/app). Mobile first (spec §8: the phone is the main device): a
  * compact header and a bottom tab bar on small screens, top links on wider ones. English only for
- * now, like Study Hall's admin pages; reports and emails are bilingual.
+ * now, like Edumi's admin pages; reports and emails are bilingual.
  */
 const NAV = [
   { key: "today", href: "/app", label: "Dashboard", short: "Home" },
@@ -49,8 +50,8 @@ export async function TutorShell({
     <div className="flex flex-1 flex-col pb-20 sm:pb-0" lang="en">
       <header className="border-b border-rule bg-sheet">
         <div className={`mx-auto flex w-full ${wide ? "max-w-6xl" : "max-w-3xl"} items-center justify-between gap-3 px-4 py-3`}>
-          <Link href={appHref("/app", locale)} className="font-mono text-xs tracking-widest text-pen uppercase">
-            {TUTOR_PRODUCT_NAME}
+          <Link href={appHref("/app", locale)} className="text-ink" aria-label={`${TUTOR_PRODUCT_NAME} home`}>
+            <Wordmark className="text-base" product="for Tutors" />
           </Link>
           <nav aria-label="Main" className="hidden items-center gap-4 text-sm sm:flex">
             {NAV.map((n) => (

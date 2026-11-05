@@ -24,7 +24,7 @@ describe("Zoom meetings", () => {
     const [url, init] = fetchImpl.mock.calls[1];
     expect(url).toBe("https://api.zoom.us/v2/users/host%40example.com/meetings");
     const body = JSON.parse(init.body);
-    expect(body).toMatchObject({ topic: "Study Hall: Room 1", type: 3 });
+    expect(body).toMatchObject({ topic: "Edumi: Room 1", type: 3 });
     expect(body.settings).toMatchObject({
       auto_recording: "none",
       waiting_room: true,

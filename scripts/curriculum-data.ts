@@ -1,6 +1,6 @@
 /**
  * Curriculum points for tutor resources (docs/tutor-resources-spec.md §2), imported by
- * `npm run curriculum:import`. Each summary is Study Hall's own short paraphrase of what a point
+ * `npm run curriculum:import`. Each summary is Edumi's own short paraphrase of what a point
  * covers, not VCAA's wording; the official documents are linked. Nothing here is published until an
  * admin checks it at /admin/curriculum.
  *

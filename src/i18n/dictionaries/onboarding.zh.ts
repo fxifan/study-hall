@@ -9,7 +9,7 @@ export const onboardingZh: OnboardingCopy = {
     items: [
       "有老师监督的自习课，帮助孩子保持专注、对自己的学习负责，时间为{days} {times}（墨尔本时间）。孩子可以选择参加任意场次。",
       "孩子遇到难题时，可在我们目前支持的科目（{subjects}）范围内获得学业帮助，方式是应用内文字或小组讨论。“监督自习”套餐由监督老师在有空时回复，没有保证的回复时间。“自习 + 辅导”套餐在孩子每参加一节自习时包含一小时一对一辅导，在主自习室中进行，由监督老师应您的要求安排，其余时间为有监督的独立自习。帮助绝不会在只有一位成年人的私人通话或分组讨论室中进行。",
-      "摄像头对准双手和书桌，不必露脸。Study Hall 不录制视频、图片或音频。自习室在 Zoom 或 Google Meet 上进行。",
+      "摄像头对准双手和书桌，不必露脸。Edumi 不录制视频、图片或音频。自习室在 Zoom 或 Google Meet 上进行。",
       "每位监督老师都持有经我们核实的儿童工作许可（WWCC）。成年人绝不会单独与您的孩子视频。",
       "每次自习后您会收到一份简短报告：出勤、孩子计划和完成的任务、上传的作业，以及监督老师的记录。",
     ],
@@ -33,7 +33,7 @@ export const onboardingZh: OnboardingCopy = {
   steps: { details: "您的信息", children: "您的孩子", consent: "自习规则与隐私", pay: "套餐与付款" },
   details: {
     name: "您的姓名",
-    source: "您是如何了解到 Study Hall 的？（可选）",
+    source: "您是如何了解到 Edumi 的？（可选）",
     sources: {
       none: "不便透露",
       wechat_referral: "微信群或微信好友",
@@ -46,7 +46,7 @@ export const onboardingZh: OnboardingCopy = {
     save: "保存",
   },
   children: {
-    empty: "请添加每位将参加 Study Hall 的孩子。",
+    empty: "请添加每位将参加 Edumi 的孩子。",
     firstName: "名字",
     lastInitial: "姓氏首字母",
     yearLevel: "年级",
@@ -59,7 +59,7 @@ export const onboardingZh: OnboardingCopy = {
     status: { invited: "付款后发送登录邮件", active: "使用中", paused: "已暂停", cancelled: "已取消" },
     errors: {
       invalid: "请检查填写的信息后重试。",
-      email_taken: "这个邮箱已经有 Study Hall 账户。",
+      email_taken: "这个邮箱已经有 Edumi 账户。",
       failed: "无法添加孩子，请重试。",
     },
   },
@@ -69,7 +69,7 @@ export const onboardingZh: OnboardingCopy = {
     privacyLink: "隐私与儿童安全声明",
     draftNote: "（草稿，审核中）",
     houseRules: "我已阅读自习规则，我的孩子同意遵守。",
-    privacy: "我已阅读隐私与儿童安全声明，并同意 Study Hall 按其所述处理我孩子的信息。",
+    privacy: "我已阅读隐私与儿童安全声明，并同意 Edumi 按其所述处理我孩子的信息。",
     submit: "同意",
     done: "已同意：自习规则 {rules}，隐私声明 {privacy}。",
     needChildren: "请先添加孩子。",
@@ -78,7 +78,7 @@ export const onboardingZh: OnboardingCopy = {
   pay: {
     summary: "{count} × {price} = 每周 {total}",
     terms: [
-      "由 Stripe 以澳元按周收费，Study Hall 不会看到您的银行卡信息。",
+      "由 Stripe 以澳元按周收费，Edumi 不会看到您的银行卡信息。",
       "可随时在账户中取消，已付费的一周结束前仍可使用。",
       "如果不合适，可在首次付款后 7 天内申请退款，之后不提供退款。",
       "付款前有疑问？请发邮件至 {email}。",

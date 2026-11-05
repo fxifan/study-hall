@@ -113,7 +113,7 @@ export async function sendInvoice(id: string): Promise<ActionResult> {
   const me = await requireTutorAction();
   if (!canWork({ plan: me.tutor.plan, trialEndsAt: me.tutor.trial_ends_at })) return { ok: false, error: blockedMessage("trial_ended") };
   if (!z.uuid().safeParse(id).success) return { ok: false, error: "Invoice not found." };
-  if (tutorEmailMode() !== "app") return { ok: false, error: "Sending from Study Hall isn't set up. Send it from your own email." };
+  if (tutorEmailMode() !== "app") return { ok: false, error: "Sending from Edumi isn't set up. Send it from your own email." };
   const supabase = await createClient();
   const invoice = await loadInvoice(supabase, id, { tutor: me.tutor, email: me.profile.email });
   if (!invoice) return { ok: false, error: "Invoice not found." };
@@ -151,7 +151,7 @@ export async function sendInvoice(id: string): Promise<ActionResult> {
 
 /**
  * The tutor emailed or shared the invoice themselves: fix its contents and mark it sent, exactly as
- * sendInvoice does after Study Hall emails it.
+ * sendInvoice does after Edumi emails it.
  */
 export async function markInvoiceSent(id: string): Promise<ActionResult> {
   const me = await requireTutorAction();

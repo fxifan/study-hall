@@ -284,7 +284,7 @@ export async function startCheckout(formData: FormData) {
       subscription_data: { metadata },
       locale: locale === "zh" ? "zh" : "en",
       // New Stripe accounts default to Managed Payments (Stripe as merchant of record, extra fees).
-      // The spec's stack is plain Checkout + Billing (Study Hall, a sole trader, isn't registered for
+      // The spec's stack is plain Checkout + Billing (Edumi, a sole trader, isn't registered for
       // GST), so opt out here until the owner decides otherwise.
       managed_payments: { enabled: false },
       success_url: `${origin}${localizePath("/onboarding/complete", locale)}?session_id={CHECKOUT_SESSION_ID}`,

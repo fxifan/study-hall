@@ -10,7 +10,7 @@ export const onboardingEn = {
     items: [
       "Supervised study sessions that help your child stay engaged and accountable, {days}, {times} Melbourne time. They can come to as many sessions as suits.",
       "Academic help when your child gets stuck, within the subjects we currently support ({subjects}), by text in the app or in a small group. On Supervised Study the supervisor responds when available, with no guaranteed response time. Study + Tutoring includes one hour of one-to-one tutoring for each session your child attends, in the main session room, scheduled by the supervisor when you request it; the rest of the session is supervised independent study. Help is never a private call or breakout with one adult.",
-      "Camera on hands and desk; face optional. Study Hall doesn't record video, images or audio. The room runs on Zoom or Google Meet.",
+      "Camera on hands and desk; face optional. Edumi doesn't record video, images or audio. The room runs on Zoom or Google Meet.",
       "Every supervisor holds a Working with Children Check that we've verified. An adult is never alone on video with your child.",
       "After each session you get a short report: attendance, the tasks your child planned and finished, any work they uploaded, and notes from the supervisor.",
     ],
@@ -34,7 +34,7 @@ export const onboardingEn = {
   steps: { details: "Your details", children: "Your children", consent: "House rules and privacy", pay: "Plan and payment" },
   details: {
     name: "Your name",
-    source: "How did you hear about Study Hall? (optional)",
+    source: "How did you hear about Edumi? (optional)",
     sources: {
       none: "Prefer not to say",
       wechat_referral: "WeChat group or contact",
@@ -47,7 +47,7 @@ export const onboardingEn = {
     save: "Save",
   },
   children: {
-    empty: "Add each child who'll join Study Hall.",
+    empty: "Add each child who'll join Edumi.",
     firstName: "First name",
     lastInitial: "Last initial",
     yearLevel: "Year level",
@@ -60,7 +60,7 @@ export const onboardingEn = {
     status: { invited: "Login email sent after payment", active: "Active", paused: "Paused", cancelled: "Cancelled" },
     errors: {
       invalid: "Check the details and try again.",
-      email_taken: "That email already has a Study Hall account.",
+      email_taken: "That email already has a Edumi account.",
       failed: "Couldn't add your child. Try again.",
     },
   },
@@ -70,7 +70,7 @@ export const onboardingEn = {
     privacyLink: "Privacy & child safety notice",
     draftNote: "(draft, under review)",
     houseRules: "I've read the house rules, and my child agrees to follow them.",
-    privacy: "I've read the privacy & child safety notice, and I consent to Study Hall handling my child's information as it describes.",
+    privacy: "I've read the privacy & child safety notice, and I consent to Edumi handling my child's information as it describes.",
     submit: "Agree",
     done: "Agreed: house rules {rules}, privacy notice {privacy}.",
     needChildren: "Add a child first.",
@@ -79,7 +79,7 @@ export const onboardingEn = {
   pay: {
     summary: "{count} × {price} = {total} per week",
     terms: [
-      "Billed weekly in Australian dollars by Stripe; Study Hall never sees your card details.",
+      "Billed weekly in Australian dollars by Stripe; Edumi never sees your card details.",
       "Cancel any time from your account and keep access until the end of your paid week.",
       "Not right for you? Ask within 7 days of your first payment and we'll refund it. Refunds aren't available after that.",
       "Questions before you pay? Email {email}.",

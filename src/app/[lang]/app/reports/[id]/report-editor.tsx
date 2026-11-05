@@ -43,7 +43,7 @@ export function ReportEditor({
   meta: ReportMeta;
   parentEmail: string;
   sent: { at: string; to: string } | null;
-  /** "own": the tutor sends from their own email app (no sending domain yet); "app": Study Hall sends. */
+  /** "own": the tutor sends from their own email app (no sending domain yet); "app": Edumi sends. */
   emailMode: "own" | "app";
 }) {
   // The English version is always kept: Chinese is translated from it.

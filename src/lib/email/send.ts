@@ -20,11 +20,11 @@ export type SendResult = { delivered: true; id: string } | { delivered: false; p
 export class EmailError extends Error {}
 
 function fromHeader(displayName?: string): string {
-  const configured = process.env.REPORTS_FROM_EMAIL ?? "Study Hall <reports@example.com>";
+  const configured = process.env.REPORTS_FROM_EMAIL ?? "Edumi <reports@example.com>";
   const address = /<([^>]+)>/.exec(configured)?.[1] ?? configured.trim();
   if (!displayName) return configured;
   // Quote the name; strip characters that could break the header.
-  return `"${displayName.replace(/["\\\r\n<>]/g, "").slice(0, 70)} via Study Hall" <${address}>`;
+  return `"${displayName.replace(/["\\\r\n<>]/g, "").slice(0, 70)} via Edumi" <${address}>`;
 }
 
 export async function sendEmail({
@@ -82,7 +82,7 @@ export async function sendEmail({
  *   "own" (default): the tutor sends from their own email app (a pre-filled mailto: link, or the
  *          phone's share sheet for the PDF), then confirms. No sending domain needed, and the email
  *          comes from the tutor's own address.
- *   "app": Study Hall sends through Resend. Needs RESEND_API_KEY and REPORTS_FROM_EMAIL on a
+ *   "app": Edumi sends through Resend. Needs RESEND_API_KEY and REPORTS_FROM_EMAIL on a
  *          domain verified in Resend. Overdue reminders are only sent in this mode.
  * Default is "app" only when a key is set and the sender isn't Resend's shared test address;
  * TUTOR_EMAIL_MODE=app|own overrides (e.g. "app" to test with onboarding@resend.dev or the outbox).

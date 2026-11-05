@@ -6,7 +6,7 @@ import { markInvoiceSent } from "../actions";
 import { primaryButton, secondaryButton } from "../../_components/styles";
 
 /**
- * Send an invoice (or a reminder) from the tutor's own email, while Study Hall has no verified
+ * Send an invoice (or a reminder) from the tutor's own email, while Edumi has no verified
  * sending domain. On phones that can share files (iOS Safari, Android Chrome), "Share invoice"
  * opens the share sheet with the PDF attached, so Mail, Gmail, WeChat or WhatsApp all work.
  * Elsewhere: download the PDF, open the pre-filled email, attach it. Then confirm.

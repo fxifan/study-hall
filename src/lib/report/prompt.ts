@@ -1,7 +1,7 @@
 /**
  * Prompts for drafting and translating tutor session reports (docs/tutor-reports-spec.md §4).
  *
- * Ported from Study Hall's report principles (src/lib/report-card.ts, docs/spec.md §4.5): plain,
+ * Ported from Edumi's report principles (src/lib/report-card.ts, docs/spec.md §4.5): plain,
  * short and factual; what people said is kept as said; no judgements of the child; no comparisons.
  *
  * Privacy (spec §6): the model sees the note with the student's first name replaced by

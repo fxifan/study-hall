@@ -134,7 +134,7 @@ describe("tutor isolation", () => {
     }
   });
 
-  it("Study Hall admins read tutors and usage for /admin/costs, but not families or reports", async () => {
+  it("Edumi admins read tutors and usage for /admin/costs, but not families or reports", async () => {
     const founder = await signInAs("admin");
     const tutors = await founder.from("tutors").select("id").in("id", [a.id, b.id]);
     expect(tutors.data?.length).toBe(2);

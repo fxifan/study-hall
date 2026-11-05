@@ -3,8 +3,8 @@
  * Pricing lives here, not in components (spec §3.6). Change it in one place.
  */
 
-/** Working name. Founders: rename here (spec §11.1: it lives inside Study Hall for now). */
-export const TUTOR_PRODUCT_NAME = "Study Hall for Tutors";
+/** Working name. Founders: rename here (spec §11.1: it lives inside Edumi for now). */
+export const TUTOR_PRODUCT_NAME = "Edumi for Tutors";
 
 export const PLANS = {
   /** Owner decision (spec §11.4): 14 days free, no report or invoice limits during the trial. */

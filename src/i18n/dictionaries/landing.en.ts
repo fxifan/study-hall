@@ -7,7 +7,7 @@
  */
 export const landingEn = {
   meta: {
-    title: "Study Hall · Supervised after-school study",
+    title: "Edumi Study Hall · Supervised after-school study",
     description:
       "Supervised study sessions that help students stay engaged and accountable, with academic help when they're stuck and a progress report for parents.",
   },
@@ -21,9 +21,15 @@ export const landingEn = {
     logIn: "Log in",
     viewPlans: "View plans",
   },
+  platform: {
+    tagline: "Education, made intelligent.",
+    body: "Edumi is one intelligent workspace for tutors, students and families.",
+    families: "Study Hall for families",
+    tutors: "Edumi for Tutors",
+  },
   hero: {
     margin: "{days}",
-    kicker: ["Online supervised study", "Years 7–12", "Victoria"],
+    kicker: ["Edumi Study Hall", "Online supervised study", "Years 7–12"],
     titleLead: "Make after-school study ",
     titleEm: "more consistent.",
     lede: "Supervised study sessions that help students stay engaged and accountable: structured goals, subject-specific academic help, and a progress report for parents after each session.",
@@ -45,7 +51,7 @@ export const landingEn = {
     label: "How it works",
     title: "Structure, supervision, and a report.",
     intro:
-      "Study Hall gives students a structured place to work through homework, revision and practice. Students set goals, study in a supervised group, and can request academic help within the subjects we currently support. Parents receive a progress report after sessions.",
+      "Edumi Study Hall gives students a structured place to work through homework, revision and practice. Students set goals, study in a supervised group, and can request academic help within the subjects we currently support. Parents receive a progress report after sessions.",
     steps: [
       {
         title: "Set goals",
@@ -105,7 +111,7 @@ export const landingEn = {
       },
       {
         title: "Goals they set themselves",
-        body: "Planned before joining, then marked by your child before they leave: done, partial or not done. Uploaded work shows as uploaded by your child; Study Hall doesn't mark it.",
+        body: "Planned before joining, then marked by your child before they leave: done, partial or not done. Uploaded work shows as uploaded by your child; Edumi doesn't mark it.",
       },
       {
         title: "Factual supervisor notes",
@@ -128,8 +134,8 @@ export const landingEn = {
       "**Study + Tutoring** includes **one hour of one-to-one tutoring for each session your child attends**, scheduled by the supervisor when you request it. Tutoring happens in the main session room, with the supervisor and other students present. The rest of the session is supervised independent study. Attend four sessions in a week and that's up to four one-hour tutoring periods; the tutor isn't with your child for the whole four hours.",
       "Neither plan replaces specialist tutoring or teaching, and we don't promise particular marks or results.",
     ],
-    is: { title: "Study Hall is", items: ["Scheduled, supervised time for schoolwork", "Goals set and marked every session", "Academic help within the subjects we support", "A factual report for parents"] },
-    isNot: { title: "Study Hall isn't", items: ["Unlimited one-to-one tutoring", "A guaranteed response time", "A promise of better marks or ATARs", "Webcam recording or monitoring software"] },
+    is: { title: "Edumi Study Hall is", items: ["Scheduled, supervised time for schoolwork", "Goals set and marked every session", "Academic help within the subjects we support", "A factual report for parents"] },
+    isNot: { title: "Edumi Study Hall isn't", items: ["Unlimited one-to-one tutoring", "A guaranteed response time", "A promise of better marks or ATARs", "Webcam recording or monitoring software"] },
   },
   rules: {
     label: "House rules",
@@ -153,8 +159,8 @@ export const landingEn = {
       "The camera is part of live supervision: a supervisor is in the room while it happens. Here is what that does and doesn't involve.",
     items: [
       {
-        title: "No recording by Study Hall",
-        body: "Study Hall doesn't capture, record or store video, images or audio. Sessions run on Zoom or Google Meet, which process the call under their own privacy terms.",
+        title: "No recording by Edumi",
+        body: "Edumi doesn't capture, record or store video, images or audio. Sessions run on Zoom or Google Meet, which process the call under their own privacy terms.",
       },
       {
         title: "No private one-to-one video",
@@ -162,11 +168,11 @@ export const landingEn = {
       },
       {
         title: "Checked supervisors",
-        body: "Our supervisors are current medical students with years of tutoring and teaching experience. Every supervisor must hold a Working with Children Check that we've verified, and Study Hall won't assign anyone to a session without a current, verified check.",
+        body: "Our supervisors are current medical students with years of tutoring and teaching experience. Every supervisor must hold a Working with Children Check that we've verified, and Edumi won't assign anyone to a session without a current, verified check.",
       },
       {
         title: "Messages are kept",
-        body: "Every message between a supervisor and a student is logged and visible to Study Hall administrators. Supervisors can't delete them.",
+        body: "Every message between a supervisor and a student is logged and visible to Edumi administrators. Supervisors can't delete them.",
       },
       {
         title: "Only what we need",
@@ -208,7 +214,7 @@ export const landingEn = {
       tutoringHour: "One hour per session attended, one-to-one in the main room",
       restValue: "Supervised independent study",
     },
-    cardKicker: "Study Hall · Weekly",
+    cardKicker: "Edumi Study Hall · Weekly",
     per: "per student / week",
     tutoringNote:
       "Includes one hour of one-to-one tutoring per session attended, in the main session room, scheduled by the supervisor when you request it. The rest of the session is supervised independent study.",
@@ -239,7 +245,7 @@ export const landingEn = {
     items: [
       {
         id: "tutoring",
-        q: "Is Study Hall tutoring?",
+        q: "Is Edumi Study Hall tutoring?",
         a: [
           "Supervised Study isn't tutoring. It's supervised time to work on schoolwork your child already has: homework, revision and practice. They can ask for help within the subjects we support, and the supervisor responds when available, but it isn't a lesson or a replacement for a tutor.",
           "Study + Tutoring includes one hour of one-to-one tutoring for each session your child attends; the rest of the session is supervised independent study. Email {email} to request the hour and the supervisor will schedule it within the session.",
@@ -250,7 +256,7 @@ export const landingEn = {
         id: "supervision",
         q: "How does online supervision work?",
         a: [
-          "Your child joins a scheduled group video room on Zoom or Google Meet from their Study Hall page, with the camera on their hands and desk. Showing their face is optional.",
+          "Your child joins a scheduled group video room on Zoom or Google Meet from their Edumi page, with the camera on their hands and desk. Showing their face is optional.",
           "A supervisor runs the room: they keep the shared timer, check in with students, note anything parents should know, and handle help requests.",
         ],
       },
@@ -258,7 +264,7 @@ export const landingEn = {
         id: "recording",
         q: "Is webcam footage recorded?",
         a: [
-          "Study Hall doesn't record or store video, images or audio. The video room itself runs on Zoom or Google Meet, which process the call under their own privacy terms.",
+          "Edumi doesn't record or store video, images or audio. The video room itself runs on Zoom or Google Meet, which process the call under their own privacy terms.",
         ],
       },
       {
@@ -281,7 +287,7 @@ export const landingEn = {
         id: "alongside",
         q: "Can my child join alongside existing tutoring?",
         a: [
-          "Yes. Study Hall is a place to do the homework and practice between lessons, so it can sit alongside tutoring. Your child can come to the sessions that fit around other commitments.",
+          "Yes. Edumi is a place to do the homework and practice between lessons, so it can sit alongside tutoring. Your child can come to the sessions that fit around other commitments.",
         ],
       },
       {
@@ -289,14 +295,14 @@ export const landingEn = {
         q: "How do subscriptions, cancellations and refunds work?",
         a: [
           "Prices are per student and billed weekly in Australian dollars through Stripe. You can change plan, change your card or cancel from your account, and keep access until the end of your paid week if you cancel.",
-          "If Study Hall isn't right for you, email {email} within 7 days of your first payment and we'll refund it. Refunds aren't available after that.",
+          "If Edumi isn't right for you, email {email} within 7 days of your first payment and we'll refund it. Refunds aren't available after that.",
         ],
       },
       {
         id: "missed",
         q: "What happens if a session is cancelled or my child misses it?",
         a: [
-          "If Study Hall cancels a session, everyone booked into it gets a credit to attend another session instead.",
+          "If Edumi cancels a session, everyone booked into it gets a credit to attend another session instead.",
           "If your child misses a session, you'll get a one-line note saying they didn't attend. They can come to any other session that week.",
         ],
       },
@@ -304,7 +310,7 @@ export const landingEn = {
         id: "needs",
         q: "What does my child need?",
         a: [
-          "A laptop or tablet with a camera, a reliable internet connection, and a desk. They join the video room from the Join button on their Study Hall page.",
+          "A laptop or tablet with a camera, a reliable internet connection, and a desk. They join the video room from the Join button on their Edumi page.",
         ],
       },
       {
@@ -324,13 +330,13 @@ export const landingEn = {
       },
       {
         id: "contact",
-        q: "How do I contact Study Hall?",
+        q: "How do I contact Edumi?",
         a: ["Email {email} with questions, concerns about the service, or a request to delete your child's data."],
       },
     ],
   },
   end: {
-    title: "See whether Study Hall fits your week.",
+    title: "See whether Edumi Study Hall fits your week.",
     primary: "View plans",
     secondary: "Read the FAQ",
   },

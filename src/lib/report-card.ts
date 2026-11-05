@@ -33,7 +33,7 @@ export type ReportCardData = {
     expected?: string | null;
     result?: string | null;
     note?: string | null;
-    /** Uploaded by the student; Study Hall doesn't check or mark it. */
+    /** Uploaded by the student; Edumi doesn't check or mark it. */
     evidence?: { id: string; name: string }[];
   }[];
   /** Supervisor observations and check-in notes (templates carry both languages). */

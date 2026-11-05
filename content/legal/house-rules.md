@@ -1,4 +1,4 @@
-These rules apply to every student in every Study Hall session. Your child sees them when you sign up and again before every session.
+These rules apply to every student in every Edumi session. Your child sees them when you sign up and again before every session.
 
 ## The rules
 

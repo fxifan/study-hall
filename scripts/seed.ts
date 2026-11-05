@@ -64,7 +64,7 @@ async function main() {
   console.log(`Seeding ${new URL(requireEnv("NEXT_PUBLIC_SUPABASE_URL")).host}`);
 
   // The org must exist before any auth user, because the profile trigger needs one.
-  await upsert(admin, "orgs", { id: SEED_IDS.org, name: "Study Hall" });
+  await upsert(admin, "orgs", { id: SEED_IDS.org, name: "Edumi" });
 
   const ids = {} as Record<SeedAccount, string>;
   for (const account of Object.keys(SEED_ACCOUNTS) as SeedAccount[]) {

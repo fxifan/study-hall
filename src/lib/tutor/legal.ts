@@ -9,7 +9,7 @@ export const TUTOR_LEGAL_VERSION = "2026-11-draft-1";
 
 export const TUTOR_PRIVACY = `## Who we are
 
-${TUTOR_PRODUCT_NAME} is run by Study Hall (operator: Feifan Wu, sole trader). Contact: ${SUPPORT_EMAIL}. This policy is written to follow the Australian Privacy Principles (APPs) in the Privacy Act 1988. [Owner to confirm: legal entity, ABN and postal address.]
+${TUTOR_PRODUCT_NAME} is run by Edumi (operator: Feifan Wu, sole trader). Contact: ${SUPPORT_EMAIL}. This policy is written to follow the Australian Privacy Principles (APPs) in the Privacy Act 1988. [Owner to confirm: legal entity, ABN and postal address.]
 
 ## What we collect
 
@@ -43,7 +43,7 @@ Your data is stored in Australia. We keep it while your account is open. [Owner 
 
 ## Security
 
-Bank details are encrypted before they're stored. Access to your data is limited to you by database-level rules; Study Hall staff see only account and usage totals, not your families, students or reports.
+Bank details are encrypted before they're stored. Access to your data is limited to you by database-level rules; Edumi staff see only account and usage totals, not your families, students or reports.
 
 ## Your choices
 
@@ -55,7 +55,7 @@ You collect families' and students' details for your own tutoring business, and 
 
 export const TUTOR_TERMS = `## The service
 
-${TUTOR_PRODUCT_NAME} helps independent tutors write session reports for parents and send invoices. It's provided by Study Hall. By signing up you agree to these terms.
+${TUTOR_PRODUCT_NAME} helps independent tutors write session reports for parents and send invoices. It's provided by Edumi. By signing up you agree to these terms.
 
 ## Trial and price
 
@@ -73,7 +73,7 @@ ${TUTOR_PRODUCT_NAME} helps independent tutors write session reports for parents
 
 ## Payments between you and families
 
-Families pay you directly. Study Hall doesn't hold, process or guarantee payments between tutors and families.
+Families pay you directly. Edumi doesn't hold, process or guarantee payments between tutors and families.
 
 ## Availability and changes
 

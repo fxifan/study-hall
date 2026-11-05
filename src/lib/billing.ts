@@ -26,7 +26,7 @@ export async function syncCheckoutSession(sessionId: string, origin: string): Pr
 
 export async function syncSubscription(subscription: Stripe.Subscription, origin: string): Promise<void> {
   const parentId = subscription.metadata.parent_id;
-  if (!parentId) return; // not created by Study Hall's checkout
+  if (!parentId) return; // not created by Edumi's checkout
   const admin = createAdminClient();
   const item = subscription.items.data[0];
 

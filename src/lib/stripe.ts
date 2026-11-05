@@ -8,7 +8,7 @@ export function stripeConfigured(): boolean {
 }
 
 /**
- * Stripe client for the Study Hall account. Refuses live keys unless STRIPE_ALLOW_LIVE=1, so test
+ * Stripe client for the Edumi account. Refuses live keys unless STRIPE_ALLOW_LIVE=1, so test
  * mode can't be left behind by accident (product brief: no live payment changes without approval).
  */
 export function getStripe(): Stripe {

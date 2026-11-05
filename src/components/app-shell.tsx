@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Wordmark } from "@/components/wordmark";
 import { signOut } from "@/app/auth/actions";
 import { LanguageSwitch } from "@/components/language-switch";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,7 @@ export async function AppShell({ profile, title, children }: { profile: CurrentP
     <div className="flex flex-1 flex-col">
       <header className="border-b border-rule bg-sheet">
         <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-4 py-3">
-          <span className="font-mono text-xs tracking-widest text-pen uppercase">Study Hall</span>
+          <Wordmark className="text-base text-ink" />
           <div className="flex items-center gap-3 text-sm">
             <span className="hidden text-ink-soft sm:inline">{profile.fullName ?? profile.email}</span>
             <span className="rounded-sm border border-hair px-1.5 py-0.5 font-mono text-xs uppercase">
