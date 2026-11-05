@@ -35,7 +35,7 @@ const pointLines = (points: PointForPrompt[]) =>
 const RULES = `Rules:
 - Write original questions. Never copy or closely paraphrase textbook, study guide or past VCAA exam questions.
 - Australian spelling and metric units. Use VCAA command terms where they fit (explain, describe, analyse, evaluate, justify, calculate, show that).
-- Write maths as plain text with Unicode symbols (x², √, π, ∫, ≤, →, ×, ÷). No LaTeX.
+- Write maths as plain text with Unicode symbols: superscripts (x², eˣ, 10⁻³), subscripts and limits (∫₀² f(x) dx, log₁₀, x₁), √, π, θ, ≤, ≥, ≠, →, ×, ÷, ½. Never use ^, _, * or LaTeX.
 - Every question must be answerable from the question alone: give all data needed.
 - No real people, brands or news events. No sensitive or distressing topics.`;
 
@@ -59,7 +59,12 @@ Question types to use: ${r.types.map((t) => QUESTION_TYPE_LABELS[t]).join(", ")}
 
 /** The answer check: solve each question first, then compare with the proposed answer. */
 export function answerCheckPrompt(r: Pick<SetRequest, "framework" | "subject" | "unitOrLevel">, set: Pick<PracticeSet, "questions">) {
-  const system = `You check practice questions for ${levelName(r)}. For each numbered question, solve it yourself step by step, then compare your answer with the proposed answer. Set "agrees" to false if the proposed answer is wrong, incomplete, or the question can't be answered from what it gives. "note" is one short sentence for the tutor when "agrees" is false, otherwise empty.`;
+  const system = `You check practice questions for ${levelName(r)}. For each numbered question, solve it yourself carefully, then compare with the proposed answer.
+- "verdict": "correct" if the proposed answer is right; "wrong_answer" if it is wrong or incomplete; "broken_question" only if the question can't be answered from what it gives.
+- For "wrong_answer": "answer" is the correct final answer only (no working, no commentary, e.g. "16/3"; for multiple choice the option, e.g. "B: 16/3"), and "solution" is a clean worked solution a student could follow. Write them as if they were the originals: never mention the proposed answer, mistakes or checking.
+- For "correct": "answer" and "solution" are empty.
+- "problem": for "broken_question" only, one short sentence saying what is missing; otherwise empty.
+- Write maths as plain text with Unicode symbols (x², ∫₀², √, π, ≤). Never use ^, _, * or LaTeX.`;
   const user = set.questions
     .map((q, i) => `Question ${i + 1}: ${q.prompt}${q.options.length ? `\nOptions: ${q.options.join(" | ")}` : ""}\nProposed answer: ${q.answer}`)
     .join("\n\n");

@@ -28,7 +28,7 @@ export const metadata: Metadata = { title: "Resource" };
 export const maxDuration = 120;
 
 const ERRORS: Record<string, string> = {
-  flags: "Deal with every flagged answer first: edit the question or dismiss the flag.",
+  flags: "Deal with every flagged question first: edit it or dismiss the flag.",
   service: "The AI service didn't respond. Try again in a minute.",
   shape: "The AI draft came back incomplete. Try again.",
 };
@@ -90,7 +90,7 @@ async function Resource({ params, searchParams }: PageProps<"/[lang]/app/resourc
             <form action={approveResource}>
               <input type="hidden" name="id" value={r.id} />
               <button type="submit" className={primaryButton} disabled={flags > 0}>
-                {flags > 0 ? `${flags} flagged ${flags === 1 ? "answer" : "answers"} to check first` : "Approve"}
+                {flags > 0 ? `${flags} flagged ${flags === 1 ? "question" : "questions"} to check first` : "Approve"}
               </button>
             </form>
           )}
@@ -138,10 +138,11 @@ function SetEditor({ id, set }: { id: string; set: PracticeSet }) {
           <li key={i} className={`dash-card flex flex-col gap-2 p-4 text-sm ${q.flag ? "border-pen" : ""}`} data-testid="question">
             <p className="font-mono text-xs text-ink-soft">
               Question {i + 1} · {QUESTION_TYPE_LABELS[q.type]} · {q.marks} {q.marks === 1 ? "mark" : "marks"}
+              {q.corrected && <span className="ml-2 rounded-full border border-hair px-2 py-0.5 normal-case">Answer corrected by the check</span>}
             </p>
             {q.flag && (
               <div role="alert" className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-pen px-3 py-2 text-pen">
-                <span>Check this answer: {q.flag}</span>
+                <span>Check this question: {q.flag}</span>
                 <form action={dismissFlag}>
                   <input type="hidden" name="id" value={id} />
                   <input type="hidden" name="index" value={i} />

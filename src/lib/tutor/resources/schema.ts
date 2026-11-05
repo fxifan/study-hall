@@ -34,8 +34,13 @@ export const questionSchema = z.object({
   solution: text(3000),
   /** 1-based indexes into the set's curriculum points. */
   covers: z.array(z.number().int().min(1)).max(12),
-  /** Set by the answer check; the tutor clears it by editing or dismissing. */
+  /**
+   * Set only when the answer check finds the question itself can't be answered as written; the
+   * tutor clears it by editing or dismissing. A wrong answer is corrected instead (below).
+   */
   flag: z.string().max(400).nullable(),
+  /** The answer check replaced a wrong answer and solution with its own. Shown as a small label. */
+  corrected: z.boolean().optional(),
 });
 export type Question = z.infer<typeof questionSchema>;
 
@@ -113,15 +118,29 @@ export const modelCheckJsonSchema = {
       items: {
         type: "object",
         additionalProperties: false,
-        required: ["number", "own_answer", "agrees", "note"],
-        properties: { number: { type: "integer" }, own_answer: str, agrees: { type: "boolean" }, note: str },
+        required: ["number", "verdict", "answer", "solution", "problem"],
+        properties: {
+          number: { type: "integer" },
+          verdict: { type: "string", enum: ["correct", "wrong_answer", "broken_question"] },
+          answer: str,
+          solution: str,
+          problem: str,
+        },
       },
     },
   },
 } as const;
 
 export const modelCheckSchema = z.object({
-  results: z.array(z.object({ number: z.number().int(), own_answer: z.string(), agrees: z.boolean(), note: z.string() })),
+  results: z.array(
+    z.object({
+      number: z.number().int(),
+      verdict: z.enum(["correct", "wrong_answer", "broken_question"]),
+      answer: z.string(),
+      solution: z.string(),
+      problem: z.string(),
+    }),
+  ),
 });
 
 export const modelWritingTipsJsonSchema = {

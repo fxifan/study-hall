@@ -57,11 +57,17 @@ test("admin publishes points; a trial tutor makes, checks, approves and prints r
     await settings.getByLabel("Number of questions").fill("5");
     await settings.getByRole("button", { name: "Generate draft" }).click();
 
-    // The draft: 5 questions, the second flagged by the answer check; approval waits for it.
+    // The draft: 5 questions. The check corrected the second (a small label, no warning) and
+    // flagged the third as unanswerable; approval waits for that one.
     await expect(page.getByTestId("question")).toHaveCount(5);
     await expect(page.getByTestId("resource-status")).toContainText("AI draft");
-    await expect(page.getByRole("button", { name: "1 flagged answer to check first" })).toBeDisabled();
-    const flagged = page.getByTestId("question").nth(1);
+    const corrected = page.getByTestId("question").nth(1);
+    await expect(corrected).toContainText("Answer corrected by the check");
+    await expect(corrected.getByRole("alert")).toHaveCount(0);
+    await corrected.getByText("Answer and solution").click();
+    await expect(corrected).toContainText("Answer: x = 3");
+    await expect(page.getByRole("button", { name: "1 flagged question to check first" })).toBeDisabled();
+    const flagged = page.getByTestId("question").nth(2);
     await flagged.getByRole("button", { name: "It's right, dismiss" }).click();
     await expect(flagged.getByRole("alert")).toHaveCount(0);
 

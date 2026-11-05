@@ -49,16 +49,17 @@ describe("practice sets", () => {
     expect(user).toContain("1. [Calculus] Derivatives using the chain");
     expect(user).toContain("chain rule");
     expect(system).toMatch(/Never copy/);
+    expect(system).toMatch(/Never use \^/);
   });
 
-  it("cleans up model output and flags answers the check disagrees with", async () => {
+  it("cleans up model output, corrects wrong answers, and flags only broken questions", async () => {
     const llm = fakeLlm({
       practice_set: { instructions: "20 minutes.", questions: [q(), q({ marks: 40 }), q({ type: "mcq", options: ["A", "B", "C", "D"] }), q(), q()] },
       answer_check: {
         results: [
-          { number: 1, own_answer: "6(2x+1)²", agrees: true, note: "" },
-          { number: 2, own_answer: "3(2x+1)²", agrees: false, note: "Missing the factor of 2." },
-          { number: 3, own_answer: "B", agrees: true, note: "" },
+          { number: 1, verdict: "correct", answer: "", solution: "", problem: "" },
+          { number: 2, verdict: "wrong_answer", answer: "6(2x + 1)²", solution: "Chain rule: 3(2x + 1)² × 2 = 6(2x + 1)².", problem: "" },
+          { number: 3, verdict: "broken_question", answer: "", solution: "", problem: "No interval is given." },
         ],
       },
     });
@@ -67,7 +68,9 @@ describe("practice sets", () => {
     expect(set.content.questions[0].covers).toEqual([1]); // out-of-range point dropped
     expect(set.content.questions[0].options).toEqual([]);
     expect(set.content.questions[1].marks).toBe(10);
-    expect(set.content.questions[1].flag).toMatch(/Missing the factor of 2\. Check's answer: 3\(2x\+1\)²/);
+    // Wrong answer: replaced by the check's answer and solution, labelled, not flagged.
+    expect(set.content.questions[1]).toMatchObject({ answer: "6(2x + 1)²", solution: "Chain rule: 3(2x + 1)² × 2 = 6(2x + 1)².", corrected: true, flag: null });
+    expect(set.content.questions[2].flag).toBe("No interval is given.");
     expect(set.content.questions[3].flag).toMatch(/skipped this question/);
     expect(unresolvedFlags(set.content)).toBe(2);
     expect(set.tokens).toBe(200);
@@ -86,10 +89,29 @@ describe("practice sets", () => {
     await expect(generatePracticeSet(fakeLlm({ practice_set: { nope: true } }), request)).rejects.toThrow(/wrong shape/);
   });
 
-  it("works offline, with one flag to resolve", async () => {
+  it("works offline: one corrected answer, one flag to resolve", async () => {
     const set = await generatePracticeSet(offlineResourceLlm(), request);
     expect(set.content.questions).toHaveLength(4);
+    expect(set.content.questions[1]).toMatchObject({ answer: "x = 3", corrected: true });
     expect(unresolvedFlags(set.content)).toBe(1);
+  });
+});
+
+describe("re-checking a set", () => {
+  it("clears old flags on questions it now finds correct or corrects", async () => {
+    const { checkAnswers } = await import("./generate");
+    const old = { type: "short" as const, marks: 2, prompt: "∫₀² (4x − x²) dx", options: [], answer: "8", solution: "…", covers: [1], flag: "old long message" };
+    const llm = fakeLlm({
+      answer_check: {
+        results: [
+          { number: 1, verdict: "wrong_answer", answer: "16/3", solution: "[2x² − x³/3]₀² = 8 − 8/3 = 16/3", problem: "" },
+          { number: 2, verdict: "correct", answer: "", solution: "", problem: "" },
+        ],
+      },
+    });
+    const { set } = await checkAnswers(llm, request, { instructions: "", questions: [old, { ...old, answer: "16/3" }] });
+    expect(set.questions[0]).toMatchObject({ answer: "16/3", corrected: true, flag: null });
+    expect(set.questions[1].flag).toBeNull();
   });
 });
 

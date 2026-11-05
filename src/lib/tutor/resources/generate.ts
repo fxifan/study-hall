@@ -51,7 +51,11 @@ export async function generatePracticeSet(llm: Llm, request: SetRequest): Promis
   return { content: valid.data, tokens, model: draft.model, raw: draft.data };
 }
 
-/** Flags every question whose proposed answer the checker disagrees with. */
+/**
+ * The answer check (spec §3): a wrong answer is replaced by the checker's answer and worked
+ * solution, and the question is marked `corrected` (a small label for the tutor, not a warning).
+ * Only a question that can't be answered as written, or one the check didn't cover, is flagged.
+ */
 export async function checkAnswers(
   llm: Llm,
   request: Pick<SetRequest, "framework" | "subject" | "unitOrLevel">,
@@ -71,9 +75,14 @@ export async function checkAnswers(
       questions: set.questions.map((q, i) => {
         const r = byNumber.get(i + 1);
         if (!r) return { ...q, flag: q.flag ?? "The answer check skipped this question. Check this answer." };
-        if (r.agrees) return q;
-        const note = r.note.trim() || "The check got a different answer.";
-        return { ...q, flag: `${note} Check's answer: ${r.own_answer.trim() || "none"}`.slice(0, 400) };
+        if (r.verdict === "broken_question") return { ...q, flag: (r.problem.trim() || "This question may be missing information.").slice(0, 400) };
+        // Flags only ever come from a check, so a fresh verdict replaces any earlier one.
+        if (r.verdict === "correct") return { ...q, flag: null };
+        const answer = r.answer.trim().slice(0, 600);
+        const solution = r.solution.trim().slice(0, 3000);
+        // No usable correction: fall back to asking the tutor, briefly.
+        if (!answer || !solution) return { ...q, flag: "The answer check disagreed with this answer. Check it." };
+        return { ...q, answer, solution, corrected: true, flag: null };
       }),
     },
     tokens: result.tokens,
@@ -97,12 +106,13 @@ export function offlineResourceLlm(): Llm {
     async json({ schemaName, user }) {
       if (schemaName === "answer_check") {
         const count = (user.match(/^Question \d+:/gm) ?? []).length;
-        // The second question always disagrees, so the flag flow can be tested.
+        // The second question gets corrected and the third is "broken", so both flows can be tested.
         const results = Array.from({ length: count }, (_, i) => ({
           number: i + 1,
-          own_answer: i === 1 ? "x = 4" : "same",
-          agrees: i !== 1,
-          note: i === 1 ? "Offline check: pretend disagreement." : "",
+          verdict: i === 1 ? "wrong_answer" : i === 2 ? "broken_question" : "correct",
+          answer: i === 1 ? "x = 3" : "",
+          solution: i === 1 ? "Offline corrected solution: 2x = 6, so x = 3." : "",
+          problem: i === 2 ? "Offline check: pretend the question is missing a value." : "",
         }));
         return { data: { results }, tokens: 0, model: "offline" };
       }

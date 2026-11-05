@@ -159,6 +159,7 @@ export async function saveQuestion(formData: FormData) {
             marks: p.marks,
             options: q.type === "mcq" ? p.options.split("\n").map((o) => o.trim()).filter(Boolean).slice(0, 5) : [],
             flag: null, // the tutor has looked at it and edited it
+            corrected: false,
           },
     ),
   }));
