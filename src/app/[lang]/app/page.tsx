@@ -180,6 +180,10 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/[lang]/app">, "searc
       return {
         item: d,
         when: `${dayWord}, ${d.timeLabel}–${d.endLabel}`,
+        weekday: formatInZone(i.startsAt, "EEE"),
+        day: formatInZone(i.startsAt, "d"),
+        month: formatInZone(i.startsAt, "MMM"),
+        timeRange: `${d.timeLabel}–${d.endLabel}`,
         tag: live ? "now" : d.dateKey === todayKey ? "today" : d.dateKey === tomorrowKey ? "tomorrow" : null,
         url: link?.url ?? null,
         linkName: link?.name ?? null,
@@ -309,7 +313,7 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/[lang]/app">, "searc
         </section>
 
         {/* Phones and tablets: calendar, then the side panels, then calendar sync. Desktop: sync sits under the calendar. */}
-        <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_22rem] lg:grid-rows-[auto_1fr]">
           <div className="flex min-w-0 flex-col gap-5 lg:col-start-1 lg:row-start-1">
           <LessonCalendar
               view={view}

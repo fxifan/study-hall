@@ -6,11 +6,10 @@ import { setCalendarFeed } from "../dashboard-actions";
 import { primaryButton, secondaryButton } from "./ui";
 
 /**
- * Calendar connections. What works today is a private subscription link (an iCalendar feed):
- * Apple Calendar, Google Calendar and Outlook subscribe to it and show the tutor's lessons, updating
- * when lessons are added, rescheduled or cancelled. It's one-way, and calendar apps refresh it on
- * their own schedule. Two-way Google sync (seeing your other events here) isn't built; it's shown
- * as such, with no button.
+ * Calendar connections. What works today is a one-way subscription (an iCalendar feed): Study Hall
+ * publishes the tutor's lessons, and Apple Calendar, Google Calendar or Outlook copy them in on
+ * their own refresh schedule, so updates are never promised as instant. Two-way Google sync isn't
+ * built; it's shown as "Not available", with no button.
  */
 export function CalendarConnections({ feedUrl, lastFetched }: { feedUrl: string | null; lastFetched: string | null }) {
   const [pending, start] = useTransition();
@@ -31,12 +30,15 @@ export function CalendarConnections({ feedUrl, lastFetched }: { feedUrl: string 
         <h2 id="connections-title" className="text-xl font-medium">
           Your calendars
         </h2>
-        <p className="text-sm text-ink-soft">Show your lessons in the calendar you already use.</p>
+        <p className="text-sm text-ink-soft">Put your Study Hall lessons in the calendar you already use.</p>
       </header>
 
       <div className="dash-inset flex flex-col gap-3 p-3">
         <div className="flex items-center justify-between gap-3">
-          <h3 className="font-medium">Apple, Google or Outlook calendar</h3>
+          <div className="flex flex-col">
+            <h3 className="font-medium">Calendar subscription</h3>
+            <span className="dash-ui text-xs text-ink-faint">One-way · Apple, Google or Outlook</span>
+          </div>
           <span className={`dash-pill shrink-0 px-2 py-0.5 text-xs ${feedUrl ? "dash-pill--accent" : ""}`}>
             {feedUrl && <span className="dash-dot" aria-hidden="true" />}
             {feedUrl ? "Link on" : "Not set up"}
@@ -72,13 +74,17 @@ export function CalendarConnections({ feedUrl, lastFetched }: { feedUrl: string 
               </button>
             </div>
             <p className="text-xs text-ink-faint">
-              One-way: lessons you add, move or cancel here show up there. Apple checks about hourly; Google can take up to a day. Keep the link
-              private: anyone with it can see your lesson times and students&apos; first names.
+              Study Hall publishes your lessons to this link; your calendar app copies them in when it next checks. Changes here aren&apos;t
+              instant there: Apple usually checks within an hour, Google can take up to a day. Events you add in your calendar don&apos;t come
+              back to Study Hall. Keep the link private: anyone with it can see your lesson times and students&apos; first names.
             </p>
           </>
         ) : (
           <>
-            <p className="text-sm text-ink-soft">Get a private link your calendar app subscribes to. New, moved and cancelled lessons update there automatically.</p>
+            <p className="text-sm text-ink-soft">
+              Get a private link that publishes your Study Hall lessons to your calendar app. It picks up new, moved and cancelled lessons each
+              time it refreshes (usually hourly; Google can take up to a day). One-way: nothing comes back from your calendar.
+            </p>
             <button type="button" className={primaryButton} disabled={pending} onClick={() => run(true)}>
               {pending ? "Setting up…" : "Set up calendar link"}
             </button>
@@ -88,10 +94,16 @@ export function CalendarConnections({ feedUrl, lastFetched }: { feedUrl: string 
 
       <div className="dash-inset flex flex-col gap-1 border-dashed bg-transparent p-3">
         <div className="flex items-center justify-between gap-3">
-          <h3 className="font-medium text-ink-soft">Two-way Google Calendar sync</h3>
-          <span className="dash-pill shrink-0 px-2 py-0.5 text-xs text-ink-faint">Not available yet</span>
+          <div className="flex flex-col">
+            <h3 className="font-medium text-ink-soft">Two-way Google Calendar sync</h3>
+            <span className="dash-ui text-xs text-ink-faint">Both directions</span>
+          </div>
+          <span className="dash-pill shrink-0 px-2 py-0.5 text-xs text-ink-faint">Not available</span>
         </div>
-        <p className="text-sm text-ink-faint">Seeing your other events here (to spot clashes) needs a direct Google connection. It&apos;s planned, not built.</p>
+        <p className="text-sm text-ink-faint">
+          Study Hall can&apos;t read your Google Calendar yet, so your other events (and clashes with them) don&apos;t show here, and edits made in
+          Google don&apos;t change your lessons. Use the subscription above to see your lessons in Google.
+        </p>
       </div>
 
       {message && (

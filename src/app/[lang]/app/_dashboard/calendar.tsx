@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useDashboard } from "./lesson-dialog";
+import { STATE_EVENT, STATE_LABEL, lessonState } from "./lesson-state";
 import type { DashDay, DashItem } from "./types";
 
 /**
@@ -11,8 +12,8 @@ import type { DashDay, DashItem } from "./types";
  * for its details (reschedule, cancel, log). Week, phones: one list per day, each with "+ Add".
  * Month: each day shows its first lessons and a count; on phones, dots, and a tap opens that week.
  *
- * Colour carries status: coral = booked and still to come; dashed coral = happened but not logged;
- * quiet surface = logged; dashed grey and struck through = cancelled.
+ * Colour carries status (lesson-state.ts): muted blue = booked; dashed coral = happened but not
+ * logged; muted green = logged; dashed grey and struck through = cancelled.
  */
 type Nav = {
   prev: string;
@@ -25,17 +26,13 @@ type Nav = {
 const HOUR_PX = 40;
 
 function itemClass(item: DashItem): string {
-  if (item.status === "cancelled") return "dash-event dash-event--cancelled";
-  if (item.status === "done") return "dash-event dash-event--done";
-  if (item.isPast) return "dash-event dash-event--due";
-  return "dash-event dash-event--scheduled";
+  return STATE_EVENT[lessonState(item)];
 }
 
+/** A short word on the block, for states other than booked (colour alone isn't enough). */
 function statusWord(item: DashItem): string | null {
-  if (item.status === "cancelled") return "Cancelled";
-  if (item.status === "done") return "Done";
-  if (item.isPast) return "Log it";
-  return null;
+  const state = lessonState(item);
+  return state === "booked" ? null : state === "due" ? "Not logged" : STATE_LABEL[state];
 }
 
 const hourLabel = (h: number) => `${h % 12 === 0 ? 12 : h % 12}${h < 12 ? "am" : "pm"}`;
@@ -102,16 +99,12 @@ export function LessonCalendar({
 
 function Legend() {
   return (
-    <p className="dash-ui flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-ink-soft">
-      <span className="flex items-center gap-1.5">
-        <span className="dash-event--scheduled size-3 rounded border" /> Booked
-      </span>
-      <span className="flex items-center gap-1.5">
-        <span className="dash-event--due size-3 rounded" /> Happened, not logged
-      </span>
-      <span className="flex items-center gap-1.5">
-        <span className="dash-event--done size-3 rounded border" /> Logged
-      </span>
+    <p className="dash-ui flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-ink-soft" data-testid="calendar-legend">
+      {(["booked", "due", "logged"] as const).map((state) => (
+        <span key={state} className="flex items-center gap-1.5">
+          <span className={`dash-swatch dash-swatch--${state}`} aria-hidden="true" /> {STATE_LABEL[state]}
+        </span>
+      ))}
     </p>
   );
 }
@@ -291,7 +284,7 @@ function MonthView({ days, byDay, weekHref }: { days: DashDay[]; byDay: Map<stri
                 {list.slice(0, 4).map((i) => (
                   <span
                     key={i.id}
-                    className={`size-1.5 rounded-full ${i.status === "done" ? "bg-[var(--dash-text-3)]" : "bg-[var(--dash-accent)]"}`}
+                    className={`size-1.5 rounded-full ${i.status === "done" ? "bg-[var(--dash-green)]" : i.isPast ? "bg-[var(--dash-accent)]" : "bg-[var(--dash-blue)]"}`}
                   />
                 ))}
               </Link>

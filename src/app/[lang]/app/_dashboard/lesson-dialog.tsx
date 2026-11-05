@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { createContext, useContext, useEffect, useRef, useState, useTransition, type ReactNode } from "react";
 import { deleteLesson, saveLesson, setLessonCancelled } from "../dashboard-actions";
+import { STATE_LABEL, STATE_TAG, lessonState } from "./lesson-state";
 import { field, labelClass, primaryButton, secondaryButton } from "./ui";
 import { useCopyText } from "@/components/report-cards";
 import type { DashItem, DashLink, DashStudent } from "./types";
@@ -101,7 +102,6 @@ export function DashboardProvider({
   );
 }
 
-const STATUS_TEXT = { scheduled: "Scheduled", done: "Done · logged", cancelled: "Cancelled" } as const;
 
 function LessonDetails({
   item,
@@ -140,11 +140,7 @@ function LessonDetails({
             {item.dayLabel} · {item.timeLabel}–{item.endLabel} ({item.durationMin} min)
           </p>
         </div>
-        <span
-          className={`dash-pill shrink-0 px-2 py-0.5 text-xs ${needsLogging || item.status === "scheduled" ? "dash-pill--accent" : ""}`}
-        >
-          {needsLogging ? "Not logged yet" : STATUS_TEXT[item.status]}
-        </span>
+        <span className={`${STATE_TAG[lessonState(item)]} shrink-0`}>{STATE_LABEL[lessonState(item)]}</span>
       </header>
       {item.subjects.length > 0 && <p className="text-sm">{item.subjects.join(", ")}</p>}
       {item.notes && <p className="dash-inset px-3 py-2 text-sm">{item.notes}</p>}
