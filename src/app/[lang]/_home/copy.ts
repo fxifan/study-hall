@@ -13,7 +13,7 @@ const en = {
   hero: {
     eyebrow: "One workspace for learning",
     title: "Education, made intelligent.",
-    lede: "Edumi brings supervised study, AI-assisted parent updates and the admin around tutoring into one place, built in Melbourne for Australian families and tutors.",
+    lede: "Edumi brings supervised study, AI-assisted parent updates and the admin around tutoring into one place.",
     primary: "Explore Study Hall",
     secondary: "Edumi for Tutors",
     visualLabel: "Illustration: a fictional tutor's parent update and a Study Hall session",
@@ -97,7 +97,7 @@ const zh: HomeCopy = {
   hero: {
     eyebrow: "一体化学习平台",
     title: "Education, made intelligent.",
-    lede: "Edumi 把有监督的自习、AI 辅助的家长反馈，以及辅导相关的日常事务整合在一起。立足墨尔本，服务澳大利亚的家庭和老师。",
+    lede: "Edumi 把有监督的自习、AI 辅助的家长反馈，以及辅导相关的日常事务整合在一起。",
     primary: "了解 Study Hall",
     secondary: "Edumi 老师版",
     visualLabel: "示意图：虚构的家教老师家长反馈，以及一节 Study Hall 自习",
