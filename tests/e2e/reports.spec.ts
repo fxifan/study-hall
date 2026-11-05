@@ -88,7 +88,7 @@ test("another family doesn't see the report", async ({ page }) => {
 
 test("the landing sample switches language and stays labelled as fictional", async ({ page, context }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
-  await page.goto("/");
+  await page.goto("/study_hall");
   const sample = page.locator("#report figure");
   await expect(sample).toContainText("Sample report · fictional student");
   await expect(sample).toContainText("Alex");
@@ -119,7 +119,7 @@ test("the landing sample switches language and stays labelled as fictional", asy
 });
 
 test("the Chinese landing page shows the sample in Chinese first", async ({ page }) => {
-  await page.goto("/zh");
+  await page.goto("/zh/study_hall");
   await expect(page.locator(".hero .sheet")).toContainText("示例学习报告（虚构学生）");
   await expect(page.locator(".hero .sheet")).toContainText("完成生物复习题");
   await expect(page.locator("#report figure")).toHaveAttribute("lang", "zh-CN");
