@@ -335,6 +335,7 @@ export const en = {
   adminPages: {
     nav: {
       overview: "Overview",
+      analytics: "Analytics",
       rooms: "Rooms",
       schedule: "Schedule",
       students: "Students",
