@@ -50,13 +50,22 @@ for **VCE (Units 1–4) and Years 7–10**. Everything else from the brainstorm 
 
   Questions are original. They follow VCAA's command terms ("explain", "analyse", "evaluate",
   "justify", "calculate") without copying exam questions.
-- **Version 1 subjects (proposed; owner to confirm):**
-  - VCE: Mathematical Methods, Specialist Mathematics, General Mathematics, Chemistry, Physics,
-    Biology, Psychology.
-  - Years 7–10: Mathematics and Science.
-  - English and humanities later (they need text-specific prompts and are harder to mark).
-- **Loading:** a one-off import script per subject writes the points; the owner checks them on an
-  admin page before they go live (`is_published`). When VCAA accredits a new study design, the old
+- **Version 1 subjects (owner decision, 5 Nov 2026):**
+  - VCE practice sets: Mathematical Methods, Specialist Mathematics, General Mathematics,
+    Chemistry, Physics, Biology. Psychology is left out.
+  - Years 7–10 practice sets: Mathematics, Science and English. English sets cover reading
+    comprehension, language and grammar, and short writing tasks, marked against a rubric rather
+    than a single answer, and are built on general skills, not set texts.
+  - VCE English: **general writing tips**, not practice sets. These are guides for the tutor to
+    share, organised by the study design's outcomes (analytical text response, comparative, argument
+    analysis, creating texts). They cover essay structure, topic-sentence and evidence habits,
+    analysing language and common mistakes, and never reference a set text's content. One
+    "writing tips" sheet per outcome; the tutor can tailor it (for example "for a Year 12 who loses
+    marks on structure").
+  - Humanities, Psychology and full VCE English practice later.
+- **Loading (owner decision):** we write a one-off import per subject from the VCAA documents, as
+  codes plus our own short paraphrases. The owner reviews and publishes them on `/admin/curriculum`
+  before tutors can pick them (`is_published`). When VCAA accredits a new study design, the old
   points stay attached to existing sets, and the new ones become the default.
 
 ## 3. Generation and accuracy
@@ -79,12 +88,14 @@ for **VCE (Units 1–4) and Years 7–10**. Everything else from the brainstorm 
 
 ## 4. Plans, limits and cost
 
-- **Proposed:** Solo includes practice sets; the trial gets 3 sets so tutors can try it. Owner to
-  confirm, including whether this needs a higher plan.
+- **Owner decision:** Solo includes practice sets and writing tips; the trial gets 3 in total, so
+  tutors can try it.
 - Each generation and each re-solve check logs a `tutor_usage_events` row of kind `llm_tokens`, so
   it counts towards the existing monthly AI cap (`MONTHLY_DRAFT_CAP`) and shows on Tutor costs.
-- **Possible change:** give practice sets their own monthly cap (e.g. 60 sets). A 15-question set
-  with solutions is several times the tokens of a report draft.
+- **Owner decision:** practice sets and writing tips have their own monthly cap of **60 per tutor**
+  (Melbourne calendar month), separate from the 300 report drafts, because a set uses several times
+  the tokens of a report draft. The usage rows carry a `purpose` so the two caps are counted
+  separately.
 - **Cost estimate:** 15 questions plus solutions plus the re-solve check is about 15–25k tokens, so
   A$0.02–0.04 per set at the current blended rate. Check against real usage in week 1.
 
@@ -138,13 +149,22 @@ for **VCE (Units 1–4) and Years 7–10**. Everything else from the brainstorm 
 - **Quality check:** 20 sets across the version 1 subjects, reviewed by the owner or a tutor before
   launch. Record accuracy per subject and the flag rate.
 
-## 9. Owner decisions needed
+## 9. Owner decisions
 
-1. The version 1 subject list (§2).
-2. Who enters or checks the curriculum points, and whether VCAA's terms allow storing them (§2).
-3. Plan access: Solo only, the trial allowance, or a higher plan (§4).
-4. Whether practice sets get their own monthly cap (§4).
-5. Whether Study Hall's own supervisors can use it too (they don't have the tutor app today).
+Decided on 5 Nov 2026:
+
+1. Subjects: the proposed list without Psychology, plus Years 7–10 English and VCE English writing
+   tips (§2).
+2. Curriculum points: we import, the owner checks and publishes (§2).
+3. Access: Solo, with 3 for the trial (§4).
+4. Their own cap: 60 a month (§4).
+
+Still open:
+
+5. Whether VCAA's terms of use allow storing the paraphrased points in a paid product. Check
+   before launch.
+6. Whether Study Hall's own supervisors get it too. For now it's tutor-app only, which already
+   includes admins.
 
 ## Later (not version 1)
 
@@ -154,6 +174,6 @@ for **VCE (Units 1–4) and Years 7–10**. Everything else from the brainstorm 
 - flashcards and vocabulary lists;
 - homework suggested from the last report;
 - diagrams and graphs;
-- English and humanities subjects;
+- humanities, Psychology and VCE English practice sets;
 - sharing sets between tutors;
 - families opening sets directly in the app.
