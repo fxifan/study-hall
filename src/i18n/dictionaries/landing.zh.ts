@@ -3,11 +3,11 @@ import type { LandingCopy } from "./landing.en";
 /**
  * Landing page copy (Simplified Chinese). Approved by the owner (30 Oct 2026); new strings need the
  * same check. Marketing copy only; no legal text here.
- * Parents are addressed as 您. "Study Hall" stays as the brand.
+ * Parents are addressed as 您. "Edumi" stays as the brand.
  */
 export const landingZh: LandingCopy = {
   meta: {
-    title: "Study Hall · 有老师监督的课后自习",
+    title: "Edumi Study Hall · 有老师监督的课后自习",
     description: "有老师监督的自习课，帮助学生保持专注、对自己的学习负责；遇到难题有学业帮助，家长会收到学习报告。",
   },
   nav: {
@@ -20,9 +20,15 @@ export const landingZh: LandingCopy = {
     logIn: "登录",
     viewPlans: "查看套餐",
   },
+  platform: {
+    tagline: "Education, made intelligent.",
+    body: "Edumi 为老师、学生和家庭打造的一体化智能学习平台。",
+    families: "家庭版 Study Hall",
+    tutors: "Edumi for Tutors（老师版）",
+  },
   hero: {
     margin: "{days}",
-    kicker: ["线上监督自习", "7–12 年级", "维多利亚州"],
+    kicker: ["Edumi Study Hall", "线上监督自习", "7–12 年级"],
     titleLead: "让课后学习",
     titleEm: "更有规律。",
     lede: "有老师监督的自习课，帮助学生保持专注、对自己的学习负责：明确的学习目标、针对具体科目的学业帮助，每次自习后家长都会收到一份学习报告。",
@@ -43,7 +49,7 @@ export const landingZh: LandingCopy = {
   how: {
     label: "如何运作",
     title: "有安排、有监督、有报告。",
-    intro: "Study Hall 为学生提供一个有条理的地方来完成作业、复习和练习。学生设定目标，在有监督的小组中自习，并可在我们目前支持的科目范围内请求学业帮助。每次自习后，家长会收到一份学习报告。",
+    intro: "Edumi Study Hall 为学生提供一个有条理的地方来完成作业、复习和练习。学生设定目标，在有监督的小组中自习，并可在我们目前支持的科目范围内请求学业帮助。每次自习后，家长会收到一份学习报告。",
     steps: [
       { title: "设定目标", body: "每次自习前，孩子计划最多三项具体任务（例如“完成第 1–15 题”），并写明完成后能拿出什么成果。" },
       {
@@ -89,7 +95,7 @@ export const landingZh: LandingCopy = {
     absentNote: "在自习结束约 15 分钟后发送",
     legend: [
       { title: "时间来自自习记录", body: "孩子进入和离开时自动记录，监督老师会确认实际在场的学生。" },
-      { title: "孩子自己设定的目标", body: "进入前计划好，离开前由孩子标记：完成、部分完成或未完成。上传的作业显示为孩子自己上传，Study Hall 不批改。" },
+      { title: "孩子自己设定的目标", body: "进入前计划好，离开前由孩子标记：完成、部分完成或未完成。上传的作业显示为孩子自己上传，Edumi 不批改。" },
       { title: "监督老师的客观记录", body: "例如“两次看到手机”，必要时加一句简短备注。不打分，不贴标签。" },
     ],
     disclaimer: "出勤和目标完成情况反映的是参与程度，并不代表学习效果，也不保证成绩。",
@@ -106,8 +112,8 @@ export const landingZh: LandingCopy = {
       "**自习 + 辅导**：**孩子每参加一节自习，包含一小时一对一辅导**，由监督老师应您的要求安排。辅导在主自习室中进行，监督老师和其他学生都在场。其余时间为有监督的独立自习。一周参加四节，就是最多四次、每次一小时的辅导；辅导老师不会在整整四小时里一直陪着孩子。",
       "两种套餐都不能代替专业的补习或学科教学，我们也不承诺任何分数或成绩。",
     ],
-    is: { title: "Study Hall 是", items: ["有安排、有监督的功课时间", "每节设定并标记目标", "在支持的科目范围内提供学业帮助", "给家长的客观报告"] },
-    isNot: { title: "Study Hall 不是", items: ["无限次的一对一辅导", "保证回复时间的服务", "提高分数或 ATAR 的承诺", "摄像头录像或监控软件"] },
+    is: { title: "Edumi Study Hall 是", items: ["有安排、有监督的功课时间", "每节设定并标记目标", "在支持的科目范围内提供学业帮助", "给家长的客观报告"] },
+    isNot: { title: "Edumi Study Hall 不是", items: ["无限次的一对一辅导", "保证回复时间的服务", "提高分数或 ATAR 的承诺", "摄像头录像或监控软件"] },
   },
   rules: {
     label: "自习规则",
@@ -130,8 +136,8 @@ export const landingZh: LandingCopy = {
     intro: "摄像头是实时监督的一部分：自习进行时，监督老师在自习室中。以下说明它包括什么、不包括什么。",
     items: [
       {
-        title: "Study Hall 不录像",
-        body: "Study Hall 不采集、不录制、不存储任何视频、图片或音频。自习在 Zoom 或 Google Meet 上进行，通话由这些平台按其各自的隐私条款处理。",
+        title: "Edumi 不录像",
+        body: "Edumi 不采集、不录制、不存储任何视频、图片或音频。自习在 Zoom 或 Google Meet 上进行，通话由这些平台按其各自的隐私条款处理。",
       },
       {
         title: "没有一对一私人视频",
@@ -143,7 +149,7 @@ export const landingZh: LandingCopy = {
       },
       {
         title: "所有消息都会保留",
-        body: "监督老师与学生之间的每条消息都有记录，Study Hall 管理员可以查看，监督老师无法删除。",
+        body: "监督老师与学生之间的每条消息都有记录，Edumi 管理员可以查看，监督老师无法删除。",
       },
       {
         title: "只收集必要信息",
@@ -184,7 +190,7 @@ export const landingZh: LandingCopy = {
       tutoringHour: "每参加一节自习一小时，在主自习室一对一",
       restValue: "有监督的独立自习",
     },
-    cardKicker: "Study Hall · 按周",
+    cardKicker: "Edumi · 按周",
     per: "每名学生 / 周",
     tutoringNote: "孩子每参加一节自习，包含一小时一对一辅导，在主自习室中进行，由监督老师应您的要求安排；其余时间为有监督的独立自习。",
     rows: {
@@ -214,7 +220,7 @@ export const landingZh: LandingCopy = {
     items: [
       {
         id: "tutoring",
-        q: "Study Hall 是补习吗？",
+        q: "Edumi 是补习吗？",
         a: [
           "“监督自习”不是补习。这是有人监督的时间，用来完成孩子已有的功课：作业、复习和练习。孩子可以在我们支持的科目范围内求助，监督老师在有空时回复，但这不是上课，也不能代替补习老师。",
           "“自习 + 辅导”在孩子每参加一节自习时包含一小时一对一辅导，其余时间为有监督的独立自习。如需安排辅导，请发邮件至 {email}，监督老师会在该节自习中安排时间。",
@@ -225,14 +231,14 @@ export const landingZh: LandingCopy = {
         id: "supervision",
         q: "线上监督是怎样进行的？",
         a: [
-          "孩子从自己的 Study Hall 页面进入按时开放的小组视频自习室（Zoom 或 Google Meet），摄像头对准双手和书桌，不必露脸。",
+          "孩子从自己的 Edumi 页面进入按时开放的小组视频自习室（Zoom 或 Google Meet），摄像头对准双手和书桌，不必露脸。",
           "监督老师负责自习室：管理统一计时、查看学生的情况、记录需要告诉家长的事项，并处理求助。",
         ],
       },
       {
         id: "recording",
         q: "摄像头画面会被录下来吗？",
-        a: ["Study Hall 不录制、不存储任何视频、图片或音频。视频自习室本身运行在 Zoom 或 Google Meet 上，通话由这些平台按其各自的隐私条款处理。"],
+        a: ["Edumi 不录制、不存储任何视频、图片或音频。视频自习室本身运行在 Zoom 或 Google Meet 上，通话由这些平台按其各自的隐私条款处理。"],
       },
       {
         id: "stuck",
@@ -251,7 +257,7 @@ export const landingZh: LandingCopy = {
       {
         id: "alongside",
         q: "孩子已经在上补习，还可以参加吗？",
-        a: ["可以。Study Hall 是在两次课之间完成作业和练习的地方，可以和补习搭配。孩子可以选择适合自己其他安排的场次。"],
+        a: ["可以。Edumi 是在两次课之间完成作业和练习的地方，可以和补习搭配。孩子可以选择适合自己其他安排的场次。"],
       },
       {
         id: "billing",
@@ -265,14 +271,14 @@ export const landingZh: LandingCopy = {
         id: "missed",
         q: "如果自习被取消，或孩子缺席了怎么办？",
         a: [
-          "如果 Study Hall 取消了某节自习，已报名该节的家庭会获得补偿，可改为参加另一节自习。",
+          "如果 Edumi 取消了某节自习，已报名该节的家庭会获得补偿，可改为参加另一节自习。",
           "如果孩子缺席，您会收到一行说明，告知孩子没有参加。孩子可以参加当周的任何其他场次。",
         ],
       },
       {
         id: "needs",
         q: "孩子需要准备什么？",
-        a: ["一台带摄像头的笔记本电脑或平板、稳定的网络和一张书桌。孩子在自己的 Study Hall 页面点击“加入”进入视频自习室。"],
+        a: ["一台带摄像头的笔记本电脑或平板、稳定的网络和一张书桌。孩子在自己的 Edumi 页面点击“加入”进入视频自习室。"],
       },
       {
         id: "supervisors",
@@ -289,13 +295,13 @@ export const landingZh: LandingCopy = {
       },
       {
         id: "contact",
-        q: "如何联系 Study Hall？",
+        q: "如何联系 Edumi？",
         a: ["如有疑问、对服务的意见，或需要删除孩子的数据，请发邮件至 {email}。"],
       },
     ],
   },
   end: {
-    title: "看看 Study Hall 是否适合您家的安排。",
+    title: "看看 Edumi 是否适合您家的安排。",
     primary: "查看套餐",
     secondary: "阅读常见问题",
   },

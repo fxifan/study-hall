@@ -7,7 +7,7 @@ import { field, labelClass, primaryButton, secondaryButton } from "./ui";
 import type { DashLink, DashStudent } from "./types";
 
 /**
- * Saved Zoom links: paste once, then copy or open in one tap right before class. Study Hall stores
+ * Saved Zoom links: paste once, then copy or open in one tap right before class. Edumi stores
  * the links tutors paste; it doesn't create Zoom meetings.
  */
 export function MeetingLinks({ links, students }: { links: DashLink[]; students: DashStudent[] }) {

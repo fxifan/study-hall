@@ -37,7 +37,7 @@ describe("report cards", () => {
     expect(text).toContain("  - Review chemistry notes · Partially completed");
   });
 
-  it("keeps uploaded work apart from what was marked, and says Study Hall didn't mark it", () => {
+  it("keeps uploaded work apart from what was marked, and says Edumi didn't mark it", () => {
     const withWork: ReportCardData = {
       ...report,
       goals: [{ text: "Questions 1–15", subject: "Methods", outcome: "done", result: "12/15", note: "Q14 unsure", evidence: [{ id: "e1", name: "worksheet.jpg" }] }],
@@ -47,8 +47,8 @@ describe("report cards", () => {
     expect(text).toContain("    Result: 12/15");
     expect(text).toContain("    Student's note: Q14 unsure");
     expect(text).toContain("    Work uploaded: worksheet.jpg");
-    expect(text).toContain("Uploaded by the student. Study Hall hasn't checked or marked it.");
-    expect(reportText(report, "en", en.reportCard)).not.toContain("Study Hall hasn't checked");
+    expect(text).toContain("Uploaded by the student. Edumi hasn't checked or marked it.");
+    expect(reportText(report, "en", en.reportCard)).not.toContain("Edumi hasn't checked");
   });
 
   it("says when a student didn't attend", () => {

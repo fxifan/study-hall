@@ -12,9 +12,9 @@ describe("tutor email mode", () => {
     delete process.env.RESEND_API_KEY;
     expect(tutorEmailMode()).toBe("own");
     process.env.RESEND_API_KEY = "re_test";
-    process.env.REPORTS_FROM_EMAIL = "Study Hall <onboarding@resend.dev>";
+    process.env.REPORTS_FROM_EMAIL = "Edumi <onboarding@resend.dev>";
     expect(tutorEmailMode()).toBe("own"); // Resend's shared test sender only reaches the account owner
-    process.env.REPORTS_FROM_EMAIL = "Study Hall <reports@studyhall.example>";
+    process.env.REPORTS_FROM_EMAIL = "Edumi <reports@studyhall.example>";
     expect(tutorEmailMode()).toBe("app");
   });
 
@@ -24,7 +24,7 @@ describe("tutor email mode", () => {
     expect(tutorEmailMode()).toBe("app");
     process.env.TUTOR_EMAIL_MODE = "own";
     process.env.RESEND_API_KEY = "re_test";
-    process.env.REPORTS_FROM_EMAIL = "Study Hall <reports@studyhall.example>";
+    process.env.REPORTS_FROM_EMAIL = "Edumi <reports@studyhall.example>";
     expect(tutorEmailMode()).toBe("own");
   });
 });

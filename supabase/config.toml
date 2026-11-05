@@ -249,11 +249,11 @@ otp_expiry = 3600
 # token_hash flow so links work when opened on a different device. On the hosted project, paste each
 # into Authentication > Email Templates with the same subject.
 [auth.email.template.magic_link]
-subject = "Your Study Hall login link · 您的 Study Hall 登录链接"
+subject = "Your Edumi login link · 您的 Edumi 登录链接"
 content_path = "./supabase/templates/magic_link.html"
 
 [auth.email.template.confirmation]
-subject = "Confirm your email for Study Hall · 确认您在 Study Hall 的邮箱"
+subject = "Confirm your email for Edumi · 确认您在 Edumi 的邮箱"
 content_path = "./supabase/templates/confirmation.html"
 
 # Uncomment to customize email template

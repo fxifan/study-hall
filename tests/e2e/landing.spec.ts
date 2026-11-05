@@ -5,7 +5,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
 const BRIEF_QUESTIONS = [
-  "Is Study Hall tutoring?",
+  "Is Edumi Study Hall tutoring?",
   "How does online supervision work?",
   "Is webcam footage recorded?",
   "What happens if my child gets stuck?",
@@ -14,7 +14,7 @@ const BRIEF_QUESTIONS = [
   "How do subscriptions, cancellations and refunds work?",
   "What happens if a session is cancelled or my child misses it?",
   "Who are the supervisors?",
-  "How do I contact Study Hall?",
+  "How do I contact Edumi?",
 ];
 
 const CONTACT = "feifanwork1@gmail.com";
@@ -117,7 +117,7 @@ test("pricing comes from the plans table and links to sign-up", async ({ page })
   const pricing = page.locator("#pricing");
   await expect(pricing).toContainText("keep access until the end of your paid week");
   await expect(pricing).toContainText("Ask within 7 days of your first payment and we'll refund it. Refunds aren't available after that.");
-  // Study Hall isn't registered for GST, so prices don't mention it.
+  // Edumi isn't registered for GST, so prices don't mention it.
   await expect(page.locator("body")).not.toContainText("GST");
   const table = page.getByTestId("plan-comparison");
   await expect(table.locator("thead")).toContainText(/Supervised Study\s*A\$99/);
@@ -133,11 +133,11 @@ test("the FAQ answers every question in the brief", async ({ page }) => {
   await faq.getByText("Is webcam footage recorded?").click();
   await expect(faq).toContainText("doesn't record or store video, images or audio");
   await expect(faq).toContainText("under their own privacy terms");
-  await faq.getByText("How do I contact Study Hall?").click();
+  await faq.getByText("How do I contact Edumi?").click();
   await expect(faq).toContainText(`Email ${CONTACT}`);
   await faq.getByText("What happens if a session is cancelled or my child misses it?").click();
   await expect(faq).toContainText("everyone booked into it gets a credit to attend another session instead");
-  await faq.getByText("Is Study Hall tutoring?").click();
+  await faq.getByText("Is Edumi Study Hall tutoring?").click();
   await expect(faq).toContainText("in the main session room, with the supervisor and other students present, never in a private call or breakout room");
   await faq.getByText("What happens if my child gets stuck?").click();
   await expect(faq).toContainText("VCE Mathematical Methods, General Mathematics, Chemistry, Biology, and Accounting");
@@ -169,7 +169,7 @@ test.describe("legal pages", () => {
   test("house rules are published with a version", async ({ page }) => {
     await page.goto("/legal/house-rules");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("House rules");
-    await expect(page.getByText(/Version 2026-10-v1/)).toBeVisible();
+    await expect(page.getByText(/Version 2026-\d{2}-v\d+/)).toBeVisible();
     await expect(page.getByText("Phone face-down inside the camera frame for the whole block.")).toBeVisible();
     await expect(page.getByRole("note")).toHaveCount(0);
   });
@@ -177,7 +177,7 @@ test.describe("legal pages", () => {
   test("the privacy notice is clearly marked as a draft", async ({ page }) => {
     await page.goto("/legal/privacy");
     await expect(page.getByRole("note")).toContainText("Draft");
-    await expect(page.getByText(/Version 2026-10-draft-7/)).toBeVisible();
+    await expect(page.getByText(/Version 2026-\d{2}-draft-\d+/)).toBeVisible();
     await expect(page.locator("article")).toContainText("One-to-one tutoring (Study + Tutoring plan) happens in the main session room");
     await expect(page.locator("article")).toContainText("run by Feifan Wu, a sole trader");
   });

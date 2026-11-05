@@ -45,7 +45,7 @@ export function buildIcs(calendarName: string, lessons: IcsLesson[], now = new D
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Study Hall//Tutor lessons//EN",
+    "PRODID:-//Edumi//Tutor lessons//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     `X-WR-CALNAME:${escapeText(calendarName)}`,

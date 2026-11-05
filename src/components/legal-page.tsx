@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Wordmark } from "@/components/wordmark";
 import { notFound } from "next/navigation";
 import { LegalBody } from "@/components/legal-body";
 import { LanguageSwitch } from "@/components/language-switch";
@@ -16,8 +17,8 @@ export async function LegalPage({ document }: { document: LegalDocumentKind }) {
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 px-4 py-12">
       <div className="flex items-baseline justify-between gap-4">
-        <Link href={localizePath("/", locale)} className="font-mono text-xs tracking-widest text-pen uppercase">
-          Study Hall
+        <Link href={localizePath("/", locale)} className="text-ink no-underline" aria-label="Edumi home">
+          <Wordmark className="text-base" />
         </Link>
         <LanguageSwitch locale={locale} className="text-sm text-ink-soft underline-offset-4 hover:underline" />
       </div>

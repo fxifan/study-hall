@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Wordmark } from "@/components/wordmark";
 import Link from "next/link";
 import { Suspense } from "react";
 import { LanguageSwitch } from "@/components/language-switch";
@@ -17,8 +18,8 @@ export default async function LoginPage({ searchParams }: PageProps<"/[lang]/log
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-6 px-4 py-16">
       <div className="flex items-baseline justify-between gap-4">
-        <Link href={localizePath("/", locale)} className="font-mono text-xs tracking-widest text-pen uppercase">
-          Study Hall
+        <Link href={localizePath("/", locale)} className="text-ink no-underline" aria-label="Edumi home">
+          <Wordmark className="text-base" />
         </Link>
         <LanguageSwitch locale={locale} className="text-sm text-ink-soft underline-offset-4 hover:underline" />
       </div>

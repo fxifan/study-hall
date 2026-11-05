@@ -2,12 +2,13 @@ import { en, type Dictionary } from "./en";
 import { landingZh } from "./landing.zh";
 import { onboardingZh } from "./onboarding.zh";
 
-/** Simplified Chinese (zh-CN). Parents are addressed as 您, students as 你. "Study Hall" stays as the brand. */
+/** Simplified Chinese (zh-CN). Parents are addressed as 您, students as 你. "Edumi" stays as the brand. */
 export const zh: Dictionary = {
   meta: {
     description: "为 7–12 年级学生提供有老师监督的线上自习，帮助学生保持专注、对自己的学习负责。",
   },
   common: {
+    reportProblem: "反馈问题或建议",
     loading: "加载中…",
     logOut: "退出登录",
     phase: "第 {n} 阶段",
@@ -24,7 +25,7 @@ export const zh: Dictionary = {
     emailPlaceholder: "you@example.com",
     submit: "发送登录链接",
     sending: "发送中…",
-    sent: "如果 {email} 已注册 Study Hall，登录链接正在发送中，一小时内有效。",
+    sent: "如果 {email} 已注册 Edumi，登录链接正在发送中，一小时内有效。",
     errors: {
       invalid_email: "请输入有效的邮箱地址。",
       rate_limited: "你刚刚请求过链接，请等一分钟再试。",
@@ -33,7 +34,7 @@ export const zh: Dictionary = {
     },
     linkErrors: {
       link: "这个登录链接已过期或已被使用，请在下方重新获取。",
-      "no-profile": "您的账户尚未设置完成。如果问题持续，请联系 Study Hall。",
+      "no-profile": "您的账户尚未设置完成。如果问题持续，请联系 Edumi。",
     },
   },
   parent: {
@@ -53,7 +54,7 @@ export const zh: Dictionary = {
       finish: "完成注册",
       manage: "管理账单",
       manageHelp: "可在这里更换套餐、更新银行卡或取消订阅。升级立即生效，并补付本周差价；降级在下次续费时生效。升级到“自习 + 辅导”前，请先填写孩子的科目。",
-      welcome: "已收到付款，欢迎加入 Study Hall！孩子会收到一封登录邮件。",
+      welcome: "已收到付款，欢迎加入 Edumi！孩子会收到一封登录邮件。",
     },
   },
   student: {
@@ -88,7 +89,7 @@ export const zh: Dictionary = {
       saveOutcomes: "保存",
       evidence: {
         title: "作业照片或文件（可选）",
-        help: "JPG、PNG、WebP 或 PDF，每个不超过 10 MB，每项任务最多三个。家长可以查看；Study Hall 不批改。",
+        help: "JPG、PNG、WebP 或 PDF，每个不超过 10 MB，每项任务最多三个。家长可以查看；Edumi 不批改。",
         add: "添加照片或文件",
         uploading: "正在上传…",
         remove: "删除",
@@ -244,23 +245,23 @@ export const zh: Dictionary = {
   },
   emails: {
     label: "简体中文",
-    footer: "如有疑问或意见，请发邮件至 {email}。Study Hall 由个体经营者 Feifan Wu 运营。",
+    footer: "如有疑问或意见，请发邮件至 {email}。Edumi 由个体经营者 Feifan Wu 运营。",
     login: {
-      subject: "您的 Study Hall 登录链接",
-      heading: "登录 Study Hall",
+      subject: "您的 Edumi 登录链接",
+      heading: "登录 Edumi",
       body: "请使用以下链接登录。链接只能使用一次，一小时内有效。",
       button: "登录",
       ignore: "如果这不是您本人的操作，请忽略本邮件。",
     },
     signup: {
-      subject: "确认您在 Study Hall 的邮箱",
+      subject: "确认您在 Edumi 的邮箱",
       heading: "确认您的邮箱",
       body: "请使用以下链接确认邮箱并继续注册。链接只能使用一次，一小时内有效。",
       button: "继续注册",
-      ignore: "如果您没有注册 Study Hall，请忽略本邮件。",
+      ignore: "如果您没有注册 Edumi，请忽略本邮件。",
     },
     report: {
-      subject: "Study Hall 学习报告：{name}，{date}",
+      subject: "Edumi 学习报告：{name}，{date}",
       heading: "学习报告：{name}",
       button: "查看全部报告",
     },
@@ -287,7 +288,7 @@ export const zh: Dictionary = {
     result: "结果",
     note: "学生备注",
     evidence: "上传的作业",
-    evidenceNote: "由学生上传，Study Hall 未检查或批改。",
+    evidenceNote: "由学生上传，Edumi 未检查或批改。",
     comment: "监督老师评语",
     asWritten: "学习目标和监督老师的记录按原文显示，不作翻译。",
     copy: "复制文字",
@@ -324,7 +325,7 @@ export const zh: Dictionary = {
   },
   adminPages: en.adminPages, // internal admin tool: English only
   legal: {
-    draft: "草稿：本声明尚未经过审核，将在 Study Hall 正式开放前替换。",
+    draft: "草稿：本声明尚未经过审核，将在 Edumi 正式开放前替换。",
     englishOnly: "法律文件目前仅提供英文版本。",
     version: "版本 {version} · 发布于 {date}",
   },

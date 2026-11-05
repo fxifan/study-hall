@@ -43,7 +43,7 @@ export function ReportEditor({
   meta: ReportMeta;
   parentEmail: string;
   sent: { at: string; to: string } | null;
-  /** "own": the tutor sends from their own email app (no sending domain yet); "app": Study Hall sends. */
+  /** "own": the tutor sends from their own email app (no sending domain yet); "app": Edumi sends. */
   emailMode: "own" | "app";
 }) {
   // The English version is always kept: Chinese is translated from it.
@@ -92,6 +92,11 @@ export function ReportEditor({
 
   return (
     <div className="flex flex-col gap-4">
+      <p role="note" className="rounded-md border border-hair bg-brand-soft px-3 py-2 text-sm text-ink" data-testid="ai-check-note">
+        <strong className="font-medium">Check before you send.</strong> This is an AI draft from your note: transcription and AI can get
+        names, dates, subjects, topics or homework wrong. You&apos;re sending it as yours, so read every line. The parent sees it only when
+        you send or share it.
+      </p>
       <div className={`grid gap-4 ${shown.length > 1 ? "md:grid-cols-2" : ""}`}>
         {shown.map((lang) => (
           <LanguageColumn

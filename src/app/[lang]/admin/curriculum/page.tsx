@@ -55,7 +55,7 @@ async function Curriculum({ searchParams }: Pick<PageProps<"/[lang]/admin/curric
   return (
     <AdminFrame title="Curriculum" current="curriculum">
       <p className="text-sm text-ink-soft">
-        Points tutors build practice sets from. Each is Study Hall&apos;s own short paraphrase, imported unpublished. Check each group against
+        Points tutors build practice sets from. Each is Edumi&apos;s own short paraphrase, imported unpublished. Check each group against
         the VCAA document (link per group), fix anything, then publish. {published} of {points.length} published.
       </p>
       <ul className="flex flex-col gap-2" data-testid="curriculum-groups">

@@ -60,7 +60,7 @@ async function NewResource({ searchParams }: Pick<PageProps<"/[lang]/app/resourc
     <TutorShell tutor={me} title={title} current="resources" back={{ href: "/app/resources", label: "Resources" }}>
       {error && <Notice tone="error">{error}</Notice>}
       {!access.ok && <Notice tone="error">{ACCESS_MESSAGES[access.reason]}</Notice>}
-      {!groups.size && <Notice>No curriculum is published for this yet. Study Hall is checking it; try again soon.</Notice>}
+      {!groups.size && <Notice>No curriculum is published for this yet. Edumi is checking it; try again soon.</Notice>}
 
       {/* Step 1: level (and optionally a student, for topic suggestions). A GET form: nothing is sent to the AI. */}
       <form className="dash-card flex flex-col gap-3 p-4" data-testid="choose-level">

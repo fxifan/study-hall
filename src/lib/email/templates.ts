@@ -7,7 +7,7 @@ import { attendanceLine, evidenceCount, goalSummary, outcomeLabel, pick, type Re
 import { renderBilingualEmail, type EmailBlock, type EmailSection, type RenderedEmail } from "./bilingual";
 
 /**
- * Every automated parent email Study Hall sends, in one place (comprehensive brief §6):
+ * Every automated parent email Edumi sends, in one place (comprehensive brief §6):
  *   - "login" and "signup": Supabase Auth's Magic Link and Confirm signup templates. Generated into
  *     supabase/templates by `npm run emails` and pasted into the Supabase dashboard. Supabase fills
  *     the {{ … }} placeholders. The token_hash link works on any device (src/app/auth/confirm).

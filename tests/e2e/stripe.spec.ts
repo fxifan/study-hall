@@ -80,7 +80,7 @@ test("a parent pays in Stripe test mode, and cancelling removes access", async (
   if (await saveToLink.isChecked().catch(() => false)) await saveToLink.uncheck();
   await page.locator('[data-testid="hosted-payment-submit-button"]').click();
 
-  // Back on Study Hall: payment confirmed, child active and enrolled
+  // Back on Edumi: payment confirmed, child active and enrolled
   await page.waitForURL(/\/parent\?welcome=1/, { timeout: 90_000 });
   await expect(page.getByRole("status")).toContainText("Payment received");
   await expect(page.getByTestId("billing")).toContainText("Supervised Study · 1 × A$99 per week · renews");

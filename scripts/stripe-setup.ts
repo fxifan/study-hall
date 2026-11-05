@@ -1,5 +1,5 @@
 /**
- * One-off Stripe setup for the Study Hall account. Test mode by default. Safe to re-run.
+ * One-off Stripe setup for the Edumi account. Test mode by default. Safe to re-run.
  *   npm run stripe:setup
  *   npm run stripe:setup -- --webhook https://study-hall-murex.vercel.app/api/stripe/webhook
  * Live mode (owner only, in their own terminal; the key is never saved or printed):
@@ -48,7 +48,7 @@ async function main() {
       throw new Error(`Stripe price ${price.id} doesn't match plan "${plan.name}". Create a new plan row for a new price.`);
     }
     if (!price) {
-      const product = await stripe.products.create({ name: `Study Hall: ${plan.name}`, metadata: { app: "study-hall", plan_id: plan.id } });
+      const product = await stripe.products.create({ name: `Edumi Study Hall: ${plan.name}`, metadata: { app: "study-hall", plan_id: plan.id } });
       price = await stripe.prices.create({
         product: product.id,
         unit_amount: plan.price_cents,
@@ -62,8 +62,8 @@ async function main() {
       // Plans can be renamed; keep the product name Checkout shows in step.
       const productId = typeof price.product === "string" ? price.product : price.product.id;
       const product = await stripe.products.retrieve(productId);
-      if (product.name !== `Study Hall: ${plan.name}`) {
-        await stripe.products.update(productId, { name: `Study Hall: ${plan.name}` });
+      if (product.name !== `Edumi Study Hall: ${plan.name}`) {
+        await stripe.products.update(productId, { name: `Edumi Study Hall: ${plan.name}` });
         console.log(`Renamed product for "${plan.name}"`);
       }
     }
@@ -86,7 +86,7 @@ async function main() {
   );
   const configs = await stripe.billingPortal.configurations.list({ active: true, limit: 100 });
   const portal: Stripe.BillingPortal.ConfigurationCreateParams = {
-    business_profile: { privacy_policy_url: `${site}/legal/privacy`, terms_of_service_url: `${site}/legal/house-rules` },
+    business_profile: { headline: "Edumi Study Hall", privacy_policy_url: `${site}/legal/privacy`, terms_of_service_url: `${site}/legal/house-rules` },
     default_return_url: `${site}/parent`,
     features: {
       customer_update: { enabled: true, allowed_updates: ["email"] },
@@ -120,7 +120,7 @@ async function main() {
   const tutorKey = "study-hall-tutor-solo";
   let tutorPrice = (await stripe.prices.list({ lookup_keys: [tutorKey], limit: 1 })).data[0];
   if (!tutorPrice) {
-    const product = await stripe.products.create({ name: "Study Hall for Tutors: Solo", metadata: { app: "study-hall", product: "tutor" } });
+    const product = await stripe.products.create({ name: "Edumi for Tutors: Solo", metadata: { app: "study-hall", product: "tutor" } });
     tutorPrice = await stripe.prices.create({
       product: product.id,
       unit_amount: 1500,
@@ -130,10 +130,18 @@ async function main() {
       metadata: { app: "study-hall", product: "tutor" },
     });
     console.log(`Created tutor Solo price ${tutorPrice.id}`);
+  } else {
+    // Rebrand-safe: keep the product name Checkout and receipts show in step.
+    const productId = typeof tutorPrice.product === "string" ? tutorPrice.product : tutorPrice.product.id;
+    const product = await stripe.products.retrieve(productId);
+    if (product.name !== "Edumi for Tutors: Solo") {
+      await stripe.products.update(productId, { name: "Edumi for Tutors: Solo" });
+      console.log("Renamed tutor product to Edumi for Tutors: Solo");
+    }
   }
   console.log(`Tutor Solo -> ${tutorPrice.id}`);
   const tutorPortal: Stripe.BillingPortal.ConfigurationCreateParams = {
-    business_profile: { privacy_policy_url: `${site}/legal/privacy`, terms_of_service_url: `${site}/tutors/terms` },
+    business_profile: { headline: "Edumi for Tutors", privacy_policy_url: `${site}/legal/privacy`, terms_of_service_url: `${site}/tutors/terms` },
     default_return_url: `${site}/app/settings`,
     features: {
       customer_update: { enabled: true, allowed_updates: ["email", "address", "tax_id"] },

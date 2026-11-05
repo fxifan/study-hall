@@ -1,4 +1,6 @@
-# Study Hall
+# Edumi (formerly Study Hall)
+
+Education, made intelligent. Edumi Study Hall (supervised online study for families) and Edumi for Tutors (the tutor workspace). Brand config: `src/lib/brand.ts`; rebrand notes: `docs/edumi-rebrand.md`.
 
 Online supervised study hall for VCE students. The build spec is [docs/spec.md](docs/spec.md) and the
 landing-page design is [design/landing.html](design/landing.html).

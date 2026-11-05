@@ -7,7 +7,7 @@ import "server-only";
  */
 
 /**
- * Settings for every Study Hall meeting (docs/in-site-video-plan.md, "Zoom account settings"). Lock
+ * Settings for every Edumi meeting (docs/in-site-video-plan.md, "Zoom account settings"). Lock
  * the same ones at account level too: a meeting setting can't stop a host recording by hand.
  */
 export const ZOOM_MEETING_SETTINGS = {
@@ -16,7 +16,7 @@ export const ZOOM_MEETING_SETTINGS = {
   join_before_host: false,
   waiting_room: true,
   mute_upon_entry: true,
-  approval_type: 2, // no registration: students join from their Study Hall page
+  approval_type: 2, // no registration: students join from their Edumi page
   meeting_authentication: false,
   auto_recording: "none",
   auto_start_meeting_summary: false,
@@ -35,7 +35,7 @@ export function zoomConfigured(env: ZoomEnv = process.env): boolean {
 
 /** A recurring meeting with no fixed time, so the room keeps one join link for every session. */
 export function zoomMeetingBody(roomName: string) {
-  return { topic: `Study Hall: ${roomName}`, type: 3, settings: ZOOM_MEETING_SETTINGS };
+  return { topic: `Edumi: ${roomName}`, type: 3, settings: ZOOM_MEETING_SETTINGS };
 }
 
 export async function createZoomMeeting(

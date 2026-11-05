@@ -1,5 +1,6 @@
 "use server";
 
+import { track } from "@/lib/events";
 import { refresh } from "next/cache";
 import { z } from "zod";
 import { LlmError } from "@/lib/llm";
@@ -108,6 +109,7 @@ export async function createResource(formData: FormData) {
     .single();
   if (error) throw error;
   await logUsage(tutor.id, "llm_tokens", tokens, "resource");
+  await track({ name: "resource_generated", product: "tutors", role: "tutor", userId: tutor.id, objectType: "tutor_resource", objectId: row.id, props: { kind, framework: first.framework }, dedupeKey: `resource:${row.id}` });
   await back(`/app/resources/${row.id}`);
 }
 

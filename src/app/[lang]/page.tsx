@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Wordmark } from "@/components/wordmark";
 import Link from "next/link";
 import { LanguageSwitch } from "@/components/language-switch";
 import { localizePath } from "@/i18n/config";
@@ -58,9 +59,8 @@ export default async function LandingPage() {
 
       <header className="nav">
         <div className="nav-in">
-          <Link className="brand" href={localizePath("/", locale)} aria-label="Study Hall">
-            Study Hall
-            <Tick />
+          <Link className="brand" href={localizePath("/", locale)} aria-label="Edumi home">
+            <Wordmark product="Study Hall" />
           </Link>
           <nav className="nav-links" aria-label={t.nav.sections}>
             <a href="#how">{t.nav.how}</a>
@@ -81,6 +81,20 @@ export default async function LandingPage() {
       </header>
 
       <main id="main">
+        {/* Edumi platform band: the brand and both products, above the family hero. */}
+        <div className="edumi-band">
+          <div className="edumi-band-in">
+            <p>
+              <b>{t.platform.tagline}</b> <span className="dim">{t.platform.body}</span>
+            </p>
+            <nav aria-label="Edumi products" className="edumi-band-links">
+              <a href="#top" aria-current="page">
+                {t.platform.families}
+              </a>
+              <Link href={localizePath("/tutors", locale)}>{t.platform.tutors} →</Link>
+            </nav>
+          </div>
+        </div>
         {/* Hero */}
         <section className="sec hero draw" id="top" aria-labelledby="hero-title">
           <div className="wrap">
@@ -406,9 +420,8 @@ export default async function LandingPage() {
           <div className="sec-body">
             <div className="foot-grid">
               <div>
-                <Link className="brand" href={localizePath("/", locale)}>
-                  Study Hall
-                  <Tick />
+                <Link className="brand" href={localizePath("/", locale)} aria-label="Edumi home">
+                  <Wordmark product="Study Hall" />
                 </Link>
                 <p className="foot-small">{t.footer.tagline}</p>
                 <p className="foot-small">

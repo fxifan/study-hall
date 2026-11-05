@@ -4,14 +4,12 @@
 @import "./ui.css";
 
 /*
- * Theme: the "exercise book" direction from design/landing.html. Cream paper, navy ink, coral pen.
- * Refined (Nov 2026): surfaces a step lighter than the page for depth, higher-contrast secondary
- * text, and coral (#F07862) as the one accent: primary actions, active states, focus. Component
- * classes (buttons, cards, pills, the calendar) are in ui.css.
- * Brand tokens (--paper, --ink, --pen …) are lifted from that file's :root and exposed to Tailwind as
- * bg-paper, text-ink, border-rule, font-serif, font-mono, etc. shadcn/ui's semantic tokens
- * (--background, --primary …) are mapped onto them, so components pick up the palette for free.
- * Dark mode follows the OS, and [data-theme="light|dark"] on <html> overrides it, as on the landing page.
+ * Theme: Edumi (Nov 2026 rebrand). Light-first: cloud white page, white cards, charcoal text,
+ * midnight indigo for navigation and branding, deep indigo primary buttons, electric lavender for
+ * highlights and selected states. A matching dark theme follows the OS, and [data-theme] on <html>
+ * overrides it. The old token names (--paper, --ink, --coral, --pen …) are kept so every component
+ * picks up the new palette: --paper = page, --sheet = card, --ink = text, --coral = primary action,
+ * --pen = error/warning red, --brand = lavender accent text. Component classes are in ui.css.
  */
 
 @custom-variant dark {
@@ -26,22 +24,32 @@
 }
 
 :root {
-  /* Brand */
-  --paper: #f6f2e8;
-  --paper-deep: #eee7d7;
-  --sheet: #fffdf8;
-  --ink: #1b2a41;
-  --ink-soft: #3e4b61;
-  --ink-faint: #6b7486;
-  --hair: rgba(27, 42, 65, 0.14);
-  --rule: #d3deeb;
-  --pen: #c24d37;
-  --pen-faint: rgba(194, 77, 55, 0.42);
-  --coral: #f07862;
-  --coral-ink: #1d120f;
-  --cover: #1b2a41;
-  --cover-ink: #f6f2e8;
-  --cover-soft: #bac2cf;
+  /* Brand: Edumi palette */
+  --midnight: #171a35;
+  --indigo: #35366f;
+  --lavender: #a99aff;
+  --lavender-soft: #eae6ff;
+  --brand: #5b4bd1; /* lavender as text on light surfaces (5.6:1 on white) */
+  --brand-soft: #eae6ff;
+  --success: #16a36a;
+  --warning: #e6a23c;
+  --error: #d94c5c;
+
+  --paper: #f8f9fc;
+  --paper-deep: #eef0f7;
+  --sheet: #ffffff;
+  --ink: #25283b;
+  --ink-soft: #475069;
+  --ink-faint: #667085;
+  --hair: #e6e8f0;
+  --rule: #e6e8f0;
+  --pen: #c23a4b; /* errors and warnings as text (error red, darkened for contrast) */
+  --pen-faint: rgba(217, 76, 92, 0.4);
+  --coral: #35366f; /* primary action: deep indigo */
+  --coral-ink: #ffffff;
+  --cover: #171a35; /* midnight indigo panels */
+  --cover-ink: #f8f9fc;
+  --cover-soft: #b9b7d9;
 
   /* shadcn/ui semantic tokens */
   --background: var(--paper);
@@ -61,13 +69,13 @@
   --destructive: var(--pen);
   --border: var(--hair);
   --input: var(--hair);
-  --ring: var(--coral);
+  --ring: var(--lavender);
   --chart-1: var(--ink);
   --chart-2: var(--pen);
   --chart-3: var(--ink-soft);
   --chart-4: var(--rule);
   --chart-5: var(--ink-faint);
-  --radius: 0.375rem;
+  --radius: 0.625rem; /* 10px: inputs; cards and buttons use the dash-* radii in ui.css */
   --sidebar: var(--sheet);
   --sidebar-foreground: var(--ink);
   --sidebar-primary: var(--ink);
@@ -85,37 +93,45 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --paper: #111a28;
-    --paper-deep: #0c1420;
-    --sheet: #19263c;
-    --ink: #f3eee3;
-    --ink-soft: #c6cdd9;
-    --ink-faint: #929cae;
-    --hair: rgba(238, 232, 218, 0.12);
-    --rule: rgba(150, 178, 215, 0.16);
-    --pen: #f4917f;
-    --pen-faint: rgba(240, 120, 98, 0.4);
-    --cover: #1c2b44;
-    --cover-ink: #eee8da;
-    --cover-soft: #aeb7c6;
+    --paper: #12142b;
+    --paper-deep: #0d0f22;
+    --sheet: #1b1e3d;
+    --ink: #f1f0fa;
+    --ink-soft: #c9cbe0;
+    --ink-faint: #9a9cb8;
+    --hair: rgba(234, 230, 255, 0.12);
+    --rule: rgba(169, 154, 255, 0.16);
+    --pen: #f08a96;
+    --pen-faint: rgba(240, 138, 150, 0.4);
+    --coral: #a99aff;
+    --coral-ink: #171a35;
+    --brand: #c4b9ff;
+    --brand-soft: rgba(169, 154, 255, 0.16);
+    --cover: #0d0f22;
+    --cover-ink: #eae6ff;
+    --cover-soft: #aeb0cc;
     color-scheme: dark;
   }
 }
 
 :root[data-theme="dark"] {
-  --paper: #111a28;
-  --paper-deep: #0c1420;
-  --sheet: #19263c;
-  --ink: #f3eee3;
-  --ink-soft: #c6cdd9;
-  --ink-faint: #929cae;
-  --hair: rgba(238, 232, 218, 0.12);
-  --rule: rgba(150, 178, 215, 0.16);
-  --pen: #f4917f;
-  --pen-faint: rgba(240, 120, 98, 0.4);
-  --cover: #1c2b44;
-  --cover-ink: #eee8da;
-  --cover-soft: #aeb7c6;
+  --paper: #12142b;
+  --paper-deep: #0d0f22;
+  --sheet: #1b1e3d;
+  --ink: #f1f0fa;
+  --ink-soft: #c9cbe0;
+  --ink-faint: #9a9cb8;
+  --hair: rgba(234, 230, 255, 0.12);
+  --rule: rgba(169, 154, 255, 0.16);
+  --pen: #f08a96;
+  --pen-faint: rgba(240, 138, 150, 0.4);
+  --coral: #a99aff;
+  --coral-ink: #171a35;
+  --brand: #c4b9ff;
+  --brand-soft: rgba(169, 154, 255, 0.16);
+  --cover: #0d0f22;
+  --cover-ink: #eae6ff;
+  --cover-soft: #aeb0cc;
   color-scheme: dark;
 }
 
@@ -134,13 +150,23 @@
   --color-cover: var(--cover);
   --color-cover-ink: var(--cover-ink);
   --color-cover-soft: var(--cover-soft);
+  --color-brand: var(--brand);
+  --color-brand-soft: var(--brand-soft);
+  --color-midnight: var(--midnight);
+  --color-indigo: var(--indigo);
+  --color-lavender: var(--lavender);
+  --color-lavender-soft: var(--lavender-soft);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
 
   /* Latin fonts come from next/font in app/[lang]/layout.tsx. Neither has Chinese glyphs, so
      Chinese text falls back to the system fonts in --font-cjk (:root above; nothing is downloaded). */
-  --font-serif: var(--font-newsreader), Georgia, "Times New Roman", var(--font-cjk), serif;
+  /* Edumi: Manrope for headings and display numbers (the old font-serif class), Inter for the UI. */
+  --font-serif: var(--font-manrope), var(--font-inter), ui-sans-serif, system-ui, var(--font-cjk), sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, Menlo, Consolas, var(--font-cjk), monospace;
-  --font-sans: var(--font-newsreader), Georgia, "Times New Roman", var(--font-cjk), serif;
-  --font-heading: var(--font-newsreader), Georgia, "Times New Roman", var(--font-cjk), serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", var(--font-cjk), sans-serif;
+  --font-heading: var(--font-manrope), var(--font-inter), ui-sans-serif, system-ui, var(--font-cjk), sans-serif;
 
   /* shadcn/ui */
   --color-background: var(--background);
@@ -191,6 +217,12 @@
     @apply bg-background text-foreground;
   }
   html {
-    @apply font-serif;
+    @apply font-sans;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-heading);
+    letter-spacing: -0.015em;
   }
 }

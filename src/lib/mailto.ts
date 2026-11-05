@@ -1,6 +1,6 @@
 /**
  * A mailto: link that opens the tutor's own email app with the message filled in. Used while
- * Study Hall has no verified sending domain (src/lib/email/send.ts, tutorEmailMode).
+ * Edumi has no verified sending domain (src/lib/email/send.ts, tutorEmailMode).
  * Some email apps cut very long links; reports are short, so keep bodies under ~1,800 characters.
  */
 export const MAILTO_SAFE_LENGTH = 1800;

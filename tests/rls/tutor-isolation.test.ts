@@ -134,7 +134,7 @@ describe("tutor isolation", () => {
     }
   });
 
-  it("Study Hall admins read tutors and usage for /admin/costs, but not families or reports", async () => {
+  it("Edumi admins read tutors and usage for /admin/costs, but not families or reports", async () => {
     const founder = await signInAs("admin");
     const tutors = await founder.from("tutors").select("id").in("id", [a.id, b.id]);
     expect(tutors.data?.length).toBe(2);
@@ -304,5 +304,17 @@ describe("resources and curriculum (docs/tutor-resources-spec.md)", () => {
     } finally {
       await admin.from("curriculum_points").delete().eq("subject", `RLS ${stamp}`);
     }
+  });
+});
+
+describe("product events (docs/events.md)", () => {
+  it("no signed-in user can read or write analytics events", async () => {
+    const read = await a.client.from("product_events").select("id").limit(1);
+    expect(read.error ?? read.data?.length === 0).toBeTruthy();
+    const write = await a.client.from("product_events").insert({ name: "user_signed_up", product: "tutors" });
+    expect(write.error).not.toBeNull();
+    const founder = await signInAs("admin");
+    const adminRead = await founder.from("product_events").select("id").limit(1);
+    expect(adminRead.error ?? adminRead.data?.length === 0).toBeTruthy();
   });
 });

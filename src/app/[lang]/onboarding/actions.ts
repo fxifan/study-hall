@@ -1,5 +1,6 @@
 "use server";
 
+import { track } from "@/lib/events";
 import { createHash } from "node:crypto";
 import { refresh } from "next/cache";
 import { cookies, headers } from "next/headers";
@@ -284,13 +285,14 @@ export async function startCheckout(formData: FormData) {
       subscription_data: { metadata },
       locale: locale === "zh" ? "zh" : "en",
       // New Stripe accounts default to Managed Payments (Stripe as merchant of record, extra fees).
-      // The spec's stack is plain Checkout + Billing (Study Hall, a sole trader, isn't registered for
+      // The spec's stack is plain Checkout + Billing (Edumi, a sole trader, isn't registered for
       // GST), so opt out here until the owner decides otherwise.
       managed_payments: { enabled: false },
       success_url: `${origin}${localizePath("/onboarding/complete", locale)}?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}${localizePath("/onboarding", locale)}?checkout=cancelled#pay`,
     });
     checkoutUrl = session.url;
+    await track({ name: "onboarding_completed", product: "study_hall", role: "parent", userId: parent.id, email: parent.email, props: { plan: planId }, dedupeKey: `onboarding:${parent.id}` });
   } catch (error) {
     console.error("Creating Checkout session failed", error);
   }

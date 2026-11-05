@@ -38,7 +38,7 @@ function sections(invoice: InvoiceView, kind: "invoice" | "reminder"): EmailSect
     ...(invoice.paymentLinkUrl ? [{ kind: "button" as const, label: "Pay online", url: invoice.paymentLinkUrl }] : []),
   ];
   const result: EmailSection[] = [
-    { label: "English", lang: "en", colon: ": ", blocks: en, footer: `Sent by ${name} using Study Hall. Reply to this email to reach ${invoice.seller.displayName}.` },
+    { label: "English", lang: "en", colon: ": ", blocks: en, footer: `Sent by ${name} using Edumi. Reply to this email to reach ${invoice.seller.displayName}.` },
   ];
   if (invoice.family.reportLang !== "en") {
     const dueZh = longDateZh(invoice.dueDate);
@@ -67,7 +67,7 @@ function sections(invoice: InvoiceView, kind: "invoice" | "reminder"): EmailSect
         ],
       },
     ];
-    result.push({ label: "简体中文", lang: "zh-CN", colon: "：", blocks: zh, footer: `由 ${name} 通过 Study Hall 发送。直接回复此邮件即可联系 ${invoice.seller.displayName}。` });
+    result.push({ label: "简体中文", lang: "zh-CN", colon: "：", blocks: zh, footer: `由 ${name} 通过 Edumi 发送。直接回复此邮件即可联系 ${invoice.seller.displayName}。` });
   }
   return result;
 }
@@ -92,7 +92,7 @@ export function reminderEmail(invoice: InvoiceView): RenderedEmail {
 
 /**
  * The same invoice or reminder as plain text, for the tutor to send from their own email app with
- * the PDF attached (while Study Hall has no verified sending domain).
+ * the PDF attached (while Edumi has no verified sending domain).
  */
 export function ownInvoiceEmail(invoice: InvoiceView, kind: "invoice" | "reminder"): { subject: string; body: string } {
   const rendered = kind === "invoice" ? invoiceEmail(invoice) : reminderEmail(invoice);

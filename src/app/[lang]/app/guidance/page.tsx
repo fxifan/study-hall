@@ -24,13 +24,13 @@ async function Guidance() {
   return (
     <TutorShell tutor={me} title="If a student tells you something worrying" back={{ href: "/app", label: "Today" }}>
       <p role="note" className="rounded-md border border-dashed border-pen px-3 py-2 text-sm text-pen">
-        Draft guidance, to be reviewed by Study Hall&apos;s founders with a child-safety adviser before launch. General information only, not legal
+        Draft guidance, to be reviewed by Edumi&apos;s founders with a child-safety adviser before launch. General information only, not legal
         advice.
       </p>
       <div className="flex flex-col gap-4 leading-relaxed">
         <p>
           Your note mentioned wellbeing or safety, so it was left out of the parent report. Written reports aren&apos;t the right place for it.
-          Study Hall hasn&apos;t sent, stored for anyone else, or reported anything.
+          Edumi hasn&apos;t sent, stored for anyone else, or reported anything.
         </p>
         <h2 className="text-lg font-medium">If a child is in immediate danger</h2>
         <p>

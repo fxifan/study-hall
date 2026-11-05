@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Wordmark } from "@/components/wordmark";
 import { LegalBody } from "@/components/legal-body";
 import { localizePath } from "@/i18n/config";
 import { getLocale } from "@/i18n/server";
@@ -9,11 +10,11 @@ export async function TutorLegalPage({ title, body }: { title: string; body: str
   const locale = await getLocale();
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 px-4 py-12" lang="en">
-      <Link href={localizePath("/tutors", locale)} className="font-mono text-xs tracking-widest text-pen uppercase">
-        {TUTOR_PRODUCT_NAME}
+      <Link href={localizePath("/tutors", locale)} className="text-ink" aria-label={`${TUTOR_PRODUCT_NAME} home`}>
+        <Wordmark className="text-base" product="for Tutors" />
       </Link>
       <p role="note" className="rounded-md border border-dashed border-pen px-4 py-3 text-sm text-pen">
-        Draft for review by Study Hall&apos;s founders before launch. Not yet final.
+        Draft for review by Edumi&apos;s founders before launch. Not yet final.
       </p>
       <article className="flex flex-col gap-2">
         <h1 className="text-4xl font-medium tracking-tight">{title}</h1>

@@ -1,5 +1,6 @@
 "use server";
 
+import { track } from "@/lib/events";
 import { randomUUID } from "node:crypto";
 import { refresh } from "next/cache";
 import { z } from "zod";
@@ -48,6 +49,7 @@ export async function saveGoals(formData: FormData) {
         .from("goals")
         .upsert({ session_id: sessionId, student_id: studentId, position, text, ...plan }, { onConflict: "session_id,student_id,position" });
       if (error) throw error;
+      await track({ name: "student_goal_created", product: "study_hall", role: "student", objectType: "student", objectId: studentId, dedupeKey: `goal:${sessionId}:${studentId}:${position}` });
     } else {
       const { error } = await supabase
         .from("goals")

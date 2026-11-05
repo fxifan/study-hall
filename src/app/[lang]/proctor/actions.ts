@@ -1,5 +1,6 @@
 "use server";
 
+import { track } from "@/lib/events";
 import { refresh } from "next/cache";
 import { z } from "zod";
 import { en } from "@/i18n/dictionaries/en";
@@ -75,6 +76,18 @@ export async function setAttendance(formData: FormData) {
     { onConflict: "session_id,student_id" },
   );
   if (error) throw error;
+  // Counted against the student's account (the action is the supervisor's; the attendance is theirs).
+  await track({
+    name: status === "absent" ? "study_session_missed" : "study_session_attended",
+    product: "study_hall",
+    role: profile.role === "admin" ? "admin" : "proctor",
+    userId: profile.id,
+    email: profile.email,
+    objectType: "student",
+    objectId: studentId,
+    props: { status },
+    dedupeKey: `attendance:${sessionId}:${studentId}:${status === "absent" ? "absent" : "present"}`,
+  });
   refresh();
 }
 
@@ -158,6 +171,7 @@ export async function reviewReport(formData: FormData) {
         status: "approved",
       });
   if (error) throw error;
+  await track({ name: "parent_report_approved", product: "study_hall", role: "proctor", objectType: "student", objectId: studentId, dedupeKey: `sh_report_approved:${sessionId}:${studentId}` });
   refresh();
 }
 

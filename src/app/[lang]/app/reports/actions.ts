@@ -1,5 +1,6 @@
 "use server";
 
+import { track } from "@/lib/events";
 import { refresh } from "next/cache";
 import { z } from "zod";
 import { LlmError, llmConfigured, openAiLlm } from "@/lib/llm";
@@ -95,7 +96,7 @@ export async function sendReport(id: string, body: ReportBody): Promise<ActionRe
   if (!canWork({ plan: me.tutor.plan, trialEndsAt: me.tutor.trial_ends_at })) return { ok: false, error: blockedMessage("trial_ended") };
   const parsed = reportBodySchema.safeParse(body);
   if (!idSchema.safeParse(id).success || !parsed.success) return { ok: false, error: "Some items are too long or empty." };
-  if (tutorEmailMode() !== "app") return { ok: false, error: "Sending from Study Hall isn't set up. Use \"Open in my email\"." };
+  if (tutorEmailMode() !== "app") return { ok: false, error: "Sending from Edumi isn't set up. Use \"Open in my email\"." };
   const { supabase, report } = await loadReport(id);
   if (!report) return { ok: false, error: "Report not found." };
   if (report.sent_at) return { ok: false, error: "This report has already been sent." };
@@ -129,6 +130,7 @@ export async function sendReport(id: string, body: ReportBody): Promise<ActionRe
       .update({ final_json: final, sent_at: new Date().toISOString(), sent_to: family.parent_email, langs })
       .eq("id", report.id);
     if (error) return { ok: false, error: "Sent, but couldn't record it. Refresh the page." };
+    await track({ name: "lesson_report_approved", product: "tutors", role: "tutor", userId: me.profile.id, email: me.profile.email, objectType: "tutor_report", objectId: report.id, props: { via: "app_email", langs }, dedupeKey: `report_approved:${report.id}` });
     refresh();
     return { ok: true, message: result.delivered ? `Sent to ${family.parent_email}.` : `Saved as sent (test mode: email written to email-previews/outbox).` };
   } catch (e) {
@@ -142,7 +144,7 @@ export async function sendReport(id: string, body: ReportBody): Promise<ActionRe
  * ("email"). Records the final version as sent so history shows it.
  */
 export async function markShared(id: string, body: ReportBody, via: "text" | "email" = "text"): Promise<ActionResult> {
-  await requireTutorAction();
+  const { profile: { id: tutorId } } = await requireTutorAction();
   const parsed = reportBodySchema.safeParse(body);
   if (!idSchema.safeParse(id).success || !parsed.success) return { ok: false, error: "Some items are too long or empty." };
   const { supabase, report } = await loadReport(id);
@@ -158,6 +160,7 @@ export async function markShared(id: string, body: ReportBody, via: "text" | "em
     .update({ final_json: final, sent_at: new Date().toISOString(), sent_to: via === "email" ? `${family.parent_email} (your email)` : "copied as text", langs })
     .eq("id", report.id);
   if (error) return { ok: false, error: "Couldn't save." };
+  await track({ name: "lesson_report_approved", product: "tutors", role: "tutor", userId: tutorId, objectType: "tutor_report", objectId: report.id, props: { via, langs }, dedupeKey: `report_approved:${report.id}` });
   refresh();
   return { ok: true, message: via === "email" ? "Marked as sent." : "Marked as shared." };
 }

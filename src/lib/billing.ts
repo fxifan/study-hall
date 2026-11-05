@@ -1,3 +1,4 @@
+import { trackSubscription } from "@/lib/subscription-events";
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
 import type Stripe from "stripe";
@@ -26,7 +27,7 @@ export async function syncCheckoutSession(sessionId: string, origin: string): Pr
 
 export async function syncSubscription(subscription: Stripe.Subscription, origin: string): Promise<void> {
   const parentId = subscription.metadata.parent_id;
-  if (!parentId) return; // not created by Study Hall's checkout
+  if (!parentId) return; // not created by Edumi's checkout
   const admin = createAdminClient();
   const item = subscription.items.data[0];
 
@@ -49,6 +50,8 @@ export async function syncSubscription(subscription: Stripe.Subscription, origin
     { onConflict: "stripe_subscription_id" },
   );
   if (error) throw error;
+
+  await trackSubscription(subscription, "study_hall", "parent", parentId);
 
   const studentIds = (subscription.metadata.student_ids ?? "").split(",").filter(Boolean);
   await updateStudentAccess(parentId, studentIds, origin);

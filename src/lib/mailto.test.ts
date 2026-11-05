@@ -16,7 +16,7 @@ describe("own-email links", () => {
       label,
       lang,
       colon: ": ",
-      footer: "Sent by Study Hall",
+      footer: "Sent by Edumi",
       blocks: [{ kind: "p" as const, text: `hello ${lang}` }],
     });
     expect(plainTextBody([section("English", "en")], "Thanks,\nJamie")).toBe("hello en\n\nThanks,\nJamie");

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Wordmark } from "@/components/wordmark";
 import Link from "next/link";
 import { localizePath } from "@/i18n/config";
 import { getLocale } from "@/i18n/server";
@@ -46,7 +47,7 @@ export default async function TutorsLanding() {
   return (
     <div className="flex flex-1 flex-col" lang="en">
       <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-4">
-        <span className="font-mono text-xs tracking-widest text-pen uppercase">{TUTOR_PRODUCT_NAME}</span>
+        <Wordmark className="text-lg text-ink" product="for Tutors" />
         <Link href={href("/login")} className="text-sm text-ink-soft hover:text-ink">
           Log in
         </Link>
@@ -138,7 +139,7 @@ export default async function TutorsLanding() {
       <footer className="mx-auto flex w-full max-w-5xl flex-wrap gap-4 border-t border-rule px-4 py-6 text-sm text-ink-soft">
         <Link href={href("/tutors/privacy")}>Privacy</Link>
         <Link href={href("/tutors/terms")}>Terms</Link>
-        <Link href={href("/")}>Study Hall</Link>
+        <Link href={href("/")}>Edumi</Link>
       </footer>
     </div>
   );

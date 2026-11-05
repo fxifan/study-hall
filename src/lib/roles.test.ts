@@ -11,7 +11,7 @@ describe("role areas", () => {
     expect(roleForPath("/proctor/session/1")).toBe("proctor");
   });
 
-  it("gives independent tutors /app, and keeps them out of Study Hall's areas", () => {
+  it("gives independent tutors /app, and keeps them out of Edumi's areas", () => {
     expect(roleForPath("/app")).toBe("tutor");
     expect(roleForPath("/app/log")).toBe("tutor");
     expect(roleForPath("/apply")).toBeNull();

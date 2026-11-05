@@ -1,5 +1,6 @@
 "use server";
 
+import { track } from "@/lib/events";
 import { refresh, updateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -244,6 +245,7 @@ export async function markReportSent(formData: FormData) {
     { onConflict: "session_id,student_id" },
   );
   if (error) throw error;
+  await track({ name: "parent_report_delivered", product: "study_hall", role: "admin", objectType: "student", objectId: studentId, props: { via: "manual_email" }, dedupeKey: `sh_report_sent:${sessionId}:${studentId}` });
   refresh();
 }
 

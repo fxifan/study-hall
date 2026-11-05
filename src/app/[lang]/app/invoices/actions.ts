@@ -1,5 +1,6 @@
 "use server";
 
+import { track } from "@/lib/events";
 import { refresh } from "next/cache";
 import { z } from "zod";
 import { EmailError, sendEmail, tutorEmailMode } from "@/lib/email/send";
@@ -67,6 +68,7 @@ export async function createInvoice(formData: FormData) {
     console.error("Invoice not created", error?.message);
     return back(`/app/families/${familyId}`, "?error=invoice");
   }
+  await track({ name: "invoice_generated", product: "tutors", role: "tutor", userId: me.profile.id, email: me.profile.email, objectType: "tutor_invoice", objectId: id as string, props: { kind: me.tutor.gst_registered ? "gst" : "no_gst" }, dedupeKey: `invoice:${id}` });
   return back(`/app/invoices/${id}`, "?saved=created");
 }
 
@@ -113,7 +115,7 @@ export async function sendInvoice(id: string): Promise<ActionResult> {
   const me = await requireTutorAction();
   if (!canWork({ plan: me.tutor.plan, trialEndsAt: me.tutor.trial_ends_at })) return { ok: false, error: blockedMessage("trial_ended") };
   if (!z.uuid().safeParse(id).success) return { ok: false, error: "Invoice not found." };
-  if (tutorEmailMode() !== "app") return { ok: false, error: "Sending from Study Hall isn't set up. Send it from your own email." };
+  if (tutorEmailMode() !== "app") return { ok: false, error: "Sending from Edumi isn't set up. Send it from your own email." };
   const supabase = await createClient();
   const invoice = await loadInvoice(supabase, id, { tutor: me.tutor, email: me.profile.email });
   if (!invoice) return { ok: false, error: "Invoice not found." };
@@ -141,6 +143,7 @@ export async function sendInvoice(id: string): Promise<ActionResult> {
       })
       .eq("id", id);
     if (error) return { ok: false, error: "Sent, but couldn't record it. Refresh the page." };
+    await track({ name: "invoice_sent", product: "tutors", role: "tutor", userId: me.profile.id, email: me.profile.email, objectType: "tutor_invoice", objectId: id, props: { via: "app_email" }, dedupeKey: `invoice_sent:${id}` });
     refresh();
     return { ok: true, message: result.delivered ? `Sent to ${invoice.family.parentEmail}.` : "Marked as sent (test mode: email written to email-previews/outbox)." };
   } catch (e) {
@@ -151,7 +154,7 @@ export async function sendInvoice(id: string): Promise<ActionResult> {
 
 /**
  * The tutor emailed or shared the invoice themselves: fix its contents and mark it sent, exactly as
- * sendInvoice does after Study Hall emails it.
+ * sendInvoice does after Edumi emails it.
  */
 export async function markInvoiceSent(id: string): Promise<ActionResult> {
   const me = await requireTutorAction();
@@ -173,6 +176,7 @@ export async function markInvoiceSent(id: string): Promise<ActionResult> {
     })
     .eq("id", id);
   if (error) return { ok: false, error: "Couldn't save." };
+  await track({ name: "invoice_sent", product: "tutors", role: "tutor", userId: me.profile.id, email: me.profile.email, objectType: "tutor_invoice", objectId: id, props: { via: "own_email" }, dedupeKey: `invoice_sent:${id}` });
   refresh();
   return { ok: true, message: "Marked as sent." };
 }

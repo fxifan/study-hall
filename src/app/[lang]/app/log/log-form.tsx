@@ -209,13 +209,18 @@ export function LogForm({
         </div>
       </fieldset>
 
+      <p className="text-xs text-ink-soft" data-testid="recording-notice">
+        <strong className="font-medium text-ink">About voice notes:</strong> your recording is sent to our transcription provider to turn
+        it into text, then deleted. We never store the audio; the transcript is kept with the report so you can check it, and you can
+        delete it any time. Please don&apos;t say students&apos; full names or anything sensitive.
+      </p>
       <section aria-label="Voice note" className="flex flex-col items-center gap-3 dash-card p-5 text-center">
         {recording ? (
           <>
             <p className="font-mono text-3xl tabular-nums" aria-live="polite">
               {mmss(seconds)} <span className="text-base text-ink-faint">/ 3:00</span>
             </p>
-            <button type="button" onClick={stopRecording} className="flex size-20 items-center justify-center rounded-full bg-[var(--coral)] text-[var(--coral-ink)] shadow-[0_6px_16px_-8px_rgba(240,120,98,0.7)] transition-transform hover:scale-105 active:scale-95" aria-label="Stop recording">
+            <button type="button" onClick={stopRecording} className="flex size-20 items-center justify-center rounded-full bg-[var(--coral)] text-[var(--coral-ink)] shadow-[0_6px_16px_-8px_rgba(53,54,111,0.5)] transition-transform hover:scale-105 active:scale-95" aria-label="Stop recording">
               <span className="size-6 rounded-sm bg-paper" />
             </button>
             <p className="text-sm text-ink-soft">Say what you covered, what went well, what&apos;s next, and any homework.</p>
@@ -240,7 +245,7 @@ export function LogForm({
               type="button"
               onClick={startRecording}
               disabled={stage === "working"}
-              className="flex size-20 items-center justify-center rounded-full bg-[var(--coral)] text-[var(--coral-ink)] shadow-[0_6px_16px_-8px_rgba(240,120,98,0.7)] transition-transform hover:scale-105 active:scale-95 shadow-sm"
+              className="flex size-20 items-center justify-center rounded-full bg-[var(--coral)] text-[var(--coral-ink)] shadow-[0_6px_16px_-8px_rgba(53,54,111,0.5)] transition-transform hover:scale-105 active:scale-95 shadow-sm"
               aria-label="Record a voice note"
             >
               <svg viewBox="0 0 24 24" className="size-8" fill="currentColor" aria-hidden="true">
@@ -279,7 +284,7 @@ export function LogForm({
         </button>
       )}
       <p className="text-xs text-ink-faint">
-        Nothing is sent to the parent until you review the report and tap Send. Voice notes are deleted as soon as they&apos;re transcribed.
+        Nothing is sent to the parent until you review the report and tap Send.
       </p>
     </form>
   );
