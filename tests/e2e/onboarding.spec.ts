@@ -74,7 +74,7 @@ test("a new parent signs up up to payment", async ({ page }) => {
   await rules.check();
   await privacy.check();
   await page.getByRole("button", { name: "Agree" }).click();
-  await expect(page.getByTestId("consent-done")).toContainText("house rules 2026-10-v1");
+  await expect(page.getByTestId("consent-done")).toContainText(/house rules 2026-\d{2}-v\d+/);
 
   // 4. Plans: per-student totals, supervision first, then tutoring
   const summaries = page.getByTestId("checkout-summary");

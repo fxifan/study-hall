@@ -30,7 +30,7 @@ async function expectNoSidewaysScroll(page: Page) {
 }
 
 test("leads with the brief's positioning and primary actions", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/study_hall");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Make after-school study more consistent.");
   await expect(page.locator(".hero").getByRole("link", { name: /view plans/i })).toHaveAttribute("href", "#pricing");
   await expect(page.locator(".hero").getByRole("link", { name: "See how it works" })).toHaveAttribute("href", "#how");
@@ -46,7 +46,7 @@ test("no internal notes on public pages, and the contact email is shown", async 
     await expect(page.locator("body"), path).not.toContainText(INTERNAL_NOTE);
     await expect(page.locator("[data-owner-note], mark"), path).toHaveCount(0);
   }
-  await page.goto("/");
+  await page.goto("/study_hall");
   await expect(page.locator("#safety")).toContainText(CONTACT);
   await expect(page.locator("footer")).toContainText(CONTACT);
   await expect(page.locator(`a[href="mailto:${CONTACT}"]`).first()).toBeVisible();
@@ -55,7 +55,7 @@ test("no internal notes on public pages, and the contact email is shown", async 
 });
 
 test("academic help scope and supervisor background are published", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/study_hall");
   const scope = page.locator("#tutoring .scope");
   for (const subject of ["Mathematical Methods", "General Mathematics", "Chemistry", "Biology", "Accounting", "Mathematics", "English", "Science", "Business and Commerce"]) {
     await expect(scope.getByText(subject, { exact: true })).toBeVisible();
@@ -66,7 +66,7 @@ test("academic help scope and supervisor background are published", async ({ pag
 });
 
 test("every link goes somewhere real", async ({ page, request }) => {
-  await page.goto("/");
+  await page.goto("/study_hall");
   const hrefs = await page.locator(".landing a[href]").evaluateAll((links) => [
     ...new Set(links.map((a) => a.getAttribute("href")!)),
   ]);
@@ -84,7 +84,7 @@ test("every link goes somewhere real", async ({ page, request }) => {
 });
 
 test("the sample report is labelled fictional and switches between examples", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/study_hall");
   const sample = page.locator("#report figure");
   await expect(sample).toContainText("Sample report · fictional student");
   await expect(sample).toContainText("Supervisor observation: Phone visible once during the session.");
@@ -96,7 +96,7 @@ test("the sample report is labelled fictional and switches between examples", as
 });
 
 test("pricing comes from the plans table and links to sign-up", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/study_hall");
   const card = page.getByTestId("plan-card").first();
   await expect(card).toContainText("A$");
   await expect(card).toContainText("99");
@@ -126,7 +126,7 @@ test("pricing comes from the plans table and links to sign-up", async ({ page })
 });
 
 test("the FAQ answers every question in the brief", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/study_hall");
   const faq = page.locator("#faq");
   for (const q of BRIEF_QUESTIONS) await expect(faq.getByText(q, { exact: true })).toBeVisible();
 
@@ -144,7 +144,7 @@ test("the FAQ answers every question in the brief", async ({ page }) => {
 });
 
 test("the Chinese page is translated, sample report included", async ({ page }) => {
-  await page.goto("/zh");
+  await page.goto("/zh/study_hall");
   await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("让课后学习更有规律。");
   await expect(page.locator("#report")).toContainText("报告可以用英文或简体中文阅读");
@@ -158,9 +158,9 @@ test.describe("on a phone", () => {
   test.use({ viewport: { width: 375, height: 812 } });
 
   test("has no sideways scrolling in either language", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/study_hall");
     await expectNoSidewaysScroll(page);
-    await page.goto("/zh");
+    await page.goto("/zh/study_hall");
     await expectNoSidewaysScroll(page);
   });
 });

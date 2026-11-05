@@ -1,145 +1,286 @@
 import type { Metadata } from "next";
-import { Wordmark } from "@/components/wordmark";
 import Link from "next/link";
+import { CalendarCheck, FileText, Languages, MessageSquareQuote, Mic, PenLine, ReceiptText, ShieldCheck } from "lucide-react";
+import { Wordmark } from "@/components/wordmark";
 import { localizePath } from "@/i18n/config";
 import { getLocale } from "@/i18n/server";
-import { reportText } from "@/lib/report/render";
 import { MONTHLY_DRAFT_CAP, PLANS, TUTOR_PRODUCT_NAME } from "@/lib/tutor/config";
 import { formatCents } from "@/lib/tutor/invoice-math";
+import { SAMPLE_META, SAMPLE_TEXT_EN, SAMPLE_TEXT_ZH } from "@/lib/tutor/sample";
 import { SignUpForm } from "./signup-form";
+import "./tutors.css";
 
 export const metadata: Metadata = {
   title: { absolute: `${TUTOR_PRODUCT_NAME}: parent updates in 60 seconds` },
   description: "Speak for a minute after each session. Get a factual parent update in English or 中文, the session logged, and the invoice done.",
 };
 
-/** A fictional example, rendered by the same code as real reports. */
-const SAMPLE = reportText(
-  {
-    en: {
-      covered: ["Chain rule and product rule (exercise 6B, Q1–12)", "Exam-style differentiation questions"],
-      wentWell: ["All chain rule questions correct without help"],
-      nextFocus: ["Choosing between product and quotient rule"],
-      homework: ["Exercise 6B, Q13–20"],
-      tutorNote: "The practice SAC is next Thursday.",
-    },
-    "zh-CN": {
-      covered: ["链式法则和乘积法则（练习 6B，第1–12题）", "考试题型的求导练习"],
-      wentWell: ["链式法则的题目全部独立做对"],
-      nextFocus: ["判断何时用乘积法则、何时用商法则"],
-      homework: ["练习 6B，第13–20题"],
-      tutorNote: "模拟 SAC 在下周四。",
-    },
-  },
-  {
-    student: "Alex T.",
-    date: { en: "Mon 2 Nov 2026", "zh-CN": "2026年11月2日 周一" },
-    time: { en: "4:00pm–5:00pm", "zh-CN": "16:00–17:00" },
-    subjects: ["Maths Methods"],
-    tutorName: "Jamie",
-    brand: "Jamie",
-  },
-);
+/** The recorded product walkthrough (tests/e2e/demo-recording.spec.ts), served from /public/media. */
+const DEMO = { src: "/media/edumi-for-tutors-demo.webm", poster: "/media/edumi-for-tutors-demo-poster.jpg" };
+
+const BENEFITS = [
+  { icon: Languages, title: "English, 中文 or both", body: "Simplified Chinese, English, or both side by side, ready to paste into WeChat or WhatsApp." },
+  { icon: MessageSquareQuote, title: "Only what you said", body: "No labels, no comparisons, no invented praise. The draft sticks to your note." },
+  { icon: PenLine, title: "You check every word", body: "Nothing reaches a parent until you've reviewed, edited and sent it." },
+  { icon: ReceiptText, title: "Sessions and invoices", body: "Every session is logged. Invoices or tax invoices (GST or not), with your bank details." },
+];
+
+const STEPS = [
+  { icon: CalendarCheck, title: "Log a session", body: "Tap “Log a session”. The student, date and time are filled in." },
+  { icon: Mic, title: "Speak for a minute", body: "What you covered, how they went, what's next, any homework." },
+  { icon: PenLine, title: "Review and send", body: "Check the English and/or 中文 draft side by side, edit anything, then send." },
+  { icon: FileText, title: "Invoice in two taps", body: "At month's end, turn unbilled sessions into an invoice." },
+];
 
 export default async function TutorsLanding() {
   const locale = await getLocale();
   const href = (p: string) => localizePath(p, locale);
+  const solo = formatCents(PLANS.solo.priceCentsPerMonth).replace(".00", "");
+
   return (
-    <div className="flex flex-1 flex-col" lang="en">
-      <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-4">
-        <Wordmark className="text-lg text-ink" product="for Tutors" />
-        <Link href={href("/login")} className="text-sm text-ink-soft hover:text-ink">
-          Log in
-        </Link>
+    <div className="tl" lang="en">
+      <a className="tl-skip" href="#main">
+        Skip to content
+      </a>
+      <header className="tl-nav">
+        <div className="tl-wrap tl-nav-in">
+          <Link href={href("/tutors")} className="tl-brand" aria-label={`${TUTOR_PRODUCT_NAME} home`}>
+            <Wordmark product="for tutors" />
+          </Link>
+          <nav aria-label="Page" className="tl-nav-links">
+            <a href="#how">How it works</a>
+            <a href="#demo">Demo</a>
+            <a href="#pricing">Pricing</a>
+            <Link href={href("/")}>Edumi</Link>
+          </nav>
+          <Link href={href("/login")} className="tl-btn tl-btn--ghost tl-nav-login">
+            Log in
+          </Link>
+          <details className="tl-menu">
+            <summary>Menu</summary>
+            <nav aria-label="Page (menu)">
+              <a href="#how">How it works</a>
+              <a href="#demo">Demo</a>
+              <a href="#pricing">Pricing</a>
+              <Link href={href("/")}>Edumi home</Link>
+              <Link href={href("/login")}>Log in</Link>
+            </nav>
+          </details>
+        </div>
       </header>
-      <main className="mx-auto flex w-full max-w-5xl flex-col gap-16 px-4 pt-6 pb-16">
-        <section className="grid items-start gap-10 md:grid-cols-[1.2fr_1fr]">
-          <div className="flex flex-col gap-5">
-            <h1 className="text-4xl leading-tight font-medium tracking-tight sm:text-5xl">
-              Parent updates in 60 seconds, in English or <span lang="zh-CN">中文</span>
-            </h1>
-            <p className="text-lg text-ink-soft">
-              For independent tutors in Australia. After a session, speak for a minute. You get a short, factual update for the parent, ready
-              to email or paste into WeChat or WhatsApp. The session is logged and goes on the family&apos;s next invoice.
-            </p>
-            <ul className="flex flex-col gap-1.5 text-ink-soft">
-              <li>✓ English, Simplified Chinese, or both, side by side</li>
-              <li>✓ Only what you said. No labels, no comparisons, no invented praise</li>
-              <li>✓ You check every word before anything is sent</li>
-              <li>✓ Invoices and tax invoices (GST or not) with your bank details</li>
-            </ul>
-          </div>
-          <div className="dash-card p-5 shadow-sm">
-            <h2 className="mb-4 text-lg font-medium">Start your 14-day free trial</h2>
-            <SignUpForm termsHref={href("/tutors/terms")} privacyHref={href("/tutors/privacy")} loginHref={href("/login")} />
+
+      <main id="main">
+        {/* Hero */}
+        <section className="tl-hero" aria-labelledby="tl-title">
+          <div className="tl-wrap tl-hero-grid">
+            <div className="tl-hero-copy">
+              <p className="tl-eyebrow">For independent tutors in Australia</p>
+              <h1 id="tl-title">
+                Parent updates in 60 seconds—
+                <span className="tl-nowrap">
+                  in English or <span lang="zh-CN">中文</span>
+                </span>
+              </h1>
+              <p className="tl-lede">
+                After a lesson, speak for a minute. Edumi turns it into a short, factual parent update, ready to email or paste into WeChat.
+                The session is logged for the family&apos;s next invoice.
+              </p>
+              <div className="tl-cta">
+                <a href="#signup" className="tl-btn tl-btn--primary">
+                  Start your 14-day free trial
+                </a>
+                <a href="#demo" className="tl-btn tl-btn--secondary">
+                  <span className="tl-play" aria-hidden="true" /> Watch the demo
+                </a>
+              </div>
+              <p className="tl-fine">No card needed · Then {solo}/month · Cancel any time</p>
+            </div>
+
+            {/* Preview: a real frame from the demo recording, linking to the video. */}
+            <a href="#demo" className="tl-preview" aria-label="Watch the demo: logging a lesson and checking the AI draft">
+              <span className="tl-preview-bar" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+              </span>
+              {/* eslint-disable-next-line @next/next/no-img-element -- static poster frame from the recording */}
+              <img src={DEMO.poster} alt="" width={1280} height={800} fetchPriority="high" />
+              <span className="tl-preview-play" aria-hidden="true">
+                <span />
+              </span>
+            </a>
           </div>
         </section>
 
-        <section aria-labelledby="demo" className="grid items-start gap-8 md:grid-cols-2">
-          <div className="flex flex-col gap-3">
-            <h2 id="demo" className="text-2xl font-medium">
-              How it works
+        {/* Benefits */}
+        <section className="tl-section tl-section--tight" aria-label="What you get">
+          <ul className="tl-wrap tl-benefits">
+            {BENEFITS.map(({ icon: Icon, title, body }) => (
+              <li key={title}>
+                <span className="tl-icon" aria-hidden="true">
+                  <Icon size={18} strokeWidth={2} />
+                </span>
+                <h2>{title}</h2>
+                <p>{body}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {/* Demo */}
+        <section id="demo" className="tl-section" aria-labelledby="demo-title">
+          <div className="tl-wrap tl-narrow">
+            <p className="tl-label">Demo</p>
+            <h2 id="demo-title" className="tl-h2">
+              See a real lesson go from note to parent update.
             </h2>
-            <ol className="flex list-decimal flex-col gap-2 pl-5">
-              <li>Tap &quot;Log a session&quot;. The student, date and time are filled in.</li>
-              <li>Talk for about a minute: what you covered, what went well, what&apos;s next, any homework.</li>
-              <li>Check the draft (English and 中文 side by side), edit anything, tap Send.</li>
-              <li>At the end of the month, turn unbilled sessions into an invoice in two taps.</li>
+            <figure className="tl-video">
+              <video controls preload="none" poster={DEMO.poster} playsInline width={1280} height={800} aria-describedby="demo-caption">
+                <source src={DEMO.src} type="video/webm" />
+                Your browser can&apos;t play this video. <a href={DEMO.src}>Download the demo (WebM)</a>.
+              </video>
+              <figcaption id="demo-caption">
+                A real run of {TUTOR_PRODUCT_NAME}, about 40 seconds with no sound: a tutor logs a maths lesson with a typed note (a voice note
+                works the same way), checks the AI draft, sends it from their own email, and creates the invoice. The student and family are
+                fictional.
+              </figcaption>
+            </figure>
+          </div>
+        </section>
+
+        {/* How it works */}
+        <section id="how" className="tl-section tl-section--tint" aria-labelledby="how-title">
+          <div className="tl-wrap">
+            <p className="tl-label">How it works</p>
+            <h2 id="how-title" className="tl-h2">
+              Four steps, most of them under a minute.
+            </h2>
+            <ol className="tl-steps">
+              {STEPS.map(({ icon: Icon, title, body }, i) => (
+                <li key={title}>
+                  <span className="tl-step-n" aria-hidden="true">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="tl-icon" aria-hidden="true">
+                    <Icon size={18} strokeWidth={2} />
+                  </span>
+                  <h3>{title}</h3>
+                  <p>{body}</p>
+                </li>
+              ))}
             </ol>
-            {/* Demo GIF slot (spec §8). Replace with a short screen recording of the log → send flow. */}
-            <div
-              className="flex aspect-[9/16] max-h-96 items-center justify-center rounded-xl border border-dashed border-rule bg-paper-deep text-sm text-ink-faint"
-              data-slot="demo-gif"
-            >
-              Demo video coming soon
-            </div>
           </div>
-          <figure className="flex flex-col gap-2">
-            <figcaption className="text-sm text-ink-soft">What the parent gets (fictional example, as copied into WeChat):</figcaption>
-            <pre className="dash-card p-4 font-sans text-sm leading-relaxed whitespace-pre-wrap">{SAMPLE}</pre>
-          </figure>
         </section>
 
-        <section aria-labelledby="pricing" className="flex flex-col gap-4">
-          <h2 id="pricing" className="text-2xl font-medium">
-            Pricing
-          </h2>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="dash-card p-5">
-              <h3 className="font-medium">{PLANS.trial.name}</h3>
-              <p className="my-2 text-3xl">A$0</p>
-              <p className="text-sm text-ink-soft">Everything, for {PLANS.trial.days} days. No card needed.</p>
-            </div>
-            <div className="rounded-xl border border-ink bg-sheet p-5">
-              <h3 className="font-medium">{PLANS.solo.name}</h3>
-              <p className="my-2 text-3xl">
-                {formatCents(PLANS.solo.priceCentsPerMonth).replace(".00", "")}
-                <span className="text-base text-ink-soft">/month</span>
-              </p>
-              <p className="text-sm text-ink-soft">
-                Unlimited students, reports and invoices (fair use: {MONTHLY_DRAFT_CAP} AI drafts a month). Cancel any time.
-              </p>
+        {/* Sample */}
+        <section className="tl-section" aria-labelledby="sample-title">
+          <div className="tl-wrap">
+            <p className="tl-label">What the parent gets</p>
+            <h2 id="sample-title" className="tl-h2">
+              One update, in the family&apos;s language.
+            </h2>
+            <p className="tl-sub">
+              A fictional example ({SAMPLE_META.student}, {SAMPLE_META.subjects[0]}), as it would be pasted into WeChat. Families can get
+              English, Simplified Chinese, or both.
+            </p>
+            <div className="tl-sample">
+              <figure lang="en">
+                <figcaption>
+                  <span className="tl-flag">EN</span> English
+                </figcaption>
+                <pre>{SAMPLE_TEXT_EN}</pre>
+              </figure>
+              <figure lang="zh-CN">
+                <figcaption>
+                  <span className="tl-flag">中</span> 简体中文
+                </figcaption>
+                <pre>{SAMPLE_TEXT_ZH}</pre>
+              </figure>
             </div>
           </div>
-          <p className="text-xs text-ink-faint">
-            Families pay you directly by bank transfer. We never hold your money. Prices in AUD.
-          </p>
         </section>
 
-        <section aria-labelledby="privacy" className="flex flex-col gap-2 text-sm text-ink-soft">
-          <h2 id="privacy" className="text-lg font-medium text-ink">
-            Privacy, built in
-          </h2>
-          <p>
-            Data is stored in Australia (Sydney). Voice notes are deleted as soon as they&apos;re transcribed. Students are recorded by first name,
-            last initial and year level only. Anything a note says about wellbeing or safety is kept out of parent reports and shown only to you.
-          </p>
+        {/* Pricing */}
+        <section id="pricing" className="tl-section tl-section--tint" aria-labelledby="pricing-title">
+          <div className="tl-wrap">
+            <p className="tl-label">Pricing</p>
+            <h2 id="pricing-title" className="tl-h2">
+              Simple, in Australian dollars.
+            </h2>
+            <div className="tl-prices">
+              <article className="tl-price">
+                <h3>{PLANS.trial.name}</h3>
+                <p className="tl-amount">
+                  A$0 <span>for {PLANS.trial.days} days</span>
+                </p>
+                <ul>
+                  <li>Everything in Solo</li>
+                  <li>No card needed</li>
+                </ul>
+                <a href="#signup" className="tl-btn tl-btn--outline">
+                  Start free trial
+                </a>
+              </article>
+              <article className="tl-price tl-price--main">
+                <h3>{PLANS.solo.name}</h3>
+                <p className="tl-amount">
+                  {solo} <span>/month</span>
+                </p>
+                <ul>
+                  <li>Unlimited students, reports and invoices</li>
+                  <li>Fair use: {MONTHLY_DRAFT_CAP} AI drafts a month</li>
+                  <li>Cancel any time</li>
+                </ul>
+                <a href="#signup" className="tl-btn tl-btn--primary">
+                  Start with a free trial
+                </a>
+              </article>
+            </div>
+            <p className="tl-fine tl-center">Families pay you directly by bank transfer. We never hold your money. Prices in AUD.</p>
+          </div>
+        </section>
+
+        {/* Sign-up */}
+        <section className="tl-section" aria-labelledby="signup-title">
+          <div className="tl-wrap tl-signup">
+            <div>
+              <p className="tl-label">Get started</p>
+              <h2 id="signup-title" className="tl-h2">
+                Start your 14-day free trial.
+              </h2>
+              <p className="tl-sub">We&apos;ll email you a sign-in link. No password, no card.</p>
+              <div className="tl-privacy">
+                <span className="tl-icon" aria-hidden="true">
+                  <ShieldCheck size={18} strokeWidth={2} />
+                </span>
+                <p>
+                  <strong>Privacy, built in.</strong> Data is stored in Australia (Sydney). Voice notes are deleted as soon as they&apos;re
+                  transcribed. Students are recorded by first name, last initial and year level only. Anything a note says about wellbeing or
+                  safety is kept out of parent reports and shown only to you.
+                </p>
+              </div>
+            </div>
+            <div className="tl-form-card">
+              <SignUpForm termsHref={href("/tutors/terms")} privacyHref={href("/tutors/privacy")} loginHref={href("/login")} />
+            </div>
+          </div>
         </section>
       </main>
-      <footer className="mx-auto flex w-full max-w-5xl flex-wrap gap-4 border-t border-rule px-4 py-6 text-sm text-ink-soft">
-        <Link href={href("/tutors/privacy")}>Privacy</Link>
-        <Link href={href("/tutors/terms")}>Terms</Link>
-        <Link href={href("/")}>Edumi</Link>
+
+      <footer className="tl-foot">
+        <div className="tl-wrap tl-foot-in">
+          <div>
+            <Wordmark product="for tutors" />
+            <p>Parent updates, sessions and invoices for independent tutors.</p>
+          </div>
+          <nav aria-label="Footer">
+            <Link href={href("/")}>Edumi home</Link>
+            <Link href={href("/study_hall")}>Edumi Study Hall</Link>
+            <Link href={href("/tutors/privacy")}>Privacy</Link>
+            <Link href={href("/tutors/terms")}>Terms</Link>
+            <Link href={href("/login")}>Log in</Link>
+          </nav>
+        </div>
       </footer>
     </div>
   );

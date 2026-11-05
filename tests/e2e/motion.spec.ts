@@ -9,7 +9,7 @@ const opacityOf = (page: Page, selector: string) =>
   page.locator(selector).first().evaluate((el) => getComputedStyle(el).opacity);
 
 test("content below the fold rises in as it scrolls into view", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/study_hall");
   const faq = page.locator("#faq .faq");
   await expect(faq).toHaveClass(/\brv\b/);
   await expect(faq).not.toHaveClass(/\bin\b/);
@@ -21,7 +21,7 @@ test("content below the fold rises in as it scrolls into view", async ({ page })
 });
 
 test("nothing on screen at load is hidden, and grid items are staggered", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/study_hall");
   await expect(page.locator(".rv").first()).toBeAttached();
   const hiddenOnScreen = await page.evaluate(
     () => [...document.querySelectorAll(".rv:not(.in)")].filter((el) => el.getBoundingClientRect().top < window.innerHeight).length,
@@ -32,7 +32,7 @@ test("nothing on screen at load is hidden, and grid items are staggered", async 
 });
 
 test("scrolling the whole page causes no layout shift", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/study_hall");
   await page.evaluate(() => {
     const w = window as unknown as { cls: number };
     w.cls = 0;
@@ -54,7 +54,7 @@ test("scrolling the whole page causes no layout shift", async ({ page }) => {
 });
 
 test("plan cards lift on hover", async ({ page }) => {
-  await page.goto("/#pricing");
+  await page.goto("/study_hall#pricing");
   const card = page.getByTestId("plan-card").first();
   await card.hover();
   await expect.poll(() => card.evaluate((el) => getComputedStyle(el).translate)).toBe("0px -2px");
@@ -64,7 +64,7 @@ test.describe("with reduced motion", () => {
   test.use({ reducedMotion: "reduce" });
 
   test("nothing is hidden or lifted", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/study_hall");
     await page.waitForLoadState("networkidle");
     expect(await page.locator(".rv").count()).toBe(0);
     expect(await opacityOf(page, "#faq .faq")).toBe("1");
@@ -77,7 +77,7 @@ test.describe("without JavaScript", () => {
   test.use({ javaScriptEnabled: false });
 
   test("all content is visible", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/study_hall");
     expect(await page.locator(".rv").count()).toBe(0);
     expect(await opacityOf(page, "#faq .faq")).toBe("1");
     expect(await opacityOf(page, ".steps > li")).toBe("1");
