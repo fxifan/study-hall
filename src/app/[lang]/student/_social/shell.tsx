@@ -51,11 +51,6 @@ export async function StudentShell({
                 {n.label}
               </Link>
             ))}
-            {me.access.kind === "studyhall" && (
-              <Link href={href("/student")} className="rounded-md px-3 py-1.5 font-medium text-ink-soft hover:text-ink">
-                Study Hall
-              </Link>
-            )}
           </nav>
           <form action={signOut}>
             <button type="submit" className="text-sm text-ink-soft hover:text-ink">

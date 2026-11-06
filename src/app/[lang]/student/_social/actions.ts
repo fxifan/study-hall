@@ -23,7 +23,6 @@ import {
   requireMember,
   socialActor,
   startSession,
-  STUDYHALL_SEAT_CENTS,
   token,
 } from "@/lib/social/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -497,43 +496,4 @@ export async function openStudentPortal() {
   if (!plan?.stripe_customer_id || plan.payer !== "student") throw new Error("No student billing account.");
   const session = await getStripe().billingPortal.sessions.create({ customer: plan.stripe_customer_id as string, return_url: `${await siteOrigin()}${await href("/student/plan")}` });
   redirect(session.url);
-}
-
-// --- Study Hall booking ------------------------------------------------------------------------
-
-export async function proposeStudyHall(groupId: string, formData: FormData) {
-  const me = await socialActor();
-  await requireMember(groupId, me.profile.id);
-  const parsed = z
-    .object({ session: z.uuid(), topic: z.string().trim().min(2).max(120) })
-    .safeParse({ session: formData.get("session"), topic: formData.get("topic") });
-  if (!parsed.success) redirect(await href(`/student/groups/${groupId}?error=booking`));
-  const admin = createAdminClient();
-  const { data: session } = await admin.from("sessions").select("id, starts_at, status").eq("id", parsed.data.session).maybeSingle();
-  if (!session || session.status === "cancelled" || Date.parse(session.starts_at as string) < Date.now() + 3600_000) redirect(await href(`/student/groups/${groupId}?error=booking`));
-  const { data: booking, error } = await admin
-    .from("studyhall_bookings")
-    .insert({ group_id: groupId, session_id: session.id, proposed_by: me.profile.id, topic: parsed.data.topic, price_cents: STUDYHALL_SEAT_CENTS })
-    .select("id")
-    .single();
-  if (error) throw error;
-  await postSystemMessage(groupId, "system", `${displayName(me.student)} proposed a supervised Study Hall session: ${parsed.data.topic}. Get a parent link below to book your seat (A$40).`, {
-    event: "studyhall_proposed",
-    booking: booking.id,
-  });
-  await track({ name: "studyhall_proposed", product: "study_hall", role: "student", userId: me.profile.id, objectType: "studyhall_booking", objectId: booking.id });
-  refresh();
-}
-
-/** The student's seat in a booking, with the token for their parent link. */
-export async function claimSeat(bookingId: string) {
-  const me = await socialActor();
-  const admin = createAdminClient();
-  const { data: booking } = await admin.from("studyhall_bookings").select("id, group_id, cancelled_at").eq("id", bookingId).maybeSingle();
-  if (!booking || booking.cancelled_at) return;
-  await requireMember(booking.group_id as string, me.profile.id);
-  const ins = await admin.from("studyhall_seats").insert({ booking_id: bookingId, student_id: me.student.id, token: token() });
-  if (ins.error && ins.error.code !== "23505") throw ins.error;
-  await track({ name: "studyhall_link_created", product: "study_hall", role: "student", userId: me.profile.id, dedupeKey: `seat:${bookingId}:${me.student.id}` });
-  refresh();
 }

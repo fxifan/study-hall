@@ -1,5 +1,6 @@
 "use server";
 
+import { sendLoginLink } from "@/lib/email/login";
 import { track } from "@/lib/events";
 import { refresh, updateTag } from "next/cache";
 import { cookies } from "next/headers";
@@ -334,11 +335,7 @@ export async function inviteSupervisor(formData: FormData) {
     refresh(); // test account: no email (it would only burn the hourly email quota)
     return;
   }
-  const supabase = await createClient();
-  const { error: mailError } = await supabase.auth.signInWithOtp({
-    email: invite.email,
-    options: { shouldCreateUser: false, emailRedirectTo: `${await siteOrigin()}/auth/confirm` },
-  });
-  if (mailError) console.warn("Supervisor login email not sent", mailError.code ?? mailError.message);
+  const mail = await sendLoginLink(invite.email, { origin: await siteOrigin(), welcome: true });
+  if (!mail.ok) console.warn("Supervisor login email not sent", mail.reason);
   refresh();
 }

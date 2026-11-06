@@ -27,7 +27,7 @@ async function EdumiAdmin() {
   const db = createAdminClient();
   const now = new Date();
   const since = new Date(now.getTime() - 7 * 86_400_000).toISOString();
-  const [{ data: reports }, { data: flagged }, groups, members, active, help, helpDone, quizzes, completions, seats, plans] = await Promise.all([
+  const [{ data: reports }, { data: flagged }, groups, members, active, help, helpDone, quizzes, completions, plans] = await Promise.all([
     db.from("message_reports").select("id, reason, created_at, message_id, group_messages(id, body, sender_id, hidden_at)").is("resolved_at", null).order("created_at").returns<Report[]>(),
     db.from("student_resources").select("id, kind, title, flag_reason, flagged_at").not("flagged_at", "is", null).order("flagged_at").limit(50),
     db.from("study_groups").select("id", { count: "exact", head: true }).is("archived_at", null),
@@ -37,7 +37,6 @@ async function EdumiAdmin() {
     db.from("group_help_requests").select("id", { count: "exact", head: true }).gt("created_at", since).in("state", ["accepted", "resolved"]),
     db.from("resource_attempts").select("id", { count: "exact", head: true }).gt("submitted_at", since),
     db.from("student_resources").select("id", { count: "exact", head: true }).gt("completed_at", since),
-    db.from("studyhall_seats").select("id", { count: "exact", head: true }).eq("status", "paid"),
     db.from("student_plans").select("status"),
   ]);
   const activeGroups = new Set((active.data ?? []).map((s) => s.group_id)).size;
@@ -55,7 +54,6 @@ async function EdumiAdmin() {
     ["Help requests (7 days)", `${help.count ?? 0} (${helpDone.count ?? 0} accepted or resolved)`],
     ["Quiz attempts (7 days)", quizzes.count ?? 0],
     ["Resources completed (7 days)", completions.count ?? 0],
-    ["Study Hall seats paid from parent links", seats.count ?? 0],
     ["Student plans", Object.entries(planCounts).map(([k, v]) => `${v} ${k}`).join(", ") || "none"],
   ];
 

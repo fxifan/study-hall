@@ -2,12 +2,12 @@
 
 import { cookies } from "next/headers";
 import { z } from "zod";
-import { emailLimitKind, isReservedTestEmail } from "@/lib/email";
+import { isReservedTestEmail } from "@/lib/email";
+import { sendLoginLink } from "@/lib/email/login";
 import { track } from "@/lib/events";
 import { siteOrigin } from "@/lib/site";
 import { canSelfSignUp } from "@/lib/social/age";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
 
 export type JoinState =
   | { status: "idle" }
@@ -88,15 +88,9 @@ export async function studentSignUp(_prev: JoinState, formData: FormData): Promi
   // An existing account just gets a login link: the form never says whether an email is registered.
   // Test addresses (*.test, example.com) can't receive mail; tests log in with a generated link.
   if (isReservedTestEmail(d.email)) return { status: "sent", email: d.email };
-  const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithOtp({
-    email: d.email,
-    options: { shouldCreateUser: false, emailRedirectTo: `${await siteOrigin()}/auth/confirm` },
-  });
-  if (error && error.code !== "otp_disabled" && error.code !== "user_not_found") {
-    const limit = emailLimitKind(error);
-    if (limit === "cooldown") return { status: "error", message: "Wait a minute before asking for another email." };
-    console.error("Student login email failed", error.code);
+  const result = await sendLoginLink(d.email, { origin: await siteOrigin(), welcome: Boolean(created.data?.user) });
+  if (!result.ok) {
+    if (result.reason === "cooldown") return { status: "error", message: "Wait a minute before asking for another email." };
     return { status: "error", message: "We couldn't send the email. Try again in a minute." };
   }
   return { status: "sent", email: d.email };

@@ -49,9 +49,6 @@ the action succeeded. Read by `/admin/analytics`.
 | `student_resource_completed` | platform | Notes or flashcards marked done | per resource |
 | `student_resource_flagged` | platform | A student flagged generated content | none |
 | `quiz_submitted` | platform | A quiz was marked (`count`, `status` scored or practice) | none |
-| `studyhall_proposed` | study_hall | A student proposed a Study Hall session to their group | none |
-| `studyhall_link_created` | study_hall | A student created a parent booking link | per seat |
-| `studyhall_seat_paid` | study_hall | A parent paid for a seat from a booking link | per seat |
 
 ## Not tracked yet (needs product work first)
 

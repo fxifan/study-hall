@@ -1,13 +1,12 @@
 import { trackSubscription } from "@/lib/subscription-events";
+import { sendLoginLink } from "@/lib/email/login";
 import "server-only";
-import { createClient } from "@supabase/supabase-js";
 import type Stripe from "stripe";
 import { isReservedTestEmail } from "@/lib/email";
 import { enrolEligibleStudents } from "@/lib/sessions";
 import { getStripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ACTIVE_SUBSCRIPTION_STATUSES } from "@/lib/subscription-status";
-import { supabaseKey, supabaseUrl } from "@/lib/supabase/config";
 
 /**
  * Subscription state is driven by Stripe (spec §10). Both the webhook and the checkout return page
@@ -111,21 +110,17 @@ async function updateStudentAccess(parentId: string, studentIds: string[], origi
 }
 
 /**
- * Email newly active students a login link. Uses Supabase Auth's mailer, which (until Resend SMTP is
- * configured) only delivers to the Supabase project's team, so failures are logged, not fatal.
+ * Email newly active students a personal welcome link (src/lib/email/login.ts). Failures are
+ * logged, not fatal.
  */
 async function sendLoginEmails(profileIds: string[], origin: string) {
   if (!profileIds.length) return;
   const admin = createAdminClient();
   const { data: profiles } = await admin.from("profiles").select("email").in("id", profileIds);
-  const auth = createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false } }).auth;
-  // Test accounts use reserved domains: sending would only burn the hourly email quota.
+  // Test accounts use reserved domains: sendLoginLink never emails them.
   for (const { email } of (profiles ?? []).filter((p) => !isReservedTestEmail(p.email))) {
-    const { error } = await auth.signInWithOtp({
-      email,
-      options: { shouldCreateUser: false, emailRedirectTo: `${origin}/auth/confirm` },
-    });
-    if (error) console.warn("Student login email not sent", error.code ?? error.message);
+    const result = await sendLoginLink(email, { origin, welcome: true });
+    if (!result.ok) console.warn("Student login email not sent", result.reason);
   }
 }
 

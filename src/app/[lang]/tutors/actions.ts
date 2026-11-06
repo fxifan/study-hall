@@ -2,10 +2,10 @@
 
 import { track } from "@/lib/events";
 import { z } from "zod";
-import { emailLimitKind, isReservedTestEmail } from "@/lib/email";
+import { sendLoginLink } from "@/lib/email/login";
+import { isReservedTestEmail } from "@/lib/email";
 import { siteOrigin } from "@/lib/site";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
 
 export type SignUpState =
   | { status: "idle" }
@@ -61,15 +61,9 @@ export async function signUpTutor(_prev: SignUpState, formData: FormData): Promi
 
   // Seeded and test addresses can't receive mail: don't burn the auth email quota on them.
   if (isReservedTestEmail(email)) return { status: "sent", email };
-  const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: { shouldCreateUser: false, emailRedirectTo: `${await siteOrigin()}/auth/confirm` },
-  });
-  if (error) {
-    const limit = emailLimitKind(error);
-    if (limit === "cooldown") return { status: "error", message: "We just sent you a link. Wait a minute before asking for another." };
-    console.error("Tutor sign-up email failed", error.code, error.message);
+  const result = await sendLoginLink(email, { origin: await siteOrigin(), welcome: true });
+  if (!result.ok) {
+    if (result.reason === "cooldown") return { status: "error", message: "We just sent you a link. Wait a minute before asking for another." };
     return { status: "error", message: "Your account is ready, but the email didn't send. Log in from the login page in a minute." };
   }
   return { status: "sent", email };
