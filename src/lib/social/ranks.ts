@@ -4,8 +4,8 @@
  * (and the 1-based `tier`); the UI shows `name` exactly as written.
  *
  * Ranks come from the points ledger (quiz marks and finished notes or flashcards), never from
- * leaderboard study minutes. Thresholds are PROVISIONAL until the owner approves them
- * (docs/study-ranks.md); they must stay strictly increasing, start at 0 for Copper, and match the
+ * leaderboard study minutes. Thresholds approved by the owner on 7 Nov 2026 (docs/study-ranks.md);
+ * they must stay strictly increasing, start at 0 for Copper, and match the
  * initialisation in supabase/migrations/*_study_ranks.sql. The database never stores thresholds:
  * src/lib/social/rank-sync.ts passes RANK_THRESHOLDS to sync_student_rank on every award.
  */
