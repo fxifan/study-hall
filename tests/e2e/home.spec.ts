@@ -87,6 +87,24 @@ test("the tutor page has the real demo video and the sign-up form", async ({ pag
   await expect(page.locator("#signup input[name=name]")).toBeVisible();
   await expect(page.locator("#signup").getByRole("link", { name: "Terms" })).toHaveAttribute("href", "/tutors/terms");
   await expect(page.getByText("A$15")).toHaveCount(2);
+  // One plan: the price is crossed out and the first 14 days are free.
+  await expect(page.locator("#pricing")).toContainText("First 14 days free");
+  await expect(page.locator("#pricing").getByRole("link", { name: "Start your free trial" })).toHaveAttribute("href", "#signup");
+});
+
+test("the demo plays with its background music, which follows the video", async ({ page }) => {
+  await page.goto("/tutors#demo");
+  const music = await page.request.get("/media/edumi-for-tutors-demo-music.m4a");
+  expect(music.status()).toBe(200);
+  // A real click is a user gesture, so the browser lets sound play.
+  await page.locator("#demo video").click();
+  await page.locator("#demo video").evaluate((v: HTMLVideoElement) => v.paused && v.play());
+  await expect.poll(() => page.locator("#demo audio").evaluate((a: HTMLAudioElement) => !a.paused && a.currentTime > 0.3), { timeout: 10_000 }).toBe(true);
+  await page.locator("#demo video").evaluate((v: HTMLVideoElement) => v.pause());
+  await expect.poll(() => page.locator("#demo audio").evaluate((a: HTMLAudioElement) => a.paused)).toBe(true);
+  // Muting the video mutes the music.
+  await page.locator("#demo video").evaluate((v: HTMLVideoElement) => (v.muted = true));
+  await expect.poll(() => page.locator("#demo audio").evaluate((a: HTMLAudioElement) => a.muted)).toBe(true);
 });
 
 for (const width of [375, 768, 1280]) {

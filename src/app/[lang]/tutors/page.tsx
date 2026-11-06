@@ -7,6 +7,7 @@ import { getLocale } from "@/i18n/server";
 import { MONTHLY_DRAFT_CAP, PLANS, TUTOR_PRODUCT_NAME } from "@/lib/tutor/config";
 import { formatCents } from "@/lib/tutor/invoice-math";
 import { SAMPLE_META, SAMPLE_TEXT_EN, SAMPLE_TEXT_ZH } from "@/lib/tutor/sample";
+import { DemoVideo } from "./demo-video";
 import { SignUpForm } from "./signup-form";
 import "./tutors.css";
 
@@ -16,7 +17,12 @@ export const metadata: Metadata = {
 };
 
 /** The recorded product walkthrough (tests/e2e/demo-recording.spec.ts), served from /public/media. */
-const DEMO = { src: "/media/edumi-for-tutors-demo.webm", poster: "/media/edumi-for-tutors-demo-poster.jpg" };
+const DEMO = {
+  src: "/media/edumi-for-tutors-demo.webm",
+  poster: "/media/edumi-for-tutors-demo-poster.jpg",
+  /** Original background music composed for the demo (no third-party licence involved). */
+  music: "/media/edumi-for-tutors-demo-music.m4a",
+};
 
 const BENEFITS = [
   { icon: Languages, title: "English, 中文 or both", body: "Simplified Chinese, English, or both side by side, ready to paste into WeChat or WhatsApp." },
@@ -75,12 +81,7 @@ export default async function TutorsLanding() {
           <div className="tl-wrap tl-hero-grid">
             <div className="tl-hero-copy">
               <p className="tl-eyebrow">For independent tutors in Australia</p>
-              <h1 id="tl-title">
-                Parent updates in 60 seconds—
-                <span className="tl-nowrap">
-                  in English or <span lang="zh-CN">中文</span>
-                </span>
-              </h1>
+              <h1 id="tl-title">Parent updates in 60 seconds.</h1>
               <p className="tl-lede">
                 After a lesson, speak for a minute. Edumi turns it into a short, factual parent update, ready to email or paste into WeChat.
                 The session is logged for the family&apos;s next invoice.
@@ -135,12 +136,9 @@ export default async function TutorsLanding() {
               See a real lesson go from note to parent update.
             </h2>
             <figure className="tl-video">
-              <video controls preload="none" poster={DEMO.poster} playsInline width={1280} height={800} aria-describedby="demo-caption">
-                <source src={DEMO.src} type="video/webm" />
-                Your browser can&apos;t play this video. <a href={DEMO.src}>Download the demo (WebM)</a>.
-              </video>
+              <DemoVideo src={DEMO.src} poster={DEMO.poster} music={DEMO.music} captionId="demo-caption" />
               <figcaption id="demo-caption">
-                A real run of {TUTOR_PRODUCT_NAME}, about 40 seconds with no sound: a tutor logs a maths lesson with a typed note (a voice note
+                A real run of {TUTOR_PRODUCT_NAME}, about 40 seconds, with background music: a tutor logs a maths lesson with a typed note (a voice note
                 works the same way), checks the AI draft, sends it from their own email, and creates the invoice. The student and family are
                 fictional.
               </figcaption>
@@ -207,32 +205,26 @@ export default async function TutorsLanding() {
             <h2 id="pricing-title" className="tl-h2">
               Simple, in Australian dollars.
             </h2>
-            <div className="tl-prices">
-              <article className="tl-price">
-                <h3>{PLANS.trial.name}</h3>
-                <p className="tl-amount">
-                  A$0 <span>for {PLANS.trial.days} days</span>
-                </p>
-                <ul>
-                  <li>Everything in Solo</li>
-                  <li>No card needed</li>
-                </ul>
-                <a href="#signup" className="tl-btn tl-btn--outline">
-                  Start free trial
-                </a>
-              </article>
+            <div className="tl-prices tl-prices--one">
               <article className="tl-price tl-price--main">
                 <h3>{PLANS.solo.name}</h3>
                 <p className="tl-amount">
-                  {solo} <span>/month</span>
+                  <span className="tl-struck">
+                    {solo}
+                    <span>/month</span>
+                  </span>
+                  <span className="tl-sr"> (free for the first {PLANS.trial.days} days)</span>
+                </p>
+                <p className="tl-free" aria-hidden="true">
+                  First {PLANS.trial.days} days free
                 </p>
                 <ul>
                   <li>Unlimited students, reports and invoices</li>
                   <li>Fair use: {MONTHLY_DRAFT_CAP} AI drafts a month</li>
-                  <li>Cancel any time</li>
+                  <li>No card needed for the trial · cancel any time</li>
                 </ul>
                 <a href="#signup" className="tl-btn tl-btn--primary">
-                  Start with a free trial
+                  Start your free trial
                 </a>
               </article>
             </div>

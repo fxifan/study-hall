@@ -699,3 +699,51 @@
 .tl h1 [lang="zh-CN"] {
   white-space: nowrap;
 }
+
+/* Single plan: the price is crossed out with a red diagonal line, "First 14 days free" under it. */
+.tl-prices--one {
+  max-width: 440px;
+  grid-template-columns: 1fr;
+}
+.tl-struck {
+  position: relative;
+  display: inline-block;
+  padding: 0 6px;
+  color: var(--tl-ink-3);
+}
+.tl-struck::after {
+  content: "";
+  position: absolute;
+  left: -4px;
+  right: -4px;
+  top: 50%;
+  height: 4px;
+  border-radius: 2px;
+  background: #d94c5c;
+  transform: rotate(-14deg);
+  transform-origin: center;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+.tl-free {
+  margin-top: -4px !important;
+  font-family: var(--font-manrope), var(--font-inter), sans-serif;
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--tl-lav-text);
+}
+.tl-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.tl-amount .tl-struck {
+  font-family: var(--font-manrope), var(--font-inter), sans-serif;
+  font-size: inherit;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--tl-ink-3);
+}

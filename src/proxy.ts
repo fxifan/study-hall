@@ -133,5 +133,5 @@ function finish(outgoing: NextResponse, from: NextResponse, rememberLocale?: Loc
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webm|mp4|vtt)$).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webm|mp4|m4a|mp3|vtt)$).*)"],
 };
