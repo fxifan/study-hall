@@ -24,6 +24,8 @@ import { CopyButton } from "../../_social/copy-button";
 import { GroupChat, type ChatMessage } from "../../_social/group-chat";
 import { Loading, Notice, StudentShell, card, tile, secondaryBtn, smallBtn } from "../../_social/shell";
 import { StudyTimer } from "../../_social/study-timer";
+import { RankBadge } from "../../_social/rank-badge";
+import { visibleRanks } from "@/lib/social/rank-sync";
 import { LiveRefresh } from "@/components/live-refresh";
 
 export const metadata: Metadata = { title: "Group" };
@@ -67,6 +69,8 @@ async function GroupView({ params, searchParams }: Pick<PageProps<"/[lang]/stude
       admin.from("friendships").select("a, b, status").or(`a.eq.${me.profile.id},b.eq.${me.profile.id}`),
     ]);
   const mine = members.find((m) => m.profile_id === me.profile.id)!;
+  const ranks = await visibleRanks(members.map((m) => m.profile_id), me.profile.id);
+  const rankView = Object.fromEntries([...ranks].map(([id, r]) => [id, { id: r.id, name: r.name, color: r.color }]));
   const names = Object.fromEntries(members.map((m) => [m.profile_id, m.name]));
   const messages = ((msgs ?? []) as ChatMessage[]).reverse();
   const friendOf = new Map((friendRows ?? []).map((f) => [f.a === me.profile.id ? (f.b as string) : (f.a as string), f.status as string]));
@@ -119,7 +123,7 @@ async function GroupView({ params, searchParams }: Pick<PageProps<"/[lang]/stude
       <StudyTimer initial={initialTimer} groupId={group.id} groupName={group.name} studyScreen />
 
       <div className="grid gap-5 lg:grid-cols-[1fr_20rem]">
-        <GroupChat groupId={group.id} meId={me.profile.id} initial={messages} names={names} blocked={(blocks ?? []).map((b) => b.blocked_id as string)} canPost={!suspended} />
+        <GroupChat groupId={group.id} meId={me.profile.id} initial={messages} names={names} ranks={rankView} blocked={(blocks ?? []).map((b) => b.blocked_id as string)} canPost={!suspended} />
 
         <aside className="flex flex-col gap-4">
           <section aria-label="Leaderboard" className={`${card} flex flex-col gap-2`}>
@@ -139,7 +143,8 @@ async function GroupView({ params, searchParams }: Pick<PageProps<"/[lang]/stude
                     className={`flex justify-between gap-2 rounded-md px-2 py-1 ${s.profileId === me.profile.id ? "bg-brand-soft font-medium" : ""} ${s.rank === 1 && s.seconds >= 60 ? "border-l-2 border-brand" : ""}`}
                   >
                     <span>
-                      <span className="inline-block w-7 font-mono text-ink-faint">{s.seconds >= 60 && s.rank <= 3 ? ["🥇", "🥈", "🥉"][s.rank - 1] : s.rank}</span>
+                      <span className="inline-block w-7 font-mono text-ink-faint">{s.rank}</span>
+                      {ranks.get(s.profileId) && <RankBadge rank={ranks.get(s.profileId)!} size={20} className="mr-1.5 -mt-0.5 align-middle" />}
                       {s.profileId === me.profile.id ? "You" : names[s.profileId]}
                       {liveBy.get(s.profileId) === "running" && <span className="ml-1 text-xs text-ink-faint">(live)</span>}
                     </span>

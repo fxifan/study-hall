@@ -48,6 +48,7 @@ export const EVENTS = {
   student_resource_completed: "A student marked notes or flashcards complete.",
   student_resource_flagged: "A student flagged generated content as incorrect.",
   quiz_submitted: "A student submitted a quiz for marking.",
+  rank_promoted: "A student reached a higher Study Rank (status = new rank id, count = tiers gained).",
 } as const;
 export type EventName = keyof typeof EVENTS;
 export type Product = "study_hall" | "tutors" | "platform";

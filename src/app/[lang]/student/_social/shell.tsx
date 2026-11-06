@@ -4,7 +4,9 @@ import { signOut } from "@/app/auth/actions";
 import { Wordmark } from "@/components/wordmark";
 import { localizePath } from "@/i18n/config";
 import { getLocale } from "@/i18n/server";
+import { unseenPromotion } from "@/lib/social/rank-sync";
 import type { Access, SocialStudent } from "@/lib/social/server";
+import { RankUpCelebration } from "./rank-up";
 
 /**
  * Frame for Edumi's student app (groups, friends, practice). Mobile first, with a bottom tab bar
@@ -24,14 +26,17 @@ export async function StudentShell({
   current,
   back,
   children,
+  celebrate = true,
 }: {
   me: SocialStudent;
   title: string;
   current?: StudentNav;
   back?: { href: string; label: string };
   children: ReactNode;
+  /** Off on screens where a celebration would interrupt (a quiz in progress, checkout). */
+  celebrate?: boolean;
 }) {
-  const locale = await getLocale();
+  const [locale, promotion] = await Promise.all([getLocale(), celebrate ? unseenPromotion(me.profile.id) : null]);
   const href = (p: string) => localizePath(p, locale);
   return (
     <div className="theme-tiles flex flex-1 flex-col pb-20 sm:pb-0" lang="en">
@@ -69,6 +74,9 @@ export async function StudentShell({
         <h1 className="text-2xl font-medium tracking-tight sm:text-3xl">{title}</h1>
         {children}
       </main>
+      {promotion && (
+        <RankUpCelebration promotion={{ id: promotion.id, fromTier: promotion.from.tier, toTier: promotion.to.tier, points: promotion.points }} />
+      )}
       <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-10 grid grid-cols-4 border-t border-rule bg-sheet pb-[env(safe-area-inset-bottom)] sm:hidden">
         {NAV.map((n) => (
           <Link

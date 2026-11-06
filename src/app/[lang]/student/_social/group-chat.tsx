@@ -3,7 +3,9 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { browserClient } from "@/lib/supabase/client";
+import type { Rank } from "@/lib/social/ranks";
 import { blockUser, reportMessage, sendMessage } from "./actions";
+import { RankBadge } from "./rank-badge";
 
 export type ChatMessage = {
   id: string;
@@ -23,6 +25,7 @@ export function GroupChat({
   meId,
   initial,
   names,
+  ranks = {},
   blocked,
   canPost,
 }: {
@@ -30,6 +33,8 @@ export function GroupChat({
   meId: string;
   initial: ChatMessage[];
   names: Record<string, string>;
+  /** Members' rank badges, only for members who show them. */
+  ranks?: Record<string, Pick<Rank, "id" | "name" | "color">>;
   blocked: string[];
   canPost: boolean;
 }) {
@@ -141,7 +146,8 @@ export function GroupChat({
                 key={m.id}
                 className={`group flex flex-col ${mine ? "items-end" : "items-start"}`}
               >
-                <span className="text-xs text-ink-faint">
+                <span className="flex items-center gap-1 text-xs text-ink-faint">
+                  {m.sender_id && ranks[m.sender_id] && <RankBadge rank={ranks[m.sender_id]} size={16} />}
                   {mine
                     ? "You"
                     : (m.sender_id && names[m.sender_id]) ||

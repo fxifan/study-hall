@@ -36,7 +36,7 @@ async function Resource({ params, searchParams }: Pick<PageProps<"/[lang]/studen
   const error = query.error === "limit" ? "You've used today's allowance for that kind." : query.error ? "That didn't work. Try again." : null;
 
   return (
-    <StudentShell me={me} title={r.title} current="practice" back={{ href: "/student/practice", label: "Practice" }}>
+    <StudentShell me={me} title={r.title} current="practice" back={{ href: "/student/practice", label: "Practice" }} celebrate={r.kind !== "quiz"}>
       <ShellTimer me={me} />
       {error && <Notice tone="error">{error}</Notice>}
       <p className="text-sm text-ink-soft">

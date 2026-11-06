@@ -8,7 +8,7 @@ import type { Locale } from "@/i18n/config";
 const en = {
   meta: {
     title: "Edumi · Outstudy your friends",
-    description: "Race your friends up a live leaderboard while every minute fills one shared goal. Quiz yourself, climb the tiers, and get help when you're stuck.",
+    description: "Race your friends up a live leaderboard while every minute fills one shared goal. Quiz yourself, climb the ranks, and get help when you're stuck.",
   },
   nav: { label: "Products", students: "For students", studyHall: "Study Hall", tutors: "For tutors", logIn: "Log in", menu: "Menu", join: "Start free" },
   hero: {
@@ -28,7 +28,7 @@ const en = {
     standout: "Yesterday's standout: Leo K. · 2h 40m",
     quiz: "Practice quiz · Chain rule",
     score: "7 / 8 · +10 points",
-    tier: "Silver · 40 points to Gold",
+    tier: "Silver Striver · 40 points to Gold Grinder",
     liveTag: "Live",
     goalShort: "Group goal",
     goalOf: "1h 50m of 6h",
@@ -55,9 +55,9 @@ const en = {
     ],
     board: "Today",
     week: "Week",
-    tier: "Your tier",
-    tierName: "Silver",
-    toNext: "40 points to Gold",
+    tier: "Your rank",
+    tierName: "Silver Striver",
+    toNext: "40 points to Gold Grinder",
   },
   products: {
     label: "Products",
@@ -71,7 +71,7 @@ const en = {
         "Live group leaderboard and a Friends board, daily and weekly",
         "A daily standout named when the day closes",
         "Verified study timer: every minute on the board is earned",
-        "AI practice: 2 quizzes of 8 questions a day, plus tiers to climb",
+        "AI practice: 2 quizzes of 8 questions a day, plus 13 Study Ranks to climb",
         "Call Out for Help when you're stuck",
         "7 days free, then A$11.99/month, paid by you or a parent",
       ],
@@ -111,7 +111,7 @@ const en = {
       { tag: "Students", title: "Live leaderboard", body: "See who's studying right now and who's on top today or this week. Ties share the spot." },
       { tag: "Students", title: "Daily standout", body: "When the day closes, the group recap names whoever put in the most minutes. Tomorrow it could be you." },
       { tag: "Students", title: "No fake minutes", body: "The timer counts only while an Edumi study page is open and you're active. Nobody games the board." },
-      { tag: "Students", title: "Climb the tiers", body: "Finish quizzes, flashcards and notes to earn points and move from Starter all the way to Diamond." },
+      { tag: "Students", title: "Climb the ranks", body: "Quiz marks and finished notes earn points. Climb 13 Study Ranks, from Copper Crammer to Grandmaster Genius." },
       { tag: "Study Hall", title: "Live supervision", body: "A supervisor in every session; camera on hands and desk, never recorded by Edumi." },
       { tag: "Study Hall", title: "Goals and check-ins", body: "Students set up to three tasks per session and mark each one before they leave." },
       { tag: "Study Hall", title: "Parent reports", body: "Attendance, goals and supervisor notes, reviewed and sent in English or 中文." },

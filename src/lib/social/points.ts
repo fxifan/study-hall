@@ -9,21 +9,6 @@ export type PointKind = "completion" | "marks";
 export const COMPLETION_POINTS = 10;
 export const DAILY_POINT_CAP = 60;
 
-export const TIERS = [
-  { name: "Starter", min: 0 },
-  { name: "Bronze", min: 50 },
-  { name: "Silver", min: 150 },
-  { name: "Gold", min: 400 },
-  { name: "Platinum", min: 800 },
-  { name: "Diamond", min: 1500 },
-] as const;
-
-export function tierFor(points: number): { name: string; min: number; next: { name: string; min: number } | null } {
-  let i = 0;
-  while (i + 1 < TIERS.length && points >= TIERS[i + 1].min) i++;
-  return { ...TIERS[i], next: TIERS[i + 1] ?? null };
-}
-
 /** Points for a quiz attempt: the improvement on the best mark so far, within today's cap. */
 export function marksAward(input: { earned: number; best: number; pointsToday: number; cap?: number }): number {
   const room = Math.max(0, (input.cap ?? DAILY_POINT_CAP) - input.pointsToday);

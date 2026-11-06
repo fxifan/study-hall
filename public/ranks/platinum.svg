@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Platinum Prodigy">
+<title>Platinum Prodigy</title>
+<defs>
+<linearGradient id="rim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4f6ff"/><stop offset="1" stop-color="#8d97b8"/></linearGradient>
+<linearGradient id="field" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3d4466"/><stop offset="1" stop-color="#252a44"/></linearGradient>
+<linearGradient id="shine" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".28"/><stop offset=".5" stop-color="#ffffff" stop-opacity="0"/></linearGradient>
+</defs>
+<ellipse cx="20" cy="96" rx="5.5" ry="13" transform="rotate(-40 20 96)" fill="#b8c0de"/><ellipse cx="108" cy="96" rx="5.5" ry="13" transform="rotate(40 108 96)" fill="#b8c0de"/><ellipse cx="18.5" cy="81" rx="5.5" ry="13" transform="rotate(-32 18.5 81)" fill="#b8c0de"/><ellipse cx="109.5" cy="81" rx="5.5" ry="13" transform="rotate(32 109.5 81)" fill="#b8c0de"/>
+
+<path d="M64 14 L104 27 V62 C104 89 87 106 64 116 C41 106 24 89 24 62 V27 Z" fill="url(#rim)"/>
+<path d="M64 22 L96 33 V62 C96 84 82 98 64 107 C46 98 32 84 32 62 V33 Z" fill="url(#field)"/>
+<path d="M64 22 L96 33 V62 C96 84 82 98 64 107 C46 98 32 84 32 62 V33 Z" fill="url(#shine)"/>
+<g transform="translate(32 33)" color="#ffffff"><path d="M32 10l6.5 14 15 1.6-11.3 10 3.3 14.8L32 43l-13.5 7.4 3.3-14.8-11.3-10 15-1.6z" fill="currentColor"/><path d="M8 40c10 10 38 10 48-6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>
+
+
+</svg>

@@ -4,7 +4,9 @@ import { Suspense } from "react";
 import { localizePath } from "@/i18n/config";
 import { getLocale } from "@/i18n/server";
 import { shortMinutes } from "@/lib/social/credit";
-import { tierFor } from "@/lib/social/points";
+import { myRank } from "@/lib/social/rank-sync";
+import { nextRank, rankByTier } from "@/lib/social/ranks";
+import { RankBadge } from "../_social/rank-badge";
 import { namesFor, requireSocialStudent } from "@/lib/social/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { formatInZone } from "@/lib/time";
@@ -31,23 +33,27 @@ async function Me() {
     admin.from("user_blocks").select("blocked_id").eq("blocker_id", me.profile.id),
   ]);
   const total = (points ?? []).reduce((s, p) => s + (p.points as number), 0);
-  const tier = tierFor(total);
-  const pct = tier.next ? Math.round(((total - tier.min) / (tier.next.min - tier.min)) * 100) : 100;
+  const { tier } = await myRank(me.profile.id);
+  const rank = rankByTier(tier);
+  const next = nextRank(rank);
+  const pct = next ? Math.max(0, Math.min(100, Math.round(((total - rank.min) / (next.min - rank.min)) * 100))) : 100;
   const blockedNames = await namesFor((blocks ?? []).map((b) => b.blocked_id as string));
 
   return (
     <StudentShell me={me} title={`${me.student.first_name} ${me.student.last_initial}.`} current="me">
-      <section className={`${tile} flex flex-col gap-2 bg-[var(--tiles-pink-soft)]`}>
-        <p className="text-sm text-ink-soft">Your tier</p>
-        <p className="text-3xl font-medium">{tier.name}</p>
-        <div className="h-2 overflow-hidden rounded-full bg-sheet" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Progress to the next tier">
-          <div className="h-full rounded-full bg-brand" style={{ width: `${pct}%` }} />
-        </div>
-        <p className="text-sm text-ink-soft">
-          {total} points{tier.next ? ` · ${tier.next.min - total} to ${tier.next.name}` : " · top tier"}
-        </p>
-        <p className="text-xs text-ink-faint">Quizzes pay the marks you earn as points (retakes pay only when you beat your best). Notes and flashcards pay 10 when you finish them. Up to 60 a day. Only you see your points.</p>
-      </section>
+      <Link href={localizePath("/student/ranks", locale)} className={`${tile} flex items-center gap-4 bg-[var(--tiles-pink-soft)] text-ink no-underline hover:ring-2 hover:ring-brand`}>
+        <RankBadge rank={rank} size={72} labelled={false} />
+        <span className="flex flex-1 flex-col gap-1.5">
+          <span className="text-sm text-ink-soft">Your rank</span>
+          <span className="text-2xl font-semibold tracking-tight">{rank.name}</span>
+          <span className="h-2 overflow-hidden rounded-full bg-sheet" aria-hidden="true">
+            <span className="block h-full rounded-full bg-brand" style={{ width: `${pct}%` }} />
+          </span>
+          <span className="text-sm text-ink-soft">
+            {total} points{next ? ` · ${next.min - total} to ${next.name}` : " · top rank"} · See all ranks →
+          </span>
+        </span>
+      </Link>
 
       <section className={`${card} flex flex-col gap-2`}>
         <h2 className="font-medium">Recent study sessions</h2>

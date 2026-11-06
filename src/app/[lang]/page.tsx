@@ -170,7 +170,7 @@ export default async function HomePage() {
                 </span>
                 <p className="home-chips">
                   <span className="home-chip">+10 points</span>
-                  <span className="home-chip">Silver</span>
+                  <span className="home-chip">Silver Striver</span>
                 </p>
               </div>
               <figcaption className="home-note">{t.hero.visualNote}</figcaption>
