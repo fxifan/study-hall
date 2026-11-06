@@ -4,8 +4,8 @@ import { cookies } from "next/headers";
 import { Suspense } from "react";
 import { localizePath } from "@/i18n/config";
 import { getLocale } from "@/i18n/server";
-import { shortMinutes } from "@/lib/social/credit";
-import { requireSocialStudent, todayProgress, type Group } from "@/lib/social/server";
+import { rank, shortMinutes } from "@/lib/social/credit";
+import { groupMembers, requireSocialStudent, todayProgress, type Group } from "@/lib/social/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createGroup, joinGroup } from "../_social/actions";
 import { Loading, Notice, StudentShell, card, primaryBtn, secondaryBtn } from "../_social/shell";
@@ -36,7 +36,7 @@ async function Groups({ searchParams }: Pick<PageProps<"/[lang]/student/groups">
     .is("study_groups.archived_at", null)
     .returns<{ study_groups: Group }[]>();
   const groups = (rows ?? []).map((r) => r.study_groups);
-  const progress = await Promise.all(groups.map((g) => todayProgress(g)));
+  const [progress, rosters] = await Promise.all([Promise.all(groups.map((g) => todayProgress(g))), Promise.all(groups.map((g) => groupMembers(g.id)))]);
   const pendingCode = (typeof query.code === "string" ? query.code : jar.get("edumi_invite")?.value) ?? "";
   const error = typeof query.error === "string" ? ERRORS[query.error] : null;
 
@@ -63,6 +63,16 @@ async function Groups({ searchParams }: Pick<PageProps<"/[lang]/student/groups">
           {groups.map((g, i) => {
             const p = progress[i];
             const pct = Math.min(100, Math.round((p.doneMinutes / Math.max(1, p.targetMinutes)) * 100));
+            // Today's race: only members on the board count; nobody is named as behind.
+            const board = rosters[i].filter((m) => m.board_opt_in);
+            const standings = rank(new Map(board.map((m) => [m.profile_id, p.totals.get(m.profile_id) ?? 0])));
+            const leader = standings[0] && standings[0].seconds >= 60 ? board.find((m) => m.profile_id === standings[0].profileId) : undefined;
+            const mine = standings.find((x) => x.profileId === me.profile.id);
+            const race = !leader
+              ? "Nobody's on the board yet today. Take the lead."
+              : leader.profile_id === me.profile.id
+                ? "You're leading today 🥇"
+                : `${leader.name} leads${mine ? ` · you're #${mine.rank}` : ""}`;
             return (
               <li key={g.id}>
                 <Link href={localizePath(`/student/groups/${g.id}`, locale)} className={`${card} flex flex-col gap-3 text-ink no-underline hover:border-ink`}>
@@ -75,7 +85,10 @@ async function Groups({ searchParams }: Pick<PageProps<"/[lang]/student/groups">
                   <div className="h-2 overflow-hidden rounded-full bg-paper-deep" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Today's goal">
                     <div className="h-full rounded-full bg-brand" style={{ width: `${pct}%` }} />
                   </div>
-                  <span className="text-sm text-ink-soft">{p.reached ? "Goal reached today" : `${shortMinutes(p.remainingMinutes)} left today`}</span>
+                  <span className="flex flex-wrap justify-between gap-2 text-sm text-ink-soft">
+                    <span>{p.reached ? "Goal reached today" : `${shortMinutes(p.remainingMinutes)} left today`}</span>
+                    <span className="font-medium text-ink">{race}</span>
+                  </span>
                 </Link>
               </li>
             );

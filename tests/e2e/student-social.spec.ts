@@ -149,16 +149,31 @@ test("a group studies together: chat, timer, help and practice", async ({ browse
   const sneaky = await client.from("group_messages").insert({ group_id: groupId, sender_id: out.id, kind: "text", body: "hi" });
   expect(sneaky.error).not.toBeNull();
 
-  // Practice quiz, marked on the server: the key isn't on the page before submitting.
+  // A curriculum quiz: multiple choice and free response, marked on the server (offline marker:
+  // full marks for an answer with "because"). Nothing from the key is on the page before submitting.
   await a.goto("/student/practice");
-  await a.getByLabel("Topic").fill("Adding numbers");
-  await a.getByRole("button", { name: "Make it" }).click();
-  await expect(a.getByRole("button", { name: "Submit answers" })).toBeVisible({ timeout: 30_000 });
-  expect(await a.content()).not.toContain("explanation");
-  for (let i = 0; i < 8; i++) await a.getByRole("group", { name: `Question ${i + 1}` }).getByRole("radio").first().check();
-  await a.getByRole("button", { name: "Submit answers" }).click();
-  await expect(a.getByText("8 / 8 · 100%")).toBeVisible();
-  await expect(a.getByText(/\+10 points \(completion\)/)).toBeVisible();
+  await a.getByLabel("Subject and level").selectOption({ label: "Victorian Curriculum · Mathematics · Year 10" });
+  await a.locator('input[name="point"]').first().check();
+  await a.getByRole("button", { name: "Make my quiz" }).click();
+  await expect(a.getByRole("button", { name: "Submit for marking" })).toBeVisible({ timeout: 30_000 });
+  const html = await a.content();
+  expect(html).not.toContain("Counting on two");
+  expect(html).not.toContain("States the result is 4");
+  for (let i = 0; i < 6; i++) await a.getByRole("group", { name: `Question ${i + 1}` }).getByRole("radio").first().check();
+  await a.getByLabel("Your answer to question 7").fill("It is 4 because you count on two from two.");
+  await a.getByLabel("Your answer to question 8").fill("four");
+  await a.getByRole("button", { name: "Submit for marking" }).click();
+  // 6 multiple choice (1 each) + 3 + 1 = 10 of 12.
+  await expect(a.getByText("10 / 12 marks")).toBeVisible({ timeout: 30_000 });
+  await expect(a.getByText("+10 points")).toBeVisible();
   const points = await admin.from("points_ledger").select("kind, points").eq("profile_id", alex.id);
-  expect(points.data).toEqual([{ kind: "completion", points: 10 }]);
+  expect(points.data).toEqual([{ kind: "marks", points: 10 }]);
+  // A retake that doesn't beat 10 pays nothing.
+  await a.getByRole("button", { name: "Try again" }).click();
+  for (let i = 0; i < 6; i++) await a.getByRole("group", { name: `Question ${i + 1}` }).getByRole("radio").first().check();
+  await a.getByLabel("Your answer to question 7").fill("4");
+  await a.getByLabel("Your answer to question 8").fill("4");
+  await a.getByRole("button", { name: "Submit for marking" }).click();
+  await expect(a.getByText("8 / 12 marks")).toBeVisible({ timeout: 30_000 });
+  await expect(a.getByText(/No new points/)).toBeVisible();
 });

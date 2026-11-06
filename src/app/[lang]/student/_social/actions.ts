@@ -391,7 +391,12 @@ async function createResource(
     console.error("Student resource failed", e instanceof Error ? e.message : e);
     return { error: e instanceof StudentResourceError ? ("shape" as const) : ("service" as const) };
   }
-  const title = (input.topic || (input.curriculum ? `${input.curriculum.subject}: ${input.curriculum.points.map((p) => p.summary).join("; ")}` : "Practice")).slice(0, 120);
+  const short = (t: string) => (t.length > 60 ? `${t.slice(0, 57).replace(/[\s,;:.]+\S*$/, "")}…` : t.replace(/\.$/, ""));
+  const pts = input.curriculum?.points ?? [];
+  const title = (
+    input.topic ||
+    (input.curriculum ? `${input.curriculum.subject}: ${short(pts[0].summary)}${pts.length > 1 ? ` +${pts.length - 1} more` : ""}` : "Practice")
+  ).slice(0, 120);
   const { data: row, error } = await admin
     .from("student_resources")
     .insert({

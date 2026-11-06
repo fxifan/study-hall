@@ -134,9 +134,12 @@ async function GroupView({ params, searchParams }: Pick<PageProps<"/[lang]/stude
             ) : (
               <ol className="flex flex-col gap-1 text-sm">
                 {standings.map((s) => (
-                  <li key={s.profileId} className="flex justify-between gap-2">
+                  <li
+                    key={s.profileId}
+                    className={`flex justify-between gap-2 rounded-md px-2 py-1 ${s.profileId === me.profile.id ? "bg-brand-soft font-medium" : ""} ${s.rank === 1 && s.seconds >= 60 ? "border-l-2 border-brand" : ""}`}
+                  >
                     <span>
-                      <span className="inline-block w-6 font-mono text-ink-faint">{s.rank}</span>
+                      <span className="inline-block w-7 font-mono text-ink-faint">{s.seconds >= 60 && s.rank <= 3 ? ["🥇", "🥈", "🥉"][s.rank - 1] : s.rank}</span>
                       {s.profileId === me.profile.id ? "You" : names[s.profileId]}
                       {liveBy.get(s.profileId) === "running" && <span className="ml-1 text-xs text-ink-faint">(live)</span>}
                     </span>
