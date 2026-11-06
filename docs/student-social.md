@@ -8,13 +8,16 @@ Edumi's core product (owner, 6 Nov 2026). Brief: `edumi-study-hall-claude-code.m
 - Full group chat, with report and block for students and moderation on `/admin/edumi`.
 - Student plan: A$11.99/month, 7-day free trial (no card), paid by the student (`/student/plan`) or a parent (shared link `/pay/[token]`). Nothing works after the trial without a plan. Families on a Study Hall plan are covered.
 - AI practice: 2 quizzes of 8 questions a day, plus 4 notes or flashcard sets a day.
-- Group Study Hall session: A$40 per student, booked by each parent at `/book/[token]`.
+- Edumi for students isn't linked to Study Hall (owner, 6 Nov 2026): no group bookings. Families on a Study Hall plan still get it included.
+- Uni and TAFE students can sign up (year level 13 = "University or TAFE"); minimum age stays 13.
+- Quizzes: 8 questions mixing multiple choice and free response, from chosen Victorian Curriculum or VCE points (or the student's own topic). Free responses are marked by AI against a rubric written for the curriculum point; points equal marks earned, and retakes pay only the improvement on the best. Notes and flashcards pay 10 when finished. Daily cap 60.
+- Login emails are personal (name, what's waiting) and sent through Resend (`src/lib/email/login.ts`); without `RESEND_API_KEY` they fall back to Supabase's mailer.
+- Admin analytics has an "Edumi students" tab.
 
 ## Defaults chosen (change if needed)
 
 - Group and friend discovery is invite-code only; friend requests only between students who share a group.
 - The web timer counts only on Edumi group and practice pages, while the tab is visible and the student was active in the last 5 minutes. External or self-reported time isn't offered.
-- AI-generated quizzes earn completion points only. Score milestones (70%, 90%) need a vetted quiz (`student_resources.scored_eligible`); there is no vetted bank yet.
 - Tiers: Starter 0, Bronze 50, Silver 150, Gold 400, Platinum 800, Diamond 1500. Daily cap 60 points.
 - Groups: up to 12 members; invites last 7 days, 20 uses.
 - Friends board uses Melbourne time.
@@ -37,8 +40,6 @@ Edumi's core product (owner, 6 Nov 2026). Brief: `edumi-study-hall-claude-code.m
 
 ## Not built yet
 
-- Tutor-approved AI follow-up practice and parent updates after a Study Hall session.
-- A vetted quiz bank for scored points.
 - Push or email notifications (and so the effect of muting).
 - Automatic deletion for self-signed students whose plan ended (families and tutors already have a 7-day rule).
 
