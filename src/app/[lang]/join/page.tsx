@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default async function JoinPage({ searchParams }: PageProps<"/[lang]/join">) {
   const locale = await getLocale();
   return (
-    <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-6 px-4 py-12">
+    <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-6 px-4 py-12" lang="en">
       <Link href={localizePath("/", locale)} className="text-ink no-underline" aria-label="Edumi home">
         <Wordmark className="text-base" />
       </Link>

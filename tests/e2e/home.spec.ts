@@ -24,10 +24,10 @@ test("Study Hall lives at /study_hall, and old /#section links are forwarded", a
   expect(res.headers().location).toMatch(/\/study_hall$/);
 });
 
-test("the home page in Chinese", async ({ page }) => {
+test("the home page in Chinese keeps the student product in English", async ({ page }) => {
   await page.goto("/zh");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("学过你的朋友，一起赢。");
-  await expect(page.locator("main").getByRole("link", { name: /向朋友发起挑战/ }).first()).toHaveAttribute("href", "/zh/join");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Outstudy your friends. Win together.");
+  await expect(page.locator("main").getByRole("link", { name: /Challenge your friends/ }).first()).toHaveAttribute("href", "/zh/join");
   await expect(page.locator("main").getByRole("link", { name: "了解 Study Hall" }).first()).toHaveAttribute("href", "/zh/study_hall");
 });
 

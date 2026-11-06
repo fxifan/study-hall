@@ -70,7 +70,7 @@ export default async function HomePage() {
 
       <main id="main">
         {/* Hero */}
-        <section className="home-hero" aria-labelledby="home-title">
+        <section className="home-hero" aria-labelledby="home-title" lang="en">
           <div className="home-glow" aria-hidden="true" />
           <div className="home-wrap home-hero-grid">
             <div className="home-hero-copy">
@@ -176,6 +176,7 @@ export default async function HomePage() {
                 <article
                   key={key}
                   id={key === "st" ? "students" : undefined}
+                  lang={key === "st" ? "en" : undefined}
                   className={`home-product home-product--${key}`}
                   data-rv
                   style={{ "--d": i } as React.CSSProperties}
@@ -213,7 +214,7 @@ export default async function HomePage() {
             </h2>
             <ul className="home-features">
               {t.features.items.map((f, i) => (
-                <li key={f.title} className="home-feature" data-rv style={{ "--d": i % 4 } as React.CSSProperties}>
+                <li key={f.title} lang={f.tag === "Students" ? "en" : undefined} className="home-feature" data-rv style={{ "--d": i % 4 } as React.CSSProperties}>
                   <span className={`home-tag ${f.tag === "Study Hall" ? "" : f.tag === "Students" || f.tag === "学生" ? "home-tag--st" : "home-tag--lav"}`}>{f.tag}</span>
                   <h3>{f.title}</h3>
                   <p>{f.body}</p>
