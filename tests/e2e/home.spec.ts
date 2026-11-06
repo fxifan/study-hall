@@ -98,7 +98,7 @@ test("the demo plays with its background music, which follows the video", async 
   expect(music.status()).toBe(200);
   // A real click is a user gesture, so the browser lets sound play.
   await page.locator("#demo video").click();
-  await page.locator("#demo video").evaluate((v: HTMLVideoElement) => v.paused && v.play());
+  await page.locator("#demo video").evaluate(async (v: HTMLVideoElement) => { if (v.paused) await v.play(); });
   await expect.poll(() => page.locator("#demo audio").evaluate((a: HTMLAudioElement) => !a.paused && a.currentTime > 0.3), { timeout: 10_000 }).toBe(true);
   await page.locator("#demo video").evaluate((v: HTMLVideoElement) => v.pause());
   await expect.poll(() => page.locator("#demo audio").evaluate((a: HTMLAudioElement) => a.paused)).toBe(true);
