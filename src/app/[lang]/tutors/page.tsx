@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CalendarCheck, FileText, Languages, MessageSquareQuote, Mic, PenLine, ReceiptText, ShieldCheck } from "lucide-react";
+import { BookOpenCheck, CalendarCheck, CalendarDays, FileText, MessageSquareQuote, Mic, PenLine, ReceiptText, ShieldCheck, Video } from "lucide-react";
 import { Wordmark } from "@/components/wordmark";
 import { localizePath } from "@/i18n/config";
 import { getLocale } from "@/i18n/server";
-import { MONTHLY_DRAFT_CAP, PLANS, TUTOR_PRODUCT_NAME } from "@/lib/tutor/config";
+import { MONTHLY_DRAFT_CAP, MONTHLY_RESOURCE_CAP, PLANS, TUTOR_PRODUCT_NAME } from "@/lib/tutor/config";
 import { formatCents } from "@/lib/tutor/invoice-math";
 import { SAMPLE_META, SAMPLE_TEXT_EN, SAMPLE_TEXT_ZH } from "@/lib/tutor/sample";
 import { DemoVideo } from "./demo-video";
@@ -13,7 +13,8 @@ import "./tutors.css";
 
 export const metadata: Metadata = {
   title: { absolute: `${TUTOR_PRODUCT_NAME}: parent updates in 60 seconds` },
-  description: "Speak for a minute after each session. Get a factual parent update in English or 中文, the session logged, and the invoice done.",
+  description:
+    "For independent tutors: parent updates from a one-minute voice note, your lessons and class links in one calendar, AI practice sets from the Victorian curriculum, and invoices that get you paid.",
 };
 
 /** The recorded product walkthrough (tests/e2e/demo-recording.spec.ts), served from /public/media. */
@@ -25,10 +26,36 @@ const DEMO = {
 };
 
 const BENEFITS = [
-  { icon: Languages, title: "English, 中文 or both", body: "Simplified Chinese, English, or both side by side, ready to paste into WeChat or WhatsApp." },
-  { icon: MessageSquareQuote, title: "Only what you said", body: "No labels, no comparisons, no invented praise. The draft sticks to your note." },
-  { icon: PenLine, title: "You check every word", body: "Nothing reaches a parent until you've reviewed, edited and sent it." },
-  { icon: ReceiptText, title: "Sessions and invoices", body: "Every session is logged. Invoices or tax invoices (GST or not), with your bank details." },
+  {
+    icon: MessageSquareQuote,
+    title: "Parent updates in a minute",
+    body: "Speak after the lesson. Get a factual update with only what you said, in English, 中文 or both. You check every word before it's sent.",
+  },
+  {
+    icon: CalendarDays,
+    title: "Your week in one calendar",
+    body: "Lessons, students and what's next on one dashboard. Subscribe from Apple, Google or Outlook Calendar to see lessons there too.",
+  },
+  {
+    icon: Video,
+    title: "Class links, one tap away",
+    body: "Save each student's Zoom link once, then open or copy it right before class.",
+  },
+  {
+    icon: BookOpenCheck,
+    title: "Practice sets in minutes",
+    body: "AI practice questions with worked solutions and VCE English writing tips, built on the Victorian curriculum. Maths and science answers are double-checked, and you approve every set.",
+  },
+  {
+    icon: ReceiptText,
+    title: "Invoices that get you paid",
+    body: "Logged lessons become invoices or tax invoices (GST or not) with your bank details. See what's outstanding or overdue at a glance.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Private by design",
+    body: "Your data is stored in Australia. Voice notes are deleted once transcribed, and wellbeing or safety notes never reach a parent report.",
+  },
 ];
 
 const STEPS = [
@@ -83,8 +110,8 @@ export default async function TutorsLanding() {
               <p className="tl-eyebrow">For independent tutors in Australia</p>
               <h1 id="tl-title">Parent updates in 60 seconds.</h1>
               <p className="tl-lede">
-                After a lesson, speak for a minute. Edumi turns it into a short, factual parent update, ready to email or paste into WeChat.
-                The session is logged for the family&apos;s next invoice.
+                Speak for a minute after a lesson and get a factual parent update, ready for WeChat or email. Then plan your week, keep class
+                links at hand, make practice sets from the Victorian curriculum, and invoice in a couple of taps, all in one place.
               </p>
               <div className="tl-cta">
                 <a href="#signup" className="tl-btn tl-btn--primary">
@@ -114,7 +141,13 @@ export default async function TutorsLanding() {
         </section>
 
         {/* Benefits */}
-        <section className="tl-section tl-section--tight" aria-label="What you get">
+        <section className="tl-section tl-section--tight" aria-labelledby="benefits-title">
+          <div className="tl-wrap">
+            <p className="tl-label">What you get</p>
+            <h2 id="benefits-title" className="tl-h2">
+              Your whole tutoring week, in one place.
+            </h2>
+          </div>
           <ul className="tl-wrap tl-benefits">
             {BENEFITS.map(({ icon: Icon, title, body }) => (
               <li key={title}>
@@ -203,7 +236,7 @@ export default async function TutorsLanding() {
           <div className="tl-wrap">
             <p className="tl-label">Pricing</p>
             <h2 id="pricing-title" className="tl-h2">
-              Simple, in Australian dollars.
+              One plan, everything included.
             </h2>
             <div className="tl-prices tl-prices--one">
               <article className="tl-price tl-price--main">
@@ -219,8 +252,10 @@ export default async function TutorsLanding() {
                   First {PLANS.trial.days} days free
                 </p>
                 <ul>
-                  <li>Unlimited students, reports and invoices</li>
-                  <li>Fair use: {MONTHLY_DRAFT_CAP} AI drafts a month</li>
+                  <li>Unlimited students, lessons, reports and invoices</li>
+                  <li>Lesson calendar, class links and calendar subscription</li>
+                  <li>Up to {MONTHLY_RESOURCE_CAP} practice sets or writing tips a month</li>
+                  <li>Fair use: {MONTHLY_DRAFT_CAP} AI report drafts a month</li>
                   <li>No card needed for the trial · cancel any time</li>
                 </ul>
                 <a href="#signup" className="tl-btn tl-btn--primary">
@@ -263,7 +298,7 @@ export default async function TutorsLanding() {
         <div className="tl-wrap tl-foot-in">
           <div>
             <Wordmark product="for tutors" />
-            <p>Parent updates, sessions and invoices for independent tutors.</p>
+            <p>Parent updates, lessons, practice sets and invoices for independent tutors.</p>
           </div>
           <nav aria-label="Footer">
             <Link href={href("/")}>Edumi home</Link>

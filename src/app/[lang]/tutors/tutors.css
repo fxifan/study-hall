@@ -350,7 +350,7 @@
   padding: 88px 0;
 }
 .tl-section--tight {
-  padding: 8px 0 40px;
+  padding: 40px 0 72px;
 }
 .tl-section--tint {
   background: var(--tl-tint);
@@ -392,8 +392,9 @@
 /* Benefits */
 .tl-benefits {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
+  margin-top: 32px;
 }
 .tl-benefits li {
   padding: 22px;
