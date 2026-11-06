@@ -27,7 +27,7 @@ export default async function JoinPage({ searchParams }: PageProps<"/[lang]/join
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          <JoinForm invite={invite} lang={locale} privacyHref={localizePath("/legal/privacy", locale)} rulesHref={localizePath("/legal/house-rules", locale)} />
+          <JoinForm invite={invite} lang={locale} privacyHref={localizePath("/legal/privacy", locale)} />
           <p className="text-sm text-ink-soft">
             Already have an account? <Link href={localizePath("/login", locale)}>Log in</Link>
           </p>

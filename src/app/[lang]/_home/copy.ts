@@ -1,27 +1,48 @@
 import type { Locale } from "@/i18n/config";
 
 /**
- * Copy for the Edumi home page (/). Every feature listed here exists in the product today; Edumi AI
- * is deliberately described only as unavailable. English and Simplified Chinese.
+ * Copy for the Edumi home page (/). Edumi's core is studying with friends (docs/student-social.md);
+ * Study Hall and Edumi for Tutors sit beside it. Every feature listed here exists in the product
+ * today. English and Simplified Chinese.
  */
 const en = {
   meta: {
-    title: "Edumi · Education, made intelligent",
-    description: "Edumi: supervised online study for students and families, and an AI-powered workspace for independent tutors.",
+    title: "Edumi · Study with your friends",
+    description: "Set a study goal with your friends. Every minute counts for the group. Quiz yourself, level up, and get help when you're stuck.",
   },
-  nav: { label: "Products", studyHall: "Study Hall", tutors: "For tutors", ai: "Edumi AI", logIn: "Log in", menu: "Menu" },
+  nav: { label: "Products", students: "For students", studyHall: "Study Hall", tutors: "For tutors", logIn: "Log in", menu: "Menu", join: "Start free" },
   hero: {
-    eyebrow: "One workspace for learning",
-    title: "Education, made intelligent.",
-    lede: "Edumi brings supervised study, AI-assisted parent updates and the admin around tutoring into one place.",
-    primary: "Explore Study Hall",
-    secondary: "Edumi for Tutors",
-    visualLabel: "Illustration: a fictional tutor's parent update and a Study Hall session",
+    eyebrow: "For students 13+ · first week free",
+    title: "Study together. Every minute counts.",
+    lede: "Set a study goal with your friends. Every minute counts for the group. Quiz yourself, level up, and get help when you're stuck.",
+    primary: "Start your free week",
+    secondary: "For parents: Study Hall",
+    visualLabel: "Illustration: a fictional study group's daily goal, chat and practice quiz",
     visualNote: "Illustrative, with fictional details",
+    goal: "Today's goal",
+    left: "4h 10m to go together",
+    started: "Leo K. just started studying. 4 hours 10 minutes left on today's goal.",
+    help: "Ava S. has a question: q9, why is the derivative of ln(2x) just 1/x?",
+    quiz: "Practice quiz · Chain rule",
+    score: "7 / 8 · +10 points",
   },
   products: {
     label: "Products",
-    title: "Pick the part of Edumi you need.",
+    title: "Edumi starts with your friends.",
+    students: {
+      status: "Live",
+      name: "Edumi",
+      for: "For students 13+",
+      body: "Make a group, set a daily goal in combined minutes, and watch it fill up as everyone studies. Then quiz yourself and ask the group when you're stuck.",
+      points: [
+        "Shared daily goal with a verified study timer",
+        "Group chat, live group boards and a Friends board",
+        "Call Out for Help: a question, a study buddy or a check-in",
+        "AI practice: 2 quizzes of 8 questions a day, plus notes and flashcards",
+        "7 days free, then A$11.99/month, paid by you or a parent",
+      ],
+      cta: "Start your free week",
+    },
     studyHall: {
       status: "Live",
       name: "Edumi Study Hall",
@@ -48,16 +69,15 @@ const en = {
       ],
       cta: "See Edumi for Tutors",
     },
-    ai: {
-      status: "Unavailable yet",
-      name: "Edumi AI",
-      body: "Not available yet.",
-    },
   },
   features: {
     label: "What's in Edumi today",
-    title: "Built for the work around learning.",
+    title: "Built for studying, and the work around it.",
     items: [
+      { tag: "Students", title: "A goal you share", body: "Six hours across three friends? Every verified minute anyone studies brings the group closer." },
+      { tag: "Students", title: "Time that's real", body: "The timer counts only while an Edumi study page is open and you're active. One timer across all your devices." },
+      { tag: "Students", title: "Call Out for Help", body: "Ask one friend or the whole group. They accept, you mark it sorted. You choose when to ask." },
+      { tag: "Students", title: "Practice and tiers", body: "Quizzes marked on the server, flashcards and notes from your own notes. Points for finishing, private to you." },
       { tag: "Study Hall", title: "Live supervision", body: "A supervisor in every session; camera on hands and desk, never recorded by Edumi." },
       { tag: "Study Hall", title: "Goals and check-ins", body: "Students set up to three tasks per session and mark each one before they leave." },
       { tag: "Study Hall", title: "Parent reports", body: "Attendance, goals and supervisor notes, reviewed and sent in English or 中文." },
@@ -69,12 +89,14 @@ const en = {
     ],
   },
   closing: {
-    title: "Start with the part that fits.",
+    title: "Start with your friends.",
+    join: "Start your free week",
     studyHall: "Explore Study Hall",
     tutors: "Start a free tutor trial",
   },
   footer: {
     tagline: "Education, made intelligent.",
+    students: "Edumi for students",
     studyHall: "Edumi Study Hall",
     tutors: "Edumi for Tutors",
     privacy: "Privacy",
@@ -90,22 +112,42 @@ export type HomeCopy = typeof en;
 
 const zh: HomeCopy = {
   meta: {
-    title: "Edumi · Education, made intelligent",
-    description: "Edumi：为学生和家庭提供有老师监督的线上自习，并为独立家教老师提供智能工作台。",
+    title: "Edumi · 和朋友一起学习",
+    description: "和朋友一起设定学习目标，每一分钟都为小组加油。自测练习、升级，卡住时随时求助。",
   },
-  nav: { label: "产品", studyHall: "Study Hall 自习", tutors: "老师版", ai: "Edumi AI", logIn: "登录", menu: "菜单" },
+  nav: { label: "产品", students: "学生版", studyHall: "Study Hall 自习", tutors: "老师版", logIn: "登录", menu: "菜单", join: "免费开始" },
   hero: {
-    eyebrow: "一体化学习平台",
-    title: "Education, made intelligent.",
-    lede: "Edumi 把有监督的自习、AI 辅助的家长反馈，以及辅导相关的日常事务整合在一起。",
-    primary: "了解 Study Hall",
-    secondary: "Edumi 老师版",
-    visualLabel: "示意图：虚构的家教老师家长反馈，以及一节 Study Hall 自习",
+    eyebrow: "面向 13 岁以上学生 · 首周免费",
+    title: "一起学习，每分钟都算数。",
+    lede: "和朋友一起设定学习目标，每一分钟都为小组加油。自测练习、升级，卡住时随时求助。",
+    primary: "免费试用一周",
+    secondary: "家长请看：Study Hall",
+    visualLabel: "示意图：虚构学习小组的每日目标、聊天和练习测验",
     visualNote: "示意图，内容均为虚构",
+    goal: "今日目标",
+    left: "还差 4 小时 10 分钟",
+    started: "Leo K. 开始学习了。今天的目标还差 4 小时 10 分钟。",
+    help: "Ava S. 提问：第 9 题，为什么 ln(2x) 的导数是 1/x？",
+    quiz: "练习测验 · 链式法则",
+    score: "7 / 8 · +10 分",
   },
   products: {
     label: "产品",
-    title: "选择适合您的 Edumi。",
+    title: "Edumi，从朋友开始。",
+    students: {
+      status: "已上线",
+      name: "Edumi",
+      for: "面向 13 岁以上学生",
+      body: "建一个小组，设定每日合计学习时长目标，大家学习时进度条一起往前走。还能自测练习，卡住时向小组求助。",
+      points: [
+        "共同的每日目标和经过验证的学习计时",
+        "小组聊天、小组实时排行和好友排行",
+        "求助：提问、找学习伙伴或简单确认",
+        "AI 练习：每天 2 套 8 题测验，另有笔记和闪卡",
+        "首 7 天免费，之后每月 A$11.99，学生或家长付款",
+      ],
+      cta: "免费试用一周",
+    },
     studyHall: {
       status: "已上线",
       name: "Edumi Study Hall",
@@ -122,12 +164,15 @@ const zh: HomeCopy = {
       points: ["语音记录约 60 秒生成家长反馈", "英文、中文或双语对照", "课程、学生和上课链接集中在一个日历", "可开含 GST 或不含 GST 的发票，附银行信息"],
       cta: "了解老师版",
     },
-    ai: { status: "暂未开放", name: "Edumi AI", body: "暂未开放。" },
   },
   features: {
     label: "Edumi 现有功能",
-    title: "为学习背后的事务而设计。",
+    title: "为学习本身，以及学习背后的事务而设计。",
     items: [
+      { tag: "学生", title: "共同的目标", body: "三个朋友一天六小时？任何人每一分钟经过验证的学习都让小组更接近目标。" },
+      { tag: "学生", title: "真实的时间", body: "只有打开 Edumi 学习页面并在使用时才计时。所有设备共用一个计时器。" },
+      { tag: "学生", title: "求助", body: "问一位朋友或整个小组。对方接受，你标记已解决。何时求助由你决定。" },
+      { tag: "学生", title: "练习与等级", body: "测验在服务器评分，可根据你的笔记生成闪卡和笔记。完成即得分，分数只有你自己可见。" },
       { tag: "Study Hall", title: "真人监督", body: "每节都有监督老师在场；摄像头对准双手和书桌，Edumi 不录像。" },
       { tag: "Study Hall", title: "目标与检查", body: "学生每节最多设定三项任务，离开前逐项标记。" },
       { tag: "Study Hall", title: "家长报告", body: "出勤、目标和监督老师备注，经审核后以中文或英文发送。" },
@@ -138,9 +183,10 @@ const zh: HomeCopy = {
       { tag: "老师版", title: "练习题", body: "基于维州课程大纲的 AI 练习题和写作建议，由您审核后使用。" },
     ],
   },
-  closing: { title: "从最适合您的部分开始。", studyHall: "了解 Study Hall", tutors: "开始老师版免费试用" },
+  closing: { title: "从朋友开始。", join: "免费试用一周", studyHall: "了解 Study Hall", tutors: "开始老师版免费试用" },
   footer: {
     tagline: "Education, made intelligent.",
+    students: "Edumi 学生版",
     studyHall: "Edumi Study Hall",
     tutors: "Edumi for Tutors",
     privacy: "隐私",

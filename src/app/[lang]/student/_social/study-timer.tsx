@@ -172,7 +172,7 @@ export function StudyTimer({
         </div>
         <div className="flex gap-2">
           {!live || otherGroup ? (
-            <button onClick={start} disabled={pending} className="inline-flex h-11 items-center rounded-md bg-ink px-5 font-medium text-paper disabled:opacity-50">
+            <button onClick={start} disabled={pending} className="inline-flex h-11 items-center rounded-md bg-ink px-5 font-medium whitespace-nowrap text-paper disabled:opacity-50">
               {otherGroup ? "Switch here" : "Start studying"}
             </button>
           ) : (

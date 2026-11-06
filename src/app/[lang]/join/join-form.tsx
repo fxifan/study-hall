@@ -9,7 +9,7 @@ import { studentSignUp, type JoinState } from "./actions";
 
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-export function JoinForm({ invite, lang, privacyHref, rulesHref }: { invite: string; lang: string; privacyHref: string; rulesHref: string }) {
+export function JoinForm({ invite, lang, privacyHref }: { invite: string; lang: string; privacyHref: string }) {
   const [state, action, pending] = useActionState<JoinState, FormData>(studentSignUp, { status: "idle" });
   const year = new Date().getFullYear();
 
@@ -90,10 +90,18 @@ export function JoinForm({ invite, lang, privacyHref, rulesHref }: { invite: str
         <Label htmlFor="email">Email</Label>
         <Input id="email" name="email" type="email" required autoComplete="email" />
       </div>
+      <div className="rounded-md border border-rule px-3 py-2 text-sm text-ink-soft">
+        <p className="font-medium text-ink">Group rules</p>
+        <ul className="list-disc pl-5">
+          <li>Be kind. No bullying, hate or sharing anyone&apos;s private information.</li>
+          <li>Keep chats about study, and don&apos;t share contact details or links to meet up.</li>
+          <li>Report anything that makes you uncomfortable. Moderators read every report.</li>
+        </ul>
+      </div>
       <label className="flex items-start gap-2 text-sm text-ink-soft">
         <input type="checkbox" name="agree" required className="mt-1" />
         <span>
-          I agree to the <a href={rulesHref}>community rules</a> and have read the <a href={privacyHref}>privacy policy</a>. I&apos;ll be kind in group chats.
+          I agree to the group rules and have read the <a href={privacyHref}>privacy policy</a>.
         </span>
       </label>
       {state.status === "error" && (

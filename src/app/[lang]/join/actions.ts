@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers";
 import { z } from "zod";
-import { emailLimitKind } from "@/lib/email";
+import { emailLimitKind, isReservedTestEmail } from "@/lib/email";
 import { track } from "@/lib/events";
 import { siteOrigin } from "@/lib/site";
 import { canSelfSignUp } from "@/lib/social/age";
@@ -15,7 +15,7 @@ export type JoinState =
   | { status: "under13" }
   | { status: "error"; message: string };
 
-export const INVITE_COOKIE = "edumi_invite";
+const INVITE_COOKIE = "edumi_invite";
 
 const schema = z.object({
   firstName: z.string().trim().min(1).max(50),
@@ -85,6 +85,8 @@ export async function studentSignUp(_prev: JoinState, formData: FormData): Promi
   if (d.invite) (await cookies()).set(INVITE_COOKIE, d.invite, { httpOnly: true, sameSite: "lax", maxAge: 7 * 86400, path: "/" });
 
   // An existing account just gets a login link: the form never says whether an email is registered.
+  // Test addresses (*.test, example.com) can't receive mail; tests log in with a generated link.
+  if (isReservedTestEmail(d.email)) return { status: "sent", email: d.email };
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithOtp({
     email: d.email,

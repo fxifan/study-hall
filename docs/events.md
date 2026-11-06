@@ -37,6 +37,21 @@ the action succeeded. Read by `/admin/analytics`.
 | `invoice_generated` | tutors | Tutor created an invoice | per invoice |
 | `invoice_sent` | tutors | Invoice emailed or marked sent | per invoice |
 | `resource_generated` | tutors | Practice set or writing tips generated | per resource |
+| `study_group_created` | platform | A student created a study group | none |
+| `study_group_joined` | platform | A student joined a group with an invite code | none |
+| `study_session_started` | platform | A verified study timer started | per session |
+| `study_session_stopped` | platform | A study timer stopped (`seconds` credited) | per session |
+| `help_requested` | platform | A student called out for help (`kind`, `via`) | none |
+| `help_accepted` | platform | A member accepted a help request | none |
+| `help_resolved` | platform | The requester marked it sorted | none |
+| `message_reported` | platform | A student reported a group message | none |
+| `student_resource_generated` | platform | A student generated notes, flashcards or a quiz (`kind`) | none |
+| `student_resource_completed` | platform | Notes or flashcards marked done | per resource |
+| `student_resource_flagged` | platform | A student flagged generated content | none |
+| `quiz_submitted` | platform | A quiz was marked (`count`, `status` scored or practice) | none |
+| `studyhall_proposed` | study_hall | A student proposed a Study Hall session to their group | none |
+| `studyhall_link_created` | study_hall | A student created a parent booking link | per seat |
+| `studyhall_seat_paid` | study_hall | A parent paid for a seat from a booking link | per seat |
 
 ## Not tracked yet (needs product work first)
 
