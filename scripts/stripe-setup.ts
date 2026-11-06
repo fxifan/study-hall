@@ -157,6 +157,24 @@ async function main() {
     : await stripe.billingPortal.configurations.create(tutorPortal);
   console.log(`Tutor Customer Portal configuration ${tutorConfig.id}`);
 
+  // 2c. Edumi student plan (A$11.99/month, owner decision 6 Nov 2026). The 7-day trial is Edumi's
+  // own (student_plans.trial_ends_at), so the price carries no Stripe trial.
+  const studentKey = "edumi-student-monthly";
+  let studentPrice = (await stripe.prices.list({ lookup_keys: [studentKey], limit: 1 })).data[0];
+  if (!studentPrice) {
+    const product = await stripe.products.create({ name: "Edumi Student", metadata: { app: "edumi", product: "student" } });
+    studentPrice = await stripe.prices.create({
+      product: product.id,
+      unit_amount: 1199,
+      currency: "aud",
+      recurring: { interval: "month" },
+      lookup_key: studentKey,
+      metadata: { app: "edumi", product: "student" },
+    });
+    console.log(`Created Edumi Student price ${studentPrice.id}`);
+  }
+  console.log(`Edumi Student -> ${studentPrice.id}`);
+
   // 3. Webhook endpoint (optional)
   const webhookFlag = process.argv.indexOf("--webhook");
   if (webhookFlag !== -1) {

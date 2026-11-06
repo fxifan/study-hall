@@ -15,7 +15,7 @@ import { formatAud } from "@/lib/money";
 import { getParentReports } from "@/lib/parent-reports";
 import { createClient } from "@/lib/supabase/server";
 import { MELBOURNE, formatInZone } from "@/lib/time";
-import { openBillingPortal } from "./actions";
+import { openBillingPortal, setStudyGroups } from "./actions";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getDictionary()).roles.parent };
@@ -43,7 +43,7 @@ async function ParentHome({ searchParams }: Pick<PageProps<"/[lang]/parent">, "s
   const [{ data: students }, { data: subscription }, reports] = await Promise.all([
     supabase
       .from("students")
-      .select("id, first_name, last_initial, year_level, status, student_subjects(subject_id)")
+      .select("id, first_name, last_initial, year_level, status, social_enabled, student_subjects(subject_id)")
       .order("first_name"),
     supabase
       .from("subscriptions")
@@ -88,6 +88,11 @@ async function ParentHome({ searchParams }: Pick<PageProps<"/[lang]/parent">, "s
                 <Link className="underline underline-offset-4" href={localizePath(`/parent/student/${s.id}`, locale)}>
                   {t.parent.editStudies} ({s.student_subjects.length})
                 </Link>
+                <form action={setStudyGroups.bind(null, s.id, !s.social_enabled)}>
+                  <button className="underline underline-offset-4" title={t.parent.edumiHint}>
+                    {t.parent.edumiGroups}: {s.social_enabled ? t.parent.edumiOn : t.parent.edumiOff}
+                  </button>
+                </form>
               </span>
             </li>
           ))}

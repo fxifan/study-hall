@@ -3,17 +3,14 @@
  */
 import { expect, test } from "@playwright/test";
 
-test("the home page introduces Edumi and routes to both live products", async ({ page }) => {
+test("the home page leads with studying with friends and routes to every product", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Education, made intelligent.");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Study together. Every minute counts.");
   const main = page.locator("main");
+  await expect(main.getByRole("link", { name: /Start your free week/ }).first()).toHaveAttribute("href", "/join");
+  await expect(page.locator("#students")).toContainText("A$11.99/month");
   await expect(main.getByRole("link", { name: /Explore Study Hall/ }).first()).toHaveAttribute("href", "/study_hall");
   await expect(main.getByRole("link", { name: /See Edumi for Tutors/ })).toHaveAttribute("href", "/tutors");
-  // Edumi AI: unavailable, with nothing to click and no described features.
-  const ai = page.locator("#ai");
-  await expect(ai).toContainText("Unavailable yet");
-  await expect(ai.getByRole("link")).toHaveCount(0);
-  await expect(ai.getByRole("button")).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Log in" }).first()).toBeVisible();
 });
 
@@ -29,7 +26,8 @@ test("Study Hall lives at /study_hall, and old /#section links are forwarded", a
 
 test("the home page in Chinese", async ({ page }) => {
   await page.goto("/zh");
-  await expect(page.locator("#ai")).toContainText("暂未开放");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("一起学习，每分钟都算数。");
+  await expect(page.locator("main").getByRole("link", { name: /免费试用一周/ }).first()).toHaveAttribute("href", "/zh/join");
   await expect(page.locator("main").getByRole("link", { name: "了解 Study Hall" }).first()).toHaveAttribute("href", "/zh/study_hall");
 });
 

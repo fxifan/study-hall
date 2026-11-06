@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { AppShell, AppShellFallback } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
@@ -51,13 +52,15 @@ async function StudentHome({ searchParams }: Pick<PageProps<"/[lang]/student">, 
   const supabase = await createClient();
   const { data: student } = await supabase
     .from("students")
-    .select("id, first_name, year_level, status, student_subjects(subjects(name))")
+    .select("id, first_name, year_level, status, self_signed, social_enabled, student_subjects(subjects(name))")
     .eq("profile_id", profile.id)
     .maybeSingle<{
       id: string;
       first_name: string;
       year_level: number;
       status: string;
+      self_signed: boolean;
+      social_enabled: boolean;
       student_subjects: { subjects: { name: string } | null }[];
     }>();
   // Suggestions for the plan's subject box: the subjects the parent listed.
@@ -65,9 +68,23 @@ async function StudentHome({ searchParams }: Pick<PageProps<"/[lang]/student">, 
   const title = student ? fill(s.greeting, { name: student.first_name }) : s.greetingFallback;
   const time = (iso: string) => formatInZone(iso, t.formats.time, MELBOURNE, dateLocale);
 
+  // Edumi groups are the home for students who signed themselves up (no Study Hall plan).
+  const groupsHref = localizePath("/student/groups", locale);
+  if (student?.self_signed && student.status === "active" && !query.studyhall) {
+    const { start: s0, end: e0 } = dayRangeUtc(dateKeyOf());
+    const { count } = await supabase.from("sessions").select("id", { count: "exact", head: true }).gte("starts_at", s0.toISOString()).lt("starts_at", e0.toISOString()).neq("status", "cancelled");
+    if (!count) redirect(groupsHref);
+  }
+  const groupsLink = student?.social_enabled ? (
+    <Link href={groupsHref} className="rounded-lg border border-rule bg-sheet px-4 py-3 font-medium no-underline">
+      Your Edumi study groups →
+    </Link>
+  ) : null;
+
   if (!student || student.status !== "active") {
     return (
       <AppShell profile={profile} title={title}>
+        {groupsLink}
         <p className="text-ink-soft">{s.notActive}</p>
       </AppShell>
     );
@@ -96,6 +113,7 @@ async function StudentHome({ searchParams }: Pick<PageProps<"/[lang]/student">, 
       .maybeSingle();
     return (
       <AppShell profile={profile} title={title}>
+        {groupsLink}
         <p className="text-ink-soft">{s.noSession}</p>
         {next && (
           <p className="font-mono text-sm">
@@ -129,6 +147,7 @@ async function StudentHome({ searchParams }: Pick<PageProps<"/[lang]/student">, 
 
   return (
     <AppShell profile={profile} title={title}>
+        {groupsLink}
       {error && (
         <p role="alert" className="rounded-md border border-pen-faint px-3 py-2 text-sm text-pen">
           {error}

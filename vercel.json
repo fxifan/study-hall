@@ -12,6 +12,10 @@
     {
       "path": "/api/cron/tutor-invoices",
       "schedule": "30 21 * * *"
+    },
+    {
+      "path": "/api/cron/edumi",
+      "schedule": "10 14 * * *"
     }
   ]
 }
