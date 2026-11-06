@@ -107,12 +107,15 @@ export function GroupChat({
   return (
     <section
       aria-label="Group chat"
-      className="flex min-h-[24rem] flex-col rounded-2xl border border-rule bg-sheet"
+      className="flex min-h-[24rem] flex-col rounded-2xl border border-rule bg-sheet lg:sticky lg:top-6 lg:h-[min(48rem,calc(100dvh-3rem))] lg:self-start"
     >
       <ol
         ref={list}
-        className="flex max-h-[28rem] flex-1 flex-col gap-2 overflow-y-auto p-3"
+        className="flex max-h-[28rem] min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-3 lg:max-h-none"
       >
+        {messages.length === 0 && (
+          <li className="m-auto max-w-[28ch] text-center text-sm text-ink-faint">No messages yet. Say hi, or share what you&apos;re working on today.</li>
+        )}
         {messages
           .filter(
             (m) =>
