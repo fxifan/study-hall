@@ -3,11 +3,11 @@
  */
 import { expect, test } from "@playwright/test";
 
-test("the home page leads with studying with friends and routes to every product", async ({ page }) => {
+test("the home page leads with friendly competition and routes to every product", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Study together. Every minute counts.");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Outstudy your friends. Win together.");
   const main = page.locator("main");
-  await expect(main.getByRole("link", { name: /Start your free week/ }).first()).toHaveAttribute("href", "/join");
+  await expect(main.getByRole("link", { name: /Challenge your friends/ }).first()).toHaveAttribute("href", "/join");
   await expect(page.locator("#students")).toContainText("A$11.99/month");
   await expect(main.getByRole("link", { name: /Explore Study Hall/ }).first()).toHaveAttribute("href", "/study_hall");
   await expect(main.getByRole("link", { name: /See Edumi for Tutors/ })).toHaveAttribute("href", "/tutors");
@@ -26,8 +26,8 @@ test("Study Hall lives at /study_hall, and old /#section links are forwarded", a
 
 test("the home page in Chinese", async ({ page }) => {
   await page.goto("/zh");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("一起学习，每分钟都算数。");
-  await expect(page.locator("main").getByRole("link", { name: /免费试用一周/ }).first()).toHaveAttribute("href", "/zh/join");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("学过你的朋友，一起赢。");
+  await expect(page.locator("main").getByRole("link", { name: /向朋友发起挑战/ }).first()).toHaveAttribute("href", "/zh/join");
   await expect(page.locator("main").getByRole("link", { name: "了解 Study Hall" }).first()).toHaveAttribute("href", "/zh/study_hall");
 });
 
