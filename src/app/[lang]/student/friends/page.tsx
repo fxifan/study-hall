@@ -5,7 +5,7 @@ import { namesFor, personSeconds, requireSocialStudent } from "@/lib/social/serv
 import { createAdminClient } from "@/lib/supabase/admin";
 import { MELBOURNE } from "@/lib/time";
 import { respondFriend, setFriendsBoard } from "../_social/actions";
-import { Loading, StudentShell, card, smallBtn } from "../_social/shell";
+import { Loading, StudentShell, card, tile, smallBtn } from "../_social/shell";
 
 export const metadata: Metadata = { title: "Friends" };
 
@@ -43,7 +43,7 @@ async function Friends({ searchParams }: Pick<PageProps<"/[lang]/student/friends
 
   return (
     <StudentShell me={me} title="Friends" current="friends">
-      <section className={`${card} flex flex-col gap-3`}>
+      <section className={`${tile} flex flex-col gap-3 bg-brand-soft`}>
         <div className="flex items-center justify-between">
           <h2 className="font-medium">{week ? "This week" : "Today"}</h2>
           <a href={week ? "?" : "?view=week"} className="text-xs">

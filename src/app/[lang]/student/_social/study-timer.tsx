@@ -160,7 +160,7 @@ export function StudyTimer({
   }
 
   return (
-    <section aria-label="Study timer" className="flex flex-col gap-3 rounded-lg border border-rule bg-sheet p-4">
+    <section aria-label="Study timer" className="flex flex-col gap-3 rounded-2xl border border-rule bg-sheet p-4">
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="font-mono text-3xl tabular-nums" aria-live="off">
@@ -172,15 +172,15 @@ export function StudyTimer({
         </div>
         <div className="flex gap-2">
           {!live || otherGroup ? (
-            <button onClick={start} disabled={pending} className="inline-flex h-11 items-center rounded-md bg-ink px-5 font-medium whitespace-nowrap text-paper disabled:opacity-50">
+            <button onClick={start} disabled={pending} className="inline-flex h-11 items-center rounded-full bg-ink px-5 font-medium whitespace-nowrap text-paper disabled:opacity-50">
               {otherGroup ? "Switch here" : "Start studying"}
             </button>
           ) : (
             <>
-              <button onClick={() => setManualPause((p) => !p)} disabled={pending} className="inline-flex h-11 items-center rounded-md border border-rule px-4 font-medium">
+              <button onClick={() => setManualPause((p) => !p)} disabled={pending} className="inline-flex h-11 items-center rounded-full border border-rule px-4 font-medium">
                 {manualPause ? "Resume" : "Pause"}
               </button>
-              <button onClick={stop} disabled={pending} className="inline-flex h-11 items-center rounded-md bg-ink px-4 font-medium text-paper">
+              <button onClick={stop} disabled={pending} className="inline-flex h-11 items-center rounded-full bg-ink px-4 font-medium text-paper">
                 Stop
               </button>
             </>

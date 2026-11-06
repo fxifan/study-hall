@@ -22,7 +22,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { askForHelp, leaveGroup, newInvite, requestFriend, respondHelp, setTarget, updateMembership } from "../../_social/actions";
 import { CopyButton } from "../../_social/copy-button";
 import { GroupChat, type ChatMessage } from "../../_social/group-chat";
-import { Loading, Notice, StudentShell, card, secondaryBtn, smallBtn } from "../../_social/shell";
+import { Loading, Notice, StudentShell, card, tile, secondaryBtn, smallBtn } from "../../_social/shell";
 import { StudyTimer } from "../../_social/study-timer";
 import { LiveRefresh } from "@/components/live-refresh";
 
@@ -95,14 +95,14 @@ async function GroupView({ params, searchParams }: Pick<PageProps<"/[lang]/stude
       <LiveRefresh seconds={30} />
       {error && <Notice tone="error">{error}</Notice>}
 
-      <section aria-label="Today's goal" className={`${card} flex flex-col gap-2`}>
+      <section aria-label="Today's goal" className={`${tile} flex flex-col gap-2 bg-brand-soft`}>
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 className="font-medium">Today&apos;s goal</h2>
           <span className="font-mono text-sm">
             {shortMinutes(progress.doneMinutes)} of {shortMinutes(progress.targetMinutes)}
           </span>
         </div>
-        <div className="h-3 overflow-hidden rounded-full bg-paper-deep" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Today's goal">
+        <div className="h-3 overflow-hidden rounded-full bg-sheet" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Today's goal">
           <div className="h-full rounded-full bg-brand transition-[width]" style={{ width: `${pct}%` }} />
         </div>
         <p className="text-sm text-ink-soft">
@@ -151,7 +151,7 @@ async function GroupView({ params, searchParams }: Pick<PageProps<"/[lang]/stude
             <p className="text-xs text-ink-faint">Live times are provisional until a session stops. Only this group&apos;s minutes count here.</p>
           </section>
 
-          <section aria-label="Call out for help" className={`${card} flex flex-col gap-3`}>
+          <section aria-label="Call out for help" className={`${tile} flex flex-col gap-3 bg-[var(--tiles-pink-soft)]`}>
             <h2 className="font-medium">Call out for help</h2>
             {(help ?? []).map((h) => {
               const isMine = h.requester_id === me.profile.id;
@@ -210,7 +210,7 @@ async function GroupView({ params, searchParams }: Pick<PageProps<"/[lang]/stude
             </form>
           </section>
 
-          <section aria-label="Invite" className={`${card} flex flex-col gap-2 text-sm`}>
+          <section aria-label="Invite" className={`${tile} flex flex-col gap-2 bg-[var(--tiles-sand)] text-sm`}>
             <h2 className="font-medium">Invite friends</h2>
             {invite && inviteUrl ? (
               <>

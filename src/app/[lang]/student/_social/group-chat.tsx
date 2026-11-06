@@ -102,7 +102,7 @@ export function GroupChat({
   return (
     <section
       aria-label="Group chat"
-      className="flex min-h-[24rem] flex-col rounded-lg border border-rule bg-sheet"
+      className="flex min-h-[24rem] flex-col rounded-2xl border border-rule bg-sheet"
     >
       <ol
         ref={list}
@@ -160,7 +160,7 @@ export function GroupChat({
                         ⋯
                       </button>
                       {menu === m.id && (
-                        <div className="absolute left-0 z-10 mt-1 flex w-36 flex-col rounded-md border border-rule bg-sheet text-sm shadow">
+                        <div className="absolute left-0 z-10 mt-1 flex w-36 flex-col rounded-full border border-rule bg-sheet text-sm shadow">
                           <button
                             type="button"
                             className="px-3 py-2 text-left hover:bg-paper-deep"
@@ -229,7 +229,7 @@ export function GroupChat({
           />
           <button
             disabled={pending || !text.trim()}
-            className="h-10 rounded-md bg-ink px-4 text-sm font-medium text-paper disabled:opacity-50"
+            className="h-10 rounded-full bg-ink px-4 text-sm font-medium text-paper disabled:opacity-50"
           >
             Send
           </button>

@@ -14,7 +14,7 @@ export function Wordmark({ className = "", product }: { className?: string; prod
       >
         <span aria-hidden="true">
           {BRAND.wordmark}
-          <span className="text-[#A99AFF]">.</span>
+          <span className="text-[var(--wordmark-dot,#A99AFF)]">.</span>
         </span>
       </span>
       {product && <span className="text-[0.8em] font-medium opacity-70">{product}</span>}
