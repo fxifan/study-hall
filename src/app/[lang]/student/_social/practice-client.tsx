@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import type { PublicQuiz } from "@/lib/social/resources";
 import { submitQuiz, type QuizResult } from "./actions";
+import { RankUpCelebration } from "./rank-up";
 
 export function Flashcards({ cards }: { cards: { front: string; back: string }[] }) {
   const [i, setI] = useState(0);
@@ -76,6 +77,8 @@ export function QuizRunner({ resourceId, quiz }: { resourceId: string; quiz: Pub
 
   return (
     <section aria-label="Quiz" className="flex flex-col gap-4">
+      {/* After the marks are on screen, never during a submission. */}
+      {result?.promotion && <RankUpCelebration key={result.promotion.id} promotion={result.promotion} />}
       {result ? (
         <div role="status" className="flex flex-wrap items-center gap-5 rounded-xl border border-ink bg-sheet p-5">
           <div className="flex h-20 w-20 flex-col items-center justify-center rounded-full border-4 border-brand">

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Bronze Braincell">
+<title>Bronze Braincell</title>
+<defs>
+<linearGradient id="rim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e6b27a"/><stop offset="1" stop-color="#7a4a22"/></linearGradient>
+<linearGradient id="field" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a3418"/><stop offset="1" stop-color="#33200f"/></linearGradient>
+<linearGradient id="shine" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".28"/><stop offset=".5" stop-color="#ffffff" stop-opacity="0"/></linearGradient>
+</defs>
+<ellipse cx="20" cy="96" rx="5.5" ry="13" transform="rotate(-40 20 96)" fill="#a36b37"/><ellipse cx="108" cy="96" rx="5.5" ry="13" transform="rotate(40 108 96)" fill="#a36b37"/>
+
+<path d="M64 14 L104 27 V62 C104 89 87 106 64 116 C41 106 24 89 24 62 V27 Z" fill="url(#rim)"/>
+<path d="M64 22 L96 33 V62 C96 84 82 98 64 107 C46 98 32 84 32 62 V33 Z" fill="url(#field)"/>
+<path d="M64 22 L96 33 V62 C96 84 82 98 64 107 C46 98 32 84 32 62 V33 Z" fill="url(#shine)"/>
+<g transform="translate(32 33)" color="#f3c48f"><circle cx="32" cy="32" r="7" fill="currentColor"/><path d="M32 25V12M32 12l-5-4M32 12l5-4M38 35l11 6M49 41l2 6M26 35l-11 6M15 41l-2 6M37 27l9-7M27 27l-9-7" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M50 14l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="currentColor"/></g>
+
+
+</svg>

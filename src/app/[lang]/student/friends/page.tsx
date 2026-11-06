@@ -5,6 +5,8 @@ import { namesFor, personSeconds, requireSocialStudent } from "@/lib/social/serv
 import { createAdminClient } from "@/lib/supabase/admin";
 import { MELBOURNE } from "@/lib/time";
 import { respondFriend, setFriendsBoard } from "../_social/actions";
+import { RankBadge } from "../_social/rank-badge";
+import { visibleRanks } from "@/lib/social/rank-sync";
 import { Loading, StudentShell, card, tile, smallBtn } from "../_social/shell";
 
 export const metadata: Metadata = { title: "Friends" };
@@ -40,6 +42,7 @@ async function Friends({ searchParams }: Pick<PageProps<"/[lang]/student/friends
   const w = week ? weekWindow(day, MELBOURNE) : dayWindow(day, MELBOURNE);
   const totals = iOptIn ? await personSeconds(onBoard, w.start, w.end) : new Map<string, number>();
   const standings = rank(new Map(onBoard.map((id) => [id, totals.get(id) ?? 0])));
+  const ranks = await visibleRanks(onBoard, me.profile.id);
 
   return (
     <StudentShell me={me} title="Friends" current="friends">
@@ -58,8 +61,9 @@ async function Friends({ searchParams }: Pick<PageProps<"/[lang]/student/friends
           <ol className="flex flex-col gap-1 text-sm">
             {standings.map((s) => (
               <li key={s.profileId} className="flex justify-between">
-                <span>
+                <span className="flex items-center gap-1.5">
                   <span className="inline-block w-6 font-mono text-ink-faint">{s.rank}</span>
+                  {ranks.get(s.profileId) && <RankBadge rank={ranks.get(s.profileId)!} size={20} />}
                   {s.profileId === me.profile.id ? "You" : names.get(s.profileId)}
                 </span>
                 <span className="font-mono">{shortMinutes(Math.floor(s.seconds / 60))}</span>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Champion Challenger">
+<title>Champion Challenger</title>
+<defs>
+<linearGradient id="rim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd98a"/><stop offset="1" stop-color="#9a6a14"/></linearGradient>
+<linearGradient id="field" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a1424"/><stop offset="1" stop-color="#430913"/></linearGradient>
+<linearGradient id="shine" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".28"/><stop offset=".5" stop-color="#ffffff" stop-opacity="0"/></linearGradient>
+</defs>
+<ellipse cx="20" cy="96" rx="5.5" ry="13" transform="rotate(-40 20 96)" fill="#d4a640"/><ellipse cx="108" cy="96" rx="5.5" ry="13" transform="rotate(40 108 96)" fill="#d4a640"/><ellipse cx="18.5" cy="81" rx="5.5" ry="13" transform="rotate(-32 18.5 81)" fill="#d4a640"/><ellipse cx="109.5" cy="81" rx="5.5" ry="13" transform="rotate(32 109.5 81)" fill="#d4a640"/><ellipse cx="17" cy="66" rx="5.5" ry="13" transform="rotate(-24 17 66)" fill="#d4a640"/><ellipse cx="111" cy="66" rx="5.5" ry="13" transform="rotate(24 111 66)" fill="#d4a640"/><ellipse cx="15.5" cy="51" rx="5.5" ry="13" transform="rotate(-16 15.5 51)" fill="#d4a640"/><ellipse cx="112.5" cy="51" rx="5.5" ry="13" transform="rotate(16 112.5 51)" fill="#d4a640"/><ellipse cx="14" cy="36" rx="5.5" ry="13" transform="rotate(-8 14 36)" fill="#d4a640"/><ellipse cx="114" cy="36" rx="5.5" ry="13" transform="rotate(8 114 36)" fill="#d4a640"/>
+
+<path d="M64 14 L104 27 V62 C104 89 87 106 64 116 C41 106 24 89 24 62 V27 Z" fill="url(#rim)"/>
+<path d="M64 22 L96 33 V62 C96 84 82 98 64 107 C46 98 32 84 32 62 V33 Z" fill="url(#field)"/>
+<path d="M64 22 L96 33 V62 C96 84 82 98 64 107 C46 98 32 84 32 62 V33 Z" fill="url(#shine)"/>
+<g transform="translate(32 33)" color="#ffe2a3"><path d="M20 12h24v10c0 9-5 15-12 15s-12-6-12-15z" fill="currentColor"/><path d="M20 16h-7c0 8 4 11 8 11M44 16h7c0 8-4 11-8 11M32 37v7M23 50h18" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g>
+<path d="M64 102 L71 110 L64 122 L57 110 Z" fill="#ff5b6b" stroke="#ffffff" stroke-opacity=".7" stroke-width="1.5"/>
+
+</svg>

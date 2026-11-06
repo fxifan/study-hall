@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Gold Grinder">
+<title>Gold Grinder</title>
+<defs>
+<linearGradient id="rim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe7a0"/><stop offset="1" stop-color="#b07d1a"/></linearGradient>
+<linearGradient id="field" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a5512"/><stop offset="1" stop-color="#4a320a"/></linearGradient>
+<linearGradient id="shine" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".28"/><stop offset=".5" stop-color="#ffffff" stop-opacity="0"/></linearGradient>
+</defs>
+<ellipse cx="20" cy="96" rx="5.5" ry="13" transform="rotate(-40 20 96)" fill="#d2a43a"/><ellipse cx="108" cy="96" rx="5.5" ry="13" transform="rotate(40 108 96)" fill="#d2a43a"/><ellipse cx="18.5" cy="81" rx="5.5" ry="13" transform="rotate(-32 18.5 81)" fill="#d2a43a"/><ellipse cx="109.5" cy="81" rx="5.5" ry="13" transform="rotate(32 109.5 81)" fill="#d2a43a"/>
+
+<path d="M64 14 L104 27 V62 C104 89 87 106 64 116 C41 106 24 89 24 62 V27 Z" fill="url(#rim)"/>
+<path d="M64 22 L96 33 V62 C96 84 82 98 64 107 C46 98 32 84 32 62 V33 Z" fill="url(#field)"/>
+<path d="M64 22 L96 33 V62 C96 84 82 98 64 107 C46 98 32 84 32 62 V33 Z" fill="url(#shine)"/>
+<g transform="translate(32 33)" color="#ffe3a0"><path d="M14 10h30M14 54h30" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 13h22c0 10-11 14-11 19 0 5 11 9 11 19H18c0-10 11-14 11-19 0-5-11-9-11-19z" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"/><path d="M22 47c2-5 7-8 7-8s5 3 7 8z" fill="currentColor"/><path d="M52 18l-6 12h5l-4 11 10-14h-5l4-9z" fill="currentColor"/></g>
+
+
+</svg>

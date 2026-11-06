@@ -11,6 +11,7 @@ import { siteOrigin } from "@/lib/site";
 import { getStripe } from "@/lib/stripe";
 import { studentCheckoutUrl } from "@/lib/social/billing";
 import { completionAward, marksAward } from "@/lib/social/points";
+import { acknowledgePromotion, syncRank, type Promotion } from "@/lib/social/rank-sync";
 import {
   DAILY_LIMITS,
   generateStudentResource,
@@ -458,6 +459,25 @@ export async function regenerateResource(resourceId: string) {
   redirect(await href(`/student/practice/${out.id}`));
 }
 
+async function trackPromotion(profileId: string, p: Promotion) {
+  await track({ name: "rank_promoted", product: "platform", role: "student", userId: profileId, props: { status: p.to.id, count: p.to.tier - p.from.tier }, dedupeKey: `rank:${p.id}` });
+}
+
+/** The student saw (or skipped) the celebration: mark it and any earlier unseen promotions seen. */
+export async function acknowledgeRankUp(promotionId: string): Promise<void> {
+  const me = await socialActor({ paid: false });
+  if (!uuid.safeParse(promotionId).success) return;
+  await acknowledgePromotion(me.profile.id, promotionId);
+}
+
+export async function setShowRank(formData: FormData) {
+  const me = await socialActor({ paid: false });
+  await createAdminClient()
+    .from("student_settings")
+    .upsert({ profile_id: me.profile.id, show_rank: formData.get("show_rank") === "on", updated_at: new Date().toISOString() });
+  refresh();
+}
+
 async function pointsToday(profileId: string): Promise<number> {
   const { data } = await createAdminClient().from("points_ledger").select("points").eq("profile_id", profileId).eq("day", dateKeyOf());
   return (data ?? []).reduce((s, r) => s + (r.points as number), 0);
@@ -476,12 +496,17 @@ export async function completeResource(resourceId: string) {
     const ins = await admin.from("points_ledger").insert({ profile_id: me.profile.id, lineage_id: r.lineage_id, kind: "completion", points, day: dateKeyOf() });
     if (ins.error && ins.error.code !== "23505") throw ins.error;
   }
+  // Even with no new points (a retry), sync: the rank follows the committed balance.
+  const promotion = await syncRank(me.profile.id);
+  if (promotion) await trackPromotion(me.profile.id, promotion);
   await track({ name: "student_resource_completed", product: "platform", role: "student", userId: me.profile.id, props: { kind: r.kind }, dedupeKey: `complete:${resourceId}` });
   refresh();
 }
 
+export type PromotionView = { id: string; fromTier: number; toTier: number; points: number };
+
 export type QuizResult =
-  | { earned: number; total: number; pct: number; points: number; results: (QuestionResult & { answer?: number; modelAnswer?: string; rubric?: { criterion: string; marks: number }[] })[] }
+  | { earned: number; total: number; pct: number; points: number; promotion: PromotionView | null; results: (QuestionResult & { answer?: number; modelAnswer?: string; rubric?: { criterion: string; marks: number }[] })[] }
   | { error: string };
 
 export async function submitQuiz(resourceId: string, answers: (number | string | null)[]): Promise<QuizResult> {
@@ -533,11 +558,14 @@ export async function submitQuiz(resourceId: string, answers: (number | string |
     userId: me.profile.id,
     props: { count: quiz.data.questions.length, status: `${Math.floor(pct / 10) * 10}%+`, source: quiz.data.curriculum ? "curriculum" : "topic" },
   });
+  const promotion = await syncRank(me.profile.id);
+  if (promotion) await trackPromotion(me.profile.id, promotion);
   return {
     earned,
     total,
     pct,
     points,
+    promotion: promotion ? { id: promotion.id, fromTier: promotion.from.tier, toTier: promotion.to.tier, points: promotion.points } : null,
     results: results.map((x, i) => {
       const k = key.questions[i];
       return k?.type === "mcq" ? { ...x, answer: k.answer } : k?.type === "free" ? { ...x, modelAnswer: k.modelAnswer, rubric: k.rubric } : x;

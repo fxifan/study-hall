@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { ageFrom, canSelfSignUp } from "./age";
 import { dayWindow, goalProgress, planBeat, rank, secondsByMember, standouts, weekWindow, type CreditInterval } from "./credit";
-import { completionAward, marksAward, tierFor } from "./points";
+import { completionAward, marksAward } from "./points";
 import { generateStudentResource, markQuiz, offlineStudentLlm } from "./resources";
 
 const TZ = "Australia/Melbourne";
@@ -102,11 +102,6 @@ describe("points", () => {
     expect(completionAward({ alreadyAwarded: false, pointsToday: 0 })).toBe(10);
     expect(completionAward({ alreadyAwarded: true, pointsToday: 0 })).toBe(0);
   });
-  it("tiers", () => {
-    expect(tierFor(0).name).toBe("Starter");
-    expect(tierFor(150)).toMatchObject({ name: "Silver", next: { name: "Gold" } });
-    expect(tierFor(5000).next).toBeNull();
-  });
 });
 
 describe("quizzes", () => {
@@ -163,5 +158,56 @@ describe("practice prompts", () => {
   });
   it("lets adults sign themselves up", () => {
     expect(canSelfSignUp(1985, 6)).toBe(true);
+  });
+});
+
+describe("study ranks", () => {
+  it("has 13 ranks in order, with exact names and strictly increasing thresholds from 0", async () => {
+    const { RANKS } = await import("./ranks");
+    expect(RANKS.map((r) => r.name)).toEqual([
+      "Copper Crammer",
+      "Bronze Braincell",
+      "Silver Striver",
+      "Gold Grinder",
+      "Platinum Prodigy",
+      "Ruby Reviser",
+      "Sapphire Scholar",
+      "Emerald Einstein",
+      "Amethyst Ace",
+      "Diamond Demon",
+      "Champion Challenger",
+      "Master Mind",
+      "Grandmaster Genius",
+    ]);
+    expect(RANKS.map((r) => r.tier)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]);
+    expect(RANKS[0].min).toBe(0);
+    for (let i = 1; i < RANKS.length; i++) expect(RANKS[i].min).toBeGreaterThan(RANKS[i - 1].min);
+  });
+  it("entry tier, just below and exactly at a threshold, multiple tiers, the top", async () => {
+    const { rankFor, rankProgress, nextRank, RANKS } = await import("./ranks");
+    expect(rankFor(0).id).toBe("copper");
+    expect(rankFor(49).id).toBe("copper");
+    expect(rankFor(50).id).toBe("bronze");
+    expect(rankFor(299).id).toBe("silver");
+    expect(rankFor(300).id).toBe("gold");
+    expect(rankFor(1199).id).toBe("ruby");
+    expect(rankFor(7499).id).toBe("master");
+    expect(rankFor(7500).id).toBe("grandmaster");
+    expect(rankFor(999999).id).toBe("grandmaster");
+    expect(nextRank(RANKS[12])).toBeNull();
+    expect(rankProgress(100)).toMatchObject({ rank: { id: "bronze" }, next: { id: "silver" }, toNext: 50, fraction: 0.5 });
+    expect(rankProgress(9000)).toMatchObject({ next: null, toNext: 0, fraction: 1 });
+  });
+  it("the migration initialises with the same thresholds as the config", async () => {
+    const { readFileSync, readdirSync } = await import("node:fs");
+    const { RANK_THRESHOLDS } = await import("./ranks");
+    const file = readdirSync("supabase/migrations").find((f) => f.endsWith("_study_ranks.sql"))!;
+    const sql = readFileSync(`supabase/migrations/${file}`, "utf8");
+    expect(sql).toContain(`array[${RANK_THRESHOLDS.join(", ")}]`);
+  });
+  it("a badge asset exists for every rank", async () => {
+    const { existsSync } = await import("node:fs");
+    const { RANKS, badgeSrc } = await import("./ranks");
+    for (const r of RANKS) expect(existsSync(`public${badgeSrc(r)}`), r.id).toBe(true);
   });
 });

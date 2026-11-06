@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Silver Striver">
+<title>Silver Striver</title>
+<defs>
+<linearGradient id="rim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f2f4f8"/><stop offset="1" stop-color="#7d8797"/></linearGradient>
+<linearGradient id="field" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a5262"/><stop offset="1" stop-color="#2b3140"/></linearGradient>
+<linearGradient id="shine" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".28"/><stop offset=".5" stop-color="#ffffff" stop-opacity="0"/></linearGradient>
+</defs>
+<ellipse cx="20" cy="96" rx="5.5" ry="13" transform="rotate(-40 20 96)" fill="#a9b2c0"/><ellipse cx="108" cy="96" rx="5.5" ry="13" transform="rotate(40 108 96)" fill="#a9b2c0"/>
+
+<path d="M64 14 L104 27 V62 C104 89 87 106 64 116 C41 106 24 89 24 62 V27 Z" fill="url(#rim)"/>
+<path d="M64 22 L96 33 V62 C96 84 82 98 64 107 C46 98 32 84 32 62 V33 Z" fill="url(#field)"/>
+<path d="M64 22 L96 33 V62 C96 84 82 98 64 107 C46 98 32 84 32 62 V33 Z" fill="url(#shine)"/>
+<g transform="translate(32 33)" color="#eef1f6"><path d="M14 38 L32 22 L50 38" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 54 L32 38 L50 54" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></g>
+
+
+</svg>

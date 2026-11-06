@@ -4,5 +4,5 @@ export const PLAN_FEATURES = [
   "Verified study timer, live group boards and the Friends board",
   "Call Out for Help when you're stuck",
   "AI practice: 2 quizzes of 8 questions a day, plus notes and flashcards",
-  "Tiers and points for finishing practice",
+  "13 Study Ranks to climb, from Copper Crammer to Grandmaster Genius",
 ];

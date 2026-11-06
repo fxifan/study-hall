@@ -36,7 +36,7 @@ async function Plan({ searchParams }: Pick<PageProps<"/[lang]/student/plan">, "s
   const a = me.access;
 
   return (
-    <StudentShell me={me} title="Your Edumi plan" current="me">
+    <StudentShell me={me} title="Your Edumi plan" current="me" celebrate={false}>
       {justPaid && <Notice tone="ok">You&apos;re subscribed. Thanks!</Notice>}
       {a.kind === "disabled" && <Notice>A parent set up your account. Ask them to switch on Edumi groups from their parent page.</Notice>}
       {a.kind === "expired" && <Notice tone="error">Your free week has ended. Subscribe, or ask a parent to, to keep your groups, timer and practice.</Notice>}

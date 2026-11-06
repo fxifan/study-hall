@@ -74,7 +74,7 @@ async function Groups({ searchParams }: Pick<PageProps<"/[lang]/student/groups">
             const race = !leader
               ? "Nobody's on the board yet today. Take the lead."
               : leader.profile_id === me.profile.id
-                ? "You're leading today 🥇"
+                ? "You're leading today"
                 : `${leader.name} leads${mine ? ` · you're #${mine.rank}` : ""}`;
             return (
               <li key={g.id}>

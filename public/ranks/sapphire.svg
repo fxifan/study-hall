@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Sapphire Scholar">
+<title>Sapphire Scholar</title>
+<defs>
+<linearGradient id="rim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9fc0ff"/><stop offset="1" stop-color="#1f3f9e"/></linearGradient>
+<linearGradient id="field" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16296b"/><stop offset="1" stop-color="#0c1640"/></linearGradient>
+<linearGradient id="shine" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".28"/><stop offset=".5" stop-color="#ffffff" stop-opacity="0"/></linearGradient>
+</defs>
+<ellipse cx="20" cy="96" rx="5.5" ry="13" transform="rotate(-40 20 96)" fill="#3f6ee0"/><ellipse cx="108" cy="96" rx="5.5" ry="13" transform="rotate(40 108 96)" fill="#3f6ee0"/><ellipse cx="18.5" cy="81" rx="5.5" ry="13" transform="rotate(-32 18.5 81)" fill="#3f6ee0"/><ellipse cx="109.5" cy="81" rx="5.5" ry="13" transform="rotate(32 109.5 81)" fill="#3f6ee0"/><ellipse cx="17" cy="66" rx="5.5" ry="13" transform="rotate(-24 17 66)" fill="#3f6ee0"/><ellipse cx="111" cy="66" rx="5.5" ry="13" transform="rotate(24 111 66)" fill="#3f6ee0"/>
+
+<path d="M64 14 L104 27 V62 C104 89 87 106 64 116 C41 106 24 89 24 62 V27 Z" fill="url(#rim)"/>
+<path d="M64 22 L96 33 V62 C96 84 82 98 64 107 C46 98 32 84 32 62 V33 Z" fill="url(#field)"/>
+<path d="M64 22 L96 33 V62 C96 84 82 98 64 107 C46 98 32 84 32 62 V33 Z" fill="url(#shine)"/>
+<g transform="translate(32 33)" color="#dbe6ff"><path d="M32 12 L58 24 L32 36 L6 24 Z" fill="currentColor"/><path d="M17 30v10c8 6 22 6 30 0V30" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M54 26v14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>
+<path d="M64 102 L71 110 L64 122 L57 110 Z" fill="#5fa0ff" stroke="#ffffff" stroke-opacity=".7" stroke-width="1.5"/>
+
+</svg>
