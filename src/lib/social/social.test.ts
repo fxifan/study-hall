@@ -127,3 +127,14 @@ describe("age gate", () => {
     expect(canSelfSignUp(2014, 1, today)).toBe(false);
   });
 });
+
+describe("practice prompts", () => {
+  it("pitches university and TAFE students at their own level", async () => {
+    const { resourcePrompt } = await import("./resources");
+    expect(resourcePrompt({ kind: "quiz", topic: "Organic chemistry", notes: "", yearLevel: 13 }).system).toContain("university or TAFE");
+    expect(resourcePrompt({ kind: "quiz", topic: "Fractions", notes: "", yearLevel: 8 }).system).toContain("Year 8");
+  });
+  it("lets adults sign themselves up", () => {
+    expect(canSelfSignUp(1985, 6)).toBe(true);
+  });
+});

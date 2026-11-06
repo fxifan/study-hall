@@ -24,9 +24,10 @@ const schema = z.object({
     .trim()
     .regex(/^\p{L}$/u)
     .transform((v) => v.toUpperCase()),
-  yearLevel: z.coerce.number().int().min(7).max(12),
+  // 7 to 12 for school, 13 for university or TAFE.
+  yearLevel: z.coerce.number().int().min(7).max(13),
   birthMonth: z.coerce.number().int().min(1).max(12),
-  birthYear: z.coerce.number().int().min(1990).max(2030),
+  birthYear: z.coerce.number().int().min(1900).max(2100),
   email: z.email().trim().toLowerCase(),
   agree: z.literal("on"),
   invite: z
@@ -37,7 +38,7 @@ const schema = z.object({
 });
 
 /**
- * Student self sign-up (13+, owner decision 6 Nov 2026). Under-13s are told to ask a parent, who
+ * Student self sign-up (13+, no upper age limit: uni students too; owner decisions 6 Nov 2026). Under-13s are told to ask a parent, who
  * adds them from the parent account. Creates the student login (role fixed by app_metadata) and
  * an active, self-signed student record with Edumi switched on, then emails a login link. The
  * 7-day trial starts on first use (student_plans default).
