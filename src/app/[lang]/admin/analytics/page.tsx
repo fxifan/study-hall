@@ -10,6 +10,8 @@ import { EVENTS } from "@/lib/events";
 import { formatAudCents } from "@/lib/tutor/costs";
 import { addDaysToDateKey, dateKeyOf, formatInZone, zonedDateTimeToUtc } from "@/lib/time";
 import { AdminFrame, fieldClass } from "../admin-frame";
+import { edumiMetrics } from "@/lib/social/analytics";
+import { loadEdumiRows } from "@/lib/social/analytics-load";
 
 export const metadata: Metadata = { title: "Analytics" };
 
@@ -29,6 +31,7 @@ export default function AnalyticsPage({ searchParams }: PageProps<"/[lang]/admin
 
 const TABS = [
   ["overview", "Overview"],
+  ["edumi", "Edumi students"],
   ["study-hall", "Study Hall"],
   ["tutors", "Edumi for Tutors"],
   ["operations", "Operations"],
@@ -69,7 +72,8 @@ async function Analytics({ searchParams }: Pick<PageProps<"/[lang]/admin/analyti
   const now = new Date();
   const tab: Tab = TABS.some(([k]) => k === query.tab) ? (query.tab as Tab) : "overview";
   const { range, label, key, fromKey, toKey } = parseRange(query, now);
-  const data = await loadAnalytics(range);
+  const [data, edumiRows] = await Promise.all([loadAnalytics(range), tab === "edumi" ? loadEdumiRows(range.from) : null]);
+  const ed = edumiRows ? edumiMetrics(edumiRows, range, now) : null;
   const tm = tutorsMetrics({
     tutors: data.tutors,
     reports: data.tutorReports,
@@ -164,6 +168,44 @@ async function Analytics({ searchParams }: Pick<PageProps<"/[lang]/admin/analyti
             <Stat label="Failed payments" value={ov.failedPayments} note="Past-due events in the period" />
           </Grid>
           <Glossary />
+        </>
+      )}
+
+      {tab === "edumi" && ed && (
+        <>
+          <h2 className="text-lg font-medium">Acquisition and plans</h2>
+          <Grid>
+            <Stat label="Student sign-ups" value={ed.acquisition.signups} note="Students 13+ who signed themselves up" />
+            <Stat label="Trials started" value={ed.acquisition.trialsStarted} />
+            <Stat label="On trial now" value={ed.acquisition.trialing} />
+            <Stat label="Students with groups on" value={ed.acquisition.enabled} note="Self sign-ups plus children a parent switched on" />
+            <Stat label="Paying students" value={ed.plans.paying} note={`${ed.plans.byStudent} paid by the student · ${ed.plans.byParent} by a parent`} />
+            <Stat label="Student MRR" value={money(ed.plans.mrrCents)} note="Paying students × A$11.99" />
+            <Stat label="Trial to paid" value={pct(ed.plans.trialConversion)} note={`Of ${ed.plans.trialsEnded} trials that ended in the period`} />
+          </Grid>
+          <h2 className="text-lg font-medium">Pilot funnel</h2>
+          <Funnel stages={ed.funnel} />
+          <h2 className="text-lg font-medium">Groups and study</h2>
+          <Grid>
+            <Stat label="Groups created" value={ed.groups.created} />
+            <Stat label="Active groups" value={ed.groups.active} note="A member studied 1+ minute" />
+            <Stat label="Groups with 2+ studying" value={ed.groups.activeWithTwo} />
+            <Stat label="Members per active group" value={ed.groups.membersPerActiveGroup === null ? null : ed.groups.membersPerActiveGroup.toFixed(1)} />
+            <Stat label="Verified study minutes" value={ed.study.minutes.toLocaleString("en-AU")} note={`${ed.study.sessions} sessions`} />
+            <Stat label="Students studying" value={ed.study.studiers} />
+            <Stat label="Minutes per student per week" value={ed.study.minutesPerStudierPerWeek === null ? null : Math.round(ed.study.minutesPerStudierPerWeek)} />
+            <Stat label="Group goals hit" value={`${ed.groups.goalsHit} of ${ed.groups.goalDays}`} note="Group days that reached their target" />
+            <Stat label="Chat messages" value={ed.groups.messages} />
+            <Stat label="Help requests" value={ed.help.requests} note={`${pct(ed.help.rate)} accepted or resolved`} />
+          </Grid>
+          <h2 className="text-lg font-medium">Practice</h2>
+          <Grid>
+            <Stat label="Resources made" value={ed.practice.generated} note={`${ed.practice.quizzes} quizzes`} />
+            <Stat label="From the curriculum" value={pct(ed.practice.curriculumShare)} />
+            <Stat label="Quiz attempts" value={ed.practice.attempts} />
+            <Stat label="Average quiz score" value={pct(ed.practice.avgScore)} note="Marks earned of marks available" />
+            <Stat label="Flagged as wrong" value={ed.practice.flags} warn={ed.practice.flags > 0} />
+          </Grid>
         </>
       )}
 

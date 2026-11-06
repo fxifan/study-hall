@@ -19,8 +19,7 @@ import {
   todayProgress,
 } from "@/lib/social/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { formatInZone } from "@/lib/time";
-import { askForHelp, claimSeat, leaveGroup, newInvite, proposeStudyHall, requestFriend, respondHelp, setTarget, updateMembership } from "../../_social/actions";
+import { askForHelp, leaveGroup, newInvite, requestFriend, respondHelp, setTarget, updateMembership } from "../../_social/actions";
 import { CopyButton } from "../../_social/copy-button";
 import { GroupChat, type ChatMessage } from "../../_social/group-chat";
 import { Loading, Notice, StudentShell, card, secondaryBtn, smallBtn } from "../../_social/shell";
@@ -31,7 +30,6 @@ export const metadata: Metadata = { title: "Group" };
 
 const ERRORS: Record<string, string> = {
   help_limit: "You already have three open call-outs here. Mark one sorted first.",
-  booking: "Pick a Study Hall session at least an hour away and give it a topic.",
 };
 
 export default function GroupPage({ params, searchParams }: PageProps<"/[lang]/student/groups/[id]">) {
@@ -52,7 +50,7 @@ async function GroupView({ params, searchParams }: Pick<PageProps<"/[lang]/stude
 
   const weekView = query.board === "week";
   const now = new Date();
-  const [members, progress, live, { data: msgs }, { data: blocks }, { data: help }, { data: invites }, { data: bookings }, { data: upcoming }, { data: friendRows }] =
+  const [members, progress, live, { data: msgs }, { data: blocks }, { data: help }, { data: invites }, { data: friendRows }] =
     await Promise.all([
       groupMembers(group.id),
       todayProgress(group),
@@ -66,8 +64,6 @@ async function GroupView({ params, searchParams }: Pick<PageProps<"/[lang]/stude
         .in("state", ["open", "accepted"])
         .order("created_at", { ascending: false }),
       admin.from("study_group_invites").select("code, expires_at, uses, max_uses").eq("group_id", group.id).is("revoked_at", null).gt("expires_at", new Date().toISOString()).order("created_at", { ascending: false }).limit(1),
-      admin.from("studyhall_bookings").select("id, topic, price_cents, session_id, sessions(starts_at, ends_at, rooms(name)), studyhall_seats(student_id, token, status)").eq("group_id", group.id).is("cancelled_at", null).order("created_at", { ascending: false }).limit(5),
-      admin.from("sessions").select("id, starts_at, ends_at, rooms(name)").neq("status", "cancelled").gt("starts_at", new Date(now.getTime() + 3600_000).toISOString()).order("starts_at").limit(20),
       admin.from("friendships").select("a, b, status").or(`a.eq.${me.profile.id},b.eq.${me.profile.id}`),
     ]);
   const mine = members.find((m) => m.profile_id === me.profile.id)!;
@@ -93,8 +89,6 @@ async function GroupView({ params, searchParams }: Pick<PageProps<"/[lang]/stude
   const error = typeof query.error === "string" ? ERRORS[query.error] : null;
   const suspended = Boolean(me.student.chat_suspended_until && Date.parse(me.student.chat_suspended_until) > now.getTime());
   const pct = Math.min(100, Math.round((progress.doneMinutes / Math.max(1, progress.targetMinutes)) * 100));
-  const when = (iso: string) => formatInZone(iso, "EEE d MMM, h:mmaaa", group.timezone);
-  type Booking = { id: string; topic: string; price_cents: number; sessions: { starts_at: string; ends_at: string; rooms: { name: string } | null } | null; studyhall_seats: { student_id: string; token: string; status: string }[] };
 
   return (
     <StudentShell me={me} title={group.name} current="groups" back={{ href: "/student/groups", label: "All groups" }}>
@@ -140,9 +134,12 @@ async function GroupView({ params, searchParams }: Pick<PageProps<"/[lang]/stude
             ) : (
               <ol className="flex flex-col gap-1 text-sm">
                 {standings.map((s) => (
-                  <li key={s.profileId} className="flex justify-between gap-2">
+                  <li
+                    key={s.profileId}
+                    className={`flex justify-between gap-2 rounded-md px-2 py-1 ${s.profileId === me.profile.id ? "bg-brand-soft font-medium" : ""} ${s.rank === 1 && s.seconds >= 60 ? "border-l-2 border-brand" : ""}`}
+                  >
                     <span>
-                      <span className="inline-block w-6 font-mono text-ink-faint">{s.rank}</span>
+                      <span className="inline-block w-7 font-mono text-ink-faint">{s.seconds >= 60 && s.rank <= 3 ? ["🥇", "🥈", "🥉"][s.rank - 1] : s.rank}</span>
                       {s.profileId === me.profile.id ? "You" : names[s.profileId]}
                       {liveBy.get(s.profileId) === "running" && <span className="ml-1 text-xs text-ink-faint">(live)</span>}
                     </span>
@@ -211,52 +208,6 @@ async function GroupView({ params, searchParams }: Pick<PageProps<"/[lang]/stude
               <input name="body" maxLength={300} placeholder="What are you stuck on? (optional)" className="h-9 rounded-md border border-rule bg-paper px-2" />
               <button className={secondaryBtn}>Call out</button>
             </form>
-          </section>
-
-          <section aria-label="Study Hall" className={`${card} flex flex-col gap-3`}>
-            <h2 className="font-medium">Book a Study Hall</h2>
-            <p className="text-xs text-ink-soft">A supervised session with a tutor on hand, for the whole group. A$40 per student; each parent books their own child&apos;s seat.</p>
-            {((bookings ?? []) as unknown as Booking[]).map((b) => {
-              const seat = b.studyhall_seats.find((s) => s.student_id === me.student.id);
-              const paid = b.studyhall_seats.filter((s) => s.status === "paid").length;
-              const link = seat ? `${origin}${localizePath(`/book/${seat.token}`, locale)}` : null;
-              return (
-                <div key={b.id} className="flex flex-col gap-2 rounded-md border border-rule p-2 text-sm">
-                  <p>
-                    <strong>{b.topic}</strong>
-                    {b.sessions && <span className="block text-xs text-ink-soft">{when(b.sessions.starts_at)}</span>}
-                    <span className="block text-xs text-ink-faint">{paid} seat{paid === 1 ? "" : "s"} booked</span>
-                  </p>
-                  {seat?.status === "paid" ? (
-                    <p className="text-xs font-medium">Your seat is booked.</p>
-                  ) : link ? (
-                    <div className="flex flex-wrap items-center gap-2">
-                      <CopyButton text={link} label="Copy parent link" />
-                    </div>
-                  ) : (
-                    <form action={claimSeat.bind(null, b.id)}>
-                      <button className={smallBtn}>Get my parent link</button>
-                    </form>
-                  )}
-                </div>
-              );
-            })}
-            {(upcoming ?? []).length > 0 ? (
-              <form action={proposeStudyHall.bind(null, group.id)} className="flex flex-col gap-2 text-sm">
-                <select name="session" required className="h-9 rounded-md border border-rule bg-paper px-2" aria-label="Session time">
-                  {(upcoming as unknown as { id: string; starts_at: string; rooms: { name: string } | null }[]).map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {when(s.starts_at)}
-                      {s.rooms ? ` · ${s.rooms.name}` : ""}
-                    </option>
-                  ))}
-                </select>
-                <input name="topic" required minLength={2} maxLength={120} placeholder="Topic, e.g. Methods SAC revision" className="h-9 rounded-md border border-rule bg-paper px-2" />
-                <button className={secondaryBtn}>Propose to the group</button>
-              </form>
-            ) : (
-              <p className="text-xs text-ink-faint">No Study Hall sessions open for booking right now.</p>
-            )}
           </section>
 
           <section aria-label="Invite" className={`${card} flex flex-col gap-2 text-sm`}>

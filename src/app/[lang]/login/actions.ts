@@ -1,9 +1,8 @@
 "use server";
 
 import { z } from "zod";
-import { emailLimitKind } from "@/lib/email";
+import { sendLoginLink } from "@/lib/email/login";
 import { siteOrigin } from "@/lib/site";
-import { createClient } from "@/lib/supabase/server";
 
 /** Error codes, not text: the form shows them in the page's language. */
 export type LoginErrorCode = "invalid_email" | "rate_limited" | "email_quota" | "send_failed";
@@ -25,24 +24,11 @@ export async function sendMagicLink(_prev: LoginState, formData: FormData): Prom
   if (!parsed.success) return { status: "error", code: "invalid_email" };
   const { email } = parsed.data;
 
-  const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: { shouldCreateUser: false, emailRedirectTo: `${await siteOrigin()}/auth/confirm` },
-  });
-
-  if (error) {
-    const limit = emailLimitKind(error);
-    if (limit === "cooldown") return { status: "error", code: "rate_limited" };
-    if (limit === "quota") {
-      console.error("Auth email quota reached (Supabase Auth > Rate Limits)", error.message);
-      return { status: "error", code: "email_quota" };
-    }
-    // otp_disabled / user_not_found: no account with that email. Reply as if it worked.
-    if (error.code !== "otp_disabled" && error.code !== "user_not_found") {
-      console.error("signInWithOtp failed", error.code, error.message);
-      return { status: "error", code: "send_failed" };
-    }
+  const result = await sendLoginLink(email, { origin: await siteOrigin() });
+  if (!result.ok) {
+    if (result.reason === "cooldown") return { status: "error", code: "rate_limited" };
+    if (result.reason === "quota") return { status: "error", code: "email_quota" };
+    return { status: "error", code: "send_failed" };
   }
   return { status: "sent", email };
 }

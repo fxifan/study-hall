@@ -58,6 +58,7 @@ export function JoinForm({ invite, lang, privacyHref }: { invite: string; lang: 
               Year {y}
             </option>
           ))}
+          <option value={13}>University or TAFE</option>
         </select>
       </div>
       <fieldset className="flex flex-col gap-1.5">
@@ -77,7 +78,7 @@ export function JoinForm({ invite, lang, privacyHref }: { invite: string; lang: 
             <option value="" disabled>
               Year
             </option>
-            {Array.from({ length: 12 }, (_, i) => year - 10 - i).map((y) => (
+            {Array.from({ length: year - 10 - 1940 + 1 }, (_, i) => year - 10 - i).map((y) => (
               <option key={y} value={y}>
                 {y}
               </option>

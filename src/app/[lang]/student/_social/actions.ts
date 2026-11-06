@@ -10,8 +10,20 @@ import { llmConfigured, openAiLlm } from "@/lib/llm";
 import { siteOrigin } from "@/lib/site";
 import { getStripe } from "@/lib/stripe";
 import { studentCheckoutUrl } from "@/lib/social/billing";
-import { awardsFor, grade, milestonesFor, type PointKind } from "@/lib/social/points";
-import { DAILY_LIMITS, generateStudentResource, offlineStudentLlm, RESOURCE_KINDS, StudentResourceError, type QuizKey } from "@/lib/social/resources";
+import { completionAward, marksAward } from "@/lib/social/points";
+import {
+  DAILY_LIMITS,
+  generateStudentResource,
+  markQuiz,
+  MAX_POINTS_PER_RESOURCE,
+  offlineStudentLlm,
+  publicQuizSchema,
+  RESOURCE_KINDS,
+  StudentResourceError,
+  type CurriculumRef,
+  type QuestionResult,
+  type QuizKey,
+} from "@/lib/social/resources";
 import {
   beat,
   displayName,
@@ -23,7 +35,6 @@ import {
   requireMember,
   socialActor,
   startSession,
-  STUDYHALL_SEAT_CENTS,
   token,
 } from "@/lib/social/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -332,10 +343,38 @@ function resourceLlm() {
   return process.env.TUTOR_RESOURCES_OFFLINE === "1" || !llmConfigured() ? offlineStudentLlm() : openAiLlm();
 }
 
-async function createResource(meId: string, yearLevel: number, input: { kind: (typeof RESOURCE_KINDS)[number]; topic: string; notes: string }, lineage?: { id: string; version: number }) {
+/** Published curriculum points, all from one subject and level, in the order given. */
+async function curriculumFor(ids: string[]): Promise<CurriculumRef | null> {
+  if (!ids.length) return null;
+  const { data } = await createAdminClient()
+    .from("curriculum_points")
+    .select("id, framework, subject, unit_or_level, summary")
+    .in("id", ids)
+    .eq("is_published", true);
+  const rows = data ?? [];
+  if (rows.length !== ids.length) return null;
+  const first = rows[0];
+  if (rows.some((r) => r.framework !== first.framework || r.subject !== first.subject || r.unit_or_level !== first.unit_or_level)) return null;
+  return {
+    framework: first.framework as string,
+    subject: first.subject as string,
+    level: first.unit_or_level as string,
+    points: ids.map((id) => {
+      const r = rows.find((x) => x.id === id)!;
+      return { id, summary: r.summary as string };
+    }),
+  };
+}
+
+async function createResource(
+  meId: string,
+  yearLevel: number,
+  input: { kind: (typeof RESOURCE_KINDS)[number]; topic: string; notes: string; curriculum: CurriculumRef | null },
+  lineage?: { id: string; version: number },
+) {
   const admin = createAdminClient();
   const limitKind = input.kind === "quiz" ? "quiz" : "study";
-  // Daily allowance counts resources created today in Melbourne.
+  // The daily allowance counts resources made today in Melbourne.
   const today = dateKeyOf();
   const { data: recent } = await admin
     .from("student_resources")
@@ -352,17 +391,20 @@ async function createResource(meId: string, yearLevel: number, input: { kind: (t
     console.error("Student resource failed", e instanceof Error ? e.message : e);
     return { error: e instanceof StudentResourceError ? ("shape" as const) : ("service" as const) };
   }
-  const title = input.topic.slice(0, 120);
+  const short = (t: string) => (t.length > 60 ? `${t.slice(0, 57).replace(/[\s,;:.]+\S*$/, "")}…` : t.replace(/\.$/, ""));
+  const pts = input.curriculum?.points ?? [];
+  const title = (
+    input.topic ||
+    (input.curriculum ? `${input.curriculum.subject}: ${short(pts[0].summary)}${pts.length > 1 ? ` +${pts.length - 1} more` : ""}` : "Practice")
+  ).slice(0, 120);
   const { data: row, error } = await admin
     .from("student_resources")
     .insert({
       profile_id: meId,
       kind: input.kind,
       title,
-      topic: input.topic,
-      content: generated.content,
-      // AI-generated practice is never scored-eligible; vetted quiz banks are (pilot rule).
-      scored_eligible: false,
+      topic: input.topic || null,
+      content: { ...generated.content, ...(input.kind !== "quiz" && input.curriculum ? { curriculum: input.curriculum } : {}) },
       ...(lineage ? { lineage_id: lineage.id, version: lineage.version } : {}),
     })
     .select("id")
@@ -370,17 +412,31 @@ async function createResource(meId: string, yearLevel: number, input: { kind: (t
   if (error) throw error;
   if (generated.key) await admin.from("student_resource_keys").insert({ resource_id: row.id, answer_key: generated.key });
   await admin.from("student_ai_usage").insert({ profile_id: meId, day: today, kind: lineage ? "regenerate" : "generate", tokens: generated.tokens });
-  await track({ name: "student_resource_generated", product: "platform", role: "student", userId: meId, props: { kind: input.kind } });
+  await track({
+    name: "student_resource_generated",
+    product: "platform",
+    role: "student",
+    userId: meId,
+    props: { kind: input.kind, source: input.curriculum ? "curriculum" : "topic", ...(input.curriculum ? { framework: input.curriculum.framework } : {}) },
+  });
   return { id: row.id as string };
 }
 
 export async function generateResource(formData: FormData) {
   const me = await socialActor();
   const parsed = z
-    .object({ kind: z.enum(RESOURCE_KINDS), topic: z.string().trim().min(2).max(200), notes: z.string().trim().max(6000) })
-    .safeParse({ kind: formData.get("kind"), topic: formData.get("topic"), notes: formData.get("notes") ?? "" });
+    .object({
+      kind: z.enum(RESOURCE_KINDS),
+      topic: z.string().trim().max(200),
+      notes: z.string().trim().max(6000),
+      points: z.array(z.uuid()).max(MAX_POINTS_PER_RESOURCE),
+    })
+    .safeParse({ kind: formData.get("kind"), topic: formData.get("topic") ?? "", notes: formData.get("notes") ?? "", points: formData.getAll("point") });
   if (!parsed.success) redirect(await href("/student/practice?error=input"));
-  const out = await createResource(me.profile.id, me.student.year_level, parsed.data);
+  const curriculum = await curriculumFor(parsed.data.points);
+  if (parsed.data.points.length && !curriculum) redirect(await href("/student/practice?error=input"));
+  if (!curriculum && parsed.data.topic.length < 2) redirect(await href("/student/practice?error=input"));
+  const out = await createResource(me.profile.id, me.student.year_level, { ...parsed.data, curriculum });
   if ("error" in out) redirect(await href(`/student/practice?error=${out.error}`));
   redirect(await href(`/student/practice/${out.id}`));
 }
@@ -388,34 +444,23 @@ export async function generateResource(formData: FormData) {
 export async function regenerateResource(resourceId: string) {
   const me = await socialActor();
   const admin = createAdminClient();
-  const { data: r } = await admin.from("student_resources").select("kind, topic, lineage_id").eq("id", resourceId).eq("profile_id", me.profile.id).maybeSingle();
+  const { data: r } = await admin.from("student_resources").select("kind, topic, content, lineage_id").eq("id", resourceId).eq("profile_id", me.profile.id).maybeSingle();
   if (!r) return;
   const { data: top } = await admin.from("student_resources").select("version").eq("lineage_id", r.lineage_id).order("version", { ascending: false }).limit(1).single();
-  const out = await createResource(me.profile.id, me.student.year_level, { kind: r.kind, topic: r.topic ?? "", notes: "" }, { id: r.lineage_id as string, version: ((top?.version as number) ?? 1) + 1 });
+  const curriculum = ((r.content as { curriculum?: CurriculumRef | null })?.curriculum ?? null) as CurriculumRef | null;
+  const out = await createResource(
+    me.profile.id,
+    me.student.year_level,
+    { kind: r.kind, topic: (r.topic as string | null) ?? "", notes: "", curriculum },
+    { id: r.lineage_id as string, version: ((top?.version as number) ?? 1) + 1 },
+  );
   if ("error" in out) redirect(await href(`/student/practice/${resourceId}?error=${out.error}`));
   redirect(await href(`/student/practice/${out.id}`));
 }
 
-async function award(profileId: string, lineageId: string, reached: PointKind[]) {
-  const admin = createAdminClient();
-  const today = dateKeyOf();
-  const [{ data: held }, { data: todayRows }] = await Promise.all([
-    admin.from("points_ledger").select("kind").eq("profile_id", profileId).eq("lineage_id", lineageId),
-    admin.from("points_ledger").select("points").eq("profile_id", profileId).eq("day", today),
-  ]);
-  const awards = awardsFor({
-    reached,
-    held: (held ?? []).map((h) => h.kind as PointKind),
-    pointsToday: (todayRows ?? []).reduce((s, r) => s + (r.points as number), 0),
-  });
-  const written: { kind: PointKind; points: number }[] = [];
-  for (const a of awards) {
-    // The unique (profile, lineage, kind) index makes a retried submit award nothing twice.
-    const { error } = await admin.from("points_ledger").insert({ profile_id: profileId, lineage_id: lineageId, kind: a.kind, points: a.points, day: today });
-    if (!error) written.push(a);
-    else if (error.code !== "23505") throw error;
-  }
-  return written;
+async function pointsToday(profileId: string): Promise<number> {
+  const { data } = await createAdminClient().from("points_ledger").select("points").eq("profile_id", profileId).eq("day", dateKeyOf());
+  return (data ?? []).reduce((s, r) => s + (r.points as number), 0);
 }
 
 export async function completeResource(resourceId: string) {
@@ -424,38 +469,80 @@ export async function completeResource(resourceId: string) {
   const { data: r } = await admin.from("student_resources").select("id, kind, lineage_id, completed_at").eq("id", resourceId).eq("profile_id", me.profile.id).maybeSingle();
   if (!r || r.kind === "quiz") return;
   if (!r.completed_at) await admin.from("student_resources").update({ completed_at: new Date().toISOString() }).eq("id", resourceId);
-  await award(me.profile.id, r.lineage_id as string, ["completion"]);
+  const { count } = await admin.from("points_ledger").select("id", { count: "exact", head: true }).eq("profile_id", me.profile.id).eq("lineage_id", r.lineage_id).eq("kind", "completion");
+  const points = completionAward({ alreadyAwarded: Boolean(count), pointsToday: await pointsToday(me.profile.id) });
+  if (points) {
+    // The partial unique index (profile, lineage, completion) makes a double click award once.
+    const ins = await admin.from("points_ledger").insert({ profile_id: me.profile.id, lineage_id: r.lineage_id, kind: "completion", points, day: dateKeyOf() });
+    if (ins.error && ins.error.code !== "23505") throw ins.error;
+  }
   await track({ name: "student_resource_completed", product: "platform", role: "student", userId: me.profile.id, props: { kind: r.kind }, dedupeKey: `complete:${resourceId}` });
   refresh();
 }
 
-export type QuizResult = {
-  correct: number;
-  total: number;
-  pct: number;
-  answers: number[];
-  explanations: string[];
-  awards: { kind: PointKind; points: number }[];
-  scoredEligible: boolean;
-} | { error: string };
+export type QuizResult =
+  | { earned: number; total: number; pct: number; points: number; results: (QuestionResult & { answer?: number; modelAnswer?: string; rubric?: { criterion: string; marks: number }[] })[] }
+  | { error: string };
 
-export async function submitQuiz(resourceId: string, answers: (number | null)[]): Promise<QuizResult> {
+export async function submitQuiz(resourceId: string, answers: (number | string | null)[]): Promise<QuizResult> {
   const me = await socialActor();
   const admin = createAdminClient();
-  const { data: r } = await admin.from("student_resources").select("id, kind, lineage_id, scored_eligible, completed_at").eq("id", resourceId).eq("profile_id", me.profile.id).maybeSingle();
+  const { data: r } = await admin.from("student_resources").select("id, kind, lineage_id, content, completed_at").eq("id", resourceId).eq("profile_id", me.profile.id).maybeSingle();
   if (!r || r.kind !== "quiz") return { error: "Quiz not found." };
+  const quiz = publicQuizSchema.safeParse(r.content);
   const { data: keyRow } = await admin.from("student_resource_keys").select("answer_key").eq("resource_id", resourceId).single();
   const key = keyRow?.answer_key as QuizKey | undefined;
-  if (!key) return { error: "This quiz can't be marked." };
-  const clean = z.array(z.number().int().min(0).max(3).nullable()).max(20).safeParse(answers);
-  if (!clean.success) return { error: "Answers came through in the wrong shape." };
-  const g = grade(clean.data, key.answers);
-  if (!g.complete) return { error: "Answer every question before you submit." };
-  await admin.from("resource_attempts").insert({ resource_id: resourceId, profile_id: me.profile.id, answers: clean.data, correct: g.correct, total: g.total, score_pct: g.pct });
+  if (!quiz.success || !key?.questions) return { error: "This quiz can't be marked. Make a new one." };
+  const clean = z
+    .array(z.union([z.number().int().min(0).max(3), z.string().max(1500), z.null()]))
+    .max(20)
+    .safeParse(answers);
+  if (!clean.success || clean.data.length !== quiz.data.questions.length) return { error: "Answers came through in the wrong shape." };
+  if (quiz.data.questions.some((q, i) => (q.type === "mcq" ? typeof clean.data[i] !== "number" : !String(clean.data[i] ?? "").trim()))) {
+    return { error: "Answer every question before you submit." };
+  }
+
+  const { results, tokens } = await markQuiz(resourceLlm(), quiz.data, key, clean.data);
+  const earned = results.reduce((s, x) => s + x.awarded, 0);
+  const total = results.reduce((s, x) => s + x.marks, 0);
+  const pct = total ? Math.round((earned / total) * 10000) / 100 : 0;
+  const { data: attempt, error } = await admin
+    .from("resource_attempts")
+    .insert({ resource_id: resourceId, profile_id: me.profile.id, answers: clean.data, correct: earned, total, score_pct: pct, results })
+    .select("id")
+    .single();
+  if (error) throw error;
   if (!r.completed_at) await admin.from("student_resources").update({ completed_at: new Date().toISOString() }).eq("id", resourceId);
-  const awards = await award(me.profile.id, r.lineage_id as string, milestonesFor({ scorePct: g.pct, scoredEligible: r.scored_eligible as boolean, completed: true }));
-  await track({ name: "quiz_submitted", product: "platform", role: "student", userId: me.profile.id, props: { count: g.total, status: r.scored_eligible ? "scored" : "practice" } });
-  return { correct: g.correct, total: g.total, pct: g.pct, answers: key.answers, explanations: key.explanations, awards, scoredEligible: r.scored_eligible as boolean };
+  if (tokens) await admin.from("student_ai_usage").insert({ profile_id: me.profile.id, day: dateKeyOf(), kind: "regenerate", tokens });
+
+  // Points: the marks earned, paying only the improvement on this quiz's best so far.
+  const { data: paid } = await admin.from("points_ledger").select("points").eq("profile_id", me.profile.id).eq("lineage_id", r.lineage_id).eq("kind", "marks");
+  const best = (paid ?? []).reduce((s, x) => s + (x.points as number), 0);
+  let points = marksAward({ earned, best, pointsToday: await pointsToday(me.profile.id) });
+  if (points) {
+    const ins = await admin.from("points_ledger").insert({ profile_id: me.profile.id, lineage_id: r.lineage_id, kind: "marks", points, day: dateKeyOf(), attempt_id: attempt.id });
+    if (ins.error) {
+      if (ins.error.code !== "23505") throw ins.error;
+      points = 0;
+    }
+  }
+  await track({
+    name: "quiz_submitted",
+    product: "platform",
+    role: "student",
+    userId: me.profile.id,
+    props: { count: quiz.data.questions.length, status: `${Math.floor(pct / 10) * 10}%+`, source: quiz.data.curriculum ? "curriculum" : "topic" },
+  });
+  return {
+    earned,
+    total,
+    pct,
+    points,
+    results: results.map((x, i) => {
+      const k = key.questions[i];
+      return k?.type === "mcq" ? { ...x, answer: k.answer } : k?.type === "free" ? { ...x, modelAnswer: k.modelAnswer, rubric: k.rubric } : x;
+    }),
+  };
 }
 
 export async function flagResource(resourceId: string, formData: FormData) {
@@ -497,43 +584,4 @@ export async function openStudentPortal() {
   if (!plan?.stripe_customer_id || plan.payer !== "student") throw new Error("No student billing account.");
   const session = await getStripe().billingPortal.sessions.create({ customer: plan.stripe_customer_id as string, return_url: `${await siteOrigin()}${await href("/student/plan")}` });
   redirect(session.url);
-}
-
-// --- Study Hall booking ------------------------------------------------------------------------
-
-export async function proposeStudyHall(groupId: string, formData: FormData) {
-  const me = await socialActor();
-  await requireMember(groupId, me.profile.id);
-  const parsed = z
-    .object({ session: z.uuid(), topic: z.string().trim().min(2).max(120) })
-    .safeParse({ session: formData.get("session"), topic: formData.get("topic") });
-  if (!parsed.success) redirect(await href(`/student/groups/${groupId}?error=booking`));
-  const admin = createAdminClient();
-  const { data: session } = await admin.from("sessions").select("id, starts_at, status").eq("id", parsed.data.session).maybeSingle();
-  if (!session || session.status === "cancelled" || Date.parse(session.starts_at as string) < Date.now() + 3600_000) redirect(await href(`/student/groups/${groupId}?error=booking`));
-  const { data: booking, error } = await admin
-    .from("studyhall_bookings")
-    .insert({ group_id: groupId, session_id: session.id, proposed_by: me.profile.id, topic: parsed.data.topic, price_cents: STUDYHALL_SEAT_CENTS })
-    .select("id")
-    .single();
-  if (error) throw error;
-  await postSystemMessage(groupId, "system", `${displayName(me.student)} proposed a supervised Study Hall session: ${parsed.data.topic}. Get a parent link below to book your seat (A$40).`, {
-    event: "studyhall_proposed",
-    booking: booking.id,
-  });
-  await track({ name: "studyhall_proposed", product: "study_hall", role: "student", userId: me.profile.id, objectType: "studyhall_booking", objectId: booking.id });
-  refresh();
-}
-
-/** The student's seat in a booking, with the token for their parent link. */
-export async function claimSeat(bookingId: string) {
-  const me = await socialActor();
-  const admin = createAdminClient();
-  const { data: booking } = await admin.from("studyhall_bookings").select("id, group_id, cancelled_at").eq("id", bookingId).maybeSingle();
-  if (!booking || booking.cancelled_at) return;
-  await requireMember(booking.group_id as string, me.profile.id);
-  const ins = await admin.from("studyhall_seats").insert({ booking_id: bookingId, student_id: me.student.id, token: token() });
-  if (ins.error && ins.error.code !== "23505") throw ins.error;
-  await track({ name: "studyhall_link_created", product: "study_hall", role: "student", userId: me.profile.id, dedupeKey: `seat:${bookingId}:${me.student.id}` });
-  refresh();
 }

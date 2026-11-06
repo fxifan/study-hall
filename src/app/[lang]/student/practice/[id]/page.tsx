@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { flashcardsSchema, KIND_LABEL, notesSchema, publicQuizSchema, type ResourceKind } from "@/lib/social/resources";
+import { curriculumTitle, flashcardsSchema, KIND_LABEL, notesSchema, publicQuizSchema, type CurriculumRef, type ResourceKind } from "@/lib/social/resources";
 import { requireSocialStudent } from "@/lib/social/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { completeResource, flagResource, regenerateResource } from "../../_social/actions";
@@ -31,7 +31,8 @@ async function Resource({ params, searchParams }: Pick<PageProps<"/[lang]/studen
     .eq("profile_id", me.profile.id)
     .maybeSingle<{ id: string; kind: ResourceKind; title: string; content: unknown; version: number; completed_at: string | null; flagged_at: string | null; scored_eligible: boolean }>();
   if (!r) notFound();
-  const { data: attempts } = await admin.from("resource_attempts").select("score_pct, submitted_at").eq("resource_id", id).order("submitted_at", { ascending: false }).limit(5);
+  const { data: attempts } = await admin.from("resource_attempts").select("correct, total, score_pct, submitted_at").eq("resource_id", id).order("submitted_at", { ascending: false }).limit(5);
+  const curriculum = ((r.content as { curriculum?: CurriculumRef | null }).curriculum ?? null) as CurriculumRef | null;
   const error = query.error === "limit" ? "You've used today's allowance for that kind." : query.error ? "That didn't work. Try again." : null;
 
   return (
@@ -41,7 +42,7 @@ async function Resource({ params, searchParams }: Pick<PageProps<"/[lang]/studen
       <p className="text-sm text-ink-soft">
         {KIND_LABEL[r.kind]}
         {r.version > 1 ? ` · version ${r.version}` : ""}
-        {r.kind === "quiz" && !r.scored_eligible ? " · practice quiz: earns completion points, not score points" : ""}
+        {curriculum ? ` · ${curriculumTitle(curriculum)}` : ""}
       </p>
 
       {r.kind === "notes" &&
@@ -76,7 +77,7 @@ async function Resource({ params, searchParams }: Pick<PageProps<"/[lang]/studen
         ))}
 
       {attempts && attempts.length > 0 && (
-        <p className="text-sm text-ink-soft">Your attempts: {attempts.map((a) => `${Math.round(Number(a.score_pct))}%`).join(", ")}</p>
+        <p className="text-sm text-ink-soft">Your attempts: {attempts.map((a) => `${a.correct}/${a.total}`).join(", ")}</p>
       )}
 
       <div className="flex flex-wrap gap-3">

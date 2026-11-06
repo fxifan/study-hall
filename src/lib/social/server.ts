@@ -47,8 +47,7 @@ export type Access =
 
 export type SocialStudent = { profile: CurrentProfile; student: StudentRow; access: Access };
 
-export const STUDENT_PRICE_CENTS = 1199;
-export const STUDYHALL_SEAT_CENTS = 4000;
+export { STUDENT_PRICE_CENTS } from "./plan-price";
 
 export const hasAccess = (a: Access) => a.kind === "trial" || a.kind === "paid" || a.kind === "studyhall";
 
@@ -83,9 +82,12 @@ async function accessFor(student: StudentRow, profileId: string): Promise<Access
   }
   let { data: plan } = await admin.from("student_plans").select("status, trial_ends_at, current_period_end").eq("profile_id", profileId).maybeSingle();
   if (!plan) {
-    const created = await admin.from("student_plans").insert({ profile_id: profileId }).select("status, trial_ends_at, current_period_end").single();
+    // First visit starts the trial. Two requests can race here, so insert-if-missing, then read.
+    const created = await admin.from("student_plans").upsert({ profile_id: profileId }, { onConflict: "profile_id", ignoreDuplicates: true });
     if (created.error) throw created.error;
-    plan = created.data;
+    const read = await admin.from("student_plans").select("status, trial_ends_at, current_period_end").eq("profile_id", profileId).single();
+    if (read.error) throw read.error;
+    plan = read.data;
   }
   if (plan.status === "active" || plan.status === "past_due") return { kind: "paid", periodEnd: plan.current_period_end };
   if (Date.parse(plan.trial_ends_at) > Date.now() && plan.status === "trialing") return { kind: "trial", trialEndsAt: plan.trial_ends_at };

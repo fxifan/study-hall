@@ -2,12 +2,12 @@
 
 import { cookies } from "next/headers";
 import { z } from "zod";
-import { emailLimitKind, isReservedTestEmail } from "@/lib/email";
+import { isReservedTestEmail } from "@/lib/email";
+import { sendLoginLink } from "@/lib/email/login";
 import { track } from "@/lib/events";
 import { siteOrigin } from "@/lib/site";
 import { canSelfSignUp } from "@/lib/social/age";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
 
 export type JoinState =
   | { status: "idle" }
@@ -24,9 +24,10 @@ const schema = z.object({
     .trim()
     .regex(/^\p{L}$/u)
     .transform((v) => v.toUpperCase()),
-  yearLevel: z.coerce.number().int().min(7).max(12),
+  // 7 to 12 for school, 13 for university or TAFE.
+  yearLevel: z.coerce.number().int().min(7).max(13),
   birthMonth: z.coerce.number().int().min(1).max(12),
-  birthYear: z.coerce.number().int().min(1990).max(2030),
+  birthYear: z.coerce.number().int().min(1900).max(2100),
   email: z.email().trim().toLowerCase(),
   agree: z.literal("on"),
   invite: z
@@ -37,7 +38,7 @@ const schema = z.object({
 });
 
 /**
- * Student self sign-up (13+, owner decision 6 Nov 2026). Under-13s are told to ask a parent, who
+ * Student self sign-up (13+, no upper age limit: uni students too; owner decisions 6 Nov 2026). Under-13s are told to ask a parent, who
  * adds them from the parent account. Creates the student login (role fixed by app_metadata) and
  * an active, self-signed student record with Edumi switched on, then emails a login link. The
  * 7-day trial starts on first use (student_plans default).
@@ -87,15 +88,9 @@ export async function studentSignUp(_prev: JoinState, formData: FormData): Promi
   // An existing account just gets a login link: the form never says whether an email is registered.
   // Test addresses (*.test, example.com) can't receive mail; tests log in with a generated link.
   if (isReservedTestEmail(d.email)) return { status: "sent", email: d.email };
-  const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithOtp({
-    email: d.email,
-    options: { shouldCreateUser: false, emailRedirectTo: `${await siteOrigin()}/auth/confirm` },
-  });
-  if (error && error.code !== "otp_disabled" && error.code !== "user_not_found") {
-    const limit = emailLimitKind(error);
-    if (limit === "cooldown") return { status: "error", message: "Wait a minute before asking for another email." };
-    console.error("Student login email failed", error.code);
+  const result = await sendLoginLink(d.email, { origin: await siteOrigin(), welcome: Boolean(created.data?.user) });
+  if (!result.ok) {
+    if (result.reason === "cooldown") return { status: "error", message: "Wait a minute before asking for another email." };
     return { status: "error", message: "We couldn't send the email. Try again in a minute." };
   }
   return { status: "sent", email: d.email };

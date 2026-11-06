@@ -13,6 +13,7 @@ export const EVENTS = {
   // Shared
   user_signed_up: "A new parent or tutor account was created.",
   user_logged_in: "A user completed a login link.",
+  login_link_sent: "Edumi emailed a personal login link through Resend (also the rate limit's counter).",
   onboarding_completed: "A parent finished sign-up details and consents and reached payment.",
   subscription_started: "A Stripe subscription became active (family plan or tutor Solo).",
   subscription_cancelled: "A Stripe subscription ended.",
@@ -47,9 +48,6 @@ export const EVENTS = {
   student_resource_completed: "A student marked notes or flashcards complete.",
   student_resource_flagged: "A student flagged generated content as incorrect.",
   quiz_submitted: "A student submitted a quiz for marking.",
-  studyhall_proposed: "A student proposed a Study Hall session to their group.",
-  studyhall_link_created: "A student created a parent booking link for a Study Hall seat.",
-  studyhall_seat_paid: "A parent paid for a Study Hall seat from a booking link.",
 } as const;
 export type EventName = keyof typeof EVENTS;
 export type Product = "study_hall" | "tutors" | "platform";

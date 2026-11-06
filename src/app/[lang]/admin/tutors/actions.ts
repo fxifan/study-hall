@@ -1,5 +1,6 @@
 "use server";
 
+import { sendLoginLink } from "@/lib/email/login";
 import { refresh } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -9,7 +10,6 @@ import { getCurrentProfile, type CurrentProfile } from "@/lib/auth";
 import { isReservedTestEmail } from "@/lib/email";
 import { siteOrigin } from "@/lib/site";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
 
 /** Long enough to mean "until restored"; Supabase takes a Go duration. */
 const SUSPENDED = "876000h";
@@ -72,13 +72,9 @@ export async function grantTutorAccess(formData: FormData) {
   await audit(profile, "tutor_access_granted", tutorId!);
 
   if (!isReservedTestEmail(email)) {
-    const supabase = await createClient();
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { shouldCreateUser: false, emailRedirectTo: `${await siteOrigin()}/auth/confirm` },
-    });
-    if (error) {
-      console.warn("Tutor login email not sent", error.code ?? error.message);
+    const mail = await sendLoginLink(email, { origin: await siteOrigin(), welcome: true });
+    if (!mail.ok) {
+      console.warn("Tutor login email not sent", mail.reason);
       await back("?granted=nomail");
     }
   }
