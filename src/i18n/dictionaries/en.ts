@@ -48,6 +48,10 @@ export const en = {
     reportsIntro: "Reports from the last two weeks, from what was recorded in each session.",
     reportsEmpty: "No reports yet. They appear here after your child's first session.",
     editStudies: "Subjects",
+    edumiGroups: "Study groups",
+    edumiOn: "On",
+    edumiOff: "Off",
+    edumiHint: "Study groups let your child set a shared daily study goal with friends, chat in members-only groups and practise with AI quizzes. Included with your plan. Switch on for each child.",
     back: "Back to your students",
     billing: {
       title: "Billing",
@@ -349,6 +353,7 @@ export const en = {
       tutors: "Tutors",
       costs: "Tutor costs",
       curriculum: "Curriculum",
+      edumi: "Edumi groups",
       supervise: "Supervise",
       tutorApp: "Tutor app",
     },

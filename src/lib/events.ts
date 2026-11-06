@@ -34,6 +34,22 @@ export const EVENTS = {
   invoice_generated: "A tutor created an invoice.",
   invoice_sent: "A tutor sent or marked an invoice as sent.",
   resource_generated: "A tutor generated a practice set or writing tips.",
+  // Edumi students (docs/student-social.md)
+  study_group_created: "A student created a study group.",
+  study_group_joined: "A student joined a study group with an invite code.",
+  study_session_started: "A student started a verified study timer for a group.",
+  study_session_stopped: "A student stopped a study timer (seconds credited).",
+  help_requested: "A student called out for help in a group.",
+  help_accepted: "A group member accepted a help request.",
+  help_resolved: "A requester marked their help request sorted.",
+  message_reported: "A student reported a group message.",
+  student_resource_generated: "A student generated notes, flashcards or a quiz.",
+  student_resource_completed: "A student marked notes or flashcards complete.",
+  student_resource_flagged: "A student flagged generated content as incorrect.",
+  quiz_submitted: "A student submitted a quiz for marking.",
+  studyhall_proposed: "A student proposed a Study Hall session to their group.",
+  studyhall_link_created: "A student created a parent booking link for a Study Hall seat.",
+  studyhall_seat_paid: "A parent paid for a Study Hall seat from a booking link.",
 } as const;
 export type EventName = keyof typeof EVENTS;
 export type Product = "study_hall" | "tutors" | "platform";

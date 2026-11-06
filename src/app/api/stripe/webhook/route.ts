@@ -3,6 +3,7 @@ import { syncSubscription } from "@/lib/billing";
 import { siteOrigin } from "@/lib/site";
 import { getStripe } from "@/lib/stripe";
 import { syncTutorSubscription } from "@/lib/tutor/billing";
+import { settleSeat, syncStudentSubscription } from "@/lib/social/billing";
 
 /**
  * Stripe webhook (spec §6). Verifies the signature, then mirrors subscription state into the
@@ -24,9 +25,11 @@ export async function POST(request: Request) {
   switch (event.type) {
     case "checkout.session.completed": {
       const session = event.data.object;
+      if (session.mode === "payment" && session.metadata?.studyhall_seat_id) await settleSeat(session);
       if (session.mode === "subscription" && typeof session.subscription === "string") {
         const subscription = await stripe.subscriptions.retrieve(session.subscription);
         if (subscription.metadata.tutor_id) await syncTutorSubscription(subscription);
+        else if (subscription.metadata.student_profile_id) await syncStudentSubscription(subscription);
         else await syncSubscription(subscription, origin);
       }
       break;
@@ -35,6 +38,7 @@ export async function POST(request: Request) {
     case "customer.subscription.updated":
     case "customer.subscription.deleted":
       if (event.data.object.metadata.tutor_id) await syncTutorSubscription(event.data.object);
+      else if (event.data.object.metadata.student_profile_id) await syncStudentSubscription(event.data.object);
       else await syncSubscription(event.data.object, origin);
       break;
   }
