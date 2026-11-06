@@ -17,7 +17,7 @@ export function CopyButton({ text, label = "Copy" }: { text: string; label?: str
           /* dismissed */
         }
       }}
-      className="inline-flex h-8 items-center rounded-md border border-rule bg-sheet px-3 text-xs font-medium hover:bg-paper-deep"
+      className="inline-flex h-8 items-center rounded-full border border-rule bg-sheet px-3 text-xs font-medium hover:bg-paper-deep"
     >
       {done ? "Copied" : label}
     </button>

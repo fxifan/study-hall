@@ -31,7 +31,7 @@ export function PracticeForm({ points, defaultGroup }: { points: CurriculumPoint
   const ready = source === "curriculum" ? chosen.length > 0 : true;
 
   return (
-    <form action={generateResource} className="flex flex-col gap-4 rounded-xl border border-rule bg-sheet p-4">
+    <form action={generateResource} className="flex flex-col gap-4 rounded-2xl border border-rule bg-sheet p-4">
       <h2 className="font-medium">Make something to study</h2>
       <fieldset className="grid grid-cols-3 gap-2 text-sm">
         <legend className="sr-only">Type</legend>

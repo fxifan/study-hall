@@ -209,6 +209,58 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/*
+ * "Tiles" theme (owner, 7 Nov 2026) for Edumi's student pages (/student/groups, /join and the
+ * rest of the student app): warm off-white with muted sage, dusty pink and sand, always light. It
+ * remaps the shared tokens, so Tailwind classes like bg-sheet or text-brand follow. The semantic
+ * tokens are re-declared because custom properties resolve where they're defined.
+ */
+.theme-tiles {
+  --paper: #f1f1ec;
+  --paper-deep: #e8e8e1;
+  --sheet: #ffffff;
+  --ink: #1f2326;
+  --ink-soft: #52585e;
+  --ink-faint: #666b71;
+  --hair: #dcdcd3;
+  --rule: #dcdcd3;
+  --brand: #5b7667; /* sage: fills and text (4.9:1 on white) */
+  --brand-soft: #dbe5de;
+  --lavender-soft: #f1e1de;
+  --success: #4f7a62;
+  --warning: #b98a5e;
+  --pen: #a4483f;
+  --pen-faint: rgba(164, 72, 63, 0.35);
+  --coral: #1f2326;
+  --coral-ink: #ffffff;
+  --tiles-pink-soft: #f1e1de;
+  --tiles-pink-ink: #84463f;
+  --tiles-sand: #e3d8c4;
+  --tiles-slate-soft: #e1e6eb;
+  --wordmark-dot: #5b7667;
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: var(--sheet);
+  --card-foreground: var(--ink);
+  --popover: var(--sheet);
+  --popover-foreground: var(--ink);
+  --primary: var(--coral);
+  --primary-foreground: var(--coral-ink);
+  --secondary: var(--paper-deep);
+  --secondary-foreground: var(--ink);
+  --muted: var(--paper-deep);
+  --muted-foreground: var(--ink-soft);
+  --accent: var(--paper-deep);
+  --accent-foreground: var(--ink);
+  --destructive: var(--pen);
+  --border: var(--hair);
+  --input: var(--hair);
+  --ring: var(--brand);
+  color-scheme: light;
+  background: var(--paper);
+  color: var(--ink);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

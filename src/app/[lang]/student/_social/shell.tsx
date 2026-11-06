@@ -34,7 +34,7 @@ export async function StudentShell({
   const locale = await getLocale();
   const href = (p: string) => localizePath(p, locale);
   return (
-    <div className="flex flex-1 flex-col pb-20 sm:pb-0" lang="en">
+    <div className="theme-tiles flex flex-1 flex-col pb-20 sm:pb-0" lang="en">
       <header className="border-b border-rule bg-sheet">
         <div className="mx-auto flex w-full max-w-4xl items-center justify-between gap-3 px-4 py-3">
           <Link href={href("/student/groups")} className="text-ink" aria-label="Edumi home">
@@ -46,7 +46,7 @@ export async function StudentShell({
                 key={n.key}
                 href={href(n.href)}
                 aria-current={n.key === current ? "page" : undefined}
-                className={`rounded-md px-3 py-1.5 font-medium ${n.key === current ? "bg-brand-soft text-ink" : "text-ink-soft hover:text-ink"}`}
+                className={`rounded-full px-4 py-1.5 font-medium ${n.key === current ? "bg-ink text-paper" : "text-ink-soft hover:text-ink"}`}
               >
                 {n.label}
               </Link>
@@ -89,7 +89,7 @@ function TrialBar({ access, href, now }: { access: Access; href: string; now: Da
   if (access.kind !== "trial") return null;
   const days = Math.max(0, Math.ceil((Date.parse(access.trialEndsAt) - now.getTime()) / 86_400_000));
   return (
-    <div className="border-b border-rule bg-brand-soft">
+    <div className="border-b border-rule bg-[var(--tiles-pink-soft)] text-[var(--tiles-pink-ink)]">
       <p className="mx-auto w-full max-w-4xl px-4 py-2 text-sm">
         Free trial: {days} day{days === 1 ? "" : "s"} left.{" "}
         <Link href={href} className="font-medium">
@@ -102,7 +102,7 @@ function TrialBar({ access, href, now }: { access: Access; href: string; now: Da
 
 export function Loading() {
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 px-4 py-8" aria-busy="true" aria-label="Loading">
+    <div className="theme-tiles flex flex-1 flex-col gap-4 px-4 py-8" aria-busy="true" aria-label="Loading">
       <div className="h-8 w-56 animate-pulse rounded bg-paper-deep" />
       <div className="h-40 animate-pulse rounded-lg bg-paper-deep" />
     </div>
@@ -118,9 +118,11 @@ export function Notice({ tone = "info", children }: { tone?: "info" | "error" | 
   );
 }
 
-export const card = "rounded-lg border border-rule bg-sheet p-4";
+export const card = "rounded-2xl border border-rule bg-sheet p-5";
+/** A filled Tiles block: add one colour class (bg-brand-soft, bg-[var(--tiles-pink-soft)] …). */
+export const tile = "rounded-2xl p-5";
 export const primaryBtn =
-  "inline-flex h-10 items-center justify-center rounded-md bg-ink px-4 text-sm font-medium text-paper hover:opacity-90 disabled:opacity-50";
+  "inline-flex h-10 items-center justify-center rounded-full bg-ink px-4 text-sm font-medium text-paper hover:opacity-90 disabled:opacity-50";
 export const secondaryBtn =
-  "inline-flex h-10 items-center justify-center rounded-md border border-rule bg-sheet px-4 text-sm font-medium text-ink hover:bg-paper-deep disabled:opacity-50";
-export const smallBtn = "inline-flex h-8 items-center justify-center rounded-md border border-rule bg-sheet px-3 text-xs font-medium text-ink hover:bg-paper-deep disabled:opacity-50";
+  "inline-flex h-10 items-center justify-center rounded-full border border-rule bg-sheet px-4 text-sm font-medium text-ink hover:bg-paper-deep disabled:opacity-50";
+export const smallBtn = "inline-flex h-8 items-center justify-center rounded-full border border-rule bg-sheet px-3 text-xs font-medium text-ink hover:bg-paper-deep disabled:opacity-50";

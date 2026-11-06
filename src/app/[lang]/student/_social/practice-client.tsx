@@ -17,19 +17,19 @@ export function Flashcards({ cards }: { cards: { front: string; back: string }[]
       <button
         type="button"
         onClick={() => setFlipped((f) => !f)}
-        className="flex min-h-48 w-full max-w-xl items-center justify-center rounded-xl border border-rule bg-sheet p-6 text-center text-lg shadow-sm"
+        className="flex min-h-48 w-full max-w-xl items-center justify-center rounded-2xl border border-rule bg-sheet p-6 text-center text-lg shadow-sm"
         aria-label={flipped ? "Show the question" : "Show the answer"}
       >
         {flipped ? c.back : c.front}
       </button>
       <div className="flex items-center gap-4 text-sm">
-        <button type="button" onClick={() => go(-1)} className="rounded-md border border-rule px-3 py-1.5">
+        <button type="button" onClick={() => go(-1)} className="rounded-full border border-rule px-3 py-1.5">
           ← Back
         </button>
         <span className="font-mono">
           {i + 1} / {cards.length}
         </span>
-        <button type="button" onClick={() => go(1)} className="rounded-md border border-rule px-3 py-1.5">
+        <button type="button" onClick={() => go(1)} className="rounded-full border border-rule px-3 py-1.5">
           Next →
         </button>
       </div>
@@ -93,7 +93,7 @@ export function QuizRunner({ resourceId, quiz }: { resourceId: string; quiz: Pub
           </div>
         </div>
       ) : (
-        <div className="sticky top-0 z-[5] -mx-1 flex items-center justify-between gap-3 rounded-lg border border-rule bg-sheet/95 px-3 py-2 text-sm backdrop-blur">
+        <div className="sticky top-0 z-[5] -mx-1 flex items-center justify-between gap-3 rounded-2xl border border-rule bg-sheet/95 px-3 py-2 text-sm backdrop-blur">
           <span>
             {done} of {quiz.questions.length} answered
           </span>
@@ -105,7 +105,7 @@ export function QuizRunner({ resourceId, quiz }: { resourceId: string; quiz: Pub
         {quiz.questions.map((q, qi) => {
           const r = result?.results[qi];
           return (
-            <li key={qi} className="flex flex-col gap-3 rounded-xl border border-rule bg-sheet p-4">
+            <li key={qi} className="flex flex-col gap-3 rounded-2xl border border-rule bg-sheet p-4">
               <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
                 <span className="font-mono text-ink-faint">
                   Q{qi + 1} · {q.type === "mcq" ? "Multiple choice" : "Free response"}
@@ -213,7 +213,7 @@ export function QuizRunner({ resourceId, quiz }: { resourceId: string; quiz: Pub
             setAnswers(blank());
             window.scrollTo({ top: 0 });
           }}
-          className="inline-flex h-10 w-fit items-center rounded-md border border-rule px-4 text-sm font-medium"
+          className="inline-flex h-10 w-fit items-center rounded-full border border-rule px-4 text-sm font-medium"
         >
           Try again
         </button>
@@ -222,7 +222,7 @@ export function QuizRunner({ resourceId, quiz }: { resourceId: string; quiz: Pub
           type="button"
           onClick={submit}
           disabled={done < quiz.questions.length || pending}
-          className="inline-flex h-11 w-fit items-center rounded-md bg-ink px-5 text-sm font-medium text-paper disabled:opacity-50"
+          className="inline-flex h-11 w-fit items-center rounded-full bg-ink px-5 text-sm font-medium text-paper disabled:opacity-50"
         >
           {pending ? "Marking… free responses take a few seconds" : "Submit for marking"}
         </button>

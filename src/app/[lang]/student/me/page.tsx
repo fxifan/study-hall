@@ -9,7 +9,7 @@ import { namesFor, requireSocialStudent } from "@/lib/social/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { formatInZone } from "@/lib/time";
 import { unblockUser } from "../_social/actions";
-import { Loading, StudentShell, card, smallBtn } from "../_social/shell";
+import { Loading, StudentShell, card, tile, smallBtn } from "../_social/shell";
 
 export const metadata: Metadata = { title: "Me" };
 
@@ -37,10 +37,10 @@ async function Me() {
 
   return (
     <StudentShell me={me} title={`${me.student.first_name} ${me.student.last_initial}.`} current="me">
-      <section className={`${card} flex flex-col gap-2`}>
+      <section className={`${tile} flex flex-col gap-2 bg-[var(--tiles-pink-soft)]`}>
         <p className="text-sm text-ink-soft">Your tier</p>
         <p className="text-3xl font-medium">{tier.name}</p>
-        <div className="h-2 overflow-hidden rounded-full bg-paper-deep" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Progress to the next tier">
+        <div className="h-2 overflow-hidden rounded-full bg-sheet" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Progress to the next tier">
           <div className="h-full rounded-full bg-brand" style={{ width: `${pct}%` }} />
         </div>
         <p className="text-sm text-ink-soft">

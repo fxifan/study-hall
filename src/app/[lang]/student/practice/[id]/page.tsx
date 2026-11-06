@@ -72,7 +72,7 @@ async function Resource({ params, searchParams }: Pick<PageProps<"/[lang]/studen
           <Notice tone="ok">Marked done.</Notice>
         ) : (
           <form action={completeResource.bind(null, r.id)}>
-            <button className="inline-flex h-10 items-center rounded-md bg-ink px-4 text-sm font-medium text-paper">I&apos;ve studied this</button>
+            <button className="inline-flex h-10 items-center rounded-full bg-ink px-4 text-sm font-medium text-paper">I&apos;ve studied this</button>
           </form>
         ))}
 

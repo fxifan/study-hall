@@ -11,9 +11,30 @@ import "./home.css";
 
 /**
  * The Edumi home page (/): Edumi's core is studying with friends (student sign-up at /join), with
- * Edumi Study Hall (/study_hall) and Edumi for Tutors (/tutors) beside it. Copy in _home/copy.ts. Motion is progressive: content is visible without JavaScript and with reduced
+ * Edumi Study Hall (/study_hall) and Edumi for Tutors (/tutors) beside it. Copy in _home/copy.ts.
+ * Design: "Tiles" (owner, 7 Nov 2026), a light, ordered page of simple shapes in muted sage, pink,
+ * sand and slate (home.css). Motion is progressive: content is visible without JavaScript and with reduced
  * motion (home.css, HomeEffects).
  */
+/** Simple line icons for the four student tiles: leaderboard, standout, timer, quiz. */
+const ICONS = [
+  <svg key="board" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+    <path d="M4 20V10M10 20V4M16 20v-7M21 20H3" />
+  </svg>,
+  <svg key="standout" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="9" r="6" />
+    <path d="M8.5 14 7 22l5-3 5 3-1.5-8" />
+  </svg>,
+  <svg key="timer" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+    <circle cx="12" cy="13" r="8" />
+    <path d="M12 9v4l2.5 2M10 2h4" />
+  </svg>,
+  <svg key="quiz" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+    <path d="M4 6h16M4 12h9M4 18h6" />
+    <path d="m15 17 2 2 4-4" />
+  </svg>,
+];
+
 export async function generateMetadata(): Promise<Metadata> {
   const t = homeCopy(await getLocale());
   return { title: { absolute: t.meta.title }, description: t.meta.description };
@@ -26,6 +47,8 @@ export default async function HomePage() {
   const studyHall = href("/study_hall");
   const tutors = href("/tutors");
   const join = href("/join");
+  const studentFeatures = t.features.items.filter((f) => f.tag === "Students");
+  const otherFeatures = t.features.items.filter((f) => f.tag !== "Students");
 
   return (
     <div className="home">
@@ -71,7 +94,6 @@ export default async function HomePage() {
       <main id="main">
         {/* Hero */}
         <section className="home-hero" aria-labelledby="home-title" lang="en">
-          <div className="home-glow" aria-hidden="true" />
           <div className="home-wrap home-hero-grid">
             <div className="home-hero-copy">
               <p className="home-eyebrow" data-rv>
@@ -88,76 +110,186 @@ export default async function HomePage() {
                 <Link href={join} className="home-btn home-btn--primary">
                   {t.hero.primary} <span aria-hidden="true">→</span>
                 </Link>
-                <Link href={studyHall} className="home-btn home-btn--secondary">
+                <Link href={studyHall} className="home-btn home-btn--ghost">
                   {t.hero.secondary}
                 </Link>
               </div>
+              <dl className="home-proof" data-rv style={{ "--d": 4 } as React.CSSProperties}>
+                {t.hero.proof.map((p) => (
+                  <div key={p.label}>
+                    <dt>{p.value}</dt>
+                    <dd>{p.label}</dd>
+                  </div>
+                ))}
+              </dl>
             </div>
 
-            {/* Product visual: built from the student app's real pieces, with fictional names. */}
-            <figure className="home-visual" aria-label={t.hero.visualLabel} data-rv style={{ "--d": 2 } as React.CSSProperties}>
-              <div className="home-window">
-                <div className="home-window-bar" aria-hidden="true">
-                  <span />
-                  <span />
-                  <span />
-                  <code>edumi.app/student/groups</code>
-                </div>
-                <div className="home-window-body">
-                  <div className="home-card home-card--report">
-                    <p className="home-mono">Methods crew · {t.hero.board}</p>
-                    <ol className="home-board">
-                      <li className="home-board-row home-board-row--top">
-                        <span className="home-board-rank">1</span>
-                        <span className="home-board-name">
-                          Leo K. <span className="home-live">● {t.hero.live}</span>
-                        </span>
-                        <strong>1h 10m</strong>
-                      </li>
-                      <li className="home-board-row">
-                        <span className="home-board-rank">2</span>
-                        <span className="home-board-name">Ava S.</span>
-                        <strong>40m</strong>
-                      </li>
-                      <li className="home-board-row home-board-row--you">
-                        <span className="home-board-rank">3</span>
-                        <span className="home-board-name">
-                          {t.hero.you} <span className="home-board-nudge">{t.hero.yourMove}</span>
-                        </span>
-                        <strong>0m</strong>
-                      </li>
-                    </ol>
-                    <p className="home-mono home-goal-label">{t.hero.goal}</p>
-                    <div className="home-goal" aria-hidden="true">
-                      <span style={{ width: "31%" }} />
-                    </div>
-                    <p className="home-goal-row">
-                      <strong>1h 50m / 6h</strong> <span>{t.hero.left}</span>
-                    </p>
-                    <p className="home-chip-row">
-                      <span className="home-chip home-chip--lav">🏆 {t.hero.standout}</span>
-                    </p>
-                  </div>
-                  <div className="home-card home-card--session" aria-hidden="true">
-                    <p className="home-mono">{t.hero.quiz}</p>
-                    <ol>
-                      <li>
-                        <span className="home-tick">✓</span> {t.hero.score}
-                      </li>
-                      <li>
-                        <span className="home-tick home-tick--lav">●</span> {t.hero.tier}
-                      </li>
-                    </ol>
-                  </div>
-                </div>
+            {/* Product visual: the student app's real pieces as simple shapes, with fictional names. */}
+            <figure className="home-stage" aria-label={t.hero.visualLabel} data-rv style={{ "--d": 2 } as React.CSSProperties}>
+              <span className="home-shape home-shape--a" aria-hidden="true" />
+              <span className="home-shape home-shape--b" aria-hidden="true" />
+              <div className="home-tile home-tile--board">
+                <p className="home-tile-head">
+                  <span>Methods crew · {t.hero.board.split("·").pop()?.trim()}</span>
+                  <span className="home-mono">{t.hero.liveTag}</span>
+                </p>
+                <ol className="home-board">
+                  <li className="home-row home-row--first">
+                    <span className="home-rank">1</span>
+                    <span>
+                      Leo K. <span className="home-live">● {t.hero.live}</span>
+                    </span>
+                    <strong>1h 10m</strong>
+                  </li>
+                  <li className="home-row">
+                    <span className="home-rank">2</span>
+                    <span>Ava S.</span>
+                    <strong>40m</strong>
+                  </li>
+                  <li className="home-row home-row--you">
+                    <span className="home-rank">3</span>
+                    <span>
+                      {t.hero.you} <span className="home-nudge">{t.hero.yourMove}</span>
+                    </span>
+                    <strong>0m</strong>
+                  </li>
+                </ol>
+              </div>
+              <div className="home-tile home-tile--goal" aria-hidden="true">
+                <p className="home-tile-head">{t.hero.goalShort}</p>
+                <span className="home-ring" style={{ "--p": 31 } as React.CSSProperties}>
+                  <span>31%</span>
+                </span>
+                <p className="home-tile-foot">{t.hero.goalOf}</p>
+              </div>
+              <div className="home-tile home-tile--quiz" aria-hidden="true">
+                <p className="home-tile-head">{t.hero.quiz}</p>
+                <p className="home-score">{t.hero.quizScore}</p>
+                <span className="home-bar">
+                  <span style={{ width: "83%" }} />
+                </span>
+                <p className="home-chips">
+                  <span className="home-chip">+10 points</span>
+                  <span className="home-chip">Silver</span>
+                </p>
               </div>
               <figcaption className="home-note">{t.hero.visualNote}</figcaption>
             </figure>
           </div>
         </section>
 
+        {/* Student features: bento tiles */}
+        <section className="home-section" aria-labelledby="features-title">
+          <div className="home-wrap">
+            <p className="home-label" data-rv>
+              {t.features.label}
+            </p>
+            <h2 id="features-title" data-rv>
+              {t.features.title}
+            </h2>
+            <ul className="home-bento">
+              {studentFeatures.map((f, i) => (
+                <li key={f.title} lang="en" className={`home-bento-tile home-bento-tile--${i + 1}`} data-rv style={{ "--d": i } as React.CSSProperties}>
+                  <span className="home-icon" aria-hidden="true">
+                    {ICONS[i]}
+                  </span>
+                  <h3>{f.title}</h3>
+                  <p>{f.body}</p>
+                </li>
+              ))}
+            </ul>
+            <ul className="home-features">
+              {otherFeatures.map((f, i) => (
+                <li key={f.title} className="home-feature" data-rv style={{ "--d": i % 4 } as React.CSSProperties}>
+                  <span className={`home-tag ${f.tag === "Study Hall" ? "home-tag--sand" : "home-tag--slate"}`}>{f.tag}</span>
+                  <h3>{f.title}</h3>
+                  <p>{f.body}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* Inside the app */}
+        <section className="home-section home-section--tight" aria-labelledby="app-title" lang="en">
+          <div className="home-wrap">
+            <p className="home-label" data-rv>
+              {t.app.label}
+            </p>
+            <h2 id="app-title" data-rv>
+              {t.app.title}
+            </h2>
+            <div className="home-app" data-rv aria-hidden="true">
+              <div className="home-app-main">
+                <div className="home-app-goal">
+                  <span className="home-ring home-ring--sm" style={{ "--p": 31 } as React.CSSProperties}>
+                    <span />
+                  </span>
+                  <div>
+                    <p className="home-app-k">{t.app.goal}</p>
+                    <span className="home-line">
+                      <span style={{ width: "31%" }} />
+                    </span>
+                    <p className="home-mono">{t.app.goalLine}</p>
+                  </div>
+                </div>
+                <div className="home-app-timer">
+                  <div>
+                    <p className="home-clock">24:18</p>
+                    <p className="home-mono">{t.app.timer}</p>
+                  </div>
+                  <span className="home-app-actions">
+                    <span className="home-btn home-btn--ghost home-btn--sm">{t.app.pause}</span>
+                    <span className="home-btn home-btn--primary home-btn--sm">{t.app.stop}</span>
+                  </span>
+                </div>
+                <ul className="home-chat">
+                  {t.app.chat.map((m) => (
+                    <li key={m.text} className={`home-msg home-msg--${m.kind}`}>
+                      {m.text}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="home-app-side">
+                <div className="home-tile">
+                  <p className="home-tile-head">
+                    <span>{t.app.board}</span>
+                    <span className="home-mono">{t.app.week}</span>
+                  </p>
+                  <ol className="home-board">
+                    <li className="home-row home-row--first">
+                      <span className="home-rank">1</span>
+                      <span>Leo K.</span>
+                      <strong>1h 10m</strong>
+                    </li>
+                    <li className="home-row">
+                      <span className="home-rank">2</span>
+                      <span>Ava S.</span>
+                      <strong>40m</strong>
+                    </li>
+                    <li className="home-row home-row--you">
+                      <span className="home-rank">3</span>
+                      <span>{t.hero.you}</span>
+                      <strong>24m</strong>
+                    </li>
+                  </ol>
+                </div>
+                <div className="home-tile home-tile--quiz">
+                  <p className="home-tile-head">{t.app.tier}</p>
+                  <p className="home-score">{t.app.tierName}</p>
+                  <span className="home-bar">
+                    <span style={{ width: "62%" }} />
+                  </span>
+                  <p className="home-mono">{t.app.toNext}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Products */}
-        <section className="home-section" aria-labelledby="products-title">
+        <section className="home-section home-section--tight" aria-labelledby="products-title">
           <div className="home-wrap">
             <p className="home-label" data-rv>
               {t.products.label}
@@ -181,20 +313,15 @@ export default async function HomePage() {
                   data-rv
                   style={{ "--d": i } as React.CSSProperties}
                 >
-                  <div className="home-product-head">
-                    <span className="home-status">
-                      <span className="home-dot" aria-hidden="true" /> {p.status}
-                    </span>
-                    <span className="home-mono">{p.for}</span>
-                  </div>
+                  <p className="home-mono">{p.for}</p>
                   <h3>{p.name}</h3>
-                  <p>{p.body}</p>
+                  <p className="home-product-body">{p.body}</p>
                   <ul>
                     {p.points.map((pt) => (
                       <li key={pt}>{pt}</li>
                     ))}
                   </ul>
-                  <Link href={link} className="home-btn home-btn--primary">
+                  <Link href={link} className={`home-btn ${key === "st" ? "home-btn--light" : "home-btn--ghost"}`}>
                     {p.cta} <span aria-hidden="true">→</span>
                   </Link>
                 </article>
@@ -203,41 +330,24 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Features */}
-        <section className="home-section home-section--tint" aria-labelledby="features-title">
-          <div className="home-wrap">
-            <p className="home-label" data-rv>
-              {t.features.label}
-            </p>
-            <h2 id="features-title" data-rv>
-              {t.features.title}
-            </h2>
-            <ul className="home-features">
-              {t.features.items.map((f, i) => (
-                <li key={f.title} lang={f.tag === "Students" ? "en" : undefined} className="home-feature" data-rv style={{ "--d": i % 4 } as React.CSSProperties}>
-                  <span className={`home-tag ${f.tag === "Study Hall" ? "" : f.tag === "Students" || f.tag === "学生" ? "home-tag--st" : "home-tag--lav"}`}>{f.tag}</span>
-                  <h3>{f.title}</h3>
-                  <p>{f.body}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
         {/* Closing */}
-        <section className="home-closing" aria-labelledby="closing-title">
-          <div className="home-wrap home-closing-in" data-rv>
-            <h2 id="closing-title">{t.closing.title}</h2>
-            <div className="home-cta">
-              <Link href={join} className="home-btn home-btn--light">
-                {t.closing.join}
-              </Link>
-              <Link href={studyHall} className="home-btn home-btn--outline">
-                {t.closing.studyHall}
-              </Link>
-              <Link href={`${tutors}#signup`} className="home-btn home-btn--outline">
-                {t.closing.tutors}
-              </Link>
+        <section className="home-closing-wrap" aria-labelledby="closing-title">
+          <div className="home-wrap">
+            <div className="home-closing" data-rv>
+              <span className="home-shape home-shape--c" aria-hidden="true" />
+              <span className="home-shape home-shape--d" aria-hidden="true" />
+              <h2 id="closing-title">{t.closing.title}</h2>
+              <div className="home-cta">
+                <Link href={join} className="home-btn home-btn--primary">
+                  {t.closing.join} <span aria-hidden="true">→</span>
+                </Link>
+                <Link href={studyHall} className="home-btn home-btn--ghost">
+                  {t.closing.studyHall}
+                </Link>
+                <Link href={`${tutors}#signup`} className="home-btn home-btn--ghost">
+                  {t.closing.tutors}
+                </Link>
+              </div>
             </div>
           </div>
         </section>

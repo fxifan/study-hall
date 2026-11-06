@@ -49,7 +49,7 @@ export function JoinForm({ invite, lang, privacyHref }: { invite: string; lang: 
       </div>
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="yearLevel">Year level</Label>
-        <select id="yearLevel" name="yearLevel" required defaultValue="" className="h-10 rounded-md border border-rule bg-sheet px-3">
+        <select id="yearLevel" name="yearLevel" required defaultValue="" className="h-10 rounded-full border border-rule bg-sheet px-3">
           <option value="" disabled>
             Choose
           </option>
@@ -64,7 +64,7 @@ export function JoinForm({ invite, lang, privacyHref }: { invite: string; lang: 
       <fieldset className="flex flex-col gap-1.5">
         <legend className="mb-1.5 text-sm font-medium">Birth month and year</legend>
         <div className="grid grid-cols-2 gap-3">
-          <select name="birthMonth" required defaultValue="" aria-label="Birth month" className="h-10 rounded-md border border-rule bg-sheet px-3">
+          <select name="birthMonth" required defaultValue="" aria-label="Birth month" className="h-10 rounded-full border border-rule bg-sheet px-3">
             <option value="" disabled>
               Month
             </option>
@@ -74,7 +74,7 @@ export function JoinForm({ invite, lang, privacyHref }: { invite: string; lang: 
               </option>
             ))}
           </select>
-          <select name="birthYear" required defaultValue="" aria-label="Birth year" className="h-10 rounded-md border border-rule bg-sheet px-3">
+          <select name="birthYear" required defaultValue="" aria-label="Birth year" className="h-10 rounded-full border border-rule bg-sheet px-3">
             <option value="" disabled>
               Year
             </option>

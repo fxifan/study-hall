@@ -8,9 +8,12 @@ import { rank, shortMinutes } from "@/lib/social/credit";
 import { groupMembers, requireSocialStudent, todayProgress, type Group } from "@/lib/social/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createGroup, joinGroup } from "../_social/actions";
-import { Loading, Notice, StudentShell, card, primaryBtn, secondaryBtn } from "../_social/shell";
+import { Loading, Notice, StudentShell, card, tile, primaryBtn, secondaryBtn } from "../_social/shell";
 
 export const metadata: Metadata = { title: "Your groups" };
+
+/** Group cards cycle through the Tiles colours: sage, pink, sand, slate. */
+const TILE = ["bg-brand-soft", "bg-[var(--tiles-pink-soft)]", "bg-[var(--tiles-sand)]", "bg-[var(--tiles-slate-soft)]"];
 
 const ERRORS: Record<string, string> = {
   code: "That invite code isn't valid any more. Ask a friend for a new one.",
@@ -75,14 +78,14 @@ async function Groups({ searchParams }: Pick<PageProps<"/[lang]/student/groups">
                 : `${leader.name} leads${mine ? ` · you're #${mine.rank}` : ""}`;
             return (
               <li key={g.id}>
-                <Link href={localizePath(`/student/groups/${g.id}`, locale)} className={`${card} flex flex-col gap-3 text-ink no-underline hover:border-ink`}>
+                <Link href={localizePath(`/student/groups/${g.id}`, locale)} className={`${tile} ${TILE[i % TILE.length]} flex flex-col gap-3 text-ink no-underline hover:border-ink`}>
                   <div className="flex items-baseline justify-between gap-2">
                     <span className="text-lg font-medium">{g.name}</span>
                     <span className="font-mono text-xs text-ink-soft">
                       {shortMinutes(p.doneMinutes)} / {shortMinutes(p.targetMinutes)}
                     </span>
                   </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-paper-deep" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Today's goal">
+                  <div className="h-2 overflow-hidden rounded-full bg-sheet" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Today's goal">
                     <div className="h-full rounded-full bg-brand" style={{ width: `${pct}%` }} />
                   </div>
                   <span className="flex flex-wrap justify-between gap-2 text-sm text-ink-soft">
