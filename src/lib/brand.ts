@@ -10,7 +10,7 @@
  */
 export const BRAND = {
   name: "Edumi",
-  /** The wordmark is lowercase with a lavender full stop. */
+  /** The wordmark is lowercase with a sage full stop. */
   wordmark: "edumi",
   domain: "edumi.app",
   url: "https://edumi.app",
@@ -22,11 +22,12 @@ export const BRAND = {
     studyHallShort: "Study Hall",
     tutors: "Edumi for Tutors",
   },
+  /** Tiles palette (site-wide from 7 Nov 2026); names kept from the first rebrand. */
   colors: {
-    midnight: "#171A35",
-    indigo: "#35366F",
-    lavender: "#A99AFF",
-    lavenderSoft: "#EAE6FF",
-    cloud: "#F8F9FC",
+    midnight: "#1F2326",
+    indigo: "#3B5647",
+    lavender: "#8EA596",
+    lavenderSoft: "#DBE5DE",
+    cloud: "#F1F1EC",
   },
 } as const;

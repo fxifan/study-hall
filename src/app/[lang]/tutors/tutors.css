@@ -1,53 +1,24 @@
 /*
- * Edumi for Tutors landing page (/tutors), scoped under .tl. A warm, light canvas with deep ink
- * text and the Edumi indigo/lavender accents. It stays light in dark mode (the shared tokens used
- * by the sign-up form are pinned to their light values inside .tl), so the page looks the same for
- * every visitor. Motion is limited to hover lifts and is switched off for reduced motion.
+ * Edumi for Tutors landing page (/tutors), scoped under .tl, in the site-wide Tiles look: warm
+ * off-white canvas, charcoal text and buttons, muted sage accents. Motion is limited to hover lifts and is switched off for reduced motion.
  */
 
 .tl {
-  /* Page palette */
-  --tl-canvas: #faf8f4;
+  /* Page palette: Tiles */
+  --tl-canvas: #f1f1ec;
   --tl-surface: #ffffff;
-  --tl-tint: #f4f1fb;
-  --tl-ink: #1c1f3a;
-  --tl-ink-2: #474b66;
-  --tl-ink-3: #6b6f88;
-  --tl-line: #e7e3ee;
-  --tl-indigo: #35366f;
-  --tl-indigo-hover: #42448a;
-  --tl-lav: #a99aff;
-  --tl-lav-soft: #eeeaff;
-  --tl-lav-text: #5b4bd1;
+  --tl-tint: #f4f4ef;
+  --tl-ink: #1f2326;
+  --tl-ink-2: #52585e;
+  --tl-ink-3: #666b71;
+  --tl-line: #dcdcd3;
+  --tl-indigo: #1f2326; /* primary buttons and dark panels: charcoal */
+  --tl-indigo-hover: #33393d;
+  --tl-lav: #8ea596; /* accent: sage */
+  --tl-lav-soft: #dbe5de;
+  --tl-lav-text: #5b7667;
   --tl-max: 1120px;
   --tl-r: 18px;
-
-  /* Pin the shared tokens light inside this page (the sign-up form uses them). */
-  --paper: #faf8f4;
-  --paper-deep: #f1eef6;
-  --sheet: #ffffff;
-  --ink: #1c1f3a;
-  --ink-soft: #474b66;
-  --ink-faint: #6b6f88;
-  --hair: #e7e3ee;
-  --rule: #e7e3ee;
-  --pen: #c23a4b;
-  --coral: #35366f;
-  --coral-ink: #ffffff;
-  --brand: #5b4bd1;
-  --dash-surface: #ffffff;
-  --dash-surface-2: #f6f4fb;
-  --dash-surface-hover: #efecf7;
-  --dash-border: #e7e3ee;
-  --dash-border-strong: #d6d1e2;
-  --dash-text: #1c1f3a;
-  --dash-text-2: #474b66;
-  --dash-text-3: #6b6f88;
-  --dash-accent: #35366f;
-  --dash-accent-hover: #42448a;
-  --dash-accent-press: #2a2b5a;
-  --dash-accent-ink: #ffffff;
-  --dash-accent-text: #5b4bd1;
   color-scheme: light;
 
   flex: 1;
@@ -128,7 +99,7 @@
 .tl-btn--primary {
   background: var(--tl-indigo);
   color: #fff;
-  box-shadow: 0 10px 24px -14px rgba(53, 54, 111, 0.8);
+  box-shadow: 0 10px 24px -14px rgba(31, 35, 38, 0.8);
 }
 .tl-btn--primary:hover {
   background: var(--tl-indigo-hover);
@@ -224,7 +195,7 @@
   background: var(--tl-surface);
   border: 1px solid var(--tl-line);
   border-radius: 14px;
-  box-shadow: 0 18px 40px -20px rgba(28, 31, 58, 0.3);
+  box-shadow: 0 18px 40px -20px rgba(31, 35, 38, 0.3);
 }
 .tl-menu nav a {
   padding: 10px 12px;
@@ -246,7 +217,7 @@
   position: absolute;
   inset: -40% -10% auto 40%;
   height: 680px;
-  background: radial-gradient(closest-side, rgba(169, 154, 255, 0.28), transparent 72%);
+  background: radial-gradient(closest-side, rgba(142, 165, 150, 0.28), transparent 72%);
   pointer-events: none;
 }
 .tl-hero-grid {
@@ -296,7 +267,7 @@
   border-radius: var(--tl-r);
   background: var(--tl-surface);
   border: 1px solid var(--tl-line);
-  box-shadow: 0 2px 4px rgba(28, 31, 58, 0.04), 0 40px 80px -40px rgba(53, 54, 111, 0.45);
+  box-shadow: 0 2px 4px rgba(31, 35, 38, 0.04), 0 40px 80px -40px rgba(31, 35, 38, 0.45);
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -308,13 +279,13 @@
   gap: 6px;
   padding: 10px 14px;
   border-bottom: 1px solid var(--tl-line);
-  background: #fbfaff;
+  background: #f8f8f4;
 }
 .tl-preview-bar span {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: #dcd7ea;
+  background: #dcdcd3;
 }
 .tl-preview img {
   display: block;
@@ -329,8 +300,8 @@
   height: 72px;
   margin: -36px 0 0 -36px;
   border-radius: 50%;
-  background: rgba(53, 54, 111, 0.92);
-  box-shadow: 0 0 0 10px rgba(169, 154, 255, 0.35);
+  background: rgba(31, 35, 38, 0.92);
+  box-shadow: 0 0 0 10px rgba(142, 165, 150, 0.35);
   display: grid;
   place-items: center;
   transition: transform 0.2s ease;
@@ -424,8 +395,8 @@
   aspect-ratio: 16 / 10;
   border-radius: var(--tl-r);
   border: 1px solid var(--tl-line);
-  background: #11132a;
-  box-shadow: 0 40px 80px -48px rgba(53, 54, 111, 0.55);
+  background: #2b3530;
+  box-shadow: 0 40px 80px -48px rgba(31, 35, 38, 0.55);
 }
 .tl-video figcaption {
   margin-top: 14px;
@@ -482,7 +453,7 @@
   border-radius: var(--tl-r);
   background: var(--tl-surface);
   border: 1px solid var(--tl-line);
-  box-shadow: 0 24px 48px -36px rgba(28, 31, 58, 0.35);
+  box-shadow: 0 24px 48px -36px rgba(31, 35, 38, 0.35);
   overflow: hidden;
 }
 .tl-sample figcaption {
@@ -491,7 +462,7 @@
   gap: 10px;
   padding: 12px 18px;
   border-bottom: 1px solid var(--tl-line);
-  background: #fbfaff;
+  background: #f8f8f4;
   font-weight: 600;
   font-size: 0.92rem;
 }
@@ -536,7 +507,7 @@
 }
 .tl-price--main {
   border: 2px solid var(--tl-indigo);
-  box-shadow: 0 30px 60px -40px rgba(53, 54, 111, 0.6);
+  box-shadow: 0 30px 60px -40px rgba(31, 35, 38, 0.6);
 }
 .tl-price h3 {
   font-size: 1.15rem;
@@ -595,7 +566,7 @@
   border-radius: var(--tl-r);
   background: var(--tl-surface);
   border: 1px solid var(--tl-line);
-  box-shadow: 0 30px 60px -44px rgba(28, 31, 58, 0.5);
+  box-shadow: 0 30px 60px -44px rgba(31, 35, 38, 0.5);
 }
 .tl-privacy {
   margin-top: 28px;
