@@ -177,3 +177,21 @@ test("a group studies together: chat, timer, help and practice", async ({ browse
   await expect(a.getByText("8 / 12 marks")).toBeVisible({ timeout: 30_000 });
   await expect(a.getByText(/No new points/)).toBeVisible();
 });
+
+test("a uni student born before 2005 can sign up", async ({ page }) => {
+  const email = `social-uni-${stamp}@studyhall.test`;
+  await page.goto("/join");
+  await page.getByLabel("First name").fill("Uni");
+  await page.getByLabel("Last initial").fill("T");
+  await page.getByLabel("Year level").selectOption({ label: "University or TAFE" });
+  await page.getByLabel("Birth month").selectOption("3");
+  await page.getByLabel("Birth year").selectOption("1998");
+  await page.getByLabel("Email").fill(email);
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Start my 7-day free trial" }).click();
+  await expect(page.getByText(/for your login link/)).toBeVisible();
+  const { data: p } = await admin.from("profiles").select("id").eq("email", email).single();
+  created.push(p!.id);
+  const { data: s } = await admin.from("students").select("year_level, birth_year").eq("profile_id", p!.id).single();
+  expect(s).toEqual({ year_level: 13, birth_year: 1998 });
+});
