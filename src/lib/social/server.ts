@@ -47,7 +47,7 @@ export type Access =
 
 export type SocialStudent = { profile: CurrentProfile; student: StudentRow; access: Access };
 
-export const STUDENT_PRICE_CENTS = 1199;
+export { STUDENT_PRICE_CENTS } from "./plan-price";
 
 export const hasAccess = (a: Access) => a.kind === "trial" || a.kind === "paid" || a.kind === "studyhall";
 
