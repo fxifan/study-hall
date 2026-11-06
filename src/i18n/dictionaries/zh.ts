@@ -45,10 +45,11 @@ export const zh: Dictionary = {
     reportsIntro: "最近两周的报告，内容来自每节自习的实际记录。",
     reportsEmpty: "还没有报告。孩子参加第一节自习后会显示在这里。",
     editStudies: "科目",
-    edumiGroups: "学习小组",
-    edumiOn: "已开启",
-    edumiOff: "已关闭",
-    edumiHint: "学习小组让孩子与朋友设定共同的每日学习目标、在仅限成员的小组中聊天，并用 AI 测验练习。包含在您的套餐中。可为每个孩子单独开启。",
+    // Edumi study groups are English only (owner, 6 Nov 2026).
+    edumiGroups: en.parent.edumiGroups,
+    edumiOn: en.parent.edumiOn,
+    edumiOff: en.parent.edumiOff,
+    edumiHint: en.parent.edumiHint,
     back: "返回孩子列表",
     billing: {
       title: "账单",

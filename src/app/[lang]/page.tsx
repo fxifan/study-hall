@@ -70,7 +70,7 @@ export default async function HomePage() {
 
       <main id="main">
         {/* Hero */}
-        <section className="home-hero" aria-labelledby="home-title">
+        <section className="home-hero" aria-labelledby="home-title" lang="en">
           <div className="home-glow" aria-hidden="true" />
           <div className="home-wrap home-hero-grid">
             <div className="home-hero-copy">
@@ -105,18 +105,37 @@ export default async function HomePage() {
                 </div>
                 <div className="home-window-body">
                   <div className="home-card home-card--report">
-                    <p className="home-mono">Methods crew · {t.hero.goal}</p>
+                    <p className="home-mono">Methods crew · {t.hero.board}</p>
+                    <ol className="home-board">
+                      <li className="home-board-row home-board-row--top">
+                        <span className="home-board-rank">1</span>
+                        <span className="home-board-name">
+                          Leo K. <span className="home-live">● {t.hero.live}</span>
+                        </span>
+                        <strong>1h 10m</strong>
+                      </li>
+                      <li className="home-board-row">
+                        <span className="home-board-rank">2</span>
+                        <span className="home-board-name">Ava S.</span>
+                        <strong>40m</strong>
+                      </li>
+                      <li className="home-board-row home-board-row--you">
+                        <span className="home-board-rank">3</span>
+                        <span className="home-board-name">
+                          {t.hero.you} <span className="home-board-nudge">{t.hero.yourMove}</span>
+                        </span>
+                        <strong>0m</strong>
+                      </li>
+                    </ol>
+                    <p className="home-mono home-goal-label">{t.hero.goal}</p>
                     <div className="home-goal" aria-hidden="true">
                       <span style={{ width: "31%" }} />
                     </div>
                     <p className="home-goal-row">
                       <strong>1h 50m / 6h</strong> <span>{t.hero.left}</span>
                     </p>
-                    <p className="home-chat home-chat--sys">{t.hero.started}</p>
-                    <p className="home-chat home-chat--help">{t.hero.help}</p>
                     <p className="home-chip-row">
-                      <span className="home-chip home-chip--lav">● Leo K. · Ava S.</span>
-                      <span className="home-chip">1 Leo 1h 10m · 2 Ava 40m</span>
+                      <span className="home-chip home-chip--lav">🏆 {t.hero.standout}</span>
                     </p>
                   </div>
                   <div className="home-card home-card--session" aria-hidden="true">
@@ -126,7 +145,7 @@ export default async function HomePage() {
                         <span className="home-tick">✓</span> {t.hero.score}
                       </li>
                       <li>
-                        <span className="home-tick home-tick--lav">●</span> Silver tier
+                        <span className="home-tick home-tick--lav">●</span> {t.hero.tier}
                       </li>
                     </ol>
                   </div>
@@ -157,6 +176,7 @@ export default async function HomePage() {
                 <article
                   key={key}
                   id={key === "st" ? "students" : undefined}
+                  lang={key === "st" ? "en" : undefined}
                   className={`home-product home-product--${key}`}
                   data-rv
                   style={{ "--d": i } as React.CSSProperties}
@@ -194,7 +214,7 @@ export default async function HomePage() {
             </h2>
             <ul className="home-features">
               {t.features.items.map((f, i) => (
-                <li key={f.title} className="home-feature" data-rv style={{ "--d": i % 4 } as React.CSSProperties}>
+                <li key={f.title} lang={f.tag === "Students" ? "en" : undefined} className="home-feature" data-rv style={{ "--d": i % 4 } as React.CSSProperties}>
                   <span className={`home-tag ${f.tag === "Study Hall" ? "" : f.tag === "Students" || f.tag === "学生" ? "home-tag--st" : "home-tag--lav"}`}>{f.tag}</span>
                   <h3>{f.title}</h3>
                   <p>{f.body}</p>
