@@ -46,7 +46,7 @@ async function Me() {
         <p className="text-sm text-ink-soft">
           {total} points{tier.next ? ` · ${tier.next.min - total} to ${tier.next.name}` : " · top tier"}
         </p>
-        <p className="text-xs text-ink-faint">Earn points by finishing practice: 10 for completing a set, plus 5 at 70% and 5 at 90% on vetted quizzes. Up to 60 a day. Only you see your points.</p>
+        <p className="text-xs text-ink-faint">Quizzes pay the marks you earn as points (retakes pay only when you beat your best). Notes and flashcards pay 10 when you finish them. Up to 60 a day. Only you see your points.</p>
       </section>
 
       <section className={`${card} flex flex-col gap-2`}>
