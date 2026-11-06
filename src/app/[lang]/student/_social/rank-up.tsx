@@ -12,8 +12,8 @@ const SEEN_KEY = (id: string) => `edumi:rank-seen:${id}`;
 
 /**
  * The rank-up celebration (docs/study-ranks.md). Shown only for a promotion the server has
- * recorded for the signed-in student, once: the first tab to take a Web Lock for the promotion
- * shows it, a local "seen" mark stops other tabs and refreshes, and dismissing acknowledges it on
+ * recorded for the signed-in student, once: tabs queue on a Web Lock for the promotion, the first
+ * shows it, a local "seen" mark stops the others and refreshes, and dismissing acknowledges it on
  * the server (which also clears earlier unseen promotions).
  *
  * Motion (Web Animations API, about one second): the badge rises from 60% with a slight turn and
@@ -59,9 +59,10 @@ export function RankUpCelebration({ promotion, onDone }: { promotion: PromotionV
       return true;
     };
     if ("locks" in navigator) {
-      navigator.locks.request(`edumi-rank-${promotion.id}`, { ifAvailable: true }, (lock) => {
-        if (!lock || !show()) return undefined;
-        // Hold the lock while the dialog is open, so another tab can't show it at the same time.
+      // Tabs queue on the lock: the first shows the celebration and holds the lock while it's open;
+      // the next gets it only after dismissal, finds the "seen" mark and does nothing.
+      navigator.locks.request(`edumi-rank-${promotion.id}`, () => {
+        if (!show()) return undefined;
         return new Promise<void>((resolve) => (releaseLock.current = resolve));
       });
     } else {
@@ -146,7 +147,7 @@ export function RankUpCelebration({ promotion, onDone }: { promotion: PromotionV
 
   if (!open) return null;
   return (
-    <div className="theme-tiles fixed inset-0 z-50 grid place-items-center bg-[rgba(31,35,38,0.45)] p-4" onClick={(e) => e.target === e.currentTarget && close()}>
+    <div className="fixed inset-0 z-50 grid place-items-center bg-[rgba(31,35,38,0.45)] p-4" onClick={(e) => e.target === e.currentTarget && close()}>
       <div
         ref={dialog}
         role="dialog"
@@ -175,21 +176,21 @@ export function RankUpCelebration({ promotion, onDone }: { promotion: PromotionV
             {to.name}
           </h2>
           <p id="rank-up-desc" className="text-sm text-ink-soft">
-            You reached {to.name} with {promotion.points} points.
-            {next ? ` Next up: ${next.name} at ${next.min}.` : " That is the top rank."}
+            You reached {to.name} with {promotion.points.toLocaleString("en-AU")} points.
+            {next ? ` Next up: ${next.name} at ${next.min.toLocaleString("en-AU")}.` : " That is the top rank."}
           </p>
         </div>
         <p className="sr-only" role="status">
           Rank up! You&apos;re now {to.name}.
         </p>
         <div className="mt-2 flex w-full flex-col gap-2 sm:flex-row-reverse">
-          <button ref={button} type="button" onClick={close} className="inline-flex h-11 flex-1 items-center justify-center rounded-full bg-ink px-5 text-sm font-medium text-paper">
+          <button ref={button} type="button" onClick={close} className="inline-flex h-11 items-center justify-center rounded-full bg-ink sm:flex-1 px-5 text-sm font-medium text-paper">
             Nice!
           </button>
           <Link
             href="/student/ranks"
             onClick={close}
-            className="inline-flex h-11 flex-1 items-center justify-center rounded-full border border-rule px-5 text-sm font-medium text-ink no-underline"
+            className="inline-flex h-11 items-center justify-center rounded-full border border-rule sm:flex-1 px-5 text-sm font-medium text-ink no-underline"
           >
             See all ranks
           </Link>
