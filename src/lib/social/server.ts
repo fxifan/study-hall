@@ -66,8 +66,11 @@ export function inviteCode(): string {
   return Array.from(bytes, (b) => alphabet[b % alphabet.length]).join("");
 }
 
-async function accessFor(student: StudentRow, profileId: string): Promise<Access> {
+async function accessFor(student: StudentRow, profile: CurrentProfile): Promise<Access> {
   if (!student.social_enabled) return { kind: "disabled" };
+  // An admin's Student view: full access, no trial or checkout.
+  if (profile.role === "admin") return { kind: "paid", periodEnd: null };
+  const profileId = profile.id;
   const admin = createAdminClient();
   // Families on a Study Hall plan get Edumi with it.
   const { data: parents } = await admin.from("parent_students").select("parent_id").eq("student_id", student.id);
@@ -94,15 +97,16 @@ async function accessFor(student: StudentRow, profileId: string): Promise<Access
   return { kind: "expired", trialEndsAt: plan.trial_ends_at };
 }
 
+/** Students, and admins in Student view (they have their own preview student row). */
 export async function loadSocialStudent(profile: CurrentProfile): Promise<SocialStudent | null> {
-  if (profile.role !== "student") return null;
+  if (profile.role !== "student" && profile.role !== "admin") return null;
   const { data: student } = await createAdminClient()
     .from("students")
     .select("id, first_name, last_initial, year_level, status, social_enabled, self_signed, chat_suspended_until")
     .eq("profile_id", profile.id)
     .maybeSingle<StudentRow>();
   if (!student) return null;
-  return { profile, student, access: await accessFor(student, profile.id) };
+  return { profile, student, access: await accessFor(student, profile) };
 }
 
 /** Pages: a signed-in student with Edumi switched on. Paid features also need `paid`. */
@@ -110,7 +114,7 @@ export async function requireSocialStudent(options: { paid?: boolean } = { paid:
   const [profile, locale] = await Promise.all([getCurrentProfile(), getLocale()]);
   if (!profile) redirect(localizePath("/login", locale));
   const me = await loadSocialStudent(profile);
-  if (!me) redirect(localizePath(profile.role === "student" ? "/student" : "/", locale));
+  if (!me) redirect(localizePath(profile.role === "student" ? "/student" : profile.role === "admin" ? "/admin" : "/", locale));
   if (options.paid !== false && !hasAccess(me.access)) redirect(localizePath("/student/plan", locale));
   return me;
 }

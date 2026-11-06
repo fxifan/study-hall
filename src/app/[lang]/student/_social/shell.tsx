@@ -64,6 +64,16 @@ export async function StudentShell({
           </form>
         </div>
       </header>
+      {me.profile.role === "admin" && (
+        <div className="border-b border-rule bg-sheet">
+          <div className="mx-auto flex w-full max-w-4xl items-center justify-between gap-3 px-4 py-2 text-sm">
+            <span className="text-ink-soft">Student view · you&apos;re seeing Edumi as a student</span>
+            <Link href={href("/admin")} className="font-medium text-ink">
+              Back to admin
+            </Link>
+          </div>
+        </div>
+      )}
       <TrialBar access={me.access} href={href("/student/plan")} now={new Date()} />
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-5 px-4 py-5 sm:py-8">
         {back && (

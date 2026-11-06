@@ -48,6 +48,8 @@ async function StudentHome({ searchParams }: Pick<PageProps<"/[lang]/student">, 
     getDateLocale(),
     searchParams,
   ]);
+  // Admins reach the student area through Student view, which is the Edumi app.
+  if (profile.role === "admin") redirect(localizePath("/student/groups", locale));
   const s = t.student;
   const supabase = await createClient();
   const { data: student } = await supabase
