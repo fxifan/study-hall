@@ -22,12 +22,12 @@ html:has(.landing) {
 
 .landing {
   --cover-hair: rgba(246, 242, 232, .16);
-  --cover-pen: #C4B9FF;
-  /* Edumi: the page's accent strokes and numbers use lavender (errors keep the global --pen). */
+  --cover-pen: #b9cfc0;
+  /* Tiles: the page's accent strokes and numbers use sage (errors keep the global --pen). */
   --pen: var(--brand);
-  --pen-faint: rgba(169, 154, 255, .5);
-  --shadow-1: 0 1px 2px rgba(27, 42, 65, .07), 0 2px 6px rgba(27, 42, 65, .05);
-  --shadow-2: 0 2px 4px rgba(27, 42, 65, .05), 0 22px 44px -16px rgba(27, 42, 65, .26);
+  --pen-faint: rgba(142, 165, 150, .5);
+  --shadow-1: 0 1px 2px rgba(31, 35, 38, .07), 0 2px 6px rgba(31, 35, 38, .05);
+  --shadow-2: 0 2px 4px rgba(31, 35, 38, .05), 0 22px 44px -16px rgba(31, 35, 38, .26);
   --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .1 0 0 0 0 .16 0 0 0 0 .25 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.11'/%3E%3C/svg%3E");
   --serif: var(--font-manrope), var(--font-inter), ui-sans-serif, system-ui, var(--font-cjk), sans-serif;
   --sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", var(--font-cjk), sans-serif;
@@ -49,14 +49,6 @@ html:has(.landing) {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  @media (prefers-color-scheme: dark) {
-    &:where(:root:not([data-theme="light"]) *) {
-      --cover-hair: rgba(238, 232, 218, .14);
-      --shadow-1: 0 1px 2px rgba(0, 0, 0, .3);
-      --shadow-2: 0 2px 4px rgba(0, 0, 0, .25), 0 24px 48px -16px rgba(0, 0, 0, .6);
-      --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .93 0 0 0 0 .91 0 0 0 0 .85 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.06'/%3E%3C/svg%3E");
-    }
-  }
   @media (max-width: 1180px) { --mw: 104px; --mg: 40px; }
   @media (max-width: 860px) { --sec-y: 76px; }
 
@@ -110,8 +102,8 @@ html:has(.landing) {
     font: 500 1.0625rem/1 var(--serif); text-decoration: none; cursor: pointer; white-space: nowrap;
     transition: transform .18s var(--ease), box-shadow .18s var(--ease), background-color .18s;
   }
-  .btn-primary { background: var(--coral); color: var(--coral-ink); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25), 0 1px 2px rgba(0, 0, 0, .18), 0 6px 16px -8px rgba(53, 54, 111, .45); }
-  .btn-primary:hover { transform: translateY(-1px); background: var(--dash-accent-hover); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25), 0 2px 4px rgba(0, 0, 0, .2), 0 10px 22px -8px rgba(53, 54, 111, .55); }
+  .btn-primary { background: var(--coral); color: var(--coral-ink); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25), 0 1px 2px rgba(0, 0, 0, .18), 0 6px 16px -8px rgba(31, 35, 38, .45); }
+  .btn-primary:hover { transform: translateY(-1px); background: var(--dash-accent-hover); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25), 0 2px 4px rgba(0, 0, 0, .2), 0 10px 22px -8px rgba(31, 35, 38, .55); }
   .btn-primary:active { transform: translateY(0); box-shadow: none; }
   .btn .arr { transition: transform .18s var(--ease); }
   .btn:hover .arr { transform: translateX(3px); }
@@ -324,7 +316,7 @@ html:has(.landing) {
   .cover .sec-label { color: var(--cover-soft); }
   .cover .intro { color: var(--cover-soft); }
   .cover :focus-visible { outline-color: var(--cover-pen); }
-  .cover .link { color: var(--cover-ink); text-decoration-color: rgba(169, 154, 255, .6); }
+  .cover .link { color: var(--cover-ink); text-decoration-color: rgba(142, 165, 150, .6); }
   .cover .link:hover { text-decoration-color: var(--cover-pen); }
   .safety { list-style: none; margin: 56px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 40px; }
   .safety li { border-top: 1px solid var(--cover-hair); padding: 24px 0 40px; }
@@ -346,7 +338,7 @@ html:has(.landing) {
   /* Plan cards lift a little on hover or keyboard focus. "translate" leaves "transform" to the reveal. */
   .label { transition: box-shadow .2s var(--ease), translate .2s var(--ease); }
   .label.rv.in { transition: var(--rv-t), box-shadow .2s var(--ease), translate .2s var(--ease); }
-  .label:hover, .label:focus-within { box-shadow: 0 4px 8px rgba(27, 42, 65, .06), 0 30px 54px -18px rgba(27, 42, 65, .34), inset 0 0 0 1px var(--hair); }
+  .label:hover, .label:focus-within { box-shadow: 0 4px 8px rgba(31, 35, 38, .06), 0 30px 54px -18px rgba(31, 35, 38, .34), inset 0 0 0 1px var(--hair); }
   @media (prefers-reduced-motion: no-preference) {
     .label:hover, .label:focus-within { translate: 0 -2px; }
   }
@@ -441,6 +433,6 @@ html:has(.landing) {
 .landing .edumi-band b { font-family: var(--serif); font-weight: 700; color: #fff; }
 .landing .edumi-band-links { display: flex; gap: 6px; }
 .landing .edumi-band-links a { padding: 4px 10px; border-radius: 999px; text-decoration: none; color: var(--cover-soft); transition: background-color .15s, color .15s; }
-.landing .edumi-band-links a:hover { color: #fff; background: rgba(169, 154, 255, .16); }
-.landing .edumi-band-links a[aria-current="page"] { color: var(--midnight, #171a35); background: var(--lavender, #a99aff); font-weight: 600; }
+.landing .edumi-band-links a:hover { color: #fff; background: rgba(142, 165, 150, .16); }
+.landing .edumi-band-links a[aria-current="page"] { color: var(--midnight, #1f2326); background: var(--lavender, #8ea596); font-weight: 600; }
 

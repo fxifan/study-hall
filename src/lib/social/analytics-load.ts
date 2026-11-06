@@ -3,12 +3,12 @@ import { isReservedTestEmail } from "@/lib/email";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { EdumiRows } from "./analytics";
 
-/** Rows for edumiMetrics, with test accounts (*.test, example.com) left out. */
+/** Rows for edumiMetrics, with test accounts (*.test, example.com) and admin previews left out. */
 export async function loadEdumiRows(from: Date): Promise<EdumiRows> {
   const db = createAdminClient();
   const since = new Date(from.getTime() - 60 * 86_400_000).toISOString();
   const [profiles, students, plans, groups, members, sessions, recaps, help, messages, resources, attempts] = await Promise.all([
-    db.from("profiles").select("id, email").eq("role", "student"),
+    db.from("profiles").select("id, email, role").in("role", ["student", "admin"]),
     db.from("students").select("profile_id, created_at, self_signed, social_enabled").not("profile_id", "is", null),
     db.from("student_plans").select("profile_id, status, payer, trial_ends_at"),
     db.from("study_groups").select("id, created_at, created_by"),
@@ -20,7 +20,8 @@ export async function loadEdumiRows(from: Date): Promise<EdumiRows> {
     db.from("student_resources").select("profile_id, kind, created_at, content, flagged_at").gte("created_at", since),
     db.from("resource_attempts").select("profile_id, submitted_at, correct, total").gte("submitted_at", since),
   ]);
-  const test = new Set((profiles.data ?? []).filter((p) => isReservedTestEmail(p.email as string)).map((p) => p.id as string));
+  // Test accounts and admins' Student view profiles don't count.
+  const test = new Set((profiles.data ?? []).filter((p) => p.role === "admin" || isReservedTestEmail(p.email as string)).map((p) => p.id as string));
   const real = <T extends { profile_id?: string | null }>(rows: T[] | null) => (rows ?? []).filter((x) => !x.profile_id || !test.has(x.profile_id));
   const realGroups = (groups.data ?? []).filter((g) => !g.created_by || !test.has(g.created_by as string));
   const realGroupIds = new Set(realGroups.map((g) => g.id as string));

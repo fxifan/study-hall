@@ -8,6 +8,8 @@ describe("role areas", () => {
     expect(canEnterArea("admin", "parent")).toBe(false);
     expect(canEnterArea("proctor", "admin")).toBe(false);
     expect(canEnterArea("parent", "student")).toBe(false);
+    expect(canEnterArea("admin", "student")).toBe(true); // Student view preview
+    expect(canEnterArea("student", "admin")).toBe(false);
     expect(roleForPath("/proctor/session/1")).toBe("proctor");
   });
 

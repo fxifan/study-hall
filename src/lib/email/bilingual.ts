@@ -26,11 +26,11 @@ export type RenderedEmail = { subject: string; html: string; text: string };
 
 // Single quotes: this goes inside style="…" attributes.
 const FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif";
-const INK = "#25283b"; // Edumi charcoal
-const SOFT = "#667085"; // slate
-const RULE = "#e6e8f0";
-const LAVENDER = "#a99aff";
-const MIDNIGHT = "#171a35";
+const INK = "#1f2326"; // Tiles charcoal
+const SOFT = "#666b71";
+const RULE = "#dcdcd3";
+const LAVENDER = "#5b7667"; // Tiles sage (wordmark dot)
+const MIDNIGHT = "#1f2326";
 
 export function escapeHtml(value: string): string {
   return value
@@ -129,8 +129,8 @@ export function renderEmail({
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escapeHtml(fullSubject)}</title>
 </head>
-<body style="margin:0;padding:0;background:#f6f3ec;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f3ec;">
+<body style="margin:0;padding:0;background:#f1f1ec;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f1f1ec;">
 <tr><td align="center" style="padding:24px 12px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:8px;">
 <tr><td style="padding:24px 28px 0;font-family:${FONT};font-size:${brand === "Edumi" ? "22px;font-weight:800;letter-spacing:-0.5px" : "16px;font-weight:600"};color:${brand === "Edumi" ? MIDNIGHT : INK};">${brand === "Edumi" ? `edumi<span style="color:${LAVENDER};">.</span>` : escapeHtml(brand)}</td></tr>

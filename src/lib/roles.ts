@@ -14,11 +14,12 @@ export const ROLE_HOME: Record<Role, string> = {
 };
 
 /**
- * Admins can also use the supervisor pages (the sessions they supervise or tutor themselves) and
- * the tutor app (their own tutor workspace).
+ * Admins can also use the supervisor pages (the sessions they supervise or tutor themselves), the
+ * tutor app (their own tutor workspace) and the student app (the "Student view" preview, with
+ * their own preview student profile; see src/lib/social/preview.ts).
  */
 export function canEnterArea(role: Role, area: Role): boolean {
-  return area === role || (role === "admin" && (area === "proctor" || area === "tutor"));
+  return area === role || (role === "admin" && (area === "proctor" || area === "tutor" || area === "student"));
 }
 
 export function isRole(value: unknown): value is Role {

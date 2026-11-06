@@ -6,6 +6,7 @@ import { formatAud } from "@/lib/money";
 import { SESSION_HORIZON_DAYS } from "@/lib/sessions";
 import { createClient } from "@/lib/supabase/server";
 import { addDaysToDateKey, dateKeyOf } from "@/lib/time";
+import { openStudentView } from "./actions";
 import { AdminFrame } from "./admin-frame";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -43,6 +44,12 @@ async function AdminHome() {
 
   return (
     <AdminFrame title={t.admin.heading} current="overview">
+      <form action={openStudentView} className="flex flex-wrap items-center justify-between gap-3 dash-card px-4 py-3">
+        <p className="text-sm text-ink-soft">See the Edumi student app as a student would, with your own preview profile.</p>
+        <button type="submit" className="rounded-full bg-ink px-4 py-2 text-sm font-medium text-paper hover:opacity-90">
+          Student view →
+        </button>
+      </form>
       <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat label={t.admin.students} value={students.count ?? 0} />
         <Stat label={t.admin.rooms} value={rooms.count ?? 0} />

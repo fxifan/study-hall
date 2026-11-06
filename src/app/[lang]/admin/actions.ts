@@ -339,3 +339,35 @@ export async function inviteSupervisor(formData: FormData) {
   if (!mail.ok) console.warn("Supervisor login email not sent", mail.reason);
   refresh();
 }
+
+// --- Student view -------------------------------------------------------------------------------
+
+/**
+ * Opens the Edumi student app as the signed-in admin, with their own preview student profile
+ * (made on first use). It's a real student row, so points, ranks and groups behave as they do
+ * for students; analytics leave admins out.
+ */
+export async function openStudentView() {
+  const me = await requireAdmin();
+  const db = createAdminClient();
+  const { data: existing } = await db.from("students").select("id, social_enabled").eq("profile_id", me.id).maybeSingle();
+  if (!existing) {
+    const parts = (me.fullName ?? "").trim().split(/\s+/).filter(Boolean);
+    const first = parts[0] || "Admin";
+    const last = (parts.length > 1 ? parts[parts.length - 1] : "View").charAt(0).toUpperCase();
+    const { error } = await db.from("students").insert({
+      org_id: me.orgId,
+      profile_id: me.id,
+      first_name: first.slice(0, 40),
+      last_initial: last,
+      year_level: 12,
+      status: "active",
+      self_signed: true,
+      social_enabled: true,
+    });
+    if (error) throw new Error("Couldn't set up Student view.");
+  } else if (!existing.social_enabled) {
+    await db.from("students").update({ social_enabled: true }).eq("id", existing.id);
+  }
+  await back("/student/groups", "");
+}
