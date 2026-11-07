@@ -28,7 +28,7 @@ export const en = {
     emailPlaceholder: "you@example.com",
     submit: "Email me a login link",
     sending: "Sending…",
-    sent: "If {email} has a Edumi account, a login link is on its way. It expires in an hour.",
+    sent: "If {email} has an Edumi account, a login link is on its way. It expires in an hour.",
     errors: {
       invalid_email: "Enter a valid email address.",
       rate_limited: "You just asked for a link. Wait a minute and try again.",

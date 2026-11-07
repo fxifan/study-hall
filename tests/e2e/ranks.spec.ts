@@ -127,3 +127,28 @@ test("a retried quiz submission adds no second promotion", async ({ browser }) =
   const { data } = await admin.from("rank_promotions").select("to_tier").eq("profile_id", zed.id);
   expect(data).toEqual([{ to_tier: 2 }]);
 });
+
+test("a half-done quiz survives a refresh and the draft clears once marked", async ({ browser }) => {
+  test.setTimeout(120_000);
+  const kim = await student("Kim", 0, 1);
+  const page = await login(browser, kim.email);
+  await page.goto("/student/practice");
+  await page.getByLabel("Subject and level").selectOption({ label: "Victorian Curriculum · Mathematics · Year 10" });
+  await page.locator('input[name="point"]').first().check();
+  await page.getByRole("button", { name: "Make my quiz" }).click();
+  await expect(page.getByRole("button", { name: "Submit for marking" })).toBeVisible({ timeout: 30_000 });
+  await page.getByRole("group", { name: "Question 1" }).getByRole("radio").nth(1).check();
+  await page.getByLabel("Your answer to question 7").fill("It is 4 because you count on two.");
+
+  await page.reload();
+  await expect(page.getByText("picked up where you left off")).toBeVisible();
+  await expect(page.getByRole("group", { name: "Question 1" }).getByRole("radio").nth(1)).toBeChecked();
+  await expect(page.getByLabel("Your answer to question 7")).toHaveValue("It is 4 because you count on two.");
+
+  for (let i = 1; i < 6; i++) await page.getByRole("group", { name: `Question ${i + 1}` }).getByRole("radio").first().check();
+  await page.getByLabel("Your answer to question 8").fill("four");
+  await page.getByRole("button", { name: "Submit for marking" }).click();
+  await expect(page.getByText(/\/ 12 marks/)).toBeVisible({ timeout: 30_000 });
+  await page.reload();
+  await expect(page.getByText("0 of 8 answered")).toBeVisible();
+});

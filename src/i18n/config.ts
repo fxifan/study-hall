@@ -10,8 +10,20 @@ export const LOCALES = ["en", "zh"] as const;
 export type Locale = (typeof LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = "en";
 
-/** Remembers an explicit choice from the language switch. */
+/**
+ * The language of the last page served. Server actions and route handlers read it to redirect in
+ * the same language; it is not used to pick the language of an unprefixed URL.
+ */
 export const LOCALE_COOKIE = "NEXT_LOCALE";
+
+/**
+ * An explicit choice from the language switch (/en/… or /zh/…?lang=zh). Only this, or a Chinese
+ * browser, sends an unprefixed URL to /zh, so opening one /zh link doesn't change the site for good.
+ */
+export const LOCALE_CHOICE_COOKIE = "edumi_lang";
+
+/** Query parameter the language switch adds when it picks a non-default language. */
+export const LOCALE_CHOICE_PARAM = "lang";
 
 /** Value for <html lang>. */
 export const HTML_LANG: Record<Locale, string> = { en: "en-AU", zh: "zh-CN" };

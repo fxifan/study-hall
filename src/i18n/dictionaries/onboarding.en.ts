@@ -60,7 +60,7 @@ export const onboardingEn = {
     status: { invited: "Login email sent after payment", active: "Active", paused: "Paused", cancelled: "Cancelled" },
     errors: {
       invalid: "Check the details and try again.",
-      email_taken: "That email already has a Edumi account.",
+      email_taken: "That email already has an Edumi account.",
       failed: "Couldn't add your child. Try again.",
     },
   },

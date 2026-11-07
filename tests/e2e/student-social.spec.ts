@@ -46,7 +46,7 @@ test.afterAll(async () => {
   }
 });
 
-test("under-13s are sent to a parent; 13+ students can sign up", async ({ page }) => {
+test("under-13s are pointed to Study Hall; 13+ students can sign up", async ({ page }) => {
   await page.goto("/join");
   await expect(page.getByText("Study with your friends")).toBeVisible();
   const fill = async (year: string, email: string) => {
@@ -61,7 +61,8 @@ test("under-13s are sent to a parent; 13+ students can sign up", async ({ page }
   };
   const young = new Date().getFullYear() - 11;
   await fill(String(young), `social-young-${stamp}@studyhall.test`);
-  await expect(page.getByText("You need a parent to set up Edumi for you.")).toBeVisible();
+  await expect(page.getByText("Edumi study groups are for students 13 and over.")).toBeVisible();
+  await expect(page.getByRole("link", { name: "edumi.app/study_hall" })).toBeVisible();
   const { data: none } = await admin.from("profiles").select("id").eq("email", `social-young-${stamp}@studyhall.test`);
   expect(none).toHaveLength(0);
 

@@ -104,7 +104,7 @@ test.describe("Simplified Chinese", () => {
   });
 
   test("a parent who chose Chinese logs in and stays in Chinese", async ({ page, context, baseURL }) => {
-    await context.addCookies([{ name: "NEXT_LOCALE", value: "zh", url: baseURL! }]);
+    await context.addCookies([{ name: "edumi_lang", value: "zh", url: baseURL! }]);
     await logInAs(page, "parentA");
     await expect(page).toHaveURL("/zh/parent");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("您的孩子");
