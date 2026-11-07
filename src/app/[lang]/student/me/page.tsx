@@ -12,25 +12,27 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { formatInZone } from "@/lib/time";
 import { unblockUser } from "../_social/actions";
 import { Loading, StudentShell, card, tile, smallBtn } from "../_social/shell";
+import { UsernameCard } from "../_social/username-card";
 
 export const metadata: Metadata = { title: "Me" };
 
-export default function MePage() {
+export default function MePage({ searchParams }: PageProps<"/[lang]/student/me">) {
   return (
     <Suspense fallback={<Loading />}>
-      <Me />
+      <Me searchParams={searchParams} />
     </Suspense>
   );
 }
 
 /** Personal tier and private history. Nobody else sees points or scores. */
-async function Me() {
-  const [me, locale] = await Promise.all([requireSocialStudent({ paid: false }), getLocale()]);
+async function Me({ searchParams }: Pick<PageProps<"/[lang]/student/me">, "searchParams">) {
+  const [me, locale, query] = await Promise.all([requireSocialStudent({ paid: false }), getLocale(), searchParams]);
   const admin = createAdminClient();
-  const [{ data: points }, { data: sessions }, { data: blocks }] = await Promise.all([
+  const [{ data: points }, { data: sessions }, { data: blocks }, { data: self }] = await Promise.all([
     admin.from("points_ledger").select("kind, points, created_at").eq("profile_id", me.profile.id).order("created_at", { ascending: false }),
     admin.from("study_sessions").select("id, started_at, credited_seconds, stop_reason, study_groups(name)").eq("profile_id", me.profile.id).eq("state", "stopped").order("started_at", { ascending: false }).limit(15),
     admin.from("user_blocks").select("blocked_id").eq("blocker_id", me.profile.id),
+    admin.from("students").select("username").eq("profile_id", me.profile.id).single(),
   ]);
   const total = (points ?? []).reduce((s, p) => s + (p.points as number), 0);
   const { tier } = await myRank(me.profile.id);
@@ -54,6 +56,13 @@ async function Me() {
           </span>
         </span>
       </Link>
+
+      <UsernameCard
+        current={(self?.username as string | null) ?? null}
+        back="/student/me"
+        error={typeof query.username_error === "string" ? query.username_error : null}
+        saved={query.username_saved === "1"}
+      />
 
       <section className={`${card} flex flex-col gap-2`}>
         <h2 className="font-medium">Recent study sessions</h2>

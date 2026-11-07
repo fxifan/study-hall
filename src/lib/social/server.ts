@@ -45,6 +45,9 @@ export type Access =
   | { kind: "expired"; trialEndsAt: string }
   | { kind: "disabled" };
 
+/** Most members a study group can have. */
+export const MAX_GROUP_MEMBERS = 12;
+
 export type SocialStudent = { profile: CurrentProfile; student: StudentRow; access: Access };
 
 export { STUDENT_PRICE_CENTS } from "./plan-price";

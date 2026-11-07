@@ -7,7 +7,7 @@ import { namesFor } from "@/lib/social/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { formatInZone } from "@/lib/time";
 import { AdminFrame, fieldClass } from "../admin-frame";
-import { clearFlag, dismissReports, hideMessage, suspendChat } from "./actions";
+import { clearFlag, dismissDmReports, dismissReports, hideDm, hideMessage, suspendChat, suspendDmSender } from "./actions";
 
 export const metadata: Metadata = { title: "Edumi groups" };
 
@@ -19,6 +19,7 @@ export default function EdumiAdminPage() {
   );
 }
 
+type DmReport = { id: string; reason: string; created_at: string; message_id: string; direct_messages: { id: string; body: string; sender_id: string | null; hidden_at: string | null } | null };
 type Report = { id: string; reason: string; created_at: string; message_id: string; group_messages: { id: string; body: string; sender_id: string | null; hidden_at: string | null } | null };
 
 /** Moderation (reported messages, flagged AI content) and the pilot measures for student groups. */
@@ -27,8 +28,9 @@ async function EdumiAdmin() {
   const db = createAdminClient();
   const now = new Date();
   const since = new Date(now.getTime() - 7 * 86_400_000).toISOString();
-  const [{ data: reports }, { data: flagged }, groups, members, active, help, helpDone, quizzes, completions, plans] = await Promise.all([
+  const [{ data: reports }, { data: dmReports }, { data: flagged }, groups, members, active, help, helpDone, quizzes, completions, plans] = await Promise.all([
     db.from("message_reports").select("id, reason, created_at, message_id, group_messages(id, body, sender_id, hidden_at)").is("resolved_at", null).order("created_at").returns<Report[]>(),
+    db.from("dm_reports").select("id, reason, created_at, message_id, direct_messages(id, body, sender_id, hidden_at)").is("resolved_at", null).order("created_at").returns<DmReport[]>(),
     db.from("student_resources").select("id, kind, title, flag_reason, flagged_at").not("flagged_at", "is", null).order("flagged_at").limit(50),
     db.from("study_groups").select("id", { count: "exact", head: true }).is("archived_at", null),
     db.from("study_group_members").select("profile_id", { count: "exact", head: true }),
@@ -41,7 +43,12 @@ async function EdumiAdmin() {
   ]);
   const activeGroups = new Set((active.data ?? []).map((s) => s.group_id)).size;
   const contributors = new Set((active.data ?? []).map((s) => s.profile_id)).size;
-  const senders = await namesFor((reports ?? []).flatMap((r) => (r.group_messages?.sender_id ? [r.group_messages.sender_id] : [])));
+  const senders = await namesFor([
+    ...(reports ?? []).flatMap((r) => (r.group_messages?.sender_id ? [r.group_messages.sender_id] : [])),
+    ...(dmReports ?? []).flatMap((r) => (r.direct_messages?.sender_id ? [r.direct_messages.sender_id] : [])),
+  ]);
+  const byDm = new Map<string, DmReport[]>();
+  for (const r of dmReports ?? []) byDm.set(r.message_id, [...(byDm.get(r.message_id) ?? []), r]);
   const byMessage = new Map<string, Report[]>();
   for (const r of reports ?? []) byMessage.set(r.message_id, [...(byMessage.get(r.message_id) ?? []), r]);
   const planCounts = (plans.data ?? []).reduce<Record<string, number>>((acc, p) => ({ ...acc, [p.status as string]: (acc[p.status as string] ?? 0) + 1 }), {});
@@ -98,6 +105,41 @@ async function EdumiAdmin() {
                   <Button size="sm" variant="outline">Hide and pause chat</Button>
                 </form>
                 <form action={dismissReports.bind(null, messageId)}>
+                  <Button size="sm" variant="ghost">No action</Button>
+                </form>
+              </div>
+            </div>
+          );
+        })}
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="text-lg font-medium">Reported direct messages</h2>
+        {byDm.size === 0 && <p className="text-ink-soft">Nothing to review.</p>}
+        {[...byDm].map(([messageId, rs]) => {
+          const m = rs[0].direct_messages;
+          return (
+            <div key={messageId} className="flex flex-col gap-2 rounded-md border border-rule p-3 text-sm">
+              <p>
+                <strong>{(m?.sender_id && senders.get(m.sender_id)) || "Unknown"}</strong>: {m?.body}
+                {m?.hidden_at && <span className="ml-2 text-xs text-ink-faint">(hidden)</span>}
+              </p>
+              <ul className="text-xs text-ink-soft">
+                {rs.map((r) => (
+                  <li key={r.id}>
+                    {formatInZone(r.created_at, "d MMM h:mmaaa")}: {r.reason}
+                  </li>
+                ))}
+              </ul>
+              <div className="flex flex-wrap items-center gap-2">
+                <form action={hideDm.bind(null, messageId)}>
+                  <Button size="sm" variant="outline">Hide message</Button>
+                </form>
+                <form action={suspendDmSender.bind(null, messageId)} className="flex items-center gap-1">
+                  <input name="days" type="number" min={1} max={90} defaultValue={7} className={`${fieldClass} w-16`} aria-label="Days" />
+                  <Button size="sm" variant="outline">Hide and pause chat</Button>
+                </form>
+                <form action={dismissDmReports.bind(null, messageId)}>
                   <Button size="sm" variant="ghost">No action</Button>
                 </form>
               </div>

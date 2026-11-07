@@ -45,3 +45,35 @@ export async function clearFlag(resourceId: string) {
   await createAdminClient().from("student_resources").update({ flagged_at: null, flag_reason: null }).eq("id", resourceId);
   refresh();
 }
+
+// --- Direct messages (docs/friends.md) ----------------------------------------------------------
+
+async function closeDmReports(messageId: string, by: string, outcome: "hidden" | "no_action" | "suspended") {
+  await createAdminClient().from("dm_reports").update({ resolved_at: new Date().toISOString(), resolved_by: by, outcome }).eq("message_id", messageId).is("resolved_at", null);
+}
+
+export async function hideDm(messageId: string) {
+  const me = await admin();
+  await createAdminClient().from("direct_messages").update({ hidden_at: new Date().toISOString(), hidden_by: me.id }).eq("id", messageId);
+  await closeDmReports(messageId, me.id, "hidden");
+  refresh();
+}
+
+export async function dismissDmReports(messageId: string) {
+  const me = await admin();
+  await closeDmReports(messageId, me.id, "no_action");
+  refresh();
+}
+
+/** Hide the message and pause the sender's chat (groups and direct messages). */
+export async function suspendDmSender(messageId: string, formData: FormData) {
+  const me = await admin();
+  const days = z.coerce.number().int().min(1).max(90).catch(7).parse(formData.get("days"));
+  const db = createAdminClient();
+  const { data: m } = await db.from("direct_messages").select("sender_id").eq("id", messageId).maybeSingle();
+  if (!m?.sender_id) return;
+  await db.from("students").update({ chat_suspended_until: new Date(Date.now() + days * 86_400_000).toISOString() }).eq("profile_id", m.sender_id);
+  await db.from("direct_messages").update({ hidden_at: new Date().toISOString(), hidden_by: me.id }).eq("id", messageId);
+  await closeDmReports(messageId, me.id, "suspended");
+  refresh();
+}
