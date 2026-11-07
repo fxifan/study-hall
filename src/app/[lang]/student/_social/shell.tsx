@@ -4,6 +4,7 @@ import { signOut } from "@/app/auth/actions";
 import { Wordmark } from "@/components/wordmark";
 import { localizePath } from "@/i18n/config";
 import { getLocale } from "@/i18n/server";
+import { friendsNeedAttention } from "@/lib/social/friends";
 import { unseenPromotion } from "@/lib/social/rank-sync";
 import type { Access, SocialStudent } from "@/lib/social/server";
 import { RankUpCelebration } from "./rank-up";
@@ -36,7 +37,7 @@ export async function StudentShell({
   /** Off on screens where a celebration would interrupt (a quiz in progress, checkout). */
   celebrate?: boolean;
 }) {
-  const [locale, promotion] = await Promise.all([getLocale(), celebrate ? unseenPromotion(me.profile.id) : null]);
+  const [locale, promotion, friendsDot] = await Promise.all([getLocale(), celebrate ? unseenPromotion(me.profile.id) : null, friendsNeedAttention(me.profile.id)]);
   const href = (p: string) => localizePath(p, locale);
   return (
     <div className="theme-tiles flex flex-1 flex-col pb-20 sm:pb-0" lang="en">
@@ -54,6 +55,7 @@ export async function StudentShell({
                 className={`rounded-full px-4 py-1.5 font-medium ${n.key === current ? "bg-ink text-paper" : "text-ink-soft hover:text-ink"}`}
               >
                 {n.label}
+                {n.key === "friends" && friendsDot && <span className="ml-1 inline-block h-2 w-2 rounded-full bg-brand align-middle" role="img" aria-label="New" />}
               </Link>
             ))}
           </nav>
@@ -96,6 +98,7 @@ export async function StudentShell({
             className={`flex h-14 items-center justify-center text-xs ${n.key === current ? "font-semibold text-ink" : "text-ink-soft"}`}
           >
             {n.label}
+            {n.key === "friends" && friendsDot && <span className="ml-1 inline-block h-2 w-2 rounded-full bg-brand align-middle" role="img" aria-label="New" />}
           </Link>
         ))}
       </nav>

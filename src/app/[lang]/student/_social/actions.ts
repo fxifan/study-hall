@@ -32,6 +32,7 @@ import {
   groupMembers,
   inviteCode,
   liveSessionFor,
+  MAX_GROUP_MEMBERS,
   postSystemMessage,
   requireMember,
   socialActor,
@@ -42,7 +43,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { dateKeyOf } from "@/lib/time";
 
-const MAX_MEMBERS = 12;
+const MAX_MEMBERS = MAX_GROUP_MEMBERS;
 const uuid = z.uuid();
 
 async function href(path: string) {
@@ -190,6 +191,12 @@ export async function blockUser(profileId: string) {
   // Blocking also ends any friendship.
   const [a, b] = [me.profile.id, profileId].sort();
   await admin.from("friendships").delete().eq("a", a).eq("b", b);
+  // …and any group invites between them.
+  await admin
+    .from("group_friend_invites")
+    .update({ state: "cancelled", responded_at: new Date().toISOString() })
+    .eq("state", "pending")
+    .or(`and(inviter_id.eq.${me.profile.id},invitee_id.eq.${profileId}),and(inviter_id.eq.${profileId},invitee_id.eq.${me.profile.id})`);
   refresh();
 }
 

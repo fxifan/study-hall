@@ -5,10 +5,11 @@ import { Suspense } from "react";
 import { localizePath } from "@/i18n/config";
 import { getLocale } from "@/i18n/server";
 import { rank, shortMinutes } from "@/lib/social/credit";
-import { groupMembers, requireSocialStudent, todayProgress, type Group } from "@/lib/social/server";
+import { groupMembers, namesFor, requireSocialStudent, todayProgress, type Group } from "@/lib/social/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createGroup, joinGroup } from "../_social/actions";
-import { Loading, Notice, StudentShell, card, tile, primaryBtn, secondaryBtn } from "../_social/shell";
+import { respondGroupInvite } from "../_social/friend-actions";
+import { Loading, Notice, StudentShell, card, tile, primaryBtn, secondaryBtn, smallBtn } from "../_social/shell";
 
 export const metadata: Metadata = { title: "Your groups" };
 
@@ -40,6 +41,13 @@ async function Groups({ searchParams }: Pick<PageProps<"/[lang]/student/groups">
     .returns<{ study_groups: Group }[]>();
   const groups = (rows ?? []).map((r) => r.study_groups);
   const [progress, rosters] = await Promise.all([Promise.all(groups.map((g) => todayProgress(g))), Promise.all(groups.map((g) => groupMembers(g.id)))]);
+  const { data: friendInvites } = await admin
+    .from("group_friend_invites")
+    .select("id, inviter_id, study_groups(name)")
+    .eq("invitee_id", me.profile.id)
+    .eq("state", "pending")
+    .order("created_at", { ascending: false });
+  const inviterNames = await namesFor((friendInvites ?? []).map((i) => i.inviter_id as string));
   const pendingCode = (typeof query.code === "string" ? query.code : jar.get("edumi_invite")?.value) ?? "";
   const error = typeof query.error === "string" ? ERRORS[query.error] : null;
 
@@ -53,6 +61,23 @@ async function Groups({ searchParams }: Pick<PageProps<"/[lang]/student/groups">
           <button className={primaryBtn}>Join the group</button>
         </form>
       )}
+
+      {(friendInvites ?? []).map((i) => (
+        <div key={i.id as string} className={`${tile} flex flex-wrap items-center justify-between gap-3 bg-[var(--tiles-sand)]`} data-testid="friend-invite">
+          <p className="text-sm">
+            <span className="font-medium">{inviterNames.get(i.inviter_id as string) ?? "A friend"}</span> invited you to{" "}
+            <span className="font-medium">{(i.study_groups as unknown as { name: string } | null)?.name ?? "a group"}</span>
+          </p>
+          <span className="flex gap-2">
+            <form action={respondGroupInvite.bind(null, i.id as string, true)}>
+              <button className={primaryBtn}>Join</button>
+            </form>
+            <form action={respondGroupInvite.bind(null, i.id as string, false)}>
+              <button className={smallBtn}>No thanks</button>
+            </form>
+          </span>
+        </div>
+      ))}
 
       {groups.length === 0 ? (
         <div className={`${card} flex flex-col gap-2`}>
