@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { isLocale, localizePath } from "@/i18n/config";
 import { studentSignUp, type JoinState } from "./actions";
 
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -21,14 +22,15 @@ export function JoinForm({ invite, lang, privacyHref }: { invite: string; lang: 
     );
   }
   if (state.status === "under13") {
+    const studyHall = localizePath("/study_hall", isLocale(lang) ? lang : "en");
     return (
       <div role="status" className="flex flex-col gap-2 text-ink-soft">
         <p>
-          <strong className="text-ink">You need a parent to set up Edumi for you.</strong> Students under 13 can join when a parent or guardian adds them from
-          their own account.
+          <strong className="text-ink">Edumi study groups are for students 13 and over.</strong> Younger students can study with a supervisor in Edumi
+          Study Hall, which a parent or guardian books for you.
         </p>
         <p>
-          Send them this link: <Link href={`/${lang}/onboarding`}>edumi.app/{lang}/onboarding</Link>
+          Show them Study Hall: <Link href={studyHall}>edumi.app{studyHall}</Link>
         </p>
       </div>
     );

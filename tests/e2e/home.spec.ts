@@ -31,6 +31,23 @@ test("the home page in Chinese keeps the student product in English", async ({ p
   await expect(page.locator("main").getByRole("link", { name: "了解 Study Hall" }).first()).toHaveAttribute("href", "/zh/study_hall");
 });
 
+test("opening a /zh link once doesn't switch the site to Chinese; the language switch does", async ({ page }) => {
+  await page.goto("/zh");
+  await page.goto("/");
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.locator("html")).toHaveAttribute("lang", "en-AU");
+
+  // Choosing 中文 is remembered, and English undoes it.
+  await page.goto("/login");
+  await page.getByRole("link", { name: "中文" }).click();
+  await expect(page).toHaveURL(/\/zh\/login$/);
+  await page.goto("/login");
+  await expect(page).toHaveURL(/\/zh\/login$/);
+  await page.getByRole("link", { name: "English" }).click();
+  await page.goto("/");
+  await expect(page).toHaveURL(/\/$/);
+});
+
 test.describe("with reduced motion", () => {
   test.use({ reducedMotion: "reduce" });
   test("nothing is hidden or animated", async ({ page }) => {

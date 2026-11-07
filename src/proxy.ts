@@ -2,6 +2,8 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import {
   DEFAULT_LOCALE,
+  LOCALE_CHOICE_COOKIE,
+  LOCALE_CHOICE_PARAM,
   LOCALE_COOKIE,
   isLocale,
   localizePath,
@@ -16,8 +18,9 @@ import { supabaseKey, supabaseUrl } from "@/lib/supabase/config";
  * Runs before every page request. In order, it:
  *   1. refreshes the Supabase session cookie;
  *   2. picks the language: /zh/… is Chinese; /en/… redirects to the unprefixed English URL; an
- *      unprefixed URL is English unless the locale cookie or the browser's Accept-Language says
- *      Chinese, in which case it redirects to /zh/…. English is served by rewriting to app/en/…;
+ *      unprefixed URL is English unless the language switch's remembered choice or, without one,
+ *      the browser's Accept-Language says Chinese, in which case it redirects to /zh/…. Merely
+ *      opening a /zh link doesn't change that. English is served by rewriting to app/en/…;
  *   3. routes by role, in that language:
  *      - signed out on /parent, /student, /proctor or /admin -> /login
  *      - signed in on /login or on another role's area -> their own home (admins may also use
@@ -67,11 +70,18 @@ export async function proxy(request: NextRequest) {
   const { locale: urlLocale, path } = splitLocale(pathname);
   if (urlLocale === "en") {
     // /en/… is how the language switch picks English: remember it, then show the canonical URL.
-    return finish(NextResponse.redirect(new URL(path + search, request.url)), response, "en");
+    return finish(NextResponse.redirect(new URL(path + search, request.url)), response, "en", true);
   }
-  const cookieLocale = request.cookies.get(LOCALE_COOKIE)?.value;
+  const chosen = params.get(LOCALE_CHOICE_PARAM);
+  if (urlLocale && chosen === urlLocale) {
+    // /zh/…?lang=zh is how the language switch picks Chinese: remember it, then drop the parameter.
+    const clean = new URL(request.url);
+    clean.searchParams.delete(LOCALE_CHOICE_PARAM);
+    return finish(NextResponse.redirect(clean), response, urlLocale, true);
+  }
+  const choice = request.cookies.get(LOCALE_CHOICE_COOKIE)?.value;
   const locale: Locale =
-    urlLocale ?? (isLocale(cookieLocale) ? cookieLocale : negotiateLocale(request.headers.get("accept-language")));
+    urlLocale ?? (isLocale(choice) ? choice : negotiateLocale(request.headers.get("accept-language")));
   if (!urlLocale && locale !== DEFAULT_LOCALE) {
     return finish(NextResponse.redirect(new URL(localizePath(path, locale) + search, request.url)), response);
   }
@@ -81,7 +91,7 @@ export async function proxy(request: NextRequest) {
     finish(
       urlLocale ? response : NextResponse.rewrite(new URL(`/en${path === "/" ? "" : path}${search}`, request.url), { request }),
       response,
-      urlLocale ?? undefined,
+      locale,
     );
 
   // --- Role routing ---------------------------------------------------------
@@ -116,9 +126,9 @@ export async function proxy(request: NextRequest) {
 
 /**
  * Copy any refreshed session cookies and no-cache headers from `from` onto the outgoing response,
- * and remember an explicitly chosen locale.
+ * record the language being served (for server actions), and remember an explicit choice.
  */
-function finish(outgoing: NextResponse, from: NextResponse, rememberLocale?: Locale) {
+function finish(outgoing: NextResponse, from: NextResponse, servedLocale?: Locale, chosen = false) {
   if (outgoing !== from) {
     from.cookies.getAll().forEach((cookie) => outgoing.cookies.set(cookie));
     for (const header of ["cache-control", "expires", "pragma"]) {
@@ -126,9 +136,9 @@ function finish(outgoing: NextResponse, from: NextResponse, rememberLocale?: Loc
       if (value) outgoing.headers.set(header, value);
     }
   }
-  if (rememberLocale) {
-    outgoing.cookies.set(LOCALE_COOKIE, rememberLocale, { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" });
-  }
+  const year = { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" } as const;
+  if (servedLocale) outgoing.cookies.set(LOCALE_COOKIE, servedLocale, year);
+  if (servedLocale && chosen) outgoing.cookies.set(LOCALE_CHOICE_COOKIE, servedLocale, year);
   return outgoing;
 }
 

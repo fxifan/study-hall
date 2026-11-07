@@ -23,7 +23,7 @@ const schema = z.object({
  *
  * The role is set server-side in app_metadata (the only place the profile trigger trusts), so a
  * tutor account is never a parent account first. The 14-day trial starts now. An email that
- * already has a Edumi family or staff account is refused rather than converted.
+ * already has an Edumi family or staff account is refused rather than converted.
  */
 export async function signUpTutor(_prev: SignUpState, formData: FormData): Promise<SignUpState> {
   const parsed = schema.safeParse({ name: formData.get("name"), email: formData.get("email"), terms: formData.get("terms") });
@@ -35,7 +35,7 @@ export async function signUpTutor(_prev: SignUpState, formData: FormData): Promi
 
   const { data: existing } = await admin.from("profiles").select("id, role").eq("email", email).maybeSingle();
   if (existing && existing.role !== "tutor") {
-    return { status: "error", message: "That email already has a Edumi family or staff account. Please use a different email." };
+    return { status: "error", message: "That email already has an Edumi family or staff account. Please use a different email." };
   }
   if (!existing) {
     const { data: orgs } = await admin.from("orgs").select("id").order("created_at").limit(1);

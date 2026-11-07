@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useSyncExternalStore, useTransition } from "react";
 import type { PublicQuiz } from "@/lib/social/resources";
 import { submitQuiz, type QuizResult } from "./actions";
 import { RankUpCelebration } from "./rank-up";
@@ -55,9 +55,64 @@ function tone(awarded: number, marks: number) {
  * (free responses by AI against a rubric for the curriculum point); the key, model answers and
  * rubrics arrive only with the result. Points equal the marks earned (retakes pay the improvement).
  */
-export function QuizRunner({ resourceId, quiz, back = null }: { resourceId: string; quiz: PublicQuiz; back?: { href: string; label: string } | null }) {
-  const blank = () => quiz.questions.map((q) => (q.type === "mcq" ? null : "")) as (number | string | null)[];
-  const [answers, setAnswers] = useState<(number | string | null)[]>(blank);
+type QuizProps = { resourceId: string; quiz: PublicQuiz; back?: { href: string; label: string } | null };
+type Answers = (number | string | null)[];
+
+const draftKey = (resourceId: string) => `edumi:quiz-draft:${resourceId}`;
+const noStore = () => () => {};
+
+/** Unsubmitted answers saved on this device, if they still fit this quiz. */
+function parseDraft(raw: string | null, quiz: PublicQuiz): Answers | null {
+  if (!raw) return null;
+  try {
+    const value: unknown = JSON.parse(raw);
+    if (!Array.isArray(value) || value.length !== quiz.questions.length) return null;
+    const ok = value.every((a, i) => {
+      const q = quiz.questions[i];
+      return q.type === "mcq"
+        ? a === null || (Number.isInteger(a) && a >= 0 && a < q.options.length)
+        : typeof a === "string" && a.length <= 1500;
+    });
+    return ok ? (value as Answers) : null;
+  } catch {
+    return null;
+  }
+}
+
+function readDraft(resourceId: string): string | null {
+  try {
+    return window.localStorage.getItem(draftKey(resourceId));
+  } catch {
+    return null;
+  }
+}
+
+function writeDraft(resourceId: string, answers: Answers | null) {
+  try {
+    const empty = !answers || answers.every((a) => a === null || a === "");
+    if (empty) window.localStorage.removeItem(draftKey(resourceId));
+    else window.localStorage.setItem(draftKey(resourceId), JSON.stringify(answers));
+  } catch {
+    // Private browsing or storage turned off: the quiz still works, just without a draft.
+  }
+}
+
+/**
+ * Unsubmitted answers are kept on this device (localStorage, one draft per quiz), so a refresh, a
+ * phone reloading a background tab or an accidental Back doesn't lose them. The draft is read once,
+ * right after hydration (the runner remounts then); it's cleared once the quiz is marked.
+ */
+export function QuizRunner(props: QuizProps) {
+  // False while rendering on the server and hydrating, then true for good: the runner remounts once.
+  const hydrated = useSyncExternalStore(noStore, () => true, () => false);
+  return <QuizRunnerInner key={hydrated ? "client" : "server"} {...props} hydrated={hydrated} />;
+}
+
+function QuizRunnerInner({ resourceId, quiz, back = null, hydrated }: QuizProps & { hydrated: boolean }) {
+  const blank = () => quiz.questions.map((q) => (q.type === "mcq" ? null : "")) as Answers;
+  const [draft] = useState(() => (hydrated ? parseDraft(readDraft(resourceId), quiz) : null));
+  const [answers, setAnswers] = useState<Answers>(() => draft ?? blank());
+  const restored = draft !== null;
   const [result, setResult] = useState<Result | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
@@ -65,11 +120,18 @@ export function QuizRunner({ resourceId, quiz, back = null }: { resourceId: stri
   const done = answers.filter((a, i) => (quiz.questions[i].type === "mcq" ? a !== null : String(a ?? "").trim())).length;
   const set = (i: number, v: number | string) => setAnswers((a) => a.map((x, j) => (j === i ? v : x)));
 
+  // Keep the draft in step with the answers until the quiz is marked.
+  // Not before hydration: that first render's blank answers would wipe the saved draft.
+  useEffect(() => {
+    if (hydrated && !result) writeDraft(resourceId, answers);
+  }, [answers, hydrated, result, resourceId]);
+
   const submit = () =>
     start(async () => {
       const r = await submitQuiz(resourceId, answers);
       if ("error" in r) setError(r.error);
       else {
+        writeDraft(resourceId, null);
         setError(null);
         setResult(r);
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -100,6 +162,7 @@ export function QuizRunner({ resourceId, quiz, back = null }: { resourceId: stri
         <div className="sticky top-0 z-[5] -mx-1 flex items-center justify-between gap-3 rounded-2xl border border-rule bg-sheet/95 px-3 py-2 text-sm backdrop-blur">
           <span>
             {done} of {quiz.questions.length} answered
+            <span className="text-ink-soft"> · {restored ? "picked up where you left off" : "saved on this device"}</span>
           </span>
           <span className="font-mono text-ink-soft">{totalMarks} marks</span>
         </div>
