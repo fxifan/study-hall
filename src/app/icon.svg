@@ -1,5 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#171A35"/>
-  <text x="29" y="44" text-anchor="middle" font-family="Manrope, Inter, Arial, sans-serif" font-weight="800" font-size="38" fill="#F8F9FC">e</text>
-  <circle cx="46" cy="41" r="4.5" fill="#A99AFF"/>
+  <!-- Edumi app icon, light (Tiles): charcoal "e." on pale sage. The "e" is drawn, not typed, so it looks the same everywhere. -->
+  <rect width="64" height="64" rx="15" fill="#DBE5DE"/>
+  <path d="M15.5 35.5 H39.5 A12 12 0 1 0 36.6 43.4" fill="none" stroke="#1F2326" stroke-width="7" stroke-linejoin="round"/>
+  <circle cx="47.5" cy="43" r="4.6" fill="#5B7667"/>
 </svg>
