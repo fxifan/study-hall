@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 /**
  * Renders the light markdown used in content/legal: "## " headings, "- " list items, and
- * blank-line-separated paragraphs. "[Owner to …]" notes are highlighted so drafts can't hide them.
+ * blank-line-separated paragraphs, and **bold**. "[Owner to …]" notes are highlighted so drafts can't hide them.
  */
 export function LegalBody({ body }: { body: string }) {
   const blocks = body.trim().split(/\n\s*\n/);
@@ -33,8 +33,12 @@ export function LegalBody({ body }: { body: string }) {
 }
 
 function highlightNotes(text: string): ReactNode {
-  return text.split(/(\[Owner to [^\]]+\])/).map((part, i) =>
-    part.startsWith("[Owner to ") ? (
+  return text.split(/(\[Owner to [^\]]+\]|\*\*[^*]+\*\*)/).map((part, i) =>
+    part.startsWith("**") && part.endsWith("**") && part.length > 4 ? (
+      <strong key={i} className="font-semibold">
+        {part.slice(2, -2)}
+      </strong>
+    ) : part.startsWith("[Owner to ") ? (
       <mark key={i} className="rounded-sm border border-dashed border-pen bg-transparent px-1 font-mono text-sm text-pen">
         {part}
       </mark>

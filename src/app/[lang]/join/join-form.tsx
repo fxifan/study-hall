@@ -10,7 +10,7 @@ import { studentSignUp, type JoinState } from "./actions";
 
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-export function JoinForm({ invite, lang, privacyHref }: { invite: string; lang: string; privacyHref: string }) {
+export function JoinForm({ invite, lang, privacyHref, termsHref }: { invite: string; lang: string; privacyHref: string; termsHref: string }) {
   const [state, action, pending] = useActionState<JoinState, FormData>(studentSignUp, { status: "idle" });
   const year = new Date().getFullYear();
 
@@ -96,7 +96,7 @@ export function JoinForm({ invite, lang, privacyHref }: { invite: string; lang: 
       <label className="flex items-start gap-2 text-sm text-ink-soft">
         <input type="checkbox" name="agree" required className="mt-1" />
         <span>
-          I&apos;ve read the <a href={privacyHref}>privacy policy</a>.
+          I agree to the <a href={termsHref}>terms of use</a> and I&apos;ve read the <a href={privacyHref}>privacy notice</a>.
         </span>
       </label>
       {state.status === "error" && (

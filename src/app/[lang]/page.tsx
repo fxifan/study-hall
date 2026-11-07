@@ -364,6 +364,7 @@ export default async function HomePage() {
             <Link href={studyHall}>{t.footer.studyHall}</Link>
             <Link href={tutors}>{t.footer.tutors}</Link>
             <Link href={href("/legal/privacy")}>{t.footer.privacy}</Link>
+            <Link href={href("/legal/terms")}>{t.footer.terms}</Link>
             <Link href={href("/legal/house-rules")}>{t.footer.houseRules}</Link>
             <Link href={href("/tutors/terms")}>{t.footer.tutorTerms}</Link>
             <Link href={href("/tutors/privacy")}>{t.footer.tutorPrivacy}</Link>
