@@ -1,6 +1,8 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { RANK_THRESHOLDS, rankByTier, type Rank } from "./ranks";
+import { dateKeyOf } from "@/lib/time";
+import { DAILY_POINT_CAP } from "./points";
+import { RANK_THRESHOLDS, rankByTier, rankProgress, type Rank } from "./ranks";
 
 /**
  * Server side of Study Ranks (docs/study-ranks.md). Every points award calls syncRank() after the
@@ -75,4 +77,41 @@ export async function visibleRanks(profileIds: string[], viewerId: string): Prom
     if (id === viewerId || !hide.has(id)) out.set(id, rankByTier(r.tier as number));
   }
   return out;
+}
+
+/**
+ * The chat's practice prompt: the student's rank, points to the next one and points still
+ * available today. Only ever shown to the student themself.
+ */
+export type RankStatus = { rank: Rank; next: Rank | null; toNext: number; fraction: number; todayLeft: number };
+
+export async function rankStatus(profileId: string): Promise<RankStatus> {
+  const { data } = await createAdminClient().from("points_ledger").select("points, day").eq("profile_id", profileId);
+  const rows = data ?? [];
+  const total = rows.reduce((sum, r) => sum + (r.points as number), 0);
+  const today = dateKeyOf();
+  const earnedToday = rows.filter((r) => r.day === today).reduce((sum, r) => sum + (r.points as number), 0);
+  const { rank, next, toNext, fraction } = rankProgress(total);
+  return { rank, next, toNext, fraction, todayLeft: Math.max(0, DAILY_POINT_CAP - earnedToday) };
+}
+
+/**
+ * The newest rank-up by another member of the group in the last day, for the chat nudge. Members
+ * who hide their rank, and people the viewer blocked, are left out; the nudge shows only the new
+ * rank (which members already see as a badge), never points.
+ */
+export type GroupRankUp = { id: string; profileId: string; to: Rank; at: string };
+
+export async function latestGroupRankUp(memberIds: string[], viewerId: string, blockedIds: string[]): Promise<GroupRankUp | null> {
+  const others = memberIds.filter((id) => id !== viewerId && !blockedIds.includes(id));
+  if (!others.length) return null;
+  const admin = createAdminClient();
+  const since = new Date(Date.now() - 86_400_000).toISOString();
+  const [{ data: promos }, { data: hidden }] = await Promise.all([
+    admin.from("rank_promotions").select("id, profile_id, to_tier, created_at").in("profile_id", others).gte("created_at", since).order("created_at", { ascending: false }).limit(10),
+    admin.from("student_settings").select("profile_id").in("profile_id", others).eq("show_rank", false),
+  ]);
+  const hide = new Set((hidden ?? []).map((h) => h.profile_id as string));
+  const p = (promos ?? []).find((x) => !hide.has(x.profile_id as string));
+  return p ? { id: p.id as string, profileId: p.profile_id as string, to: rankByTier(p.to_tier as number), at: p.created_at as string } : null;
 }

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { curriculumTitle, flashcardsSchema, KIND_LABEL, notesSchema, publicQuizSchema, type CurriculumRef, type ResourceKind } from "@/lib/social/resources";
-import { requireSocialStudent } from "@/lib/social/server";
+import { cameFromGroup, requireSocialStudent } from "@/lib/social/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { completeResource, flagResource, regenerateResource } from "../../_social/actions";
 import { Flashcards, QuizRunner } from "../../_social/practice-client";
@@ -33,10 +33,11 @@ async function Resource({ params, searchParams }: Pick<PageProps<"/[lang]/studen
   if (!r) notFound();
   const { data: attempts } = await admin.from("resource_attempts").select("correct, total, score_pct, submitted_at").eq("resource_id", id).order("submitted_at", { ascending: false }).limit(5);
   const curriculum = ((r.content as { curriculum?: CurriculumRef | null }).curriculum ?? null) as CurriculumRef | null;
+  const from = await cameFromGroup(query.group, me.profile.id);
   const error = query.error === "limit" ? "You've used today's allowance for that kind." : query.error ? "That didn't work. Try again." : null;
 
   return (
-    <StudentShell me={me} title={r.title} current="practice" back={{ href: "/student/practice", label: "Practice" }} celebrate={r.kind !== "quiz"}>
+    <StudentShell me={me} title={r.title} current="practice" back={from ? { href: `/student/groups/${from.id}`, label: `Back to ${from.name}` } : { href: "/student/practice", label: "Practice" }} celebrate={r.kind !== "quiz"}>
       <ShellTimer me={me} />
       {error && <Notice tone="error">{error}</Notice>}
       <p className="text-sm text-ink-soft">
@@ -65,7 +66,7 @@ async function Resource({ params, searchParams }: Pick<PageProps<"/[lang]/studen
           );
         })()}
       {r.kind === "flashcards" && <Flashcards cards={flashcardsSchema.parse(r.content).cards} />}
-      {r.kind === "quiz" && <QuizRunner resourceId={r.id} quiz={publicQuizSchema.parse(r.content)} />}
+      {r.kind === "quiz" && <QuizRunner resourceId={r.id} quiz={publicQuizSchema.parse(r.content)} back={from ? { href: `/student/groups/${from.id}`, label: `Back to ${from.name}` } : null} />}
 
       {r.kind !== "quiz" &&
         (r.completed_at ? (

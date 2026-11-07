@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { localizePath } from "@/i18n/config";
 import { getLocale } from "@/i18n/server";
 import { DAILY_LIMITS, KIND_LABEL, QUIZ_QUESTIONS, type CurriculumPoint, type ResourceKind } from "@/lib/social/resources";
-import { requireSocialStudent } from "@/lib/social/server";
+import { cameFromGroup, requireSocialStudent } from "@/lib/social/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { dateKeyOf, formatInZone } from "@/lib/time";
 import { PracticeForm } from "../_social/practice-form";
@@ -42,6 +42,7 @@ async function Practice({ searchParams }: Pick<PageProps<"/[lang]/student/practi
   const quizLeft = Math.max(0, DAILY_LIMITS.quiz - todays.filter((r) => r.kind === "quiz").length);
   const studyLeft = Math.max(0, DAILY_LIMITS.study - todays.filter((r) => r.kind !== "quiz").length);
   const error = typeof query.error === "string" ? ERRORS[query.error] : null;
+  const from = await cameFromGroup(query.group, me.profile.id);
   const { data: cp } = await createAdminClient()
     .from("curriculum_points")
     .select("id, framework, subject, unit_or_level, area, summary, sort")
@@ -56,10 +57,10 @@ async function Practice({ searchParams }: Pick<PageProps<"/[lang]/student/practi
   const defaultGroup = y <= 10 ? (points.find((p) => p.framework === "vc" && p.level === `Year ${y}`) ?? null) : y <= 12 ? (points.find((p) => p.framework === "vce") ?? null) : null;
 
   return (
-    <StudentShell me={me} title="Practice" current="practice">
+    <StudentShell me={me} title="Practice" current="practice" back={from ? { href: `/student/groups/${from.id}`, label: `Back to ${from.name}` } : undefined}>
       <ShellTimer me={me} />
       {error && <Notice tone="error">{error}</Notice>}
-      <PracticeForm points={points} defaultGroup={defaultGroup ? `${defaultGroup.framework}|${defaultGroup.subject}|${defaultGroup.level}` : null} />
+      <PracticeForm points={points} fromGroup={from?.id ?? null} defaultGroup={defaultGroup ? `${defaultGroup.framework}|${defaultGroup.subject}|${defaultGroup.level}` : null} />
       <p className="-mt-2 text-xs text-ink-faint">
         Today: {quizLeft} of {DAILY_LIMITS.quiz} quizzes ({QUIZ_QUESTIONS} questions each) and {studyLeft} of {DAILY_LIMITS.study} notes or flashcard sets left. Quizzes pay
         the marks you earn as points. AI can make mistakes: flag anything that looks wrong.

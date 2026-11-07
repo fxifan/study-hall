@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useTransition } from "react";
 import type { PublicQuiz } from "@/lib/social/resources";
 import { submitQuiz, type QuizResult } from "./actions";
@@ -54,7 +55,7 @@ function tone(awarded: number, marks: number) {
  * (free responses by AI against a rubric for the curriculum point); the key, model answers and
  * rubrics arrive only with the result. Points equal the marks earned (retakes pay the improvement).
  */
-export function QuizRunner({ resourceId, quiz }: { resourceId: string; quiz: PublicQuiz }) {
+export function QuizRunner({ resourceId, quiz, back = null }: { resourceId: string; quiz: PublicQuiz; back?: { href: string; label: string } | null }) {
   const blank = () => quiz.questions.map((q) => (q.type === "mcq" ? null : "")) as (number | string | null)[];
   const [answers, setAnswers] = useState<(number | string | null)[]>(blank);
   const [result, setResult] = useState<Result | null>(null);
@@ -209,17 +210,24 @@ export function QuizRunner({ resourceId, quiz }: { resourceId: string; quiz: Pub
         </p>
       )}
       {result ? (
-        <button
-          type="button"
-          onClick={() => {
-            setResult(null);
-            setAnswers(blank());
-            window.scrollTo({ top: 0 });
-          }}
-          className="inline-flex h-10 w-fit items-center rounded-full border border-rule px-4 text-sm font-medium"
-        >
-          Try again
-        </button>
+        <div className="flex flex-wrap gap-2">
+          {back && (
+            <Link href={back.href} className="inline-flex h-10 w-fit items-center rounded-full bg-ink px-4 text-sm font-medium text-paper no-underline">
+              {back.label} →
+            </Link>
+          )}
+          <button
+            type="button"
+            onClick={() => {
+              setResult(null);
+              setAnswers(blank());
+              window.scrollTo({ top: 0 });
+            }}
+            className="inline-flex h-10 w-fit items-center rounded-full border border-rule px-4 text-sm font-medium"
+          >
+            Try again
+          </button>
+        </div>
       ) : (
         <button
           type="button"
