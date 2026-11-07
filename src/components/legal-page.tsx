@@ -9,10 +9,18 @@ import { getDictionary, getLocale } from "@/i18n/server";
 import { getCurrentLegalDocument, type LegalDocumentKind } from "@/lib/legal";
 import { formatLongDate } from "@/lib/time";
 
-/** Shared layout for /legal/house-rules and /legal/privacy. Legal text is English only. */
+/** /legal/house-rules and /legal/privacy: the current version from legal_documents. */
 export async function LegalPage({ document }: { document: LegalDocumentKind }) {
-  const [doc, t, locale] = await Promise.all([getCurrentLegalDocument(document), getDictionary(), getLocale()]);
+  const doc = await getCurrentLegalDocument(document);
   if (!doc) notFound();
+  return <LegalFrame doc={doc} />;
+}
+
+type ShownDocument = { title: string; version: string; published_at: string; is_draft: boolean; body: string };
+
+/** Shared layout for every legal page. Legal text is English only. */
+export async function LegalFrame({ doc }: { doc: ShownDocument }) {
+  const [t, locale] = await Promise.all([getDictionary(), getLocale()]);
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 px-4 py-12">

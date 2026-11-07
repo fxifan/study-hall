@@ -546,7 +546,7 @@ export const en = {
     },
   },
   legal: {
-    draft: "Draft: this notice hasn't been reviewed yet and will be replaced before Edumi opens.",
+    draft: "Draft: this document is waiting for review and may change.",
     englishOnly: "Legal documents are in English only.",
     version: "Version {version} · published {date}",
   },

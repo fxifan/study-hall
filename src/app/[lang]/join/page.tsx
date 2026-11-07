@@ -77,6 +77,7 @@ async function JoinCard({
           invite={invite}
           lang={locale}
           privacyHref={localizePath("/legal/privacy", locale)}
+          termsHref={localizePath("/legal/terms", locale)}
         />
         <p className="text-sm text-ink-soft">
           Already have an account?{" "}
