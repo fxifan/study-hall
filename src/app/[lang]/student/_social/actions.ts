@@ -438,8 +438,11 @@ export async function generateResource(formData: FormData) {
   if (parsed.data.points.length && !curriculum) redirect(await href("/student/practice?error=input"));
   if (!curriculum && parsed.data.topic.length < 2) redirect(await href("/student/practice?error=input"));
   const out = await createResource(me.profile.id, me.student.year_level, { ...parsed.data, curriculum });
-  if ("error" in out) redirect(await href(`/student/practice?error=${out.error}`));
-  redirect(await href(`/student/practice/${out.id}`));
+  // Keep "Back to group" when they came from a group chat (checked again on the page).
+  const from = z.uuid().safeParse(formData.get("group"));
+  const g = from.success ? `group=${from.data}` : "";
+  if ("error" in out) redirect(await href(`/student/practice?error=${out.error}${g ? `&${g}` : ""}`));
+  redirect(await href(`/student/practice/${out.id}${g ? `?${g}` : ""}`));
 }
 
 export async function regenerateResource(resourceId: string) {

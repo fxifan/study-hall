@@ -12,7 +12,7 @@ const groupKey = (p: Pick<CurriculumPoint, "framework" | "subject" | "level">) =
  * Make a quiz, flashcards or notes. Students pick up to three Victorian Curriculum or VCE points
  * (questions and the free-response rubrics are written for those points), or type their own topic.
  */
-export function PracticeForm({ points, defaultGroup }: { points: CurriculumPoint[]; defaultGroup: string | null }) {
+export function PracticeForm({ points, defaultGroup, fromGroup = null }: { points: CurriculumPoint[]; defaultGroup: string | null; fromGroup?: string | null }) {
   const groups = useMemo(() => {
     const m = new Map<string, { label: string; items: CurriculumPoint[] }>();
     for (const p of points) {
@@ -32,6 +32,7 @@ export function PracticeForm({ points, defaultGroup }: { points: CurriculumPoint
 
   return (
     <form action={generateResource} className="flex flex-col gap-4 rounded-2xl border border-rule bg-sheet p-4">
+      {fromGroup && <input type="hidden" name="group" value={fromGroup} />}
       <h2 className="font-medium">Make something to study</h2>
       <fieldset className="grid grid-cols-3 gap-2 text-sm">
         <legend className="sr-only">Type</legend>

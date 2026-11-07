@@ -182,6 +182,13 @@ export async function namesFor(profileIds: string[]): Promise<Map<string, string
   return new Map((data ?? []).map((s) => [s.profile_id as string, displayName(s as { first_name: string; last_initial: string })]));
 }
 
+/** The group a student came from (?group= on Practice), if they're still in it: for "Back to group". */
+export async function cameFromGroup(value: unknown, profileId: string): Promise<{ id: string; name: string } | null> {
+  if (typeof value !== "string" || !/^[0-9a-f-]{36}$/i.test(value) || !(await isMember(value, profileId))) return null;
+  const { data } = await createAdminClient().from("study_groups").select("id, name").eq("id", value).is("archived_at", null).maybeSingle();
+  return data ? { id: data.id as string, name: data.name as string } : null;
+}
+
 /**
  * Today's target, snapshotted once per group day. A target edit is saved as next_target_minutes
  * and becomes the target when the next day's snapshot is taken.

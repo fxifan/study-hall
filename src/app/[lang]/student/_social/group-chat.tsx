@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { browserClient } from "@/lib/supabase/client";
 import type { Rank } from "@/lib/social/ranks";
 import { blockUser, reportMessage, sendMessage } from "./actions";
+import { PracticeStrip, RankUpNudge, type PracticePrompt, type RankUpNudgeView } from "./chat-practice";
 import { RankBadge } from "./rank-badge";
 
 export type ChatMessage = {
@@ -28,6 +29,8 @@ export function GroupChat({
   ranks = {},
   blocked,
   canPost,
+  prompt = null,
+  nudge = null,
 }: {
   groupId: string;
   meId: string;
@@ -37,6 +40,10 @@ export function GroupChat({
   ranks?: Record<string, Pick<Rank, "id" | "name" | "color">>;
   blocked: string[];
   canPost: boolean;
+  /** The student's own rank prompt (strip at the top). */
+  prompt?: PracticePrompt | null;
+  /** Another member's recent rank-up, shown in the conversation at the time it happened. */
+  nudge?: RankUpNudgeView | null;
 }) {
   const router = useRouter();
   // Server history plus anything Realtime delivered since the last refresh.
@@ -104,24 +111,31 @@ export function GroupChat({
     });
   };
 
+  const shown = messages.filter((m) => !m.sender_id || !hidden.has(m.sender_id) || m.kind !== "text");
+  // The nudge sits where it happened in the conversation: before the first later message.
+  const nudgeAt = nudge && prompt ? (() => {
+    const i = shown.findIndex((m) => m.created_at > nudge.at);
+    return i === -1 ? shown.length : i;
+  })() : -1;
+  const nudgeEl = nudge && prompt ? <RankUpNudge key={`nudge-${nudge.id}`} nudge={nudge} prompt={prompt} /> : null;
+
   return (
     <section
       aria-label="Group chat"
       className="flex min-h-[24rem] flex-col rounded-2xl border border-rule bg-sheet lg:sticky lg:top-6 lg:h-[min(48rem,calc(100dvh-3rem))] lg:self-start"
     >
+      {prompt && <PracticeStrip prompt={prompt} />}
       <ol
         ref={list}
         className="flex max-h-[28rem] min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-3 lg:max-h-none"
       >
-        {messages.length === 0 && (
+        {messages.length === 0 && !nudge && (
           <li className="m-auto max-w-[28ch] text-center text-sm text-ink-faint">No messages yet. Say hi, or share what you&apos;re working on today.</li>
         )}
-        {messages
-          .filter(
-            (m) =>
-              !m.sender_id || !hidden.has(m.sender_id) || m.kind !== "text",
-          )
-          .map((m) => {
+        {nudgeAt === 0 && nudgeEl}
+        {shown
+          .map((m, i) => {
+            const item = (() => {
             const mine = m.sender_id === meId;
             const time = new Date(m.created_at).toLocaleTimeString("en-AU", {
               hour: "numeric",
@@ -221,6 +235,8 @@ export function GroupChat({
                 </div>
               </li>
             );
+            })();
+            return i === nudgeAt - 1 ? [item, nudgeEl] : item;
           })}
       </ol>
       {canPost ? (

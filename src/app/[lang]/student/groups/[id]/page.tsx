@@ -25,7 +25,8 @@ import { GroupChat, type ChatMessage } from "../../_social/group-chat";
 import { Loading, Notice, StudentShell, card, tile, secondaryBtn, smallBtn } from "../../_social/shell";
 import { StudyTimer } from "../../_social/study-timer";
 import { RankBadge } from "../../_social/rank-badge";
-import { visibleRanks } from "@/lib/social/rank-sync";
+import { latestGroupRankUp, rankStatus, visibleRanks } from "@/lib/social/rank-sync";
+import type { Rank } from "@/lib/social/ranks";
 import { LiveRefresh } from "@/components/live-refresh";
 
 export const metadata: Metadata = { title: "Group" };
@@ -69,7 +70,27 @@ async function GroupView({ params, searchParams }: Pick<PageProps<"/[lang]/stude
       admin.from("friendships").select("a, b, status").or(`a.eq.${me.profile.id},b.eq.${me.profile.id}`),
     ]);
   const mine = members.find((m) => m.profile_id === me.profile.id)!;
-  const ranks = await visibleRanks(members.map((m) => m.profile_id), me.profile.id);
+  const blockedIds = (blocks ?? []).map((b) => b.blocked_id as string);
+  const [ranks, status, rankUp] = await Promise.all([
+    visibleRanks(members.map((m) => m.profile_id), me.profile.id),
+    rankStatus(me.profile.id),
+    latestGroupRankUp(members.map((m) => m.profile_id), me.profile.id, blockedIds),
+  ]);
+  const view = (r: Rank) => ({ id: r.id, name: r.name, color: r.color });
+  // The chat's practice prompt (strip) and, when another member just ranked up past or level with
+  // this student, a nudge in the conversation. Points stay private to the student.
+  const prompt = {
+    rank: view(status.rank),
+    next: status.next ? view(status.next) : null,
+    toNext: status.toNext,
+    fraction: status.fraction,
+    todayLeft: status.todayLeft,
+    href: localizePath(`/student/practice?group=${group.id}`, locale),
+  };
+  const nudge =
+    rankUp && status.next && status.todayLeft > 0 && rankUp.to.tier >= status.rank.tier
+      ? { id: rankUp.id, name: members.find((m) => m.profile_id === rankUp.profileId)?.name ?? "A friend", to: view(rankUp.to), at: rankUp.at }
+      : null;
   const rankView = Object.fromEntries([...ranks].map(([id, r]) => [id, { id: r.id, name: r.name, color: r.color }]));
   const names = Object.fromEntries(members.map((m) => [m.profile_id, m.name]));
   const messages = ((msgs ?? []) as ChatMessage[]).reverse();
@@ -123,7 +144,7 @@ async function GroupView({ params, searchParams }: Pick<PageProps<"/[lang]/stude
       <StudyTimer initial={initialTimer} groupId={group.id} groupName={group.name} studyScreen />
 
       <div className="grid gap-5 lg:grid-cols-[1fr_20rem]">
-        <GroupChat groupId={group.id} meId={me.profile.id} initial={messages} names={names} ranks={rankView} blocked={(blocks ?? []).map((b) => b.blocked_id as string)} canPost={!suspended} />
+        <GroupChat groupId={group.id} meId={me.profile.id} initial={messages} names={names} ranks={rankView} blocked={blockedIds} canPost={!suspended} prompt={prompt} nudge={nudge} />
 
         <aside className="flex flex-col gap-4">
           <section aria-label="Leaderboard" className={`${card} flex flex-col gap-2`}>
