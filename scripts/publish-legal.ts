@@ -16,7 +16,7 @@ async function main() {
     .upsert(
       [
         { org_id: SEED_IDS.org, document: "house_rules", version: HOUSE_RULES_VERSION, title: "House rules", body: readFileSync("content/legal/house-rules.md", "utf8"), is_draft: false },
-        { org_id: SEED_IDS.org, document: "privacy_child_safety", version: PRIVACY_VERSION, title: "Privacy & child safety notice", body: readFileSync("content/legal/privacy-draft.md", "utf8"), is_draft: true },
+        { org_id: SEED_IDS.org, document: "privacy_child_safety", version: PRIVACY_VERSION, title: "Privacy & child safety notice", body: readFileSync("content/legal/privacy.md", "utf8"), is_draft: false },
       ],
       { onConflict: "org_id,document,version" },
     );

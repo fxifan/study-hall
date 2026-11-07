@@ -1,10 +1,10 @@
 /**
- * Terms of use for Edumi study groups (students). Shown at /legal/terms. Draft until the owner
- * approves it: bump the version and set STUDENT_TERMS_DRAFT to false then.
+ * Terms of use for Edumi study groups (students). Shown at /legal/terms. Owner-approved 7 Nov 2026.
+ * To change them, edit the text, bump the version and date.
  */
-export const STUDENT_TERMS_VERSION = "2026-11-draft-1";
+export const STUDENT_TERMS_VERSION = "2026-11-v1";
 export const STUDENT_TERMS_DATE = "2026-11-07";
-export const STUDENT_TERMS_DRAFT = true;
+export const STUDENT_TERMS_DRAFT = false;
 
 export const STUDENT_TERMS = `These terms are an agreement between you and Edumi (run by Feifan Wu, a sole trader in Victoria, Australia). By using Edumi study groups, you agree to them. Our Privacy & child safety notice explains how we handle your information.
 
