@@ -58,4 +58,4 @@ export const STARTER_TEMPLATES: { id: string; kind: "observation" | "comment"; e
 ];
 
 export const HOUSE_RULES_VERSION = "2026-11-v2";
-export const PRIVACY_VERSION = "2026-11-v1"; // owner-approved 7 Nov 2026
+export const PRIVACY_VERSION = "2026-11-v2"; // tutor links added 8 Nov 2026: publish after owner review

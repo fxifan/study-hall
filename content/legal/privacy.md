@@ -11,6 +11,7 @@ Questions, privacy requests or complaints: feifanwork1@gmail.com. Edumi for Tuto
 
 - **Account:** first name, last initial, email, year level, and birth month and year (only to check age). Parents: name and email.
 - **Study groups:** your groups, chat and direct messages, your username and friends, study timer times, help requests, blocks and reports, and your privacy choices.
+- **Tutors:** if you link with a tutor, the next steps they set you and the progress and notes you send back.
 - **Practice:** the topics and notes you give us, what the AI makes, your answers, marks, points and rank.
 - **Study Hall:** your child's subjects and school (optional), session goals, attendance, uploaded work, supervisor notes and messages.
 - **Payments:** handled by Stripe. We keep your plan and Stripe IDs, never card details.
@@ -26,6 +27,7 @@ To run Edumi: sign you in, show your groups and boards, mark quizzes, send login
 
 - **Group members** see your first name and last initial, your messages in that group, and (if you allow it) when you're studying and your minutes.
 - **Friends** you accept can message you and see your study minutes on the Friends board, if you both switch it on. Friends are added by exact username only. Adults and under-18s can only become friends if they already share a group.
+- **A tutor you link with** sees the next steps they set you, how far you got and any note you add. Never your study time, groups, chats, friends or practice. Either of you can unlink at any time.
 - **Your points, marks and practice** are private to you.
 - **Parents** see their own child's Study Hall details and reports.
 - **Supervisors** see what they need for the sessions they run.

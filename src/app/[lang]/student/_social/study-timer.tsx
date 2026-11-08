@@ -26,12 +26,15 @@ export function StudyTimer({
   initial,
   groupId,
   groupName,
+  solo = false,
   studyScreen,
   compact = false,
 }: {
   initial: TimerState;
   /** The group a new session counts towards (the group page). */
   groupId?: string;
+  /** Counts towards no group: studying for a tutor's next step (the My tutor page). */
+  solo?: boolean;
   groupName?: string;
   /** False on pages that aren't study screens: beats report inactive, so credit pauses. */
   studyScreen: boolean;
@@ -110,11 +113,11 @@ export function StudyTimer({
 
   const start = () =>
     startTransition(async () => {
-      if (!groupId) return;
+      if (!groupId && !solo) return;
       setError(null);
       setManualPause(false);
       try {
-        apply(await startStudy(groupId));
+        apply(await startStudy(groupId ?? null));
         router.refresh();
       } catch (e) {
         setError(e instanceof Error ? e.message : "Couldn't start the timer.");
@@ -130,7 +133,7 @@ export function StudyTimer({
     });
 
   const live = Boolean(timer.sessionId);
-  const otherGroup = live && groupId && timer.groupId && timer.groupId !== groupId;
+  const otherGroup = live && (solo ? timer.groupId !== null : groupId && timer.groupId && timer.groupId !== groupId);
   const status = !live
     ? null
     : !studyScreen
@@ -167,7 +170,7 @@ export function StudyTimer({
             {clock(live ? shown : 0)}
           </p>
           <p className="text-sm text-ink-soft" aria-live="polite">
-            {live ? status : `Counts towards ${groupName ?? "this group"}`}
+            {live ? status : solo ? "For your tutor's next step" : `Counts towards ${groupName ?? "this group"}`}
           </p>
         </div>
         <div className="flex gap-2">
@@ -189,7 +192,7 @@ export function StudyTimer({
       </div>
       {!live && (
         <p className="text-xs text-ink-faint">
-          Verified time only: the timer counts while an Edumi group or practice page is open and you&apos;re active. It pauses when you switch tabs, lock
+          Verified time only: the timer counts while an Edumi study page is open and you&apos;re active. It pauses when you switch tabs, lock
           your screen or go idle for 5 minutes. One timer runs across all your devices.
         </p>
       )}

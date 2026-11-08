@@ -14,7 +14,17 @@ export const STATUS_LABEL: Record<TaskStatus, string> = {
   stuck: "Stuck",
 };
 
-export type TaskRow = { id: string; student_id: string; body: string; due_on: string | null; status: TaskStatus; note: string | null; created_at: string };
+export type TaskRow = {
+  id: string;
+  student_id: string;
+  body: string;
+  due_on: string | null;
+  status: TaskStatus;
+  note: string | null;
+  created_at: string;
+  /** Who last reported progress: the tutor, or the linked student. */
+  updated_by?: "tutor" | "student";
+};
 export type NextLesson = { lessonId: string; studentId: string; startsAt: string };
 
 /** One line on where to begin the next lesson, from the task's status and note. */

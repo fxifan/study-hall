@@ -1,5 +1,6 @@
 import "server-only";
 import { randomBytes } from "node:crypto";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { localizePath } from "@/i18n/config";
 import { getLocale } from "@/i18n/server";
@@ -7,6 +8,7 @@ import { getCurrentProfile, type CurrentProfile } from "@/lib/auth";
 import { ACTIVE_SUBSCRIPTION_STATUSES } from "@/lib/subscription-status";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { addDaysToDateKey } from "@/lib/time";
+import { TUTOR_LINK_COOKIE, isTutorLinked } from "@/lib/tutor/links";
 import {
   BEAT_GRACE_SECONDS,
   STALE_SECONDS,
@@ -118,8 +120,17 @@ export async function requireSocialStudent(options: { paid?: boolean } = { paid:
   if (!profile) redirect(localizePath("/login", locale));
   const me = await loadSocialStudent(profile);
   if (!me) redirect(localizePath(profile.role === "student" ? "/student" : profile.role === "admin" ? "/admin" : "/", locale));
-  if (options.paid !== false && !hasAccess(me.access)) redirect(localizePath("/student/plan", locale));
+  if (options.paid !== false && !hasAccess(me.access)) {
+    // Students linked to a tutor (or opening a tutor's invite) keep their tutor's next steps for free.
+    const tutorInvite = (await cookies()).has(TUTOR_LINK_COOKIE);
+    redirect(localizePath(tutorInvite || (await isTutorLinked(me.profile.id)) ? "/student/tutor" : "/student/plan", locale));
+  }
   return me;
+}
+
+/** Free with a tutor link: the study timer and the tutor's next steps. Everything else needs a plan. */
+export async function canUseTutorFeatures(me: SocialStudent): Promise<boolean> {
+  return hasAccess(me.access) || (await isTutorLinked(me.profile.id));
 }
 
 /** Server Actions: throws instead of redirecting. */
@@ -356,6 +367,34 @@ export async function sessionSeconds(session: Pick<LiveSession, "id" | "last_bea
  * Start (or rejoin) the student's one timer. A second device gets the session that's already
  * running, so time is never counted twice. The group is snapshotted at start.
  */
+/** A timer that counts towards no group: studying for a tutor's next step. */
+export async function startSoloSession(me: SocialStudent): Promise<LiveSession> {
+  const admin = createAdminClient();
+  const existing = await liveSessionFor(me.profile.id);
+  if (existing) {
+    if (existing.group_id === null) {
+      await beat(me.profile.id, existing.id, true);
+      return existing;
+    }
+    await finishSession(existing.id, "replaced");
+  }
+  const now = new Date().toISOString();
+  const inserted = await admin
+    .from("study_sessions")
+    .insert({ profile_id: me.profile.id, group_id: null, state: "running", started_at: now, last_beat_at: now, announced: true })
+    .select("id, group_id, state, started_at, last_beat_at, announced")
+    .single<LiveSession>();
+  if (inserted.error) {
+    if (inserted.error.code === "23505") {
+      const live = await liveSessionFor(me.profile.id);
+      if (live) return live;
+    }
+    throw inserted.error;
+  }
+  await admin.from("study_intervals").insert({ session_id: inserted.data.id, profile_id: me.profile.id, group_id: null, started_at: now });
+  return inserted.data;
+}
+
 export async function startSession(me: SocialStudent, groupId: string): Promise<LiveSession> {
   const group = await requireMember(groupId, me.profile.id);
   const admin = createAdminClient();

@@ -86,6 +86,7 @@ async function Me({ searchParams }: Pick<PageProps<"/[lang]/student/me">, "searc
       <section className={`${card} flex flex-col gap-2 text-sm`}>
         <h2 className="font-medium">Plan and privacy</h2>
         <Link href={localizePath("/student/plan", locale)}>Your Edumi plan</Link>
+        <Link href={localizePath("/student/tutor", locale)}>My tutor</Link>
         {blockedNames.size > 0 && (
           <>
             <p className="mt-2 text-ink-soft">People you&apos;ve blocked</p>

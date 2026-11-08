@@ -27,6 +27,7 @@ import {
 } from "@/lib/social/resources";
 import {
   beat,
+  canUseTutorFeatures,
   displayName,
   finishSession,
   groupMembers,
@@ -37,6 +38,7 @@ import {
   requireMember,
   socialActor,
   startSession,
+  startSoloSession,
   token,
 } from "@/lib/social/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -210,16 +212,24 @@ export async function unblockUser(profileId: string) {
 
 export type TimerState = { sessionId: string | null; state: "running" | "paused" | "stopped"; seconds: number; groupId: string | null };
 
-export async function startStudy(groupId: string): Promise<TimerState> {
-  const me = await socialActor();
-  const s = await startSession(me, groupId);
+/** Start the timer for a group, or with no group (`null`) for a tutor's next step. */
+export async function startStudy(groupId: string | null): Promise<TimerState> {
+  const me = groupId ? await socialActor() : await tutorStudyActor();
+  const s = groupId ? await startSession(me, groupId) : await startSoloSession(me);
   const b = await beat(me.profile.id, s.id, true);
-  await track({ name: "study_session_started", product: "platform", role: "student", userId: me.profile.id, objectType: "study_group", objectId: groupId, dedupeKey: `study:${s.id}` });
+  await track({ name: "study_session_started", product: "platform", role: "student", userId: me.profile.id, objectType: groupId ? "study_group" : undefined, objectId: groupId ?? undefined, dedupeKey: `study:${s.id}` });
   return { sessionId: s.id, groupId: s.group_id, ...b };
 }
 
+/** A student with a plan, or linked to a tutor (the timer is free with a tutor link). */
+async function tutorStudyActor() {
+  const me = await socialActor({ paid: false });
+  if (!(await canUseTutorFeatures(me))) throw new Error("Your Edumi trial has ended. Subscribe to keep going.");
+  return me;
+}
+
 export async function heartbeat(sessionId: string, active: boolean): Promise<TimerState> {
-  const me = await socialActor();
+  const me = await tutorStudyActor();
   if (!uuid.safeParse(sessionId).success) return { sessionId: null, state: "stopped", seconds: 0, groupId: null };
   const b = await beat(me.profile.id, sessionId, active);
   return { sessionId, groupId: null, ...b };

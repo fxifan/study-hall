@@ -31,7 +31,7 @@ test("sign up, log a session, send the report, invoice it", async ({ page }) => 
   page.on("dialog", (d) => d.accept());
   await page.goto("/tutors");
   await page.waitForLoadState("networkidle");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Parent updates in 60 seconds");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Keep students moving between lessons.");
   await page.fill("input[name=name]", "Robin Tutor");
   await page.fill("input[name=email]", email);
   await page.check("input[name=terms]");

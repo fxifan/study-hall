@@ -338,3 +338,19 @@ describe("tutor next steps", () => {
     expect((await signedOutClient().from("tutor_tasks").select("id")).data ?? []).toEqual([]);
   });
 });
+
+describe("tutor student links", () => {
+  it("only the server can link a record to a student account", async () => {
+    const set = await a.client.from("tutor_students").update({ linked_profile_id: b.id }).eq("id", a.studentId);
+    expect(set.error?.code).toBe("42501");
+    const tok = await a.client.from("tutor_students").update({ link_token: "x".repeat(32) }).eq("id", a.studentId);
+    expect(tok.error?.code).toBe("42501");
+    const ins = await a.client
+      .from("tutor_students")
+      .insert({ tutor_id: a.id, family_id: a.familyId, first_name: "Sneak", last_initial: "Y", year_level: 11, linked_profile_id: b.id });
+    expect(ins.error?.code).toBe("42501");
+    // Ordinary edits still work.
+    const ok = await a.client.from("tutor_students").update({ goals: "Calculus" }).eq("id", a.studentId).select("id");
+    expect(ok.data).toHaveLength(1);
+  });
+});

@@ -7,6 +7,7 @@ import { getLocale } from "@/i18n/server";
 import { rank, shortMinutes } from "@/lib/social/credit";
 import { groupMembers, namesFor, requireSocialStudent, todayProgress, type Group } from "@/lib/social/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { TUTOR_LINK_COOKIE, linkedTutors } from "@/lib/tutor/links";
 import { createGroup, joinGroup } from "../_social/actions";
 import { respondGroupInvite } from "../_social/friend-actions";
 import { Loading, Notice, StudentShell, card, tile, primaryBtn, secondaryBtn, smallBtn } from "../_social/shell";
@@ -50,6 +51,8 @@ async function Groups({ searchParams }: Pick<PageProps<"/[lang]/student/groups">
   const inviterNames = await namesFor((friendInvites ?? []).map((i) => i.inviter_id as string));
   const pendingCode = (typeof query.code === "string" ? query.code : jar.get("edumi_invite")?.value) ?? "";
   const error = typeof query.error === "string" ? ERRORS[query.error] : null;
+  const tutors = await linkedTutors(me.profile.id);
+  const tutorTasks = tutors.filter((t) => t.task && t.task.status !== "done");
 
   return (
     <StudentShell me={me} title={`Hi ${me.student.first_name}`} current="groups">
@@ -61,6 +64,25 @@ async function Groups({ searchParams }: Pick<PageProps<"/[lang]/student/groups">
           <button className={primaryBtn}>Join the group</button>
         </form>
       )}
+
+      {jar.has(TUTOR_LINK_COOKIE) && (
+        <Link href={localizePath("/student/tutor", locale)} className={`${card} flex items-center justify-between gap-3 border-ink no-underline`}>
+          <span className="text-sm">Your tutor invited you to link your account.</span>
+          <span className="text-sm font-medium">Review →</span>
+        </Link>
+      )}
+      {tutorTasks.map((t) => (
+        <Link
+          key={t.recordId}
+          href={localizePath("/student/tutor", locale)}
+          className={`${card} flex flex-col gap-1 border-2 border-[var(--tiles-sage)] no-underline`}
+          data-testid="tutor-task-preview"
+        >
+          <span className="w-fit rounded-full bg-[var(--tiles-sage-soft)] px-2.5 py-0.5 text-xs font-semibold text-[var(--tiles-sage-ink)]">From {t.tutorName}</span>
+          <span className="font-medium text-ink">{t.task!.body}</span>
+          <span className="text-sm text-ink-soft">Tell {t.tutorName.split(" ")[0]} how you went →</span>
+        </Link>
+      ))}
 
       {(friendInvites ?? []).map((i) => (
         <div key={i.id as string} className={`${tile} flex flex-wrap items-center justify-between gap-3 bg-[var(--tiles-sand)]`} data-testid="friend-invite">
