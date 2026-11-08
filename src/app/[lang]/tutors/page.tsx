@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CalendarCheck, FileText, Languages, MessageSquareQuote, Mic, PenLine, ReceiptText, ShieldCheck } from "lucide-react";
+import { TrialPrice } from "@/components/trial-price";
 import { Wordmark } from "@/components/wordmark";
 import { localizePath } from "@/i18n/config";
 import { getLocale } from "@/i18n/server";
@@ -96,7 +97,7 @@ export default async function TutorsLanding() {
                   See an example
                 </a>
               </div>
-              <p className="tl-fine">14 days free, no card · Then {solo}/month · Free for your students</p>
+              <p className="tl-fine">14 days free · Then {solo}/month · Free for your students</p>
             </div>
 
             <figure className="tl-hb" aria-label="Example: Alex's Edumi study screen with his tutor's next step, and the tutor's prep note">
@@ -262,34 +263,20 @@ export default async function TutorsLanding() {
               Simple, in Australian dollars.
             </h2>
             <div className="tl-prices">
-              <article className="tl-price">
-                <h3>{PLANS.trial.name}</h3>
-                <p className="tl-amount">
-                  A$0 <span>for {PLANS.trial.days} days</span>
-                </p>
-                <ul>
-                  <li>Everything in Solo</li>
-                  <li>No card needed</li>
-                </ul>
-                <a href="#signup" className="tl-btn tl-btn--outline">
-                  Start free trial
-                </a>
-              </article>
               <article className="tl-price tl-price--main">
                 <h3>{PLANS.solo.name}</h3>
-                <p className="tl-amount">
-                  {solo} <span>/month</span>
-                </p>
+                <TrialPrice full={solo} days={PLANS.trial.days} />
                 <ul>
                   <li>Unlimited students, reports and invoices</li>
                   <li>Fair use: {MONTHLY_DRAFT_CAP} AI drafts a month</li>
-                  <li>Cancel any time</li>
+                  <li>Cancel in the trial and pay nothing</li>
                 </ul>
                 <a href="#signup" className="tl-btn tl-btn--primary">
-                  Start with a free trial
+                  Get Solo free for {PLANS.trial.days} days
                 </a>
               </article>
             </div>
+            <p className="tl-fine tl-center">You add a card to start the trial. It&apos;s charged {solo}/month when the trial ends unless you cancel.</p>
             <p className="tl-fine tl-center">Families pay you directly by bank transfer. We never hold your money. Prices in AUD.</p>
           </div>
         </section>
@@ -302,7 +289,7 @@ export default async function TutorsLanding() {
               <h2 id="signup-title" className="tl-h2">
                 Start your 14-day free trial.
               </h2>
-              <p className="tl-sub">We&apos;ll email you a sign-in link. No password, no card.</p>
+              <p className="tl-sub">We&apos;ll email you a sign-in link, then you add a card to start your trial. A$0 today; {solo}/month after {PLANS.trial.days} days unless you cancel.</p>
               <div className="tl-privacy">
                 <span className="tl-icon" aria-hidden="true">
                   <ShieldCheck size={18} strokeWidth={2} />

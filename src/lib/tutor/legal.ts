@@ -61,8 +61,8 @@ ${TUTOR_PRODUCT_NAME} helps independent tutors write session reports for parents
 
 ## Trial and price
 
-- New accounts get a 14-day free trial with no card.
-- After the trial, the Solo plan is A$15 a month. [Owner to confirm: GST treatment of the subscription, billing method and refunds.]
+- New accounts get a 14-day free trial. You add a card to start it. Unless you cancel before the trial ends, the Solo plan of A$15 a month is charged to that card from then on.
+- You can cancel any time from Settings. Cancel during the trial and you pay nothing; after that, you keep access until the end of the month you've paid for. [Owner to confirm: GST treatment of the subscription, billing method and refunds.]
 - Solo includes fair use of up to 300 AI drafts a month. We may pause drafting above that until the next month.
 
 ## Your responsibilities

@@ -41,7 +41,10 @@ export type StudentRow = {
 };
 
 export type Access =
-  | { kind: "trial"; trialEndsAt: string }
+  /** Signed up, but hasn't started the free trial (that needs a card, in Stripe Checkout). */
+  | { kind: "none" }
+  /** `billed`: a Stripe trial that becomes A$11.99/month when it ends. Older no-card trials aren't. */
+  | { kind: "trial"; trialEndsAt: string; billed: boolean }
   | { kind: "paid"; periodEnd: string | null }
   | { kind: "studyhall" }
   | { kind: "expired"; trialEndsAt: string }
@@ -64,9 +67,9 @@ export function token(bytes = 24): string {
   return randomBytes(bytes).toString("base64url");
 }
 
-/** An 8-character invite code without look-alike characters. */
+/** A 10-character invite code: capitals and digits, without look-alikes (no I, L, O, 0 or 1). */
 export function inviteCode(): string {
-  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
+  const alphabet = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
   const bytes = randomBytes(10);
   return Array.from(bytes, (b) => alphabet[b % alphabet.length]).join("");
 }
@@ -88,17 +91,18 @@ async function accessFor(student: StudentRow, profile: CurrentProfile): Promise<
       .in("status", [...ACTIVE_SUBSCRIPTION_STATUSES]);
     if (count) return { kind: "studyhall" };
   }
-  let { data: plan } = await admin.from("student_plans").select("status, trial_ends_at, current_period_end").eq("profile_id", profileId).maybeSingle();
-  if (!plan) {
-    // First visit starts the trial. Two requests can race here, so insert-if-missing, then read.
-    const created = await admin.from("student_plans").upsert({ profile_id: profileId }, { onConflict: "profile_id", ignoreDuplicates: true });
-    if (created.error) throw created.error;
-    const read = await admin.from("student_plans").select("status, trial_ends_at, current_period_end").eq("profile_id", profileId).single();
-    if (read.error) throw read.error;
-    plan = read.data;
-  }
+  const { data: plan } = await admin
+    .from("student_plans")
+    .select("status, trial_ends_at, current_period_end, stripe_subscription_id")
+    .eq("profile_id", profileId)
+    .maybeSingle();
+  // The free trial starts in Stripe Checkout, with a card (owner, 8 Nov 2026): no row means not started.
+  if (!plan) return { kind: "none" };
   if (plan.status === "active" || plan.status === "past_due") return { kind: "paid", periodEnd: plan.current_period_end };
-  if (Date.parse(plan.trial_ends_at) > Date.now() && plan.status === "trialing") return { kind: "trial", trialEndsAt: plan.trial_ends_at };
+  // A Stripe trial: Stripe ends it and starts billing, so trust the subscription over the clock.
+  if (plan.status === "trialing" && plan.stripe_subscription_id) return { kind: "trial", trialEndsAt: plan.trial_ends_at, billed: true };
+  // Older no-card trials run out on their date.
+  if (Date.parse(plan.trial_ends_at) > Date.now() && plan.status === "trialing") return { kind: "trial", trialEndsAt: plan.trial_ends_at, billed: false };
   return { kind: "expired", trialEndsAt: plan.trial_ends_at };
 }
 

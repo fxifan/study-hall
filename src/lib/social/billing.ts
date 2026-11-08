@@ -21,13 +21,31 @@ async function studentLineItem(): Promise<Stripe.Checkout.SessionCreateParams.Li
   };
 }
 
+/** Days in the student free trial. It starts in Checkout with a card and then bills monthly. */
+export const STUDENT_TRIAL_DAYS = 7;
+
+/**
+ * The trial a checkout should include: a new student gets 7 days; a student still on an older
+ * no-card trial keeps its end date (if Stripe can still honour it, 48 hours or more away); anyone
+ * who has subscribed before gets none.
+ */
+async function studentTrial(profileId: string): Promise<{ trial_period_days: number } | { trial_end: number } | Record<string, never>> {
+  const { data: plan } = await createAdminClient().from("student_plans").select("status, trial_ends_at, stripe_subscription_id").eq("profile_id", profileId).maybeSingle();
+  if (!plan) return { trial_period_days: STUDENT_TRIAL_DAYS };
+  const end = Date.parse(plan.trial_ends_at as string);
+  if (!plan.stripe_subscription_id && plan.status === "trialing" && end - Date.now() > 48 * 3600_000) return { trial_end: Math.floor(end / 1000) };
+  return {};
+}
+
 export async function studentCheckoutUrl(input: { profileId: string; payer: "student" | "parent"; email: string | null; customer: string | null; origin: string; returnPath: string }) {
   const session = await getStripe().checkout.sessions.create({
     mode: "subscription",
     line_items: [await studentLineItem()],
+    // A card is always collected, even with A$0 due today: the plan bills when the trial ends.
+    payment_method_collection: "always",
     ...(input.customer ? { customer: input.customer } : input.email ? { customer_email: input.email } : {}),
     client_reference_id: input.profileId,
-    subscription_data: { metadata: { student_profile_id: input.profileId, payer: input.payer, app: "edumi" } },
+    subscription_data: { ...(await studentTrial(input.profileId)), metadata: { student_profile_id: input.profileId, payer: input.payer, app: "edumi" } },
     metadata: { student_profile_id: input.profileId, payer: input.payer },
     managed_payments: { enabled: false },
     success_url: `${input.origin}${input.returnPath}?checkout={CHECKOUT_SESSION_ID}`,
@@ -38,7 +56,7 @@ export async function studentCheckoutUrl(input: { profileId: string; payer: "stu
 
 const PLAN_STATUS: Partial<Record<Stripe.Subscription.Status, string>> = {
   active: "active",
-  trialing: "active",
+  trialing: "trialing",
   past_due: "past_due",
   unpaid: "past_due",
   canceled: "canceled",
@@ -61,6 +79,7 @@ export async function syncStudentSubscription(subscription: Stripe.Subscription)
       stripe_customer_id: customer,
       stripe_subscription_id: subscription.id,
       current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
+      ...(subscription.trial_end ? { trial_ends_at: new Date(subscription.trial_end * 1000).toISOString() } : {}),
       updated_at: new Date().toISOString(),
     });
   if (error) throw error;

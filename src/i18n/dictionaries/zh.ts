@@ -21,6 +21,9 @@ export const zh: Dictionary = {
   login: {
     title: "登录",
     description: "我们会把登录链接发到您的邮箱，无需密码。",
+    newHere: "第一次使用 Edumi？",
+    joinStudent: "学生注册",
+    joinTutor: "老师从这里开始",
     emailLabel: "邮箱",
     emailPlaceholder: "you@example.com",
     submit: "发送登录链接",

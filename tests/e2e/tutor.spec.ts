@@ -35,12 +35,20 @@ test("sign up, log a session, send the report, invoice it", async ({ page }) => 
   await page.fill("input[name=name]", "Robin Tutor");
   await page.fill("input[name=email]", email);
   await page.check("input[name=terms]");
-  await page.click('button:has-text("Start free trial")');
+  await page.click('button:has-text("Create my account")');
   await expect(page.getByText("for a sign-in link")).toBeVisible();
 
   await logIn(page);
-  await expect(page).toHaveURL(/\/app$/);
-  await expect(page.getByText(/Free trial: 14 days left/)).toBeVisible();
+  // The trial starts in Stripe Checkout with a card: every page sends a new tutor to /app/start.
+  await expect(page).toHaveURL(/\/app\/start$/);
+  await expect(page.getByTestId("start-trial")).toContainText("pay A$0 today");
+  await page.goto("/app/log");
+  await expect(page).toHaveURL(/\/app\/start$/);
+  // Stand in for Checkout (Stripe isn't driven here): an older-style trial with time left.
+  const { data: me } = await admin.from("profiles").select("id").eq("email", email).single();
+  await admin.from("tutors").update({ trial_ends_at: new Date(Date.now() + 14 * 86_400_000).toISOString() }).eq("id", me!.id);
+  await page.goto("/app");
+  await expect(page.getByText(/Free trial: 1[34] days left/)).toBeVisible();
 
   // First student, straight into logging.
   await page.goto("/app/log");

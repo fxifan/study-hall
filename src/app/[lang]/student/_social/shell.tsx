@@ -107,6 +107,17 @@ export async function StudentShell({
 }
 
 function TrialBar({ access, href, now }: { access: Access; href: string; now: Date }) {
+  if (access.kind === "none") {
+    return (
+      <div className="border-b border-rule bg-[var(--tiles-pink-soft)] text-[var(--tiles-pink-ink)]">
+        <p className="mx-auto w-full max-w-4xl px-4 py-2 text-sm">
+          <Link href={href} className="font-medium">
+            Start your 7-day free trial →
+          </Link>
+        </p>
+      </div>
+    );
+  }
   if (access.kind !== "trial") return null;
   const days = Math.max(0, Math.ceil((Date.parse(access.trialEndsAt) - now.getTime()) / 86_400_000));
   return (
@@ -114,7 +125,7 @@ function TrialBar({ access, href, now }: { access: Access; href: string; now: Da
       <p className="mx-auto w-full max-w-4xl px-4 py-2 text-sm">
         Free trial: {days} day{days === 1 ? "" : "s"} left.{" "}
         <Link href={href} className="font-medium">
-          Keep Edumi for A$11.99/month
+          {access.billed ? "Then A$11.99/month" : "Keep Edumi for A$11.99/month"}
         </Link>
       </p>
     </div>

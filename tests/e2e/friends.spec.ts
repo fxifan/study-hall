@@ -31,6 +31,8 @@ async function student(name: string, opts: { username?: string; birthYear?: numb
     social_enabled: true,
     username: opts.username ?? null,
   });
+  // A trial that started before card-required trials, so the test has full access.
+  await admin.from("student_plans").insert({ profile_id: id });
   return { id, email, orgId: org!.id as string };
 }
 

@@ -18,7 +18,7 @@ export const metadata: Metadata = { title: "Your groups" };
 const TILE = ["bg-brand-soft", "bg-[var(--tiles-pink-soft)]", "bg-[var(--tiles-sand)]", "bg-[var(--tiles-slate-soft)]"];
 
 const ERRORS: Record<string, string> = {
-  code: "That invite code isn't valid any more. Ask a friend for a new one.",
+  code: "We couldn't find an open group with that code. Check it with your friend, or ask them for a new one.",
   full: "That group is full (12 members).",
   group: "Give the group a name and a daily goal between 15 minutes and 24 hours.",
 };
@@ -163,7 +163,7 @@ async function Groups({ searchParams }: Pick<PageProps<"/[lang]/student/groups">
           <h2 className="font-medium">Join with a code</h2>
           <label className="flex flex-col gap-1 text-sm">
             Invite code
-            <input name="code" required pattern="[A-Za-z0-9]{8,16}" defaultValue={pendingCode} className="h-10 rounded-md border border-rule bg-paper px-3 font-mono" />
+            <input name="code" required pattern="[A-Za-z0-9]{8,16}" title="8 to 16 letters and numbers, e.g. K7PQ2MXH4R" autoCapitalize="characters" autoComplete="off" spellCheck={false} defaultValue={pendingCode} className="h-11 rounded-md border border-rule bg-paper px-3 font-mono uppercase" />
           </label>
           <button className={secondaryBtn}>Join</button>
         </form>

@@ -41,7 +41,7 @@ const schema = z.object({
  * Student self sign-up (13+, no upper age limit: uni students too; owner decisions 6 Nov 2026). Under-13s are told to ask a parent, who
  * adds them from the parent account. Creates the student login (role fixed by app_metadata) and
  * an active, self-signed student record with Edumi switched on, then emails a login link. The
- * 7-day trial starts on first use (student_plans default).
+ * 7-day trial starts after login, in Stripe Checkout with a card (/student/plan).
  */
 export async function studentSignUp(_prev: JoinState, formData: FormData): Promise<JoinState> {
   const parsed = schema.safeParse(Object.fromEntries(formData));

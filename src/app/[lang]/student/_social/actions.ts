@@ -80,7 +80,9 @@ export async function joinGroup(formData: FormData) {
   (await cookies()).delete("edumi_invite");
   if (!/^[A-Za-z0-9]{8,16}$/.test(code)) redirect(await href("/student/groups?error=code"));
   const admin = createAdminClient();
-  const { data: invite } = await admin.from("study_group_invites").select("code, group_id, max_uses, uses, expires_at, revoked_at").eq("code", code).maybeSingle();
+  // Case-insensitive: older codes mix cases and people retype them. Prefer an exact match.
+  const { data: matches } = await admin.from("study_group_invites").select("code, group_id, max_uses, uses, expires_at, revoked_at").ilike("code", code).limit(5);
+  const invite = matches?.find((m) => m.code === code) ?? (matches?.length === 1 ? matches[0] : null);
   if (!invite || invite.revoked_at || Date.parse(invite.expires_at) < Date.now() || invite.uses >= invite.max_uses) redirect(await href("/student/groups?error=code"));
   const { count } = await admin.from("study_group_members").select("profile_id", { count: "exact", head: true }).eq("group_id", invite.group_id);
   const { count: already } = await admin
@@ -92,7 +94,7 @@ export async function joinGroup(formData: FormData) {
     if ((count ?? 0) >= MAX_MEMBERS) redirect(await href("/student/groups?error=full"));
     const ins = await admin.from("study_group_members").insert({ group_id: invite.group_id, profile_id: me.profile.id });
     if (ins.error && ins.error.code !== "23505") throw ins.error;
-    await admin.from("study_group_invites").update({ uses: invite.uses + 1 }).eq("code", code);
+    await admin.from("study_group_invites").update({ uses: invite.uses + 1 }).eq("code", invite.code);
     await postSystemMessage(invite.group_id, "system", `${displayName(me.student)} joined the group.`, { event: "joined" });
     await track({ name: "study_group_joined", product: "platform", role: "student", userId: me.profile.id, objectType: "study_group", objectId: invite.group_id });
   }
