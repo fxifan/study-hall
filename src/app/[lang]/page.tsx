@@ -117,7 +117,16 @@ export default async function HomePage() {
               <dl className="home-proof" data-rv style={{ "--d": 4 } as React.CSSProperties}>
                 {t.hero.proof.map((p) => (
                   <div key={p.label}>
-                    <dt>{p.value}</dt>
+                    <dt>
+                      {"was" in p && p.was ? (
+                        <>
+                          <s className="trial-price-was" aria-label={`Usually ${p.was}`}>
+                            {p.was}
+                          </s>{" "}
+                        </>
+                      ) : null}
+                      {p.value}
+                    </dt>
                     <dd>{p.label}</dd>
                   </div>
                 ))}

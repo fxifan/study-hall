@@ -17,7 +17,7 @@ export function JoinForm({ invite, lang, privacyHref, termsHref }: { invite: str
   if (state.status === "sent") {
     return (
       <p role="status" className="text-ink-soft">
-        Check <strong className="text-ink">{state.email}</strong> for your login link. It works once and expires after an hour.
+        Check <strong className="text-ink">{state.email}</strong> for your login link. It works once and expires after an hour. Then start your free trial.
       </p>
     );
   }
@@ -105,9 +105,9 @@ export function JoinForm({ invite, lang, privacyHref, termsHref }: { invite: str
         </p>
       )}
       <Button type="submit" size="lg" disabled={pending}>
-        {pending ? "Creating your account…" : "Start my 7-day free trial"}
+        {pending ? "Creating your account…" : "Create my account"}
       </Button>
-      <p className="text-xs text-ink-faint">No card needed for the trial. After 7 days Edumi is A$11.99 a month, paid by you or a parent.</p>
+      <p className="text-xs text-ink-faint">7 days free. You add a card to start the trial; after 7 days it&apos;s A$11.99 a month unless you cancel. Paid by you or a parent.</p>
     </form>
   );
 }

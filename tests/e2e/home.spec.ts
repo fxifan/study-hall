@@ -103,7 +103,9 @@ test("the tutor page has the real demo video and the sign-up form", async ({ pag
   await page.getByRole("link", { name: "Try it with one student" }).click();
   await expect(page.locator("#signup input[name=name]")).toBeVisible();
   await expect(page.locator("#signup").getByRole("link", { name: "Terms" })).toHaveAttribute("href", "/tutors/terms");
-  await expect(page.getByText("A$15")).toHaveCount(2);
+  // One paid plan, selling the trial: no separate $0 plan.
+  await expect(page.locator("#pricing").getByText("14 days free, then A$15 a month. Cancel any time.")).toBeAttached();
+  await expect(page.locator("#pricing article")).toHaveCount(1);
 });
 
 for (const width of [375, 768, 1280]) {

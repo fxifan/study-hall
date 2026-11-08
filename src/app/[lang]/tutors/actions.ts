@@ -22,7 +22,8 @@ const schema = z.object({
  * Tutor sign-up (spec §3.1): create the account as a tutor, then email a magic link.
  *
  * The role is set server-side in app_metadata (the only place the profile trigger trusts), so a
- * tutor account is never a parent account first. The 14-day trial starts now. An email that
+ * tutor account is never a parent account first. The 14-day trial starts after login, in Stripe
+ * Checkout with a card (/app/start). An email that
  * already has an Edumi family or staff account is refused rather than converted.
  */
 export async function signUpTutor(_prev: SignUpState, formData: FormData): Promise<SignUpState> {
@@ -51,7 +52,8 @@ export async function signUpTutor(_prev: SignUpState, formData: FormData): Promi
       console.error("Tutor sign-up failed", error?.code ?? error?.message);
       return { status: "error", message: "Couldn't create your account. Try again in a minute." };
     }
-    const { error: rowError } = await admin.from("tutors").insert({ id: created.user.id, display_name: name });
+    // No free time until the trial starts in Stripe Checkout, with a card (/app/start).
+    const { error: rowError } = await admin.from("tutors").insert({ id: created.user.id, display_name: name, trial_ends_at: new Date().toISOString() });
     if (rowError) {
       await admin.auth.admin.deleteUser(created.user.id);
       return { status: "error", message: "Couldn't create your account. Try again in a minute." };

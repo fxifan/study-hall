@@ -28,6 +28,8 @@ async function student(firstName: string): Promise<{ email: string; id: string }
   const id = data.user!.id;
   created.push(id);
   await admin.from("students").insert({ org_id: org!.id, profile_id: id, first_name: firstName, last_initial: "T", year_level: 10, status: "active", self_signed: true, social_enabled: true, birth_year: 2010, birth_month: 1 });
+  // A trial that started before card-required trials, so the test has full access.
+  await admin.from("student_plans").insert({ profile_id: id });
   return { email, id };
 }
 
@@ -57,7 +59,7 @@ test("under-13s are pointed to Study Hall; 13+ students can sign up", async ({ p
     await page.getByLabel("Birth year").selectOption(year);
     await page.getByLabel("Email").fill(email);
     await page.getByRole("checkbox").check();
-    await page.getByRole("button", { name: "Start my 7-day free trial" }).click();
+    await page.getByRole("button", { name: "Create my account" }).click();
   };
   const young = new Date().getFullYear() - 11;
   await fill(String(young), `social-young-${stamp}@studyhall.test`);
@@ -74,8 +76,11 @@ test("under-13s are pointed to Study Hall; 13+ students can sign up", async ({ p
   created.push(p!.id);
   expect(p!.role).toBe("student");
   await magic(page, email);
-  await expect(page).toHaveURL(/\/student\/groups/);
-  await expect(page.getByText(/Free trial: 7 days left/)).toBeVisible();
+  // The trial starts in Stripe Checkout with a card: first stop is the plan page.
+  await expect(page).toHaveURL(/\/student\/plan/);
+  await expect(page.getByTestId("start-trial")).toContainText("A$11.99 a month, charged to that card until you cancel");
+  await expect(page.getByRole("button", { name: "Get Edumi free for 7 days" })).toBeVisible();
+  await expect(page.getByText("7 days free, then A$11.99 a month. Cancel any time.")).toBeAttached();
 });
 
 test("a group studies together: chat, timer, help and practice", async ({ browser }) => {
@@ -189,7 +194,7 @@ test("a uni student born before 2005 can sign up", async ({ page }) => {
   await page.getByLabel("Birth year").selectOption("1998");
   await page.getByLabel("Email").fill(email);
   await page.getByRole("checkbox").check();
-  await page.getByRole("button", { name: "Start my 7-day free trial" }).click();
+  await page.getByRole("button", { name: "Create my account" }).click();
   await expect(page.getByText(/for your login link/)).toBeVisible();
   const { data: p } = await admin.from("profiles").select("id").eq("email", email).single();
   created.push(p!.id);

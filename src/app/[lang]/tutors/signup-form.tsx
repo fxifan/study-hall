@@ -45,7 +45,7 @@ export function SignUpForm({ termsHref, privacyHref, loginHref }: { termsHref: s
         </p>
       )}
       <button type="submit" disabled={pending} className="dash-btn dash-btn--primary h-12 text-base">
-        {pending ? "Sending…" : "Start free trial"}
+        {pending ? "Sending…" : "Create my account"}
       </button>
       <p className="text-sm text-ink-soft">
         Already signed up?{" "}

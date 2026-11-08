@@ -20,6 +20,8 @@ async function student(name: string, points: number, tier: number) {
   const id = data.user!.id;
   created.push(id);
   await admin.from("students").insert({ org_id: org!.id, profile_id: id, first_name: name, last_initial: "T", year_level: 10, status: "active", self_signed: true, social_enabled: true });
+  // A trial that started before card-required trials, so the test has full access.
+  await admin.from("student_plans").insert({ profile_id: id });
   if (points) await admin.from("points_ledger").insert({ profile_id: id, lineage_id: crypto.randomUUID(), kind: "marks", points, day: "2026-11-01" });
   await admin.from("student_ranks").insert({ profile_id: id, tier });
   return { id, email, orgId: org!.id as string };

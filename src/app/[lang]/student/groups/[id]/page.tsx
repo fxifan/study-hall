@@ -150,7 +150,7 @@ async function GroupView({ params, searchParams }: Pick<PageProps<"/[lang]/stude
           <section aria-label="Leaderboard" className={`${card} flex flex-col gap-2`}>
             <div className="flex items-center justify-between">
               <h2 className="font-medium">{weekView ? "This week" : "Today"}</h2>
-              <Link href={localizePath(`/student/groups/${group.id}${weekView ? "" : "?board=week"}`, locale)} className="text-xs">
+              <Link href={localizePath(`/student/groups/${group.id}${weekView ? "" : "?board=week"}`, locale)} className="-my-2 inline-flex min-h-11 items-center px-2 text-sm">
                 {weekView ? "Show today" : "Show week"}
               </Link>
             </div>
@@ -279,17 +279,17 @@ async function GroupView({ params, searchParams }: Pick<PageProps<"/[lang]/stude
           <details className={`${card} text-sm`}>
             <summary className="cursor-pointer font-medium">Settings</summary>
             <form action={updateMembership.bind(null, group.id)} className="mt-3 flex flex-col gap-2">
-              <label className="flex gap-2">
-                <input type="checkbox" name="share_status" defaultChecked={mine.share_status} /> Show the group when I&apos;m studying
+              <label className="flex min-h-11 items-center gap-3 py-1">
+                <input type="checkbox" className="size-5 shrink-0" name="share_status" defaultChecked={mine.share_status} /> Show the group when I&apos;m studying
               </label>
-              <label className="flex gap-2">
-                <input type="checkbox" name="board_opt_in" defaultChecked={mine.board_opt_in} /> Show me on this group&apos;s board
+              <label className="flex min-h-11 items-center gap-3 py-1">
+                <input type="checkbox" className="size-5 shrink-0" name="board_opt_in" defaultChecked={mine.board_opt_in} /> Show me on this group&apos;s board
               </label>
-              <label className="flex gap-2">
-                <input type="checkbox" name="spotlight_opt_in" defaultChecked={mine.spotlight_opt_in} /> I can be the daily standout
+              <label className="flex min-h-11 items-center gap-3 py-1">
+                <input type="checkbox" className="size-5 shrink-0" name="spotlight_opt_in" defaultChecked={mine.spotlight_opt_in} /> I can be the daily standout
               </label>
-              <label className="flex gap-2">
-                <input type="checkbox" name="muted" defaultChecked={mine.muted} /> Mute notifications from this group
+              <label className="flex min-h-11 items-center gap-3 py-1">
+                <input type="checkbox" className="size-5 shrink-0" name="muted" defaultChecked={mine.muted} /> Mute notifications from this group
               </label>
               <button className={smallBtn}>Save</button>
             </form>

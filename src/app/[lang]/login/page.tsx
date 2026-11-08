@@ -33,6 +33,10 @@ export default async function LoginPage({ searchParams }: PageProps<"/[lang]/log
             <LinkError searchParams={searchParams} messages={t.login.linkErrors} />
           </Suspense>
           <LoginForm t={t.login} />
+          <p className="text-sm text-ink-soft">
+            {t.login.newHere} <Link href={localizePath("/join", locale)}>{t.login.joinStudent}</Link> ·{" "}
+            <Link href={localizePath("/tutors#signup", locale)}>{t.login.joinTutor}</Link>
+          </p>
         </CardContent>
       </Card>
     </main>

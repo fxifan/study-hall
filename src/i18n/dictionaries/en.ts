@@ -27,6 +27,9 @@ export const en = {
     emailLabel: "Email",
     emailPlaceholder: "you@example.com",
     submit: "Email me a login link",
+    newHere: "New to Edumi?",
+    joinStudent: "Join as a student",
+    joinTutor: "Tutors start here",
     sending: "Sending…",
     sent: "If {email} has an Edumi account, a login link is on its way. It expires in an hour.",
     errors: {

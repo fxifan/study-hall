@@ -1,5 +1,8 @@
 import "server-only";
+import { redirect } from "next/navigation";
 import { cache } from "react";
+import { localizePath } from "@/i18n/config";
+import { getLocale } from "@/i18n/server";
 import { getCurrentProfile, requireRole, type CurrentProfile } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -25,12 +28,13 @@ export type TutorRow = {
   calendar_feed_token: string | null;
   calendar_feed_fetched_at: string | null;
   stripe_customer_id: string | null;
+  created_at: string;
 };
 
 export type Tutor = { profile: CurrentProfile; tutor: TutorRow };
 
 const TUTOR_COLUMNS =
-  "id, display_name, business_name, abn, gst_registered, default_rate_cents, bank_account_name, bank_bsb_enc, bank_acct_enc, report_langs, invoice_due_days, overdue_reminders, plan, trial_ends_at, calendar_feed_token, calendar_feed_fetched_at, stripe_customer_id";
+  "id, display_name, business_name, abn, gst_registered, default_rate_cents, bank_account_name, bank_bsb_enc, bank_acct_enc, report_langs, invoice_due_days, overdue_reminders, plan, trial_ends_at, calendar_feed_token, calendar_feed_fetched_at, stripe_customer_id, created_at";
 
 const loadTutor = cache(async (id: string): Promise<TutorRow | null> => {
   const supabase = await createClient();
@@ -53,11 +57,21 @@ async function ensureAdminWorkspace(profile: CurrentProfile): Promise<TutorRow |
   return data;
 }
 
+/**
+ * A tutor who signed up after trials moved to Stripe (8 Nov 2026) and hasn't started theirs: sign-up
+ * sets trial_ends_at to the sign-up time, so there's no free time until Checkout. Older no-card
+ * trials (14 days after sign-up) and anyone who has been to Checkout don't count.
+ */
+export function needsTrialStart(t: Pick<TutorRow, "plan" | "stripe_customer_id" | "trial_ends_at" | "created_at">): boolean {
+  return t.plan === "trial" && !t.stripe_customer_id && Date.parse(t.trial_ends_at) - Date.parse(t.created_at) < 3600_000;
+}
+
 /** Pages: the signed-in tutor, or an admin using their own workspace (redirects anyone else). */
-export async function requireTutor(): Promise<Tutor> {
+export async function requireTutor(options: { allowTrialStart?: boolean } = {}): Promise<Tutor> {
   const profile = await requireRole("tutor");
   const tutor = (await loadTutor(profile.id)) ?? (profile.role === "admin" ? await ensureAdminWorkspace(profile) : null);
   if (!tutor) throw new Error("This tutor account has no profile row.");
+  if (!options.allowTrialStart && needsTrialStart(tutor)) redirect(localizePath("/app/start", await getLocale()));
   return { profile, tutor };
 }
 

@@ -36,7 +36,7 @@ const en = {
     proof: [
       { value: "1 goal", label: "shared by your whole group" },
       { value: "8", label: "question quizzes, marked" },
-      { value: "A$11.99", label: "a month after 7 free days" },
+      { value: "A$0", was: "A$11.99", label: "for 7 days, then A$11.99 a month" },
     ],
   },
   app: {
