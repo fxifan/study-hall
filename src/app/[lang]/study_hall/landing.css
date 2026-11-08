@@ -426,13 +426,99 @@ html:has(.landing) {
   }
 }
 
-/* Edumi platform band (rebrand): midnight indigo strip with the tagline and both products. */
-.landing .edumi-band { background: var(--cover); color: var(--cover-ink); font-size: .9375rem; }
-.landing .edumi-band-in { max-width: 1240px; margin: 0 auto; padding: 10px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 20px; }
-.landing .edumi-band .dim { color: var(--cover-soft); }
-.landing .edumi-band b { font-family: var(--serif); font-weight: 700; color: #fff; }
-.landing .edumi-band-links { display: flex; gap: 6px; }
-.landing .edumi-band-links a { padding: 4px 10px; border-radius: 999px; text-decoration: none; color: var(--cover-soft); transition: background-color .15s, color .15s; }
-.landing .edumi-band-links a:hover { color: #fff; background: rgba(142, 165, 150, .16); }
-.landing .edumi-band-links a[aria-current="page"] { color: var(--midnight, #1f2326); background: var(--lavender, #8ea596); font-weight: 600; }
+/* ---------- Tiles look (owner, 9 Nov 2026; mockup design-preview/study-hall-restyle.html) ----------
+   Study Hall now matches the home and tutor pages: no margin column or ruled paper, pill labels and
+   buttons, 800-weight headings, rounded cards. Motion is unchanged: the report still writes itself
+   and draws its ticks, sections still reveal on scroll, the next-session dot still pulses, and all of
+   it stays off with reduced motion. */
+.landing {
+  --sec-y: 96px;
 
+  h1, h2 { font-weight: 800; letter-spacing: -.035em; }
+  h3 { font-weight: 700; }
+
+  /* Nav lines up with the content, as on the tutor page. */
+  .nav-in { max-width: 1120px; padding: 0 20px; }
+
+  /* One column, no margin line. */
+  .wrap { max-width: 1120px; padding: var(--sec-y) 20px; grid-template-columns: minmax(0, 1fr); }
+  .wrap::before { content: none; }
+  .sec-mark { display: none; }
+  .sec-body { grid-column: 1; }
+  .sec-label {
+    display: block; margin: 0 0 10px; font: 700 .8125rem/1.3 var(--sans);
+    letter-spacing: .08em; text-transform: uppercase; color: var(--tiles-sage-strong);
+  }
+  h2 { max-width: 22ch; font-size: clamp(1.8rem, 1.3rem + 1.8vw, 2.6rem); line-height: 1.1; }
+
+  /* Hero: pill eyebrow, flat card. */
+  .hero .wrap { padding-top: 48px; padding-bottom: 88px; }
+  .kicker {
+    display: inline-block; padding: 6px 12px; border-radius: 999px;
+    background: var(--tiles-sage-soft); color: var(--tiles-sage-strong);
+    font: 600 .8125rem/1.3 var(--sans); letter-spacing: 0; text-transform: none;
+  }
+  h1 { margin-top: 20px; font-size: clamp(2.3rem, 1.3rem + 3.6vw, 3.9rem); line-height: 1.05; }
+  .live { font: 500 .875rem/1.45 var(--sans); }
+  .live .dot { background: var(--tiles-sage); }
+
+  /* Buttons: pills, like the rest of the site. */
+  .btn { border-radius: 999px; font: 600 1rem/1 var(--sans); }
+  .btn-primary { background: var(--ink); color: var(--paper); box-shadow: 0 6px 16px -8px rgba(31, 35, 38, .45); }
+  .btn-primary:hover { background: #33393d; }
+  .hero-cta .link {
+    display: inline-flex; align-items: center; min-height: 50px; padding: 0 22px; border-radius: 999px;
+    background: var(--sheet); box-shadow: inset 0 0 0 1px var(--hair); color: var(--ink);
+    font-weight: 600; text-decoration: none; transition: transform .18s var(--ease);
+  }
+  .hero-cta .link:hover { transform: translateY(-1px); }
+
+  /* Sheets (sample report, house rules): rounded cards, plain lines instead of ruled paper. */
+  .sheet { border-radius: 22px; box-shadow: 0 2px 4px rgba(31, 35, 38, .04), 0 40px 80px -40px rgba(31, 35, 38, .45), inset 0 0 0 1px var(--hair); overflow: hidden; }
+  .hero .sheet { transform: none; }
+  .sheet-head { padding: 18px 22px 14px; }
+  .ruled { background-image: none; font-family: var(--sans); font-size: .96875rem; padding: 18px 22px 22px; }
+  .ln.goal { margin-top: 8px; padding: 2px 12px; border-radius: 12px; box-shadow: inset 0 0 0 1px var(--hair); }
+  .sheet-foot { border-top-color: var(--hair); }
+  .copy-btn { border-radius: 999px; font-family: var(--sans); font-weight: 600; }
+
+  /* How it works: numbered tiles in the Tiles colours. */
+  .steps { gap: 16px; margin-top: 36px; }
+  .step { border: 1px solid var(--hair); border-radius: 18px; background: var(--sheet); padding: 22px; transition: transform .25s var(--ease); }
+  .step:hover { transform: translateY(-3px); }
+  .step.rv::before { content: none; }
+  .step-k {
+    display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%;
+    font: 700 1rem/1 var(--sans); background: var(--tiles-sage-soft); color: var(--tiles-sage-ink);
+  }
+  .step:nth-child(2) .step-k { background: var(--tiles-pink-soft); color: var(--tiles-pink-ink); }
+  .step:nth-child(3) .step-k { background: var(--tiles-sand); color: var(--tiles-sand-ink); }
+  .step:nth-child(4) .step-k { background: var(--tiles-slate-soft); color: var(--tiles-slate-ink); }
+
+  /* Session timeline, notes and pricing labels: sans instead of monospace caps where it's prose. */
+  .tl-bar { border-radius: 14px; }
+  .label { border-radius: 22px; }
+  .label-k {
+    width: fit-content; margin: 0 auto; padding: 4px 12px; border-radius: 999px;
+    background: var(--tiles-sage-soft); color: var(--tiles-sage-ink);
+    font: 600 .8125rem/1.2 var(--sans); letter-spacing: 0; text-transform: none;
+  }
+  .rows { font-family: var(--sans); }
+  .plan-note { border-radius: 14px; }
+  .aside-block h3, .is-grid h3, .scope h3 { font-family: var(--sans); font-weight: 700; letter-spacing: .06em; }
+
+  .brand, .nav-cta .quiet { white-space: nowrap; }
+  @media (max-width: 860px) {
+    .wrap { padding-left: 16px; padding-right: 16px; }
+    .hero .sheet { transform: none; }
+  }
+  /* Phones: the hero's "View plans" sits just below, so the nav keeps the brand, 中文 and Log in. */
+  @media (max-width: 480px) {
+    .nav-in { padding: 0 16px; }
+    .nav-cta .btn-sm { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .step, .hero-cta .link { transition: none; }
+    .step:hover, .hero-cta .link:hover { transform: none; }
+  }
+}

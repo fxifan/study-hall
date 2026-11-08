@@ -174,12 +174,13 @@ test.describe("legal pages", () => {
     await expect(page.getByRole("note")).toHaveCount(0);
   });
 
-  test("the privacy notice is clearly marked as a draft", async ({ page }) => {
+  test("the privacy notice is the published version, with tutor links and child safety", async ({ page }) => {
     await page.goto("/legal/privacy");
-    await expect(page.getByRole("note")).toContainText("Draft");
-    await expect(page.getByText(/Version 2026-\d{2}-draft-\d+/)).toBeVisible();
-    await expect(page.locator("article")).toContainText("One-to-one tutoring (Study + Tutoring plan) happens in the main session room");
+    await expect(page.getByRole("note")).toHaveCount(0); // no draft banner since 7 Nov 2026
+    await expect(page.getByText(/Version 2026-\d{2}-v\d+/)).toBeVisible();
     await expect(page.locator("article")).toContainText("run by Feifan Wu, a sole trader");
+    await expect(page.locator("article")).toContainText("A tutor you link with");
+    await expect(page.locator("article")).toContainText("an adult is never alone on video with a student");
   });
 
   test("Chinese pages say legal text is English only", async ({ page }) => {
