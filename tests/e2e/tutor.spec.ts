@@ -147,3 +147,50 @@ test("dashboard: /tutors opens it, schedule a lesson, save and copy a Zoom link,
     await admin.auth.admin.deleteUser(id);
   }
 });
+
+test("before your next lesson: set a next step, mark them stuck, see where to start", async ({ page }) => {
+  const stepEmail = `e2e-steps-${Date.now()}@studyhall.test`;
+  const { data: org } = await admin.from("orgs").select("id").limit(1).single();
+  const user = await admin.auth.admin.createUser({ email: stepEmail, email_confirm: true, app_metadata: { role: "tutor", org_id: org!.id } });
+  const id = user.data.user!.id;
+  try {
+    await admin.from("tutors").insert({ id, display_name: "Nina Tutor" });
+    const fam = await admin.from("tutor_families").insert({ tutor_id: id, parent_name: "P", parent_email: `p-${stepEmail}` }).select("id").single();
+    const st = await admin
+      .from("tutor_students")
+      .insert({ tutor_id: id, family_id: fam.data!.id, first_name: "Alex", last_initial: "K", year_level: 12, subjects: ["Maths Methods"] })
+      .select("id")
+      .single();
+    await admin.from("tutor_lessons").insert({ tutor_id: id, student_id: st.data!.id, starts_at: new Date(Date.now() + 2 * 3600_000).toISOString(), duration_min: 60 });
+    const { data } = await admin.auth.admin.generateLink({ type: "magiclink", email: stepEmail });
+    await page.goto(`/auth/confirm?token_hash=${data.properties!.hashed_token}&type=magiclink`);
+    await page.goto("/app");
+
+    const steps = page.getByTestId("next-steps");
+    await expect(steps.getByRole("heading", { name: "Before your next lesson" })).toBeVisible();
+    await expect(steps).toContainText("Alex K.");
+    await expect(steps).toContainText("No next step set.");
+
+    await steps.getByRole("button", { name: "Set next step" }).click();
+    await steps.getByLabel("Next step for Alex").fill("Try three chain-rule questions. Flag the first step that trips you up.");
+    await steps.getByRole("button", { name: "Save" }).click();
+    await expect(steps).toContainText("Try three chain-rule questions");
+    await expect(steps).toContainText("Hasn't started");
+    await expect(steps).toContainText("Start here: Do the first part together");
+
+    await steps.getByRole("button", { name: "Update" }).click();
+    await steps.getByText("Stuck", { exact: true }).click();
+    await steps.getByLabel("Where they got stuck").fill("which part is the inner function in Q3");
+    await steps.getByRole("button", { name: "Save" }).click();
+    await expect(steps).toContainText("Stuck: which part is the inner function in Q3");
+    await expect(steps).toContainText("Start here: Go over “which part is the inner function in Q3” together.");
+
+    // It survives a reload, and only this tutor's task exists.
+    await page.reload();
+    await expect(page.getByTestId("next-steps")).toContainText("Stuck: which part is the inner function in Q3");
+    const { data: rows } = await admin.from("tutor_tasks").select("status, note").eq("tutor_id", id);
+    expect(rows).toEqual([{ status: "stuck", note: "which part is the inner function in Q3" }]);
+  } finally {
+    await admin.auth.admin.deleteUser(id);
+  }
+});

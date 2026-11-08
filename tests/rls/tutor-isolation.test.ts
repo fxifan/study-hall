@@ -7,7 +7,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createAdminClient, requireEnv } from "../../scripts/lib/env";
 import { SEED_IDS } from "../../scripts/seed-data";
-import { signInAs } from "../helpers";
+import { signInAs, signedOutClient } from "../helpers";
 
 const admin = createAdminClient();
 const stamp = Date.now();
@@ -63,10 +63,16 @@ async function makeTutor(label: string): Promise<Tutor> {
 
 let a: Tutor;
 let b: Tutor;
+const taskIds = { a: "", b: "" };
 
 beforeAll(async () => {
   a = await makeTutor("a");
   b = await makeTutor("b");
+  for (const t of [a, b]) {
+    const task = await t.client.from("tutor_tasks").insert({ tutor_id: t.id, student_id: t.studentId, body: "Three chain-rule questions" }).select("id").single();
+    if (task.error) throw task.error;
+    taskIds[t === a ? "a" : "b"] = task.data.id;
+  }
   await admin.from("tutor_usage_events").insert([
     { tutor_id: a.id, kind: "llm_tokens", amount: 1200 },
     { tutor_id: b.id, kind: "llm_tokens", amount: 900 },
@@ -89,6 +95,7 @@ const TABLES = [
   "tutor_lessons",
   "tutor_meeting_links",
   "tutor_resources",
+  "tutor_tasks",
 ];
 
 describe("tutor isolation", () => {
@@ -316,5 +323,18 @@ describe("product events (docs/events.md)", () => {
     const founder = await signInAs("admin");
     const adminRead = await founder.from("product_events").select("id").limit(1);
     expect(adminRead.error ?? adminRead.data?.length === 0).toBeTruthy();
+  });
+});
+
+describe("tutor next steps", () => {
+  it("can't be read, changed or pointed at another tutor's student", async () => {
+    expect((await a.client.from("tutor_tasks").select("id").eq("id", taskIds.b)).data).toEqual([]);
+    const upd = await a.client.from("tutor_tasks").update({ status: "done" }).eq("id", taskIds.b).select("id");
+    expect(upd.data).toEqual([]);
+    const cross = await a.client.from("tutor_tasks").insert({ tutor_id: a.id, student_id: b.studentId, body: "sneaky" });
+    expect(cross.error).not.toBeNull();
+    const own = await a.client.from("tutor_tasks").update({ status: "stuck", note: "Q3" }).eq("id", taskIds.a).select("status");
+    expect(own.data).toEqual([{ status: "stuck" }]);
+    expect((await signedOutClient().from("tutor_tasks").select("id")).data ?? []).toEqual([]);
   });
 });

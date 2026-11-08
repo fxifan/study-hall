@@ -137,3 +137,47 @@ export async function setCalendarFeed(on: boolean): Promise<DashboardResult> {
   refresh();
   return { ok: true, message: on ? "Calendar link ready." : "Calendar link turned off. Calendars subscribed to it will stop updating." };
 }
+
+// Next steps between lessons (docs/tutor-next-steps.md). Version 1: the tutor sets and marks them.
+
+const nextStepSchema = z.object({
+  studentId: z.uuid(),
+  body: z.string().trim().min(1).max(300),
+  dueOn: day.nullable(),
+});
+export type NextStepInput = z.input<typeof nextStepSchema>;
+
+/** Set a student's next step. It becomes their current one; earlier ones stay as history. */
+export async function setNextStep(input: NextStepInput): Promise<DashboardResult> {
+  const { profile } = await requireTutorAction();
+  const parsed = nextStepSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Write the next step (up to 300 characters)." };
+  const { error } = await (await createClient())
+    .from("tutor_tasks")
+    .insert({ tutor_id: profile.id, student_id: parsed.data.studentId, body: parsed.data.body, due_on: parsed.data.dueOn });
+  if (error) return { ok: false, error: "Couldn't save the next step." };
+  refresh();
+  return { ok: true, message: "Next step saved." };
+}
+
+const progressSchema = z.object({
+  id: z.uuid(),
+  status: z.enum(["not_started", "started", "done", "stuck"]),
+  note: z.string().trim().max(300),
+});
+export type NextStepProgress = z.input<typeof progressSchema>;
+
+/** Record how far the student got, and an optional note (e.g. where they got stuck). */
+export async function updateNextStep(input: NextStepProgress): Promise<DashboardResult> {
+  await requireTutorAction();
+  const parsed = progressSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Keep the note under 300 characters." };
+  const { data, error } = await (await createClient())
+    .from("tutor_tasks")
+    .update({ status: parsed.data.status, note: parsed.data.note || null })
+    .eq("id", parsed.data.id)
+    .select("id");
+  if (error || !data?.length) return { ok: false, error: "Couldn't update the next step." };
+  refresh();
+  return { ok: true, message: "Progress saved." };
+}
