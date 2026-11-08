@@ -46,6 +46,8 @@ the action succeeded. Read by `/admin/analytics`.
 | `help_resolved` | platform | The requester marked it sorted | none |
 | `message_reported` | platform | A student reported a group or direct message (`kind` direct) | none |
 | `friend_request_sent` | platform | A student sent a friend request (`via` username) | none |
+| `tutor_link_created` | tutors | A tutor created an invite link for a student | none |
+| `tutor_link_accepted` | tutors | A student linked their Edumi account to a tutor | none |
 | `friend_request_accepted` | platform | A student accepted a friend request | none |
 | `group_invite_sent` | platform | A student invited a friend into one of their groups | none |
 | `student_resource_generated` | platform | A student generated notes, flashcards or a quiz (`kind`) | none |

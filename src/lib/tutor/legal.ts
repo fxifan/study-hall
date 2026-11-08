@@ -51,7 +51,9 @@ You can ask for a copy of your data, a correction, or deletion at ${SUPPORT_EMAI
 
 ## Families and students
 
-You collect families' and students' details for your own tutoring business, and you're responsible for telling families you use ${TUTOR_PRODUCT_NAME} to write reports and invoices. [Owner to confirm: a short notice tutors can give families.]`;
+You collect families' and students' details for your own tutoring business, and you're responsible for telling families you use ${TUTOR_PRODUCT_NAME} to write reports and invoices. [Owner to confirm: a short notice tutors can give families.]
+
+A student 13 or over can link their own Edumi account to your record of them by accepting an invite link you send. Once linked, they see the next steps you set and send back their progress and notes. You don't see anything else about their Edumi account. Either of you can unlink at any time.`;
 
 export const TUTOR_TERMS = `## The service
 

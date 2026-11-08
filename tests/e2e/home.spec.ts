@@ -79,7 +79,8 @@ test("scrolling reveals every section on the home page", async ({ page }) => {
 
 test("the tutor page has the real demo video and the sign-up form", async ({ page }) => {
   await page.goto("/tutors");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Parent updates in 60 seconds");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Keep students moving between lessons.");
+  await expect(page.getByText("Illustrative, with a fictional student.")).toBeVisible();
   await expect(page.getByText("Demo video coming soon")).toHaveCount(0);
   const video = page.locator("#demo video");
   await expect(video).toHaveAttribute("poster", "/media/edumi-for-tutors-demo-poster.jpg");
@@ -96,9 +97,10 @@ test("the tutor page has the real demo video and the sign-up form", async ({ pag
     return t;
   });
   expect(played).toBeGreaterThan(0.5);
-  await page.getByRole("link", { name: "Watch the demo", exact: true }).click();
-  await expect(page).toHaveURL(/#demo$/);
-  await page.getByRole("link", { name: "Start your 14-day free trial" }).click();
+  await page.getByRole("link", { name: "See an example", exact: true }).click();
+  await expect(page).toHaveURL(/#next-steps$/);
+  await expect(page.getByRole("heading", { name: "One next step, from one lesson to the next." })).toBeVisible();
+  await page.getByRole("link", { name: "Try it with one student" }).click();
   await expect(page.locator("#signup input[name=name]")).toBeVisible();
   await expect(page.locator("#signup").getByRole("link", { name: "Terms" })).toHaveAttribute("href", "/tutors/terms");
   await expect(page.getByText("A$15")).toHaveCount(2);

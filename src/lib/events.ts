@@ -45,6 +45,8 @@ export const EVENTS = {
   help_resolved: "A requester marked their help request sorted.",
   message_reported: "A student reported a group or direct message (kind = direct for direct messages).",
   friend_request_sent: "A student sent a friend request (via = username).",
+  tutor_link_created: "A tutor created an invite link for one of their students.",
+  tutor_link_accepted: "A student linked their Edumi account to a tutor.",
   friend_request_accepted: "A student accepted a friend request.",
   group_invite_sent: "A student invited a friend into one of their groups.",
   student_resource_generated: "A student generated notes, flashcards or a quiz.",

@@ -6,6 +6,9 @@ import { getLocale } from "@/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import { shortWhen, studentName } from "@/lib/tutor/format";
 import { requireTutor } from "@/lib/tutor/server";
+import { siteOrigin } from "@/lib/site";
+import { formatInZone } from "@/lib/time";
+import { StudentLink } from "../../_components/student-link";
 import { deleteSession, deleteStudent, updateStudent } from "../../actions";
 import { Loading, Notice, TutorShell, YEAR_LEVELS, appHref, field, labelClass, primaryButton, secondaryButton } from "../../_components/shell";
 
@@ -28,6 +31,9 @@ type Row = {
   subjects: string[];
   notes: string | null;
   goals: string | null;
+  link_token: string | null;
+  linked_profile_id: string | null;
+  linked_at: string | null;
   tutor_families: { parent_name: string } | null;
 };
 type Session = {
@@ -46,7 +52,7 @@ async function Student({ params, searchParams }: Pick<PageProps<"/[lang]/app/stu
   const [{ data: s }, { data: sessions }, { data: families }] = await Promise.all([
     supabase
       .from("tutor_students")
-      .select("id, family_id, first_name, last_initial, year_level, subjects, notes, goals, tutor_families(parent_name)")
+      .select("id, family_id, first_name, last_initial, year_level, subjects, notes, goals, link_token, linked_profile_id, linked_at, tutor_families(parent_name)")
       .eq("id", id)
       .maybeSingle<Row>(),
     supabase
@@ -69,6 +75,14 @@ async function Student({ params, searchParams }: Pick<PageProps<"/[lang]/app/stu
       <Link href={appHref(`/app/log?student=${s.id}`, locale)} className={primaryButton}>
         + Log a session for {s.first_name}
       </Link>
+
+      <StudentLink
+        recordId={s.id}
+        firstName={s.first_name}
+        origin={await siteOrigin()}
+        linkedSince={s.linked_profile_id && s.linked_at ? formatInZone(s.linked_at, "d MMM yyyy") : null}
+        token={s.link_token}
+      />
 
       <h2 className="text-lg font-medium">Reports</h2>
       {sessions?.length ? (

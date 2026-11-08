@@ -11,9 +11,17 @@ import { SignUpForm } from "./signup-form";
 import "./tutors.css";
 
 export const metadata: Metadata = {
-  title: { absolute: `${TUTOR_PRODUCT_NAME}: parent updates in 60 seconds` },
-  description: "Speak for a minute after each session. Get a factual parent update in English or 中文, the session logged, and the invoice done.",
+  title: { absolute: `${TUTOR_PRODUCT_NAME}: keep students moving between lessons` },
+  description:
+    "Set one clear next step at the end of a lesson. Your student sees it when they sit down to study, and before the next lesson you see what they tried and where they got stuck.",
 };
+
+/** How next steps work (docs/tutor-next-steps.md), shown under the hero. */
+const NEXT_STEPS = [
+  { day: "Tuesday", title: "Set one next step", body: "At the end of the lesson, write one clear task. It's saved with the student." },
+  { day: "Thursday", title: "They study, and flag where they're stuck", body: "Your student sees it in Edumi when they sit down to study, marks how far they got, and says what tripped them up." },
+  { day: "Friday", title: "Start where they got stuck", body: "Before the next lesson, your dashboard shows each student's progress and where to begin." },
+];
 
 /** The recorded product walkthrough (tests/e2e/demo-recording.spec.ts), served from /public/media. */
 const DEMO = { src: "/media/edumi-for-tutors-demo.webm", poster: "/media/edumi-for-tutors-demo-poster.jpg" };
@@ -70,45 +78,91 @@ export default async function TutorsLanding() {
       </header>
 
       <main id="main">
-        {/* Hero */}
+        {/* Hero B (owner, 8 Nov 2026): the student's study screen with the tutor's next step in it. */}
         <section className="tl-hero" aria-labelledby="tl-title">
           <div className="tl-wrap tl-hero-grid">
             <div className="tl-hero-copy">
               <p className="tl-eyebrow">For independent tutors in Australia</p>
-              <h1 id="tl-title">
-                Parent updates in 60 seconds—
-                <span className="tl-nowrap">
-                  in English or <span lang="zh-CN">中文</span>
-                </span>
-              </h1>
+              <h1 id="tl-title">Keep students moving between lessons.</h1>
               <p className="tl-lede">
-                After a lesson, speak for a minute. Edumi turns it into a short, factual parent update, ready to email or paste into WeChat.
-                The session is logged for the family&apos;s next invoice.
+                Set one clear next step at the end of a lesson. Your student sees it when they sit down to study. Before the next lesson, you can see
+                what they tried and where they got stuck.
               </p>
               <div className="tl-cta">
                 <a href="#signup" className="tl-btn tl-btn--primary">
-                  Start your 14-day free trial
+                  Try it with one student
                 </a>
-                <a href="#demo" className="tl-btn tl-btn--secondary">
-                  <span className="tl-play" aria-hidden="true" /> Watch the demo
+                <a href="#next-steps" className="tl-btn tl-btn--secondary">
+                  See an example
                 </a>
               </div>
-              <p className="tl-fine">No card needed · Then {solo}/month · Cancel any time</p>
+              <p className="tl-fine">14 days free, no card · Then {solo}/month · Free for your students</p>
             </div>
 
-            {/* Preview: a real frame from the demo recording, linking to the video. */}
-            <a href="#demo" className="tl-preview" aria-label="Watch the demo: logging a lesson and checking the AI draft">
-              <span className="tl-preview-bar" aria-hidden="true">
-                <span />
-                <span />
-                <span />
-              </span>
-              {/* eslint-disable-next-line @next/next/no-img-element -- static poster frame from the recording */}
-              <img src={DEMO.poster} alt="" width={1280} height={800} fetchPriority="high" />
-              <span className="tl-preview-play" aria-hidden="true">
-                <span />
-              </span>
-            </a>
+            <figure className="tl-hb" aria-label="Example: Alex's Edumi study screen with his tutor's next step, and the tutor's prep note">
+              <div className="tl-hb-device">
+                <div className="tl-hb-top">
+                  <span className="tl-hb-mono">Alex · Thursday 7:40pm</span>
+                  <span className="tl-hb-chip tl-hb-chip--slate">Methods crew</span>
+                </div>
+                <div className="tl-hb-task">
+                  <div className="tl-hb-row">
+                    <span className="tl-hb-chip tl-hb-chip--sage">From your tutor · due Fri</span>
+                    <span className="tl-hb-mono">2 / 3</span>
+                  </div>
+                  <p className="tl-hb-body">Try three chain-rule questions. Flag the first step that trips you up.</p>
+                  <span className="tl-hb-bar" aria-hidden="true">
+                    <span style={{ width: "66%" }} />
+                  </span>
+                  <span className="tl-hb-chip tl-hb-chip--pink">Stuck on Q3: “which part is the inner function?”</span>
+                </div>
+                <p className="tl-hb-goal">
+                  <span className="tl-hb-box tl-hb-box--done" aria-hidden="true" />
+                  Finish English essay plan
+                </p>
+                <p className="tl-hb-goal">
+                  <span className="tl-hb-box" aria-hidden="true" />
+                  Read chem notes, ch. 4
+                </p>
+                <div className="tl-hb-timer">
+                  <span>42:18</span>
+                  <small>studying</small>
+                </div>
+              </div>
+              <div className="tl-hb-prep">
+                <span className="tl-hb-mono">Friday · your dashboard</span>
+                <p>
+                  <strong>Start here:</strong> go over “which part is the inner function in Q3” together.
+                </p>
+              </div>
+              <figcaption className="tl-fine">Illustrative, with a fictional student.</figcaption>
+            </figure>
+          </div>
+        </section>
+
+        {/* Next steps between lessons */}
+        <section id="next-steps" className="tl-section" aria-labelledby="ns-title">
+          <div className="tl-wrap">
+            <p className="tl-label">Between lessons</p>
+            <h2 id="ns-title" className="tl-h2">
+              One next step, from one lesson to the next.
+            </h2>
+            <ol className="tl-ns">
+              {NEXT_STEPS.map((step, i) => (
+                <li key={step.day}>
+                  <span className="tl-ns-num" aria-hidden="true">
+                    {i + 1}
+                  </span>
+                  <span className="tl-hb-mono">{step.day}</span>
+                  <h3>{step.title}</h3>
+                  <p>{step.body}</p>
+                </li>
+              ))}
+            </ol>
+            <p className="tl-fine">
+              Students link their own free Edumi account with an invite link you send. You see their progress on your next steps only, never their
+              study time, groups or chats.
+            </p>
           </div>
         </section>
 

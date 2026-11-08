@@ -174,7 +174,7 @@ export async function updateNextStep(input: NextStepProgress): Promise<Dashboard
   if (!parsed.success) return { ok: false, error: "Keep the note under 300 characters." };
   const { data, error } = await (await createClient())
     .from("tutor_tasks")
-    .update({ status: parsed.data.status, note: parsed.data.note || null })
+    .update({ status: parsed.data.status, note: parsed.data.note || null, updated_by: "tutor" })
     .eq("id", parsed.data.id)
     .select("id");
   if (error || !data?.length) return { ok: false, error: "Couldn't update the next step." };

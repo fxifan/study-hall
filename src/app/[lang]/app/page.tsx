@@ -53,7 +53,7 @@ function DashboardSkeleton() {
   );
 }
 
-type StudentRow = { id: string; first_name: string; last_initial: string; year_level: number; subjects: string[]; goals: string | null };
+type StudentRow = { id: string; first_name: string; last_initial: string; year_level: number; subjects: string[]; goals: string | null; linked_profile_id: string | null };
 
 const isDay = (v: unknown): v is string => typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v);
 
@@ -76,7 +76,7 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/[lang]/app">, "searc
   const loadTo = new Date(Math.max(rangeEnd.getTime(), now.getTime() + 60 * 86_400_000)).toISOString();
 
   const [studentsRes, lessonsRes, sessionsRes, linksRes, draftsRes, unbilledRes, invoicesRes, access] = await Promise.all([
-    supabase.from("tutor_students").select("id, first_name, last_initial, year_level, subjects, goals").order("first_name").returns<StudentRow[]>(),
+    supabase.from("tutor_students").select("id, first_name, last_initial, year_level, subjects, goals, linked_profile_id").order("first_name").returns<StudentRow[]>(),
     supabase
       .from("tutor_lessons")
       .select("id, student_id, starts_at, duration_min, subjects, notes, meeting_link_id, status, session_id")
@@ -201,7 +201,7 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/[lang]/app">, "searc
   const tasksRes = soonest.length
     ? await supabase
         .from("tutor_tasks")
-        .select("id, student_id, body, due_on, status, note, created_at")
+        .select("id, student_id, body, due_on, status, note, created_at, updated_by")
         .in("student_id", soonest.map((l) => l.studentId))
         .order("created_at", { ascending: false })
         .returns<TaskRow[]>()
@@ -217,6 +217,7 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/[lang]/app">, "searc
       {
         item: d,
         studentId: l.studentId,
+        linked: Boolean(students.find((st) => st.id === l.studentId)?.linked_profile_id),
         when: `${dayWord} ${d.timeLabel}`,
         soon: startsIn(item.startsAt, now),
         lessonDate: d.dateKey,
@@ -225,6 +226,7 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/[lang]/app">, "searc
           body: task.body,
           status: task.status,
           note: task.note,
+          byStudent: task.updated_by === "student",
           dueLabel: task.due_on ? formatInZone(zonedDateTimeToUtc(task.due_on, "12:00"), "EEE d MMM") : null,
         },
         startHere: startHere(task),

@@ -9,12 +9,14 @@ import type { DashItem } from "./types";
 export type NextStepRow = {
   item: DashItem;
   studentId: string;
+  /** The student linked their Edumi account: they see the next step and report progress. */
+  linked: boolean;
   /** "Today 4:00pm", "Tomorrow 5:15pm", "Mon 10 Nov 4:00pm". */
   when: string;
   /** "in 12 min", "now" or null. */
   soon: string | null;
   lessonDate: string;
-  task: { id: string; body: string; status: TaskStatus; note: string | null; dueLabel: string | null } | null;
+  task: { id: string; body: string; status: TaskStatus; note: string | null; byStudent: boolean; dueLabel: string | null } | null;
   startHere: string | null;
 };
 
@@ -66,6 +68,8 @@ function Row({ row }: { row: NextStepRow }) {
             </button>
             {row.item.subjects.length > 0 && <span className="dash-ui text-xs text-ink-soft">{row.item.subjects.join(", ")}</span>}
             {t && <span className={CHIP[t.status]}>{t.status === "stuck" && t.note ? `Stuck: ${t.note}` : STATUS_LABEL[t.status]}</span>}
+            {t?.byStudent && <span className="dash-ui text-xs text-ink-faint">reported by {row.item.studentName.split(" ")[0]}</span>}
+            {row.linked && !t?.byStudent && <span className="dash-ui text-xs text-ink-faint">sees this on Edumi</span>}
           </div>
           {t ? (
             <p className="text-sm text-ink-soft">
