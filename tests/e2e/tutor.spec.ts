@@ -67,7 +67,9 @@ test("sign up, log a session, send the report, invoice it", async ({ page }) => 
   await page.fill("input[name=abn]", "51824753556");
   await page.check("input[name=gstRegistered]");
   await page.click('button:has-text("Save settings")');
-  await expect(page.getByText("Saved.")).toBeVisible();
+  // Wait for the save itself: the bank help text also contains "saved.".
+  await expect(page).toHaveURL(/[?&]saved=1/);
+  await expect(page.getByText("Saved.", { exact: true })).toBeVisible();
   await page.goto("/app/invoices");
   await page.getByRole("link", { name: /Sam Kim/ }).click();
   await page.click('button:has-text("Create invoice")');
