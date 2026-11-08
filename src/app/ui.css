@@ -467,6 +467,15 @@
     background: var(--dash-green-soft);
     color: var(--dash-green-text);
   }
+  /* Next-step progress: stuck and not started (Tiles pink and sand). */
+  .dash-tag--pink {
+    background: var(--tiles-pink-soft);
+    color: var(--tiles-pink-ink);
+  }
+  .dash-tag--sand {
+    background: var(--tiles-sand);
+    color: var(--tiles-sand-ink);
+  }
   .dash-event--cancelled {
     background: transparent;
     border: 1px dashed var(--dash-border-strong);

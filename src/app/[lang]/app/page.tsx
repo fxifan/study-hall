@@ -17,6 +17,8 @@ import { MeetingLinks } from "./_dashboard/meeting-links";
 import { QuickActions } from "./_dashboard/quick-actions";
 import { StudentScheduleButton } from "./_dashboard/student-schedule-button";
 import { UpcomingLessons, type UpcomingLesson } from "./_dashboard/upcoming";
+import { NextSteps, type NextStepRow } from "./_dashboard/next-steps";
+import { currentTasks, nextStudents, startHere, startsIn, type TaskRow } from "@/lib/tutor/next-steps";
 import type { DashDay, DashItem, DashLink } from "./_dashboard/types";
 import { PlanBanner } from "./_components/plan-banner";
 import { TutorShell, appHref, yearLabel } from "./_components/shell";
@@ -190,6 +192,46 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/[lang]/app">, "searc
       };
     });
 
+  // Before your next lesson: the next three students' current next step (docs/tutor-next-steps.md).
+  const soonest = nextStudents(
+    allItems
+      .filter((i) => i.kind === "lesson" && i.status === "scheduled" && Date.parse(i.startsAt) + i.durationMin * 60_000 > now.getTime())
+      .map((i) => ({ lessonId: i.id, studentId: i.studentId, startsAt: i.startsAt })),
+  );
+  const tasksRes = soonest.length
+    ? await supabase
+        .from("tutor_tasks")
+        .select("id, student_id, body, due_on, status, note, created_at")
+        .in("student_id", soonest.map((l) => l.studentId))
+        .order("created_at", { ascending: false })
+        .returns<TaskRow[]>()
+    : { data: [] as TaskRow[] };
+  const tasks = currentTasks(tasksRes.data ?? []);
+  const nextSteps: NextStepRow[] = soonest.flatMap((l) => {
+    const item = allItems.find((i) => i.id === l.lessonId);
+    if (!item) return [];
+    const d = toDash(item);
+    const dayWord = d.dateKey === todayKey ? "Today" : d.dateKey === tomorrowKey ? "Tomorrow" : formatInZone(item.startsAt, "EEE d MMM");
+    const task = tasks.get(l.studentId) ?? null;
+    return [
+      {
+        item: d,
+        studentId: l.studentId,
+        when: `${dayWord} ${d.timeLabel}`,
+        soon: startsIn(item.startsAt, now),
+        lessonDate: d.dateKey,
+        task: task && {
+          id: task.id,
+          body: task.body,
+          status: task.status,
+          note: task.note,
+          dueLabel: task.due_on ? formatInZone(zonedDateTimeToUtc(task.due_on, "12:00"), "EEE d MMM") : null,
+        },
+        startHere: startHere(task),
+      },
+    ];
+  });
+
   // Money owed: sent invoices not yet paid, split by whether they're past due (Melbourne date).
   const outstanding = (invoicesRes.data ?? []).map((i) => ({ ...i, shown: effectiveStatus(i.status, i.due_date, todayKey) }));
   const overdue = outstanding.filter((i) => i.shown === "overdue");
@@ -278,6 +320,8 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/[lang]/app">, "searc
             )}
           </ul>
         )}
+
+        <NextSteps rows={nextSteps} />
 
         <section aria-label="This week" className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4" data-testid="metrics">
           <Metric icon={Users} label="Active students" value={String(metrics.activeStudents)} note="Taught in the last 30 days or booked" />
