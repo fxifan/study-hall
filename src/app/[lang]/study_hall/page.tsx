@@ -82,36 +82,13 @@ export default async function LandingPage() {
       </header>
 
       <main id="main">
-        {/* Edumi platform band: the brand and both products, above the family hero. */}
-        <div className="edumi-band">
-          <div className="edumi-band-in">
-            <p>
-              <b>{t.platform.tagline}</b> <span className="dim">{t.platform.body}</span>
-            </p>
-            <nav aria-label="Edumi products" className="edumi-band-links">
-              <a href="#top" aria-current="page">
-                {t.platform.families}
-              </a>
-              <Link href={localizePath("/tutors", locale)}>{t.platform.tutors} →</Link>
-            </nav>
-          </div>
-        </div>
         {/* Hero */}
         <section className="sec hero draw" id="top" aria-labelledby="hero-title">
           <div className="wrap">
-            <div className="sec-mark" aria-hidden="true">
-              <span className="hero-date">{fill(t.hero.margin, { days: daysSummary(blocks, locale, { short: true }) })}</span>
-            </div>
             <div className="sec-body hero-grid">
               <div>
-                <p className="kicker">
-                  {t.hero.kicker.map((part, i) => (
-                    <span key={part}>
-                      {i > 0 && " · "}
-                      {part}
-                    </span>
-                  ))}
-                </p>
+                {/* Tiles look (owner, 9 Nov 2026): a pill eyebrow, as on the home and tutor pages. */}
+                <p className="kicker">{t.hero.kicker.slice(1).join(" · ")}</p>
                 <h1 id="hero-title">
                   {t.hero.titleLead}
                   <em>
@@ -150,7 +127,9 @@ export default async function LandingPage() {
           <ol className="steps">
             {t.how.steps.map((step, i) => (
               <li className="step" key={step.title}>
-                <span className="step-k">({"abcd"[i]})</span>
+                <span className="step-k" aria-hidden="true">
+                  {i + 1}
+                </span>
                 <h3>{step.title}</h3>
                 <p>{step.body}</p>
               </li>
@@ -466,17 +445,14 @@ function Section({
 }) {
   const main = (
     <>
+      <p className="sec-label">{label}</p>
       <h2 id={`${id}-title`}>{title}</h2>
       {children}
     </>
   );
   return (
-    <section className={`sec ${className}`} id={id} aria-labelledby={`${id}-title`}>
+    <section className={`sec ${className}`} id={id} aria-labelledby={`${id}-title`} data-n={n}>
       <div className="wrap">
-        <div className="sec-mark" aria-hidden="true">
-          <span className="sec-num">{n}.</span>
-          <span className="sec-label">{label}</span>
-        </div>
         {aside ? (
           <div className="sec-body price-grid">
             <div>{main}</div>
