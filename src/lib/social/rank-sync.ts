@@ -86,11 +86,14 @@ export async function visibleRanks(profileIds: string[], viewerId: string): Prom
 export type RankStatus = { rank: Rank; next: Rank | null; toNext: number; fraction: number; todayLeft: number };
 
 export async function rankStatus(profileId: string): Promise<RankStatus> {
-  const { data } = await createAdminClient().from("points_ledger").select("points, day").eq("profile_id", profileId);
+  const { data } = await createAdminClient().from("points_ledger").select("points, day, kind").eq("profile_id", profileId);
   const rows = data ?? [];
   const total = rows.reduce((sum, r) => sum + (r.points as number), 0);
   const today = dateKeyOf();
-  const earnedToday = rows.filter((r) => r.day === today).reduce((sum, r) => sum + (r.points as number), 0);
+  // The daily cap is for practice: study-day and full-week points don't use it up.
+  const earnedToday = rows
+    .filter((r) => r.day === today && r.kind !== "study_day" && r.kind !== "full_week")
+    .reduce((sum, r) => sum + (r.points as number), 0);
   const { rank, next, toNext, fraction } = rankProgress(total);
   return { rank, next, toNext, fraction, todayLeft: Math.max(0, DAILY_POINT_CAP - earnedToday) };
 }

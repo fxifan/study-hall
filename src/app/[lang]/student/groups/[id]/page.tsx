@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { consistencyFor } from "@/lib/social/consistency-server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -104,6 +105,8 @@ async function GroupView({ params, searchParams }: Pick<PageProps<"/[lang]/stude
   const { data: liveRows } = await admin.from("study_sessions").select("profile_id, state").eq("group_id", group.id).neq("state", "stopped");
   const liveBy = new Map((liveRows ?? []).map((r) => [r.profile_id as string, r.state as string]));
   const studyingNow = members.filter((m) => m.share_status && liveBy.get(m.profile_id) === "running");
+  // Quiet days: lead with the student's own goal rather than an empty board.
+  const quiet = studyingNow.length === 0 ? await consistencyFor(me.profile.id) : null;
 
   const initialTimer = live
     ? { sessionId: live.id, state: live.state, seconds: await sessionSeconds(live), groupId: live.group_id }
@@ -134,6 +137,12 @@ async function GroupView({ params, searchParams }: Pick<PageProps<"/[lang]/stude
           {progress.reached ? "Goal reached. Every extra minute still counts." : `${shortMinutes(progress.remainingMinutes)} to go together.`}
           {group.next_target_minutes ? ` Tomorrow's goal: ${shortMinutes(group.next_target_minutes)}.` : ""}
         </p>
+        {studyingNow.length === 0 && quiet && !quiet.todayCounted && (
+          <p className="text-sm" data-testid="quiet-day">
+            Quiet so far. You&apos;re {Math.max(0, quiet.goalMinutes - quiet.todayMinutes)} min from your own goal today
+            {quiet.streak ? `, and on a ${quiet.streak}-day streak` : ""}.
+          </p>
+        )}
         {studyingNow.length > 0 && (
           <p className="text-sm">
             <span className="mr-1 inline-block h-2 w-2 rounded-full bg-success" aria-hidden /> Studying now: {studyingNow.map((m) => (m.profile_id === me.profile.id ? "you" : m.name)).join(", ")}

@@ -3,7 +3,15 @@
 From the 8 Nov 2026 review, finding 1: Edumi promises healthier, consistent study habits, but it
 rewards only minutes and quiz marks. It has no personal goal, no streak, no "what to do tomorrow",
 and a student without friends on Edumi (or a tutor) has no first useful moment. Mockup:
-`study-hall/design-preview/consistency-solo.html`. Proposal only: nothing is built yet.
+`study-hall/design-preview/consistency-solo.html`. Owner-approved and built 11 Nov 2026.
+
+**Built:** `src/lib/social/consistency.ts` (rules, unit-tested), `consistency-server.ts` (loading and
+awards), `/student/solo` (task picker, solo timer, check-in with Tomorrow), the streak card on Groups,
+Solo and Me, the daily goal on Me, and the quiet-day line on a group's page. Study days are awarded
+after a timer stops, a quiz is submitted, notes or flashcards are finished, a tutor's next step is
+marked done, or a solo check-in. Migration: `20261111014448_consistency_solo.sql`. Browser test:
+`tests/e2e/consistency-solo.spec.ts`. Not built: the 25-minute focus countdown (the solo page
+suggests it in words), and the 4-week experiment.
 
 ## The scheme
 
@@ -49,7 +57,7 @@ and streak ("You're 10 minutes from today's goal") rather than an empty board.
 |---|---|
 | Daily goal | `student_settings.daily_goal_minutes` (default 25) |
 | Solo tasks | New `solo_tasks` table: text, status (done, partly, stuck), tomorrow text, session id |
-| Study days and streak | Computed from study intervals, quiz attempts and tutor tasks per Melbourne day. Cache per day in a small `study_days` table |
+| Study days and streak | Computed from credited session minutes, quiz attempts, finished notes, tutor tasks and solo tasks per Melbourne day (no cache table) |
 | Points | Two new ledger kinds: `study_day` (+5) and `full_week` (+15), deduplicated per day or week |
 | UI | Streak strip on Groups and Me, Study solo card, end-of-session check-in, Tomorrow card |
 
