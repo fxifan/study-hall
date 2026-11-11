@@ -10,6 +10,7 @@ import { llmConfigured, openAiLlm } from "@/lib/llm";
 import { siteOrigin } from "@/lib/site";
 import { getStripe } from "@/lib/stripe";
 import { studentCheckoutUrl } from "@/lib/social/billing";
+import { awardConsistency } from "@/lib/social/consistency-server";
 import { completionAward, marksAward } from "@/lib/social/points";
 import { acknowledgePromotion, syncRank, type Promotion } from "@/lib/social/rank-sync";
 import {
@@ -245,6 +246,7 @@ export async function stopStudy(sessionId: string): Promise<TimerState> {
   if (b.state !== "stopped") await finishSession(sessionId, "manual");
   const { data } = await createAdminClient().from("study_sessions").select("credited_seconds, group_id").eq("id", sessionId).eq("profile_id", me.profile.id).maybeSingle();
   await track({ name: "study_session_stopped", product: "platform", role: "student", userId: me.profile.id, props: { seconds: data?.credited_seconds ?? 0 }, dedupeKey: `study_stop:${sessionId}` });
+  await awardConsistency(me.profile.id); // reaching the daily goal makes today a study day
   return { sessionId: null, state: "stopped", seconds: (data?.credited_seconds as number) ?? 0, groupId: (data?.group_id as string) ?? null };
 }
 
@@ -501,7 +503,8 @@ export async function setShowRank(formData: FormData) {
 }
 
 async function pointsToday(profileId: string): Promise<number> {
-  const { data } = await createAdminClient().from("points_ledger").select("points").eq("profile_id", profileId).eq("day", dateKeyOf());
+  // Practice points only: consistency points (study days, full weeks) sit outside the daily cap.
+  const { data } = await createAdminClient().from("points_ledger").select("points").eq("profile_id", profileId).eq("day", dateKeyOf()).in("kind", ["completion", "score70", "score90", "marks"]);
   return (data ?? []).reduce((s, r) => s + (r.points as number), 0);
 }
 
@@ -518,6 +521,7 @@ export async function completeResource(resourceId: string) {
     const ins = await admin.from("points_ledger").insert({ profile_id: me.profile.id, lineage_id: r.lineage_id, kind: "completion", points, day: dateKeyOf() });
     if (ins.error && ins.error.code !== "23505") throw ins.error;
   }
+  await awardConsistency(me.profile.id, { sync: false }); // finishing notes can make today a study day
   // Even with no new points (a retry), sync: the rank follows the committed balance.
   const promotion = await syncRank(me.profile.id);
   if (promotion) await trackPromotion(me.profile.id, promotion);
@@ -580,6 +584,7 @@ export async function submitQuiz(resourceId: string, answers: (number | string |
     userId: me.profile.id,
     props: { count: quiz.data.questions.length, status: `${Math.floor(pct / 10) * 10}%+`, source: quiz.data.curriculum ? "curriculum" : "topic" },
   });
+  await awardConsistency(me.profile.id, { sync: false }); // a submitted quiz makes today a study day
   const promotion = await syncRank(me.profile.id);
   if (promotion) await trackPromotion(me.profile.id, promotion);
   return {

@@ -8,6 +8,8 @@ import { rank, shortMinutes } from "@/lib/social/credit";
 import { groupMembers, namesFor, requireSocialStudent, todayProgress, type Group } from "@/lib/social/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { TUTOR_LINK_COOKIE, linkedTutors } from "@/lib/tutor/links";
+import { consistencyFor } from "@/lib/social/consistency-server";
+import { StreakCard } from "../_social/streak-card";
 import { createGroup, joinGroup } from "../_social/actions";
 import { respondGroupInvite } from "../_social/friend-actions";
 import { Loading, Notice, StudentShell, card, tile, primaryBtn, secondaryBtn, smallBtn } from "../_social/shell";
@@ -51,12 +53,22 @@ async function Groups({ searchParams }: Pick<PageProps<"/[lang]/student/groups">
   const inviterNames = await namesFor((friendInvites ?? []).map((i) => i.inviter_id as string));
   const pendingCode = (typeof query.code === "string" ? query.code : jar.get("edumi_invite")?.value) ?? "";
   const error = typeof query.error === "string" ? ERRORS[query.error] : null;
-  const tutors = await linkedTutors(me.profile.id);
+  const [tutors, consistency] = await Promise.all([linkedTutors(me.profile.id), consistencyFor(me.profile.id)]);
   const tutorTasks = tutors.filter((t) => t.task && t.task.status !== "done");
 
   return (
     <StudentShell me={me} title={`Hi ${me.student.first_name}`} current="groups">
       {error && <Notice tone="error">{error}</Notice>}
+      <StreakCard c={consistency} goalHref={localizePath("/student/me#goal", locale)} />
+      {consistency.tomorrow && (
+        <div className="rounded-2xl border border-[#d6c8ad] bg-[var(--tiles-sand)] px-4 py-3 text-[var(--tiles-sand-ink)]" data-testid="tomorrow">
+          <p className="text-xs font-semibold tracking-wide uppercase">Tomorrow, from last time</p>
+          <p className="font-medium text-ink">{consistency.tomorrow}</p>
+        </div>
+      )}
+      <Link href={localizePath("/student/solo", locale)} className={`${primaryBtn} w-fit no-underline`} data-testid="study-solo">
+        Study solo
+      </Link>
       {pendingCode && /^[A-Za-z0-9]{8,16}$/.test(pendingCode) && (
         <form action={joinGroup} className={`${card} flex flex-wrap items-center justify-between gap-3 border-ink`}>
           <input type="hidden" name="code" value={pendingCode} />

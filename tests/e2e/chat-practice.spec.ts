@@ -88,10 +88,12 @@ test("the chat prompts practice, the quiz leads back, and a friend's rank-up nud
   await page.getByLabel("Your answer to question 8").fill("four");
   await page.getByRole("button", { name: "Submit for marking" }).click();
   await expect(page.getByText("10 / 12 marks")).toBeVisible({ timeout: 30_000 });
-  await page.keyboard.press("Escape"); // the Bronze rank-up celebration
+  await expect(page.getByRole("dialog")).toBeVisible(); // the Bronze rank-up celebration
+  await page.keyboard.press("Escape");
   await page.getByRole("link", { name: "Back to Methods crew →" }).click();
   await expect(page).toHaveURL(new RegExp(`/student/groups/${groupId}$`));
-  await expect(page.getByTestId("practice-strip")).toContainText("95 points to Silver Striver");
+  // 45 + 10 marks + 5 for the study day the quiz completed.
+  await expect(page.getByTestId("practice-strip")).toContainText("90 points to Silver Striver");
   await expect(page.getByTestId("practice-strip")).toContainText("50 left today");
 
   // Leo sees his own strip, never Mia's points.

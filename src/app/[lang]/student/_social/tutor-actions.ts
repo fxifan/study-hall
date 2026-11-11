@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { refresh } from "next/cache";
 import { z } from "zod";
 import { track } from "@/lib/events";
+import { awardConsistency } from "@/lib/social/consistency-server";
 import { socialActor } from "@/lib/social/server";
 import { TUTOR_LINK_COOKIE, acceptInvite, isLinkToken, studentUpdateTask, unlink } from "@/lib/tutor/links";
 
@@ -43,6 +44,7 @@ export async function reportTutorTask(input: z.input<typeof progress>): Promise<
   if (!parsed.success) return { ok: false, error: "Keep your note under 300 characters." };
   const ok = await studentUpdateTask(me.profile.id, parsed.data.id, parsed.data.status, parsed.data.note);
   if (!ok) return { ok: false, error: "Couldn't save. Refresh and try again." };
+  if (parsed.data.status === "done") await awardConsistency(me.profile.id); // finishing it makes today a study day
   refresh();
   return { ok: true, message: "Saved. Your tutor will see this." };
 }

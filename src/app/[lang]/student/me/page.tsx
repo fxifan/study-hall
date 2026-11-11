@@ -1,4 +1,8 @@
 import type { Metadata } from "next";
+import { GOAL_CHOICES } from "@/lib/social/consistency";
+import { consistencyFor } from "@/lib/social/consistency-server";
+import { setDailyGoal } from "../_social/solo-actions";
+import { StreakCard } from "../_social/streak-card";
 import Link from "next/link";
 import { Suspense } from "react";
 import { localizePath } from "@/i18n/config";
@@ -35,6 +39,7 @@ async function Me({ searchParams }: Pick<PageProps<"/[lang]/student/me">, "searc
     admin.from("students").select("username").eq("profile_id", me.profile.id).single(),
   ]);
   const total = (points ?? []).reduce((s, p) => s + (p.points as number), 0);
+  const consistency = await consistencyFor(me.profile.id);
   const { tier } = await myRank(me.profile.id);
   const rank = rankByTier(tier);
   const next = nextRank(rank);
@@ -81,6 +86,25 @@ async function Me({ searchParams }: Pick<PageProps<"/[lang]/student/me">, "searc
             ))}
           </ul>
         )}
+      </section>
+
+      <StreakCard c={consistency} />
+      <section id="goal" className={`${card} flex flex-col gap-2 text-sm`}>
+        <h2 className="font-medium">Your daily goal</h2>
+        <p className="text-ink-soft">A day counts towards your streak when you study this long, or finish one thing.</p>
+        <form action={setDailyGoal} className="flex flex-wrap gap-2">
+          {GOAL_CHOICES.map((m) => (
+            <button
+              key={m}
+              name="minutes"
+              value={m}
+              aria-pressed={consistency.goalMinutes === m}
+              className={`inline-flex h-11 items-center rounded-full border px-4 ${consistency.goalMinutes === m ? "border-ink bg-ink text-paper" : "border-rule bg-paper"}`}
+            >
+              {m} min
+            </button>
+          ))}
+        </form>
       </section>
 
       <section className={`${card} flex flex-col gap-2 text-sm`}>

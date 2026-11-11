@@ -172,8 +172,9 @@ test("a group studies together: chat, timer, help and practice", async ({ browse
   // 6 multiple choice (1 each) + 3 + 1 = 10 of 12.
   await expect(a.getByText("10 / 12 marks")).toBeVisible({ timeout: 30_000 });
   await expect(a.getByText("+10 points")).toBeVisible();
-  const points = await admin.from("points_ledger").select("kind, points").eq("profile_id", alex.id);
-  expect(points.data).toEqual([{ kind: "marks", points: 10 }]);
+  const points = await admin.from("points_ledger").select("kind, points").eq("profile_id", alex.id).order("kind");
+  // The quiz pays its marks, and finishing it makes today a study day (+5).
+  expect(points.data).toEqual([{ kind: "marks", points: 10 }, { kind: "study_day", points: 5 }]);
   // A retake that doesn't beat 10 pays nothing.
   await a.getByRole("button", { name: "Try again" }).click();
   for (let i = 0; i < 6; i++) await a.getByRole("group", { name: `Question ${i + 1}` }).getByRole("radio").first().check();

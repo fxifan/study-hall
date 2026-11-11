@@ -38,7 +38,6 @@ async function Tutor() {
 
   return (
     <StudentShell me={me} title="My tutor">
-      <h1 className="text-3xl font-medium tracking-tight">My tutor</h1>
       {invite && !invite.linkedTo && <PendingInvite token={jar.get(TUTOR_LINK_COOKIE)!.value} tutorName={invite.tutorName} />}
       {!paid && tutors.length > 0 && (
         <p className="rounded-xl border border-rule bg-sheet px-4 py-3 text-sm text-ink-soft">
