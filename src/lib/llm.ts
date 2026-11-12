@@ -24,10 +24,10 @@ export function reportModel(): string {
   return process.env.OPENAI_REPORT_MODEL || "gpt-4.1-mini";
 }
 
-export function openAiLlm(): Llm {
+/** `model` defaults to the report model; the EduMi AI assistant can set OPENAI_ASSISTANT_MODEL. */
+export function openAiLlm(model: string = reportModel()): Llm {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new LlmError("OPENAI_API_KEY is not set.");
-  const model = reportModel();
   return {
     async json({ system, user, schemaName, schema }) {
       const response = await fetch("https://api.openai.com/v1/chat/completions", {

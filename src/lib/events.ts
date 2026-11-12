@@ -53,6 +53,11 @@ export const EVENTS = {
   student_resource_completed: "A student marked notes or flashcards complete.",
   student_resource_flagged: "A student flagged generated content as incorrect.",
   quiz_submitted: "A student submitted a quiz for marking.",
+  ai_chat_started: "A student started an EduMi AI chat (source = ask, task or quiz_mistake).",
+  ai_reply_rated: "A student rated an EduMi AI reply (status = helpful or unhelpful).",
+  ai_reply_flagged: "A student flagged an EduMi AI reply (reason = wrong, unclear, level or inappropriate).",
+  ai_addon_added: "A student added the A$2.99/month EduMi AI add-on (status = their plan: trial or paid).",
+  ai_addon_removed: "A student removed the EduMi AI add-on.",
   rank_promoted: "A student reached a higher Study Rank (status = new rank id, count = tiers gained).",
 } as const;
 export type EventName = keyof typeof EVENTS;

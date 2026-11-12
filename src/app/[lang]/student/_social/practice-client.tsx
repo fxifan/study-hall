@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useState, useSyncExternalStore, useTransition } from "react";
+import { useFormStatus } from "react-dom";
 import type { PublicQuiz } from "@/lib/social/resources";
 import { submitQuiz, type QuizResult } from "./actions";
+import { startMistakeChat } from "./assistant-actions";
 import { RankUpCelebration } from "./rank-up";
 
 export function Flashcards({ cards }: { cards: { front: string; back: string }[] }) {
@@ -55,7 +57,8 @@ function tone(awarded: number, marks: number) {
  * (free responses by AI against a rubric for the curriculum point); the key, model answers and
  * rubrics arrive only with the result. Points equal the marks earned (retakes pay the improvement).
  */
-type QuizProps = { resourceId: string; quiz: PublicQuiz; back?: { href: string; label: string } | null };
+/** `ai`: with the EduMi AI add-on, marked questions offer "Help me understand my mistake"; without, a link to the add-on. */
+type QuizProps = { resourceId: string; quiz: PublicQuiz; back?: { href: string; label: string } | null; ai?: { on: boolean; askHref: string } | null };
 type Answers = (number | string | null)[];
 
 const draftKey = (resourceId: string) => `edumi:quiz-draft:${resourceId}`;
@@ -108,7 +111,7 @@ export function QuizRunner(props: QuizProps) {
   return <QuizRunnerInner key={hydrated ? "client" : "server"} {...props} hydrated={hydrated} />;
 }
 
-function QuizRunnerInner({ resourceId, quiz, back = null, hydrated }: QuizProps & { hydrated: boolean }) {
+function QuizRunnerInner({ resourceId, quiz, back = null, ai = null, hydrated }: QuizProps & { hydrated: boolean }) {
   const blank = () => quiz.questions.map((q) => (q.type === "mcq" ? null : "")) as Answers;
   const [draft] = useState(() => (hydrated ? parseDraft(readDraft(resourceId), quiz) : null));
   const [answers, setAnswers] = useState<Answers>(() => draft ?? blank());
@@ -261,6 +264,21 @@ function QuizRunnerInner({ resourceId, quiz, back = null, hydrated }: QuizProps 
                       <p className="mt-1 whitespace-pre-wrap">{r.modelAnswer}</p>
                     </details>
                   )}
+                  {ai && r.awarded < r.marks && (
+                    <div className="pt-1">
+                      {ai.on ? (
+                        <form action={startMistakeChat}>
+                          <input type="hidden" name="resource" value={resourceId} />
+                          <input type="hidden" name="question" value={qi} />
+                          <MistakeButton />
+                        </form>
+                      ) : (
+                        <Link href={ai.askHref} className="text-sm font-medium text-ink">
+                          Get help with this from EduMi AI →
+                        </Link>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </li>
@@ -302,5 +320,14 @@ function QuizRunnerInner({ resourceId, quiz, back = null, hydrated }: QuizProps 
         </button>
       )}
     </section>
+  );
+}
+
+function MistakeButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button disabled={pending} className="inline-flex h-8 items-center justify-center rounded-full border border-rule bg-sheet px-3 text-xs font-medium text-ink hover:bg-paper-deep disabled:opacity-50">
+      {pending ? "Opening EduMi AI…" : "Help me understand my mistake"}
+    </button>
   );
 }
