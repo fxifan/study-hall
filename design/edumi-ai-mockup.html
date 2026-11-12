@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Edumi AI Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Tiles tokens, copied from src/app/globals.css on main. Light only, like the app. */
+:root{
+  --tiles-sage:#8ea596;--tiles-sage-soft:#dbe5de;--tiles-sage-ink:#3b5647;--tiles-sage-strong:#5b7667;
+  --tiles-pink:#d6aaa4;--tiles-pink-soft:#f1e1de;--tiles-pink-ink:#84463f;
+  --tiles-sand:#e3d8c4;--tiles-sand-ink:#5f513a;--tiles-slate-soft:#e1e6eb;--tiles-slate-ink:#3f4d5a;
+  --brand:#5b7667;--brand-soft:#dbe5de;--success:#4f7a62;--warning:#b98a5e;
+  --paper:#f1f1ec;--paper-deep:#e8e8e1;--sheet:#fff;--ink:#1f2326;--ink-soft:#52585e;--ink-faint:#666b71;
+  --rule:#dcdcd3;--pen:#a4483f;--pen-faint:rgba(164,72,63,.35);
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font:16px/1.5 Inter,ui-sans-serif,system-ui,"PingFang SC",sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:Manrope,Inter,sans-serif;letter-spacing:-.015em;margin:0}
+p{margin:0}
+a{color:inherit}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+:focus-visible{outline:2px solid rgba(91,118,103,.5);outline-offset:2px}
+.mono{font-family:var(--mono)}
+.xs{font-size:12px;line-height:16px}.sm{font-size:14px;line-height:20px}
+.soft{color:var(--ink-soft)}.faint{color:var(--ink-faint)}
+.medium{font-weight:500}.semi{font-weight:600}
+.col{display:flex;flex-direction:column}.row{display:flex;align-items:center;flex-wrap:wrap}
+.g1{gap:4px}.g2{gap:8px}.g3{gap:12px}.g4{gap:16px}.g5{gap:20px}
+.between{justify-content:space-between}
+
+/* review strip (mockup only) */
+.review{background:var(--ink);color:var(--paper);font-size:13px}
+.review .in{max-width:896px;margin:0 auto;padding:8px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.review label{display:flex;gap:6px;align-items:center;cursor:pointer}
+body.hl .new{outline:2px dashed var(--tiles-pink);outline-offset:4px;position:relative}
+body.hl .new:before{content:"New";position:absolute;top:-10px;right:10px;z-index:2;background:var(--tiles-pink);color:#fff;font:600 10px/1 Inter;padding:3px 6px;border-radius:99px}
+
+/* shell (StudentShell) */
+header.top{border-bottom:1px solid var(--rule);background:var(--sheet)}
+.wrap{max-width:896px;margin:0 auto;width:100%;padding:0 16px}
+header.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:12px;padding-bottom:12px}
+.wordmark{font:800 21.6px/1 Manrope;letter-spacing:-.04em}
+.wordmark span{color:var(--tiles-sage-strong)}
+nav.pills{display:flex;gap:4px;font-size:14px}
+nav.pills button{border-radius:99px;padding:6px 16px;font-weight:500;color:var(--ink-soft)}
+nav.pills button:hover{color:var(--ink)}
+nav.pills button[aria-current="page"]{background:var(--ink);color:var(--paper)}
+.logout{font-size:14px;color:var(--ink-soft)}
+.trial{border-bottom:1px solid var(--rule);background:var(--tiles-pink-soft);color:var(--tiles-pink-ink)}
+.trial p{padding:8px 16px;font-size:14px;max-width:896px;margin:0 auto}
+main{display:flex;flex-direction:column;gap:20px;padding-top:32px;padding-bottom:48px}
+h1{font-size:30px;line-height:36px;font-weight:500;letter-spacing:-.025em}
+.back{font-size:14px;color:var(--ink-soft);text-decoration:none;align-self:flex-start}
+.back:hover{color:var(--ink)}
+.view{display:none}.view.on{display:flex}
+.bottom{display:none}
+
+/* primitives (card, tile, primaryBtn, secondaryBtn, smallBtn from shell.tsx) */
+.card{border-radius:16px;border:1px solid var(--rule);background:var(--sheet);padding:20px}
+.tile{border-radius:16px;padding:20px}
+.btn{display:inline-flex;height:40px;align-items:center;justify-content:center;gap:6px;border-radius:99px;background:var(--ink);color:var(--paper);padding:0 16px;font-size:14px;font-weight:500;text-decoration:none}
+.btn:hover{opacity:.9}.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.sec{border:1px solid var(--rule);background:var(--sheet);color:var(--ink)}
+.btn.sec:hover{background:var(--paper-deep);opacity:1}
+.btn.small{height:32px;padding:0 12px;font-size:12px;border:1px solid var(--rule);background:var(--sheet);color:var(--ink)}
+.btn.small:hover{background:var(--paper-deep);opacity:1}
+.btn.sage{height:48px;background:var(--tiles-sage-strong);color:var(--paper);font-weight:600;font-size:16px;padding:0 20px}
+.btn.lg{height:44px;padding:0 20px}
+.tag{border-radius:99px;padding:2px 8px;font-size:12px;font-weight:600;white-space:nowrap}
+.tag.sage{background:var(--tiles-sage-soft);color:var(--tiles-sage-ink)}
+.tag.sand{background:var(--tiles-sand);color:var(--tiles-sand-ink)}
+.tag.pink{background:var(--tiles-pink-soft);color:var(--tiles-pink-ink)}
+.tag.slate{background:var(--tiles-slate-soft);color:var(--tiles-slate-ink)}
+.field{display:flex;flex-direction:column;gap:4px;font-size:14px}
+.input{height:40px;border-radius:6px;border:1px solid var(--rule);background:var(--paper);padding:0 12px;width:100%}
+textarea.input{height:auto;padding:8px 12px}
+.list>li{border-top:1px solid var(--rule)}.list>li:first-child{border-top:0}
+ul,ol{list-style:none;margin:0;padding:0}
+
+/* home */
+.hero{border-radius:16px;background:var(--ink);color:var(--paper);padding:20px;display:flex;flex-direction:column;gap:4px}
+.hero .k{font:12px var(--mono);letter-spacing:.025em;text-transform:uppercase;color:rgba(241,241,236,.7)}
+.hero h2{font-size:18px;font-weight:600}
+.hero .sub{font-size:14px;color:rgba(241,241,236,.7)}
+.xp{display:flex;align-items:center;gap:16px;padding-top:16px;padding-bottom:16px}
+.badge{width:52px;height:52px;border-radius:14px;background:var(--tiles-sage-soft);display:grid;place-items:center;color:var(--tiles-sage-ink);font:800 18px Manrope;flex:none}
+.bar{display:block;height:10px;border-radius:99px;background:var(--paper-deep);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:99px;background:var(--tiles-sage-strong)}
+.task{display:flex;align-items:center;gap:12px;min-height:44px;padding:8px 0;font-size:14px}
+.box{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--ink-faint);flex:none}
+.ask-tile{background:var(--tiles-sage-soft);color:var(--tiles-sage-ink)}
+.ask-tile h2{font-size:18px;font-weight:600;color:var(--ink)}
+.ask-form{display:flex;gap:8px}
+.ask-form .input{background:var(--sheet);height:44px;border-radius:99px;padding:0 16px;border-color:transparent}
+.chip{display:inline-flex;align-items:center;min-height:32px;border-radius:99px;border:1px solid var(--rule);background:var(--sheet);padding:0 12px;font-size:12px;font-weight:500;color:var(--ink)}
+.chip:hover{background:var(--paper-deep)}
+.ask-tile .chip{border-color:transparent}
+
+/* practice form */
+.kinds{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:14px}
+.kind{display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:8px;border:1px solid var(--rule);padding:10px 8px;text-align:center}
+.kind[aria-pressed="true"]{border-color:var(--ink);background:var(--paper)}
+.seg{display:flex;gap:4px;border-radius:8px;background:var(--paper-deep);padding:4px;font-size:14px}
+.seg button{flex:1;border-radius:6px;padding:6px 12px;font-weight:500;color:var(--ink-soft)}
+.seg button[aria-checked="true"]{background:var(--sheet);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.point{display:flex;align-items:flex-start;gap:8px;border-radius:8px;border:1px solid var(--rule);padding:8px 12px;font-size:14px;cursor:pointer}
+.point.on{border-color:var(--ink);background:var(--paper)}
+.point input{margin-top:3px}
+.prac a{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0;font-size:14px;text-decoration:none;cursor:pointer}
+.prac a:hover .t{text-decoration:underline}
+
+/* quiz (practice-client.tsx) */
+.sticky{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:12px;border-radius:16px;border:1px solid var(--rule);background:rgba(255,255,255,.95);backdrop-filter:blur(8px);padding:8px 12px;font-size:14px}
+.q{display:flex;flex-direction:column;gap:12px;border-radius:16px;border:1px solid var(--rule);background:var(--sheet);padding:16px}
+.mark{border-radius:99px;border:1px solid var(--rule);padding:2px 8px;font:600 12px var(--mono)}
+.mark.full{border-color:var(--success);color:var(--success)}.mark.part{border-color:var(--warning);color:var(--warning)}.mark.zero{border-color:var(--pen);color:var(--pen)}
+.tests{width:fit-content;border-radius:6px;background:var(--brand-soft);padding:4px 8px;font-size:12px}
+.opt{display:flex;align-items:flex-start;gap:8px;border-radius:8px;border:1px solid var(--rule);padding:10px 12px;font-size:14px;cursor:pointer}
+.opt.chosen{border-color:var(--ink)}
+.opt.right{border-color:var(--success);background:rgba(79,122,98,.08)}
+.opt.wrong{border-color:var(--pen);background:rgba(164,72,63,.06)}
+.opt input{margin-top:3px}
+.opt .l{font-family:var(--mono);color:var(--ink-faint);margin-right:6px}
+.feedback{display:flex;flex-direction:column;gap:8px;border-radius:8px;background:var(--paper-deep);padding:12px;font-size:14px}
+details summary{cursor:pointer;color:var(--ink-soft)}
+.result{display:flex;flex-wrap:wrap;align-items:center;gap:20px;border-radius:12px;border:1px solid var(--ink);background:var(--sheet);padding:20px}
+.ring{width:80px;height:80px;border-radius:50%;border:4px solid var(--brand);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600}
+
+/* ask EduMi AI */
+.ctx{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chatcard{display:flex;flex-direction:column;padding:0;overflow:hidden}
+.msgs{display:flex;flex-direction:column;gap:16px;padding:20px;min-height:360px;max-height:58vh;overflow:auto}
+.m{display:flex;flex-direction:column;gap:8px;max-width:88%;animation:in .2s ease}
+@keyframes in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.m.me{align-self:flex-end;background:var(--ink);color:var(--paper);border-radius:16px 16px 4px 16px;padding:10px 14px;font-size:15px}
+.m.ai{align-self:flex-start}
+.who{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--tiles-sage-ink)}
+.av{width:22px;height:22px;border-radius:7px;background:var(--tiles-sage-strong);color:var(--paper);display:grid;place-items:center;font:800 12px Manrope}
+.bub{display:flex;flex-direction:column;gap:8px;font-size:15px}
+.blk{border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.blk .k{font:600 11px var(--mono);letter-spacing:.04em;text-transform:uppercase}
+.blk.explain{background:var(--paper-deep)}.blk.explain .k{color:var(--ink-soft)}
+.blk.try{background:var(--tiles-sage-soft)}.blk.try .k{color:var(--tiles-sage-ink)}
+.blk.mistake{background:var(--tiles-sand)}.blk.mistake .k{color:var(--tiles-sand-ink)}
+.blk.good{background:var(--tiles-sage-soft);border:1px solid var(--tiles-sage)}.blk.good .k{color:var(--tiles-sage-ink)}
+.steps{counter-reset:s;display:flex;flex-direction:column;gap:4px;font-size:14px}
+.steps li{counter-increment:s;display:grid;grid-template-columns:20px 1fr auto;gap:8px;align-items:baseline}
+.steps li:before{content:counter(s);font:600 12px var(--mono);color:var(--ink-faint)}
+.math{font-family:var(--mono);font-size:14px;white-space:nowrap}
+.acts{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.fb{display:flex;gap:2px;margin-left:4px}
+.fb button{width:30px;height:30px;border-radius:99px;display:grid;place-items:center;color:var(--ink-faint)}
+.fb button:hover,.fb button.on{background:var(--paper-deep);color:var(--ink)}
+.fb svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.typing{display:flex;gap:4px;padding:6px 0}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--ink-faint);animation:b 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes b{0%,60%,100%{opacity:.3}30%{opacity:1}}
+.composer{border-top:1px solid var(--rule);padding:12px;display:flex;flex-direction:column;gap:10px}
+.composer form{display:flex;gap:8px}
+.composer .input{height:44px;border-radius:99px;padding:0 16px}
+
+/* dialog + toast */
+.modal{position:fixed;inset:0;background:rgba(31,35,38,.35);display:none;place-items:center;padding:16px;z-index:40}
+.modal.on{display:grid}
+.modal .card{max-width:420px;width:100%;display:flex;flex-direction:column;gap:12px}
+.modal label{display:flex;gap:8px;align-items:center;font-size:14px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,16px);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:99px;font-size:14px;opacity:0;transition:.2s;pointer-events:none;z-index:50}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.skel{height:14px;border-radius:4px;background:var(--paper-deep);animation:p 1.2s infinite}
+@keyframes p{50%{opacity:.5}}
+
+@media (max-width:639px){
+  nav.pills{display:none}
+  main{padding-top:20px;padding-bottom:110px}
+  h1{font-size:24px;line-height:32px}
+  .bottom{display:grid;position:fixed;inset:auto 0 0 0;z-index:10;grid-template-columns:repeat(5,1fr);align-items:end;border-top:1px solid var(--rule);background:var(--sheet);padding:6px 4px max(8px,env(safe-area-inset-bottom))}
+  .bottom button{display:flex;min-height:48px;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;font-size:11px;color:var(--ink-soft)}
+  .bottom button[aria-current="page"]{font-weight:600;color:var(--ink)}
+  .bottom button[aria-current="page"] svg{color:var(--tiles-sage-strong)}
+  .bottom svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .bottom .raised{margin-top:-28px;margin-bottom:2px;width:52px;height:52px;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;box-shadow:0 10px 24px -10px rgba(28,36,48,.6)}
+  .bottom .raised svg{color:var(--paper)!important}
+  .m{max-width:100%}
+  .msgs{max-height:none}
+}
+</style>
+</head>
+<body class="hl">
+
+<div class="review"><div class="in">
+  <span><b>Mockup:</b> EduMi AI in the student app (MVP). AI replies are scripted.</span>
+  <label><input type="checkbox" id="hlToggle" checked> Highlight what's new</label>
+</div></div>
+
+<header class="top"><div class="wrap">
+  <span class="wordmark">edumi<span>.</span></span>
+  <nav class="pills" aria-label="Main">
+    <button data-go="home" aria-current="page">Home</button>
+    <button data-go="groups">Groups</button>
+    <button data-go="study">Study</button>
+    <button data-go="practice">Practice</button>
+    <button data-go="me">Me</button>
+  </nav>
+  <button class="logout">Log out</button>
+</div></header>
+<div class="trial"><p>Free trial: 5 days left. <b class="medium">Keep Edumi for A$11.99/month</b></p></div>
+
+<div class="wrap">
+<!-- HOME -->
+<main class="view on" id="v-home">
+  <h1>Hi Mia</h1>
+
+  <section class="hero" aria-label="Continue studying">
+    <p class="k">Continue studying</p>
+    <h2>Ex 4C: linear equations, Q1–12</h2>
+    <p class="sub">From Daniel</p>
+    <button class="btn sage" style="margin-top:12px" data-go="study">Start studying</button>
+  </section>
+
+  <section class="tile ask-tile col g3 new" aria-label="Ask EduMi AI">
+    <div class="col g1">
+      <h2>Stuck on something?</h2>
+      <p class="sm">Ask EduMi AI. It explains at your level, then gives you one to try.</p>
+    </div>
+    <form class="ask-form" id="homeAsk"><input class="input" placeholder="e.g. why do you change the sign when…" aria-label="Ask a question"><button class="btn lg">Ask</button></form>
+    <div class="row g2">
+      <button class="chip" data-prompt="I don't get why you change the sign when solving an equation.">Why do you change the sign?</button>
+      <button class="chip" data-prompt="Can you explain Ex 4C? It's linear equations.">Explain my Ex 4C task</button>
+    </div>
+  </section>
+
+  <button class="card xp" data-go="me" style="text-align:left">
+    <span class="badge">B</span>
+    <span class="col g2" style="flex:1;min-width:0">
+      <span class="row between g2"><span class="semi">Bronze II</span><span class="mono xs soft">1,240 / 1,500 XP</span></span>
+      <span class="bar"><i style="width:62%"></i></span>
+      <span class="xs soft">260 XP to Bronze III · See your progression →</span>
+    </span>
+  </button>
+
+  <section class="card col" aria-label="Today's tasks">
+    <h2 class="semi" style="font-size:16px;margin-bottom:4px">Today's tasks</h2>
+    <ul class="list">
+      <li><div class="task"><span class="box"></span><span style="flex:1">Read Science 5.2 and summarise</span><span class="tag sand">Solo</span></div></li>
+      <li><div class="task"><span class="box"></span><span style="flex:1">Persuasive essay plan</span><span class="tag sage">Daniel</span><button class="btn small new" data-prompt="How should I structure a persuasive essay plan?">Ask AI</button></div></li>
+    </ul>
+  </section>
+</main>
+
+<!-- PRACTICE -->
+<main class="view" id="v-practice">
+  <h1>Practice</h1>
+
+  <button class="card row between g3 new" data-go="ask" style="text-align:left;width:100%">
+    <span class="row g3" style="flex-wrap:nowrap">
+      <span class="av" style="width:36px;height:36px;border-radius:10px;font-size:16px">e</span>
+      <span class="col"><span class="medium">Ask EduMi AI</span><span class="sm soft">Get something explained, step by step, then try it yourself</span></span>
+    </span>
+    <span class="sm medium">Open →</span>
+  </button>
+
+  <form class="col g4" id="genForm" style="border-radius:16px;border:1px solid var(--rule);background:var(--sheet);padding:16px">
+    <h2 class="medium" style="font-size:16px">Make something to study</h2>
+    <div class="kinds" role="radiogroup" aria-label="Type">
+      <button type="button" class="kind" aria-pressed="true" data-kind="quiz"><span class="medium">Quiz</span><span class="xs faint">8 questions, marked</span></button>
+      <button type="button" class="kind" aria-pressed="false" data-kind="flashcards"><span class="medium">Flashcards</span><span class="xs faint">Flip to check</span></button>
+      <button type="button" class="kind" aria-pressed="false" data-kind="notes"><span class="medium">Revision notes</span><span class="xs faint">Key points</span></button>
+    </div>
+    <div class="seg" role="radiogroup" aria-label="What to study">
+      <button type="button" role="radio" aria-checked="true">From the curriculum</button>
+      <button type="button" role="radio" aria-checked="false">My own topic</button>
+    </div>
+    <label class="field">Subject and level
+      <select class="input"><option>Victorian Curriculum · Mathematics · Year 9</option><option>Victorian Curriculum · Science · Year 9</option></select>
+    </label>
+    <fieldset class="col g2" style="border:0;padding:0;margin:0">
+      <legend class="sm" style="margin-bottom:4px">Learning points <span class="faint">(pick up to 3)</span></legend>
+      <p class="mono xs faint">Algebra</p>
+      <label class="point on"><input type="checkbox" checked> Solve linear equations and inequalities, including with brackets and fractions</label>
+      <label class="point"><input type="checkbox"> Expand and factorise algebraic expressions, including binomial products</label>
+      <label class="point"><input type="checkbox"> Find the gradient and midpoint of a line segment</label>
+    </fieldset>
+    <label class="field">Focus (optional)<input class="input" placeholder="e.g. exam-style questions, or a specific part"></label>
+    <div class="row g3"><button class="btn" id="genBtn">Make my quiz</button></div>
+  </form>
+  <p class="xs faint" style="margin-top:-8px">Today: 2 of 2 quizzes (8 questions each) and 4 of 4 notes or flashcard sets left<span class="new">, and <b id="askLeft" class="medium">18 of 20</b> questions to EduMi AI</span>. Quizzes pay the marks you earn as points. AI can make mistakes: flag anything that looks wrong.</p>
+
+  <section class="card col g2">
+    <h2 class="medium" style="font-size:16px">Your practice</h2>
+    <ul class="list prac" id="pracList"></ul>
+  </section>
+</main>
+
+<!-- QUIZ -->
+<main class="view" id="v-quiz">
+  <button class="back" data-go="practice">← Practice</button>
+  <h1>Linear equations</h1>
+  <div id="quizResult"></div>
+  <div class="sticky" id="quizBar"><span><span class="medium" id="answered">0 of 4 answered</span><span class="soft"> · saved on this device</span></span><span class="mono soft">8 marks</span></div>
+  <ol class="col g4" id="quiz"></ol>
+  <p class="xs faint">Mockup shows 4 questions; real quizzes have 8.</p>
+  <button class="btn lg" id="submitQuiz" style="width:fit-content">Mark my quiz</button>
+</main>
+
+<!-- ASK -->
+<main class="view" id="v-ask">
+  <button class="back" data-go="practice">← Practice</button>
+  <div class="row between g3"><h1>Ask EduMi AI</h1><button class="btn small" id="newChat">New chat</button></div>
+  <div class="ctx">
+    <span class="tag sage">Year 9</span><span class="tag sage">Mathematics</span><span class="tag sage" id="topicTag">Linear equations</span>
+    <button class="btn small" id="editCtx" style="height:26px">Change</button>
+    <span class="xs faint">From your Edumi profile</span>
+  </div>
+  <section class="card chatcard">
+    <div class="msgs" id="msgs" aria-live="polite"></div>
+    <div class="composer">
+      <div class="row g2" id="suggest">
+        <button class="chip" data-prompt="I don't get why you change the sign when solving an equation.">Why do you change the sign?</button>
+        <button class="chip" data-prompt="Can you just do my homework question 7?">Do my homework Q7</button>
+        <button class="chip" data-go="practice">Make me a quiz</button>
+      </div>
+      <form id="chatForm"><input class="input" id="chatInput" placeholder="Ask a question, or type your answer" autocomplete="off" aria-label="Message"><button class="btn lg">Send</button></form>
+    </div>
+  </section>
+  <p class="xs faint">Your chats are private: parents, tutors and supervisors can't see them. <span id="chatLeft">18 of 20</span> questions left today. AI can make mistakes: flag anything that looks wrong.</p>
+</main>
+
+<!-- placeholders for untouched tabs -->
+<main class="view" id="v-groups"><h1>Groups</h1><p class="soft">Unchanged in this mockup.</p></main>
+<main class="view" id="v-study"><h1>Study</h1><p class="soft">Unchanged in this mockup (the timer).</p></main>
+<main class="view" id="v-me"><h1>Me</h1><p class="soft">Unchanged in this mockup.</p></main>
+</div>
+
+<nav class="bottom" aria-label="Main">
+  <button data-go="home" aria-current="page"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9H4z"/></svg>Home</button>
+  <button data-go="groups"><svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="3.5"/><circle cx="17" cy="10" r="2.5"/><path d="M3 20c0-3.5 3-6 6-6s6 2.5 6 6M15 20c0-2.5 1.5-4.5 4-4.5"/></svg>Groups</button>
+  <button data-go="study"><span class="raised"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="7"/><path d="M12 9v4l2.5 2M10 3h4"/></svg></span>Study</button>
+  <button data-go="practice"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>Practice</button>
+  <button data-go="me"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>Me</button>
+</nav>
+
+<div class="modal" id="flagModal" role="dialog" aria-modal="true" aria-labelledby="fT"><div class="card">
+  <h2 id="fT" class="semi" style="font-size:18px">Flag this answer</h2>
+  <label><input type="radio" name="f" checked> It's wrong</label>
+  <label><input type="radio" name="f"> Hard to understand</label>
+  <label><input type="radio" name="f"> Not right for my year level</label>
+  <label><input type="radio" name="f"> Something inappropriate</label>
+  <textarea class="input" rows="3" placeholder="Anything else? (optional)"></textarea>
+  <div class="row g2" style="justify-content:flex-end"><button class="btn sec" data-close>Cancel</button><button class="btn" data-close data-toast="Thanks. We'll check it.">Send</button></div>
+</div></div>
+<div class="modal" id="ctxModal" role="dialog" aria-modal="true" aria-labelledby="cT"><div class="card">
+  <h2 id="cT" class="semi" style="font-size:18px">What are you working on?</h2>
+  <label class="field">Subject<select class="input"><option>Mathematics</option><option>Science</option><option>English</option></select></label>
+  <label class="field">Topic<input class="input" id="ctxTopic" value="Linear equations"></label>
+  <div class="row g2" style="justify-content:flex-end"><button class="btn sec" data-close>Cancel</button><button class="btn" id="ctxSave">Save</button></div>
+</div></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+$('#hlToggle').onchange=e=>document.body.classList.toggle('hl',e.target.checked);
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2200)}
+
+/* nav */
+const TAB={home:'home',groups:'groups',study:'study',practice:'practice',me:'me',quiz:'practice',ask:'practice'};
+function go(v){$$('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));$$('nav [data-go]').forEach(n=>{if(n.dataset.go===TAB[v])n.setAttribute('aria-current','page');else n.removeAttribute('aria-current')});window.scrollTo(0,0)}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-go],[data-prompt],[data-close],[data-toast]');if(!t)return;
+  if(t.dataset.toast)toast(t.dataset.toast);
+  if(t.hasAttribute('data-close')){t.closest('.modal').classList.remove('on');return}
+  if(t.dataset.go){e.preventDefault();go(t.dataset.go)}
+  if(t.dataset.prompt){go('ask');send(t.dataset.prompt)}
+});
+$$('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('on')}));
+$('#editCtx').onclick=()=>$('#ctxModal').classList.add('on');
+$('#ctxSave').onclick=()=>{$('#topicTag').textContent=$('#ctxTopic').value||'General';$('#ctxModal').classList.remove('on');toast('Updated')};
+
+/* allowance */
+let left=18;const CAP=20;
+function use(){if(left<=0){toast("You've used today's EduMi AI questions. They reset at midnight.");return false}left--;['#askLeft','#chatLeft'].forEach(s=>$(s).textContent=left+' of '+CAP);return true}
+
+/* your practice */
+const prac=[
+  {title:'Linear equations',kind:'Quiz',when:'10 Nov',done:true,go:'quiz'},
+  {title:'Cells and organelles',kind:'Flashcards',when:'9 Nov'},
+  {title:'Persuasive techniques',kind:'Revision notes',when:'6 Nov'}
+];
+function renderPrac(){$('#pracList').innerHTML=prac.map(r=>`<li${r.isNew?' class="new"':''}><a ${r.go?`data-go="${r.go}"`:''}><span><span class="t">${r.title}</span><span class="xs faint" style="display:block">${r.kind} · ${r.when}</span></span>${r.done?'<span class="xs soft">Done</span>':''}</a></li>`).join('')}
+function savePrac(title){prac.unshift({title,kind:'Explanation',when:'Today',isNew:true,go:'ask'});renderPrac();toast('Saved to Your practice')}
+renderPrac();
+
+/* practice form */
+$$('.kind').forEach(k=>k.onclick=()=>{$$('.kind').forEach(x=>x.setAttribute('aria-pressed',x===k));$('#genBtn').textContent=k.dataset.kind==='quiz'?'Make my quiz':'Make '+k.dataset.kind});
+$$('.seg button').forEach(b=>b.onclick=()=>$$('.seg button').forEach(x=>x.setAttribute('aria-checked',x===b)));
+$$('.point input').forEach(i=>i.onchange=()=>i.closest('.point').classList.toggle('on',i.checked));
+$('#genForm').onsubmit=e=>{e.preventDefault();const b=$('#genBtn');b.disabled=true;b.textContent='Making your quiz…';setTimeout(()=>{b.disabled=false;b.textContent='Make my quiz';renderQuiz();go('quiz')},900)};
+
+/* quiz, styled like practice-client.tsx */
+const Q=[
+  {type:'mcq',marks:1,point:'Solve linear equations',prompt:'Solve x − 4 = 9.',opts:['x = 5','x = 13','x = −13','x = 36'],a:1},
+  {type:'mcq',marks:1,point:'Solve linear equations',prompt:'Solve 2x + 3 = 11.',opts:['x = 7','x = 5.5','x = 4','x = 16'],a:2,why:{0:'divided before subtracting 3'}},
+  {type:'mcq',marks:2,point:'Solve linear equations',prompt:'Solve 3(x − 2) = 15.',opts:['x = 3','x = 7','x = 5.67','x = 11'],a:1},
+  {type:'free',marks:4,point:'Solve linear equations',prompt:'A phone plan costs $15 a month plus $2 per GB. Mia\'s bill was $31.\nWrite an equation and solve it to find how many GB she used.',rubric:[['Writes 15 + 2g = 31 (or equivalent)',1],['Subtracts 15 from both sides: 2g = 16',1],['Divides by 2: g = 8',1],['States the answer in context: 8 GB',1]],model:'Let g be the GB used. 15 + 2g = 31, so 2g = 16 and g = 8. Mia used 8 GB.'}
+];
+let ans={};
+function renderQuiz(){
+  ans={};$('#quizResult').innerHTML='';$('#quizBar').style.display='';$('#submitQuiz').style.display='';
+  $('#quiz').innerHTML=Q.map((q,i)=>`<li class="q" data-i="${i}">
+    <div class="row between g2 xs"><span class="mono faint">Question ${i+1} of ${Q.length}</span><span class="mark" data-mk>${q.marks} mark${q.marks>1?'s':''}</span></div>
+    <p class="tests">Tests: ${q.point}</p>
+    <p class="medium" style="white-space:pre-wrap">${q.prompt}</p>
+    ${q.type==='mcq'?`<fieldset class="col g2" style="border:0;padding:0;margin:0">${q.opts.map((o,j)=>`<label class="opt"><input type="radio" name="q${i}" value="${j}"><span><span class="l">${'ABCD'[j]}</span>${o}</span></label>`).join('')}</fieldset>`:`<textarea class="input" rows="4" data-free placeholder="Show your working">15 + 2g = 31
+2g = 46
+g = 23</textarea>`}
+    <div data-fb></div></li>`).join('');
+  $$('#quiz input[type=radio]').forEach(r=>r.onchange=()=>{const li=r.closest('.q');ans[li.dataset.i]=+r.value;li.querySelectorAll('.opt').forEach(o=>o.classList.toggle('chosen',o.contains(r)));count()});
+  // prefill to make the demo quick: one right, one wrong
+  setPick(0,1);setPick(1,0);count();
+}
+function setPick(i,j){const r=$$(`#quiz [name=q${i}]`)[j];r.checked=true;r.dispatchEvent(new Event('change'))}
+function count(){$('#answered').textContent=(Object.keys(ans).length+1)+' of '+Q.length+' answered'}
+$('#submitQuiz').onclick=()=>{
+  let got=0,tot=0,miss=0;
+  $$('#quiz .q').forEach(li=>{
+    const i=+li.dataset.i,q=Q[i];tot+=q.marks;let aw=0,html='';
+    if(q.type==='mcq'){
+      const c=ans[i];aw=c===q.a?q.marks:0;
+      li.querySelectorAll('.opt').forEach((o,j)=>{o.querySelector('input').disabled=true;if(j===q.a)o.classList.add('right');else if(j===c)o.classList.add('wrong')});
+      if(aw<q.marks)html=`<div class="feedback"><p>${c===undefined?'Not answered.':'Not quite.'} The answer is <b class="medium">${q.opts[q.a]}</b>.</p>${aiHelp(i,c===undefined?null:q.opts[c])}</div>`;
+    }else{
+      aw=1;li.querySelector('textarea').disabled=true;
+      html=`<div class="feedback"><ul class="col g1">${q.rubric.map((r,k)=>`<li class="row g2" style="flex-wrap:nowrap;align-items:baseline"><span style="color:${k===0?'var(--success)':'var(--ink-faint)'}">${k===0?'✓':'○'}</span><span class="${k===0?'':'soft'}">${r[0]} <span class="mono xs faint">(${r[1]})</span></span></li>`).join('')}</ul><details><summary>Model answer</summary><p style="margin-top:4px">${q.model}</p></details>${aiHelp(i,'2g = 46, g = 23')}</div>`;
+    }
+    got+=aw;if(aw<q.marks)miss++;const mk=li.querySelector('[data-mk]');mk.textContent=aw+'/'+q.marks;mk.classList.add(aw===q.marks?'full':aw?'part':'zero');
+    li.querySelector('[data-fb]').innerHTML=html;
+  });
+  const pct=Math.round(got/tot*100);
+  $('#quizResult').innerHTML=`<div class="result" role="status"><div class="ring">${pct}%</div><div class="col g1"><p style="font-size:24px;font-weight:500">${got} of ${tot} marks</p><p class="sm soft">+${got*10} points${miss?` · ${miss} question${miss>1?'s':''} worth another look`:''}</p></div></div>`;
+  $('#quizBar').style.display='none';$('#submitQuiz').style.display='none';window.scrollTo({top:0,behavior:'smooth'});
+};
+function aiHelp(i,mine){return `<div class="row g2 new" style="padding-top:4px"><button class="btn small" data-q="${i}" data-mine="${mine??''}" onclick="mistake(this)">Help me understand my mistake</button><button class="btn small" onclick="go('ask');send('Give me 3 more like question ${i+1}.')">3 more like this</button></div>`}
+function mistake(b){const i=+b.dataset.q,mine=b.dataset.mine;go('ask');
+  if(i===1){addMe(`Help me with question 2: 2x + 3 = 11. I picked x = 7.`);if(!use())return;thinking(()=>addAI(`<div class="blk mistake"><p class="k">What probably happened</p><p>x = 7 comes from <span class="math">(11 + 3) ÷ 2</span>, so you <b class="medium">added</b> 3 instead of subtracting it. To undo <b class="medium">+3</b> you subtract 3 from both sides, then divide by 2.</p><p class="xs" style="color:var(--tiles-sand-ink)">This is a suggestion from your answer, not a verdict.</p></div><div class="blk try"><p class="k">Try it again</p><p>What's <span class="math">11 − 3</span>, and what do you do next?</p></div>`,{acts:['hint','flag'],save:'Q2: two-step equations'}));stage='q2fix';return}
+  addMe(`Help me with question ${i+1}. I wrote ${mine}.`);if(!use())return;
+  thinking(()=>addAI(`<div class="blk mistake"><p class="k">What probably happened</p><p>Your equation <span class="math">15 + 2g = 31</span> is right (that's a mark). Then 2g = 46 means you <b class="medium">added</b> 15 to 31 instead of subtracting it.</p><p class="xs" style="color:var(--tiles-sand-ink)">Likely mix-up: inverse operations (a suggestion, not a verdict).</p></div><div class="blk try"><p class="k">Try it again</p><p>Undo the <span class="math">+15</span>. What is 2g equal to?</p></div>`,{acts:['hint','flag'],save:'Q4: phone plan equation'}));stage='q4fix';}
+
+/* chat */
+const msgs=$('#msgs');let stage='idle',hints=0,tries=0;
+const FB=`<span class="fb"><button title="Helpful" data-a="up"><svg viewBox="0 0 24 24"><path d="M7 10v11H3V10zM7 10l4-7c1.7 0 3 1.3 3 3v3h5.5a2 2 0 0 1 2 2.3l-1.4 8A2 2 0 0 1 18 21H7"/></svg></button><button title="Not helpful" data-a="down"><svg viewBox="0 0 24 24"><path d="M17 14V3h4v11zM17 14l-4 7c-1.7 0-3-1.3-3-3v-3H4.5a2 2 0 0 1-2-2.3l1.4-8A2 2 0 0 1 6 3h11"/></svg></button><button title="Flag this answer" data-a="flag"><svg viewBox="0 0 24 24"><path d="M5 21V4h12l-2 4 2 4H5"/></svg></button></span>`;
+const ACT={another:'<button class="btn small" data-a="another">Explain it another way</button>',hint:'<button class="btn small" data-a="hint">Give me a hint</button>',test:'<button class="btn small" data-a="test">Test me</button>',full:'<button class="btn small" data-a="full">Show the full solution</button>',quiz:'<button class="btn small" data-go="practice">Make a quiz on this</button>',save:'<button class="btn small" data-a="save">Save to Your practice</button>'};
+function scroll(){msgs.scrollTop=msgs.scrollHeight}
+function addMe(t){const d=document.createElement('div');d.className='m me';d.textContent=t;msgs.appendChild(d);scroll();$('#suggest').style.display='none'}
+function addAI(html,o={}){const d=document.createElement('div');d.className='m ai';const a=(o.acts??['another','test','save']);
+  d.innerHTML=`<div class="who"><span class="av">e</span>EduMi AI</div><div class="bub">${html}</div>${a.length||o.fb!==false?`<div class="acts">${a.filter(x=>ACT[x]).map(x=>ACT[x]).join('')}${o.fb===false?'':FB}</div>`:''}`;
+  d._save=o.save;msgs.appendChild(d);scroll();return d}
+function thinking(cb,ms=900){const d=document.createElement('div');d.className='m ai';d.innerHTML='<div class="who"><span class="av">e</span>EduMi AI</div><div class="typing"><i></i><i></i><i></i></div>';msgs.appendChild(d);scroll();setTimeout(()=>{d.remove();cb()},ms)}
+msgs.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a,m=b.closest('.m');
+  if(a==='up'||a==='down'){b.parentElement.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');toast('Thanks for the feedback');return}
+  if(a==='flag'){$('#flagModal').classList.add('on');return}
+  if(a==='save'){savePrac(m._save||'Why we "change the sign"');b.textContent='Saved';b.disabled=true;return}
+  if(a==='hint')return hint();
+  if(a==='test')return ask();
+  if(a==='another'){if(!use())return;thinking(()=>addAI(`<p>Think of the equation as a <b class="medium">balanced scale</b>.</p><div class="blk explain"><p><span class="math">x + 7 = 12</span>: the left pan holds x and 7 weights, the right pan 12.</p><p>Take 7 off the left and it tips, unless you take 7 off the right too. "Changing the sign" is just undoing +7 with −7 on both sides.</p></div>`,{acts:['test','save']}));return}
+  if(a==='full'){if(!use())return;thinking(()=>addAI(`<div class="blk explain"><p class="k">Full solution</p><ol class="steps"><li>Start<span class="math">3x + 5 = 20</span></li><li>Subtract 5 from both sides<span class="math">3x = 15</span></li><li>Divide both sides by 3<span class="math">x = 5</span></li><li>Check: 3(5) + 5 = 20 ✓<span></span></li></ol></div>`,{acts:['quiz','save'],save:'Solve 3x + 5 = 20'}))}
+});
+function hint(){
+  const H={q1:['What is being <b class="medium">added</b> to 3x? Undo that first, on both sides.','After subtracting 5: <span class="math">3x = 15</span>. What undoes "times 3"?'],q2:['Get the x terms on one side first. Try subtracting 2x from both sides.','You should have <span class="math">2x − 9 = 7</span>. Now undo the −9.'],q2fix:['11 − 3 = 8, so 2x = 8.','What undoes "times 2"?'],q4fix:['31 − 15 = ?','2g = 16. Now divide by 2.']}[stage];
+  if(!H){toast('Hints show up while you work on a question');return}
+  hints++;addAI(`<div class="blk try"><p class="k">Hint ${Math.min(hints,2)} of 2</p><p>${H[Math.min(hints,2)-1]}</p></div>`,{acts:hints>=2?['full']:['hint']});
+}
+function ask(){stage='q1';hints=0;tries=0;addAI(`<div class="blk try"><p class="k">Your turn</p><p>Solve <span class="math">3x + 5 = 20</span></p><p class="xs" style="color:var(--tiles-sage-ink)">Type your answer, or what you'd do first.</p></div>`,{acts:['hint']})}
+function send(text){
+  if(!text.trim())return;
+  if(stage!=='idle'&&stage!=='done'){addMe(text);return check(text)}
+  addMe(text);if(!use())return;
+  if(/homework|do my|assignment|for me/i.test(text)){thinking(()=>addAI(`<p>I can't do it for you to hand in, but I can get you there quickly. Type out question 7 and I'll:</p><ol class="steps"><li>show a worked example of the same kind<span></span></li><li>give you hints while you try it<span></span></li><li>check your answer<span></span></li></ol><p class="sm soft">Revising rather than handing it in? You can ask for the full solution after you've had a go.</p>`,{acts:[]}));return}
+  if(/sign|change|4C|linear/i.test(text)){thinking(()=>{addAI(`<p>Good question. You're not really <i>changing the sign</i>: you're doing the <b class="medium">opposite operation to both sides</b>, so the equation stays balanced.</p><div class="blk explain"><p class="k">Inverse operations</p><ol class="steps"><li>Adding is undone by subtracting<span class="math">+7 ↔ −7</span></li><li>Multiplying is undone by dividing<span class="math">×3 ↔ ÷3</span></li></ol></div><div class="blk explain"><p class="k">Worked example</p><ol class="steps"><li>Start<span class="math">x + 7 = 12</span></li><li>Subtract 7 from both sides<span class="math">x + 7 − 7 = 12 − 7</span></li><li>Simplify<span class="math">x = 5</span></li></ol></div><p>"The +7 jumps across and becomes −7" is a shortcut for step 2.</p>`,{acts:['another','save']});setTimeout(ask,600)},1200);return}
+  if(/structure|essay/i.test(text)){thinking(()=>addAI(`<p>A persuasive essay plan usually has five parts: a contention, three reasons with evidence, and a conclusion that restates your view.</p><div class="blk try"><p class="k">Your turn</p><p>What's your contention, in one sentence?</p></div>`,{acts:['another','save']}));return}
+  thinking(()=>addAI(`<p>In the real product EduMi AI would answer this at Year 9 level, then give you a step to try.</p><p class="sm soft">This mockup scripts one walkthrough: try "Why do you change the sign?"</p>`,{acts:[]}));
+}
+const n=t=>t.toLowerCase().replace(/\s/g,'').replace(/^[xg]=/,'').replace(/gb$/,'');
+function reply(html,acts,ms=700,save){thinking(()=>addAI(html,{acts,save}),ms)}
+function check(text){tries++;const v=n(text);
+  if(stage==='q1'){
+    if(v==='5'){stage='q2';hints=0;tries=0;return reply(`<div class="blk good"><p class="k">Correct</p><p><span class="math">x = 5</span>. You undid +5 first, then ÷3. That's the right order.</p></div><p>Let's step it up: x on both sides.</p><div class="blk try"><p class="k">Harder</p><p>Solve <span class="math">4x − 9 = 2x + 7</span></p></div>`,['hint'],700,'Solve 3x + 5 = 20')}
+    if(v==='15'||v==='3x=15')return reply(`<p>Yes, <span class="math">3x = 15</span> is the right first step. What undoes "times 3"?</p>`,['hint']);
+    if(v.startsWith('25')||v.startsWith('8.3'))return reply(`<div class="blk mistake"><p class="k">Let's look at that</p><p>It looks like you got 3x = 25, so you <b class="medium">added</b> 5 to 20 instead of subtracting it.</p><p class="xs" style="color:var(--tiles-sand-ink)">Likely mix-up: inverse operations (a suggestion, not a verdict).</p></div><p>Try again: what's <span class="math">20 − 5</span>?</p>`,['hint','full'],900);
+    return reply(`<p>Not quite. Remember to undo the <b class="medium">+5</b> before the <b class="medium">×3</b>.</p>`,tries>1?['hint','full']:['hint']);
+  }
+  if(stage==='q2'){
+    if(v==='8'){stage='done';return reply(`<div class="blk good"><p class="k">Correct</p><p><span class="math">x = 8</span>. Check: 4(8) − 9 = 23 and 2(8) + 7 = 23 ✓</p></div><p>You can solve two-step equations, including x on both sides. Next up: brackets, like <span class="math">3(x − 2) = 15</span>.</p>`,['quiz','save'],800,'Solve 4x − 9 = 2x + 7')}
+    if(v==='16'||v==='2x=16')return reply(`<p>Yes, <span class="math">2x = 16</span>. Finish it off.</p>`,['hint']);
+    if(v==='-1'||v==='−1'||v==='1')return reply(`<div class="blk mistake"><p class="k">Check your signs</p><p>After subtracting 2x you have <span class="math">2x − 9 = 7</span>. To undo −9 you <b class="medium">add</b> 9.</p></div>`,['hint','full']);
+    return reply(`<p>Not quite. Start by getting the x terms on one side.</p>`,['hint','full']);
+  }
+  if(stage==='q2fix'){if(v==='4'||v==='x=4'){stage='done';return reply(`<div class="blk good"><p class="k">That's it</p><p><span class="math">2x = 8</span>, so <span class="math">x = 4</span>.</p></div>`,['quiz','save'],700,'Q2: two-step equations')}if(v==='8'||v==='2x=8')return reply(`<p>Right, <span class="math">2x = 8</span>. Now finish it.</p>`,['hint']);return reply(`<p>Not quite. Undo the +3 first.</p>`,['hint'])}
+  if(stage==='q4fix'){if(v==='8'){stage='done';return reply(`<div class="blk good"><p class="k">That's it</p><p><span class="math">g = 8</span>, so Mia used 8 GB. Writing "8 GB" in context gets the last mark.</p></div>`,['quiz','save'],700,'Q4: phone plan equation')}if(v==='16'||v==='2g=16')return reply(`<p>Yes, <span class="math">2g = 16</span>. Now divide by 2.</p>`,['hint']);return reply(`<p>Not quite. What's 31 − 15?</p>`,['hint'])}
+}
+function greet(){msgs.innerHTML='';stage='idle';$('#suggest').style.display='';addAI(`<p>Hi Mia. I'm set up for <b class="medium">Year 9 Mathematics · Linear equations</b>. Ask me anything: I'll explain it, then give you one to try.</p>`,{acts:[],fb:false})}
+$('#chatForm').onsubmit=e=>{e.preventDefault();const i=$('#chatInput');send(i.value);i.value=''};
+$('#homeAsk').onsubmit=e=>{e.preventDefault();const i=e.target.querySelector('input');const v=i.value||"I don't get why you change the sign when solving an equation.";i.value='';go('ask');send(v)};
+$('#newChat').onclick=greet;
+greet();renderQuiz();
+</script>
+</body>
+</html>

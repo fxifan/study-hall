@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { localizePath } from "@/i18n/config";
 import { getLocale } from "@/i18n/server";
 import { whenLabel } from "@/lib/social/activity";
+import { aiAccess } from "@/lib/social/assistant-server";
 import { myActivity } from "@/lib/social/activity-server";
 import { consistencyFor } from "@/lib/social/consistency-server";
 import { myRank } from "@/lib/social/rank-sync";
@@ -12,6 +13,7 @@ import { nextRank, rankByTier } from "@/lib/social/ranks";
 import { groupMembers, liveSessionFor, requireSocialStudent, todayProgress, type Group } from "@/lib/social/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { TUTOR_LINK_COOKIE, linkedTutors } from "@/lib/tutor/links";
+import { AskTile } from "../_social/ask-tile";
 import { GroupCard } from "../_social/group-card";
 import { RankBadge } from "../_social/rank-badge";
 import { Loading, StudentShell, card } from "../_social/shell";
@@ -38,7 +40,7 @@ async function Home() {
   const [me, locale, jar] = await Promise.all([requireSocialStudent(), getLocale(), cookies()]);
   const href = (p: string) => localizePath(p, locale);
   const admin = createAdminClient();
-  const [c, live, tutors, { data: open }, { data: rows }, { count: invites }, recent, mine] = await Promise.all([
+  const [c, live, tutors, { data: open }, { data: rows }, { count: invites }, recent, mine, ai] = await Promise.all([
     consistencyFor(me.profile.id),
     liveSessionFor(me.profile.id),
     linkedTutors(me.profile.id),
@@ -52,6 +54,7 @@ async function Home() {
     admin.from("group_friend_invites").select("id", { count: "exact", head: true }).eq("invitee_id", me.profile.id).eq("state", "pending"),
     myActivity(me.profile.id),
     myRank(me.profile.id),
+    aiAccess(me),
   ]);
   const rank = rankByTier(mine.tier);
   const nextUp = nextRank(rank);
@@ -107,6 +110,8 @@ async function Home() {
           </Link>
         )}
       </section>
+
+      <AskTile on={ai.kind === "on"} askHref={href("/student/practice/ask")} />
 
       <Link href={href("/student/ranks")} className={`${card} flex items-center gap-4 py-4 text-ink no-underline hover:border-ink`} data-testid="rank-xp" aria-label={`Your rank: ${rank.name}. See your progression`}>
         <RankBadge rank={rank} size={52} labelled={false} className="shrink-0" />

@@ -11,6 +11,7 @@
  * 2. A Customer Portal configuration: update card, see invoices, switch plan, cancel at the end of
  *    the paid week with an optional reason (owner decision 2026-10-30; reasons feed churn metrics).
  * 2b. The tutor product's Solo plan: A$15/month (lookup key study-hall-tutor-solo).
+ * 2c/2d. The Edumi student plan (A$11.99/month) and the EduMi AI add-on (A$2.99/month).
  * 3. With --webhook <url>: a webhook endpoint for that URL. Its signing secret is written to
  *    .stripe-webhook-secret (gitignored) instead of being printed.
  */
@@ -174,6 +175,24 @@ async function main() {
     console.log(`Created Edumi Student price ${studentPrice.id}`);
   }
   console.log(`Edumi Student -> ${studentPrice.id}`);
+
+  // 2d. EduMi AI add-on (A$2.99/month, owner decision 12 Nov 2026): a second item on the student's
+  // own subscription (src/lib/social/billing.ts addAiAddon). The app also makes it on first use.
+  const aiKey = "edumi-ai-addon-monthly";
+  let aiPrice = (await stripe.prices.list({ lookup_keys: [aiKey], limit: 1 })).data[0];
+  if (!aiPrice) {
+    const product = await stripe.products.create({ name: "Edumi AI", metadata: { app: "edumi", product: "ai_addon" } });
+    aiPrice = await stripe.prices.create({
+      product: product.id,
+      unit_amount: 299,
+      currency: "aud",
+      recurring: { interval: "month" },
+      lookup_key: aiKey,
+      metadata: { app: "edumi", addon: "ai" },
+    });
+    console.log(`Created Edumi AI add-on price ${aiPrice.id}`);
+  }
+  console.log(`Edumi AI add-on -> ${aiPrice.id}`);
 
   // 3. Webhook endpoint (optional)
   const webhookFlag = process.argv.indexOf("--webhook");
