@@ -219,3 +219,52 @@ describe("study ranks", () => {
     for (const r of RANKS) expect(existsSync(`public${badgeSrc(r)}`), r.id).toBe(true);
   });
 });
+
+describe("recent activity", () => {
+  it("labels times as today, yesterday or a date (Melbourne)", async () => {
+    const { whenLabel, latest, studied } = await import("./activity");
+    const now = Date.parse("2026-11-12T06:00:00Z"); // 5 pm Thursday in Melbourne
+    expect(whenLabel("2026-11-12T05:10:00Z", now)).toBe("Today, 4:10 pm");
+    expect(whenLabel("2026-11-11T22:05:00Z", now)).toBe("Today, 9:05 am");
+    expect(whenLabel("2026-11-11T05:10:00Z", now)).toBe("Yesterday, 4:10 pm");
+    expect(whenLabel("2026-11-09T05:10:00Z", now)).toBe("Mon 9 Nov");
+    expect(studied(45 * 60)).toBe("45 min");
+    expect(studied(80 * 60)).toBe("1 h 20 min");
+    expect(studied(120 * 60)).toBe("2 h");
+    const a = { at: "2026-11-12T01:00:00Z", text: "a", kind: "session" as const };
+    const b = { at: "2026-11-12T02:00:00Z", text: "b", kind: "session" as const };
+    expect(latest([a, b], 1)).toEqual([b]);
+  });
+});
+
+describe("rank progression", () => {
+  it("dates every tier a promotion passes, keeping the first date", async () => {
+    const { tierDates } = await import("./rank-history");
+    const d = tierDates([
+      { from_tier: 3, to_tier: 4, created_at: "2026-11-10T01:00:00Z" },
+      { from_tier: 1, to_tier: 3, created_at: "2026-11-08T01:00:00Z" },
+    ]);
+    expect(d.get(2)).toBe("2026-11-08T01:00:00Z");
+    expect(d.get(3)).toBe("2026-11-08T01:00:00Z");
+    expect(d.get(4)).toBe("2026-11-10T01:00:00Z");
+    expect(d.has(1)).toBe(false);
+  });
+  it("adds points into Monday-to-Sunday weeks, oldest first", async () => {
+    const { weeklyPoints } = await import("./rank-history");
+    const w = weeklyPoints(
+      [
+        { points: 10, day: "2026-11-12" },
+        { points: 5, day: "2026-11-09" },
+        { points: 7, day: "2026-11-08" },
+        { points: 99, day: "2026-01-01" },
+      ],
+      "2026-11-12",
+      3,
+    );
+    expect(w).toEqual([
+      { week: "2026-10-26", points: 0 },
+      { week: "2026-11-02", points: 7 },
+      { week: "2026-11-09", points: 15 },
+    ]);
+  });
+});

@@ -5,7 +5,9 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { localizePath } from "@/i18n/config";
 import { getLocale } from "@/i18n/server";
-import { dayWindow, rank, shortMinutes, weekWindow } from "@/lib/social/credit";
+import { rank, shortMinutes, weekWindow } from "@/lib/social/credit";
+import { whenLabel } from "@/lib/social/activity";
+import { groupActivity } from "@/lib/social/activity-server";
 import { siteOrigin } from "@/lib/site";
 import {
   groupMembers,
@@ -53,7 +55,9 @@ async function GroupView({ params, searchParams }: Pick<PageProps<"/[lang]/stude
   await sweepStale({ groupId: group.id });
   await postRecapIfDue(group);
 
-  const weekView = query.board === "week";
+  // Two tabs: Overview (goal, timer, chat) and Ranking (Today / This week / All time).
+  const tab = query.tab === "ranking" ? "ranking" : "overview";
+  const period = tab === "overview" ? "day" : query.period === "day" || query.period === "all" ? query.period : "week";
   const now = new Date();
   const [members, progress, live, { data: msgs }, { data: blocks }, { data: help }, { data: invites }, { data: friendRows }] =
     await Promise.all([
@@ -98,11 +102,24 @@ async function GroupView({ params, searchParams }: Pick<PageProps<"/[lang]/stude
   const messages = ((msgs ?? []) as ChatMessage[]).reverse();
   const friendOf = new Map((friendRows ?? []).map((f) => [f.a === me.profile.id ? (f.b as string) : (f.a as string), f.status as string]));
 
-  // Board: today (default) or this week, only members who opted in. Running time is provisional.
-  const window = weekView ? weekWindow(progress.day, group.timezone) : dayWindow(progress.day, group.timezone);
-  const totals = weekView ? await groupSeconds(group.id, window.start, window.end) : progress.totals;
+  // Board: only members who opted in. Running time is provisional.
+  const totals =
+    period === "day"
+      ? progress.totals
+      : period === "week"
+        ? await (async () => {
+            const w = weekWindow(progress.day, group.timezone);
+            return groupSeconds(group.id, w.start, w.end);
+          })()
+        : await (async () => {
+            const { data: g } = await admin.from("study_groups").select("created_at").eq("id", group.id).single();
+            return groupSeconds(group.id, new Date(g!.created_at as string), new Date(now.getTime() + 60_000));
+          })();
   const boardMembers = members.filter((m) => m.board_opt_in);
   const standings = rank(new Map(boardMembers.map((m) => [m.profile_id, totals.get(m.profile_id) ?? 0])));
+  const groupTotal = [...totals.values()].reduce((a, b) => a + b, 0);
+  const myTotal = totals.get(me.profile.id) ?? 0;
+  const recent = tab === "overview" ? await groupActivity(group.id, members, me.profile.id) : [];
   const { data: liveRows } = await admin.from("study_sessions").select("profile_id, state, last_beat_at").eq("group_id", group.id).neq("state", "stopped");
   // "Studying now" means a running timer that isn't waiting on a welcome-back answer.
   const liveBy = new Map((liveRows ?? []).map((r) => [r.profile_id as string, needsCheck(r as { state: string; last_beat_at: string }) ? "away" : (r.state as string)]));
@@ -119,10 +136,107 @@ async function GroupView({ params, searchParams }: Pick<PageProps<"/[lang]/stude
   const error = typeof query.error === "string" ? ERRORS[query.error] : null;
   const suspended = Boolean(me.student.chat_suspended_until && Date.parse(me.student.chat_suspended_until) > now.getTime());
   const pct = Math.min(100, Math.round((progress.doneMinutes / Math.max(1, progress.targetMinutes)) * 100));
+  const board = {
+    list: (rows: typeof standings) =>
+      rows.length === 0 ? (
+        <p className="text-sm text-ink-soft">Nobody has joined the board yet.</p>
+      ) : (
+        <ol className="flex flex-col gap-1 text-sm" data-testid="ranking">
+          {rows.map((s) => {
+            const mine = s.profileId === me.profile.id;
+            const width = Math.round((s.seconds / Math.max(1, standings[0].seconds)) * 100);
+            return (
+              <li key={s.profileId} className={`grid grid-cols-[1.75rem_1fr_auto] items-center gap-2 rounded-xl px-2 py-1.5 ${mine ? "bg-brand-soft font-medium" : ""}`}>
+                <span className="font-mono text-ink-faint">{s.rank}</span>
+                <span className="min-w-0">
+                  <span className="flex items-center gap-1.5">
+                    {ranks.get(s.profileId) && <RankBadge rank={ranks.get(s.profileId)!} size={20} />}
+                    <span className="truncate">{mine ? "You" : names[s.profileId]}</span>
+                    {liveBy.get(s.profileId) === "running" && <span className="size-2 animate-pulse rounded-full bg-[var(--tiles-sage-strong)]" role="img" aria-label="(live)" />}
+                  </span>
+                  <span className="mt-1 block h-1.5 overflow-hidden rounded-full bg-paper-deep">
+                    <span className="block h-full rounded-full bg-[var(--tiles-sage-strong)]" style={{ width: `${s.seconds ? Math.max(4, width) : 0}%` }} />
+                  </span>
+                </span>
+                <span className="font-mono">{s.seconds >= 60 ? shortMinutes(Math.floor(s.seconds / 60)) : "Not yet"}</span>
+              </li>
+            );
+          })}
+        </ol>
+      ),
+  };
+  const tabs = (
+    <nav aria-label="Group sections" className="flex w-fit rounded-full border border-rule bg-sheet p-1 text-sm">
+      {(
+        [
+          ["overview", "Overview", `/student/groups/${group.id}`],
+          ["ranking", "Ranking", `/student/groups/${group.id}?tab=ranking`],
+        ] as const
+      ).map(([key, label, to]) => (
+        <Link
+          key={key}
+          href={localizePath(to, locale)}
+          aria-current={tab === key ? "page" : undefined}
+          className={`inline-flex min-h-9 items-center rounded-full px-4 font-medium no-underline ${tab === key ? "bg-ink text-paper" : "text-ink-soft hover:text-ink"}`}
+        >
+          {label}
+        </Link>
+      ))}
+    </nav>
+  );
+
+  if (tab === "ranking") {
+    const hours = (sec: number) => (sec >= 3600 ? `${(sec / 3600).toFixed(1)} h` : `${Math.floor(sec / 60)} min`);
+    return (
+      <StudentShell me={me} title={group.name} current="groups" back={{ href: "/student/groups", label: "All groups" }}>
+        <LiveRefresh seconds={30} />
+        {tabs}
+        <nav aria-label="Period" className="flex w-full max-w-md rounded-full bg-paper-deep p-1 text-sm">
+          {(
+            [
+              ["day", "Today"],
+              ["week", "This week"],
+              ["all", "All time"],
+            ] as const
+          ).map(([key, label]) => (
+            <Link
+              key={key}
+              href={localizePath(`/student/groups/${group.id}?tab=ranking&period=${key}`, locale)}
+              aria-current={period === key ? "page" : undefined}
+              className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-full px-3 font-medium no-underline ${period === key ? "bg-sheet text-ink shadow-sm" : "text-ink-soft"}`}
+            >
+              {label}
+            </Link>
+          ))}
+        </nav>
+        <section aria-label="Totals" className={`${card} flex justify-between gap-4`}>
+          <div>
+            <p className="font-mono text-xs tracking-wide text-ink-faint uppercase">Group</p>
+            <p className="font-mono text-2xl font-semibold" data-testid="group-total">
+              {hours(groupTotal)}
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="font-mono text-xs tracking-wide text-ink-faint uppercase">You</p>
+            <p className="font-mono text-2xl font-semibold text-[var(--tiles-sage-ink)]" data-testid="my-total">
+              {hours(myTotal)}
+            </p>
+          </div>
+        </section>
+        <section aria-label="Ranking" className={`${card} flex flex-col gap-3`}>
+          {board.list(standings)}
+          <p className="text-xs text-ink-faint">
+            Your time adds to the group&apos;s total, wherever you rank. Live times are provisional until a session stops. Only this group&apos;s minutes count here.
+          </p>
+        </section>
+      </StudentShell>
+    );
+  }
 
   return (
     <StudentShell me={me} title={group.name} current="groups" back={{ href: "/student/groups", label: "All groups" }}>
       <LiveRefresh seconds={30} />
+      {tabs}
       {error && <Notice tone="error">{error}</Notice>}
 
       <section aria-label="Today's goal" className={`${card} flex flex-col gap-2`}>
@@ -157,53 +271,31 @@ async function GroupView({ params, searchParams }: Pick<PageProps<"/[lang]/stude
 
       <div className="grid gap-5 lg:grid-cols-[1fr_20rem]">
         <div className="flex min-w-0 flex-col gap-5">
-          <section aria-label="Leaderboard" className={`${card} flex flex-col gap-3`}>
+          <section aria-label="Who's helped today" className={`${card} flex flex-col gap-3`}>
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h2 className="font-semibold">Who&apos;s helped {weekView ? "this week" : "today"}</h2>
-              <nav aria-label="Period" className="flex rounded-full bg-paper-deep p-1 text-sm">
-                {[
-                  { on: !weekView, label: "Today", to: `/student/groups/${group.id}` },
-                  { on: weekView, label: "This week", to: `/student/groups/${group.id}?board=week` },
-                ].map((t) => (
-                  <Link
-                    key={t.label}
-                    href={localizePath(t.to, locale)}
-                    aria-current={t.on ? "page" : undefined}
-                    className={`inline-flex min-h-9 items-center rounded-full px-3 font-medium no-underline ${t.on ? "bg-sheet text-ink shadow-sm" : "text-ink-soft"}`}
-                  >
-                    {t.label}
-                  </Link>
-                ))}
-              </nav>
+              <h2 className="font-semibold">Who&apos;s helped today</h2>
+              <Link href={localizePath(`/student/groups/${group.id}?tab=ranking`, locale)} className="-my-2 inline-flex min-h-11 items-center px-2 text-sm text-ink-soft">
+                Full ranking →
+              </Link>
             </div>
-            {standings.length === 0 ? (
-              <p className="text-sm text-ink-soft">Nobody has joined the board yet.</p>
-            ) : (
-              <ol className="flex flex-col gap-1 text-sm">
-                {standings.map((s) => {
-                  const mine = s.profileId === me.profile.id;
-                  const width = Math.round((s.seconds / Math.max(1, standings[0].seconds)) * 100);
-                  return (
-                    <li key={s.profileId} className={`grid grid-cols-[1.75rem_1fr_auto] items-center gap-2 rounded-xl px-2 py-1.5 ${mine ? "bg-brand-soft font-medium" : ""}`}>
-                      <span className="font-mono text-ink-faint">{s.rank}</span>
-                      <span className="min-w-0">
-                        <span className="flex items-center gap-1.5">
-                          {ranks.get(s.profileId) && <RankBadge rank={ranks.get(s.profileId)!} size={20} />}
-                          <span className="truncate">{mine ? "You" : names[s.profileId]}</span>
-                          {liveBy.get(s.profileId) === "running" && <span className="size-2 animate-pulse rounded-full bg-[var(--tiles-sage-strong)]" role="img" aria-label="(live)" />}
-                        </span>
-                        <span className="mt-1 block h-1.5 overflow-hidden rounded-full bg-paper-deep">
-                          <span className="block h-full rounded-full bg-[var(--tiles-sage-strong)]" style={{ width: `${s.seconds ? Math.max(4, width) : 0}%` }} />
-                        </span>
-                      </span>
-                      <span className="font-mono">{s.seconds >= 60 ? shortMinutes(Math.floor(s.seconds / 60)) : "Not yet"}</span>
-                    </li>
-                  );
-                })}
-              </ol>
-            )}
-            <p className="text-xs text-ink-faint">Everyone&apos;s time adds to the group&apos;s goal, wherever they rank. Only this group&apos;s minutes count here.</p>
+            {board.list(standings.slice(0, 5))}
           </section>
+          {recent.length > 0 && (
+            <section aria-label="Recent" className={`${card} flex flex-col gap-1`} data-testid="group-activity">
+              <h2 className="mb-1 font-semibold">Recent</h2>
+              <ul className="flex flex-col text-sm">
+                {recent.map((r, i) => (
+                  <li key={i} className="flex items-baseline justify-between gap-3 border-t border-rule py-2 first:border-t-0">
+                    <span>
+                      {r.kind === "milestone" && <span aria-hidden>★ </span>}
+                      {r.text}
+                    </span>
+                    <span className="shrink-0 text-xs text-ink-faint">{whenLabel(r.at)}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
           <GroupChat groupId={group.id} meId={me.profile.id} initial={messages} names={names} ranks={rankView} blocked={blockedIds} canPost={!suspended} prompt={prompt} nudge={nudge} />
         </div>
 
