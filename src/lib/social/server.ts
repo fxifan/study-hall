@@ -10,15 +10,17 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { addDaysToDateKey } from "@/lib/time";
 import { TUTOR_LINK_COOKIE, isTutorLinked } from "@/lib/tutor/links";
 import {
-  BEAT_GRACE_SECONDS,
-  STALE_SECONDS,
+  ABANDONED_SECONDS,
+  awayTooLong,
+  clampEnd,
   dayWindow,
   formatMinutes,
   goalProgress,
   groupDayOf,
-  planBeat,
+  openEnd,
   secondsByMember,
   standouts,
+  trimTo,
   type CreditInterval,
 } from "./credit";
 
@@ -319,13 +321,26 @@ async function sumCredited(sessionId: string): Promise<number> {
   return Math.round((data ?? []).reduce((s, i) => s + (i.ended_at ? (Date.parse(i.ended_at) - Date.parse(i.started_at)) / 1000 : 0), 0));
 }
 
-/** Stop a session: close any open interval at `closeAt` (default: its last beat) and total it. */
+/** End a session's pieces at `end` (see trimTo) without stopping it. */
+async function trimSession(sessionId: string, end: string) {
+  const admin = createAdminClient();
+  const { data } = await admin.from("study_intervals").select("id, started_at, ended_at").eq("session_id", sessionId);
+  const { drop, close } = trimTo(data ?? [], end);
+  if (drop.length) await admin.from("study_intervals").delete().in("id", drop);
+  if (close.length) await admin.from("study_intervals").update({ ended_at: end }).in("id", close);
+}
+
+/**
+ * Stop a session and total it. Time ends at `closeAt` if given (a stop time the student picked),
+ * otherwise now, or the last time Edumi was open if it has been closed for over 2 hours.
+ * Safe to repeat: a stopped session is left alone.
+ */
 export async function finishSession(sessionId: string, reason: "manual" | "idle" | "timeout" | "left_group" | "replaced", closeAt?: string) {
   const admin = createAdminClient();
   const { data: s } = await admin.from("study_sessions").select("id, state, last_beat_at").eq("id", sessionId).maybeSingle();
   if (!s || s.state === "stopped") return;
-  const end = closeAt ?? (s.last_beat_at as string);
-  await admin.from("study_intervals").update({ ended_at: end }).eq("session_id", sessionId).is("ended_at", null);
+  const end = closeAt ?? new Date(openEnd(s.last_beat_at as string, Date.now())).toISOString();
+  await trimSession(sessionId, end);
   const credited = await sumCredited(sessionId);
   await admin
     .from("study_sessions")
@@ -334,14 +349,14 @@ export async function finishSession(sessionId: string, reason: "manual" | "idle"
     .neq("state", "stopped");
 }
 
-/** Close sessions whose device went quiet. Credit ends at their last heartbeat. */
+/** Close sessions nobody came back to within a day. Their time ends when Edumi was last open. */
 export async function sweepStale(filter: { profileId?: string; groupId?: string } = {}) {
-  const cutoff = new Date(Date.now() - STALE_SECONDS * 1000).toISOString();
-  let q = createAdminClient().from("study_sessions").select("id").neq("state", "stopped").lt("last_beat_at", cutoff);
+  const cutoff = new Date(Date.now() - ABANDONED_SECONDS * 1000).toISOString();
+  let q = createAdminClient().from("study_sessions").select("id, last_beat_at").neq("state", "stopped").lt("last_beat_at", cutoff);
   if (filter.profileId) q = q.eq("profile_id", filter.profileId);
   if (filter.groupId) q = q.eq("group_id", filter.groupId);
   const { data } = await q;
-  for (const s of data ?? []) await finishSession(s.id as string, "timeout");
+  for (const s of data ?? []) await finishSession(s.id as string, "timeout", s.last_beat_at as string);
 }
 
 export async function liveSessionFor(profileId: string): Promise<LiveSession | null> {
@@ -355,16 +370,29 @@ export async function liveSessionFor(profileId: string): Promise<LiveSession | n
   return data ?? null;
 }
 
-/** Credited seconds so far in a live session (closed intervals plus the open one up to its last beat). */
-export async function sessionSeconds(session: Pick<LiveSession, "id" | "last_beat_at">): Promise<number> {
+/** Seconds counted so far in a live session. `until` overrides where an open piece ends. */
+export async function sessionSeconds(session: Pick<LiveSession, "id" | "last_beat_at">, until?: number): Promise<number> {
   const { data } = await createAdminClient().from("study_intervals").select("started_at, ended_at").eq("session_id", session.id);
   const now = Date.now();
-  return Math.round(
-    (data ?? []).reduce((s, i) => {
-      const end = i.ended_at ? Date.parse(i.ended_at) : Math.min(Date.parse(session.last_beat_at), now);
-      return s + Math.max(0, end - Date.parse(i.started_at)) / 1000;
-    }, 0),
-  );
+  const openUntil = until ?? openEnd(session.last_beat_at, now);
+  return Math.round((data ?? []).reduce((s, i) => s + Math.max(0, (i.ended_at ? Date.parse(i.ended_at) : openUntil) - Date.parse(i.started_at)) / 1000, 0));
+}
+
+/** True while a running session has been away too long and needs the student's answer. */
+export function needsCheck(session: { state: string; last_beat_at: string }, now = Date.now()): boolean {
+  return session.state === "running" && awayTooLong(session.last_beat_at, now);
+}
+
+async function settleBeforeStartOrNull(profileId: string): Promise<LiveSession | null> {
+  const live = await liveSessionFor(profileId);
+  return live ? settleBeforeStart(live) : null;
+}
+
+/** A session left away too long is closed at the last time Edumi was open before a new one starts. */
+async function settleBeforeStart(existing: LiveSession): Promise<LiveSession | null> {
+  if (!needsCheck(existing)) return existing;
+  await finishSession(existing.id, "timeout", existing.last_beat_at);
+  return null;
 }
 
 /**
@@ -374,10 +402,10 @@ export async function sessionSeconds(session: Pick<LiveSession, "id" | "last_bea
 /** A timer that counts towards no group: studying for a tutor's next step. */
 export async function startSoloSession(me: SocialStudent): Promise<LiveSession> {
   const admin = createAdminClient();
-  const existing = await liveSessionFor(me.profile.id);
+  const existing = await settleBeforeStartOrNull(me.profile.id);
   if (existing) {
     if (existing.group_id === null) {
-      await beat(me.profile.id, existing.id, true);
+      await setPaused(me.profile.id, existing.id, false);
       return existing;
     }
     await finishSession(existing.id, "replaced");
@@ -402,10 +430,10 @@ export async function startSoloSession(me: SocialStudent): Promise<LiveSession> 
 export async function startSession(me: SocialStudent, groupId: string): Promise<LiveSession> {
   const group = await requireMember(groupId, me.profile.id);
   const admin = createAdminClient();
-  const existing = await liveSessionFor(me.profile.id);
+  const existing = await settleBeforeStartOrNull(me.profile.id);
   if (existing) {
     if (existing.group_id === group.id) {
-      await beat(me.profile.id, existing.id, true);
+      await setPaused(me.profile.id, existing.id, false);
       return existing;
     }
     await finishSession(existing.id, "replaced");
@@ -440,38 +468,96 @@ export async function startSession(me: SocialStudent, groupId: string): Promise<
   return inserted.data;
 }
 
-/**
- * A heartbeat from the study screen. `active` is false when the tab is hidden, the student is
- * idle, or they pressed pause. Revalidates membership: a student who left the group stops earning.
- */
-export async function beat(profileId: string, sessionId: string, active: boolean): Promise<{ state: "running" | "paused" | "stopped"; seconds: number }> {
-  const admin = createAdminClient();
-  const { data: s } = await admin
+export type Away = { startedAt: string; lastSeenAt: string; seenSeconds: number; allSeconds: number };
+export type BeatResult = { state: "running" | "paused" | "stopped" | "check"; seconds: number; startedAt?: string; away?: Away };
+
+type SessionRow = { id: string; profile_id: string; group_id: string | null; state: "running" | "paused" | "stopped"; started_at: string; last_beat_at: string };
+
+async function loadSession(profileId: string, sessionId: string): Promise<SessionRow | null> {
+  const { data } = await createAdminClient()
     .from("study_sessions")
-    .select("id, profile_id, group_id, state, last_beat_at")
+    .select("id, profile_id, group_id, state, started_at, last_beat_at")
     .eq("id", sessionId)
     .eq("profile_id", profileId)
-    .maybeSingle();
-  if (!s || s.state === "stopped") return { state: "stopped", seconds: s ? await sumCredited(sessionId) : 0 };
-  if (s.group_id && !(await isMember(s.group_id as string, profileId))) {
-    await finishSession(sessionId, "left_group", new Date().toISOString());
-    return { state: "stopped", seconds: await sumCredited(sessionId) };
-  }
-  const now = new Date();
-  if ((now.getTime() - Date.parse(s.last_beat_at as string)) / 1000 > STALE_SECONDS) {
-    await finishSession(sessionId, "timeout");
-    return { state: "stopped", seconds: await sumCredited(sessionId) };
-  }
-  const { data: open } = await admin.from("study_intervals").select("id").eq("session_id", sessionId).is("ended_at", null).maybeSingle();
-  const plan = planBeat({ hasOpen: Boolean(open), lastBeatAt: s.last_beat_at as string, now, active });
-  if (plan.closeAt && open) await admin.from("study_intervals").update({ ended_at: plan.closeAt }).eq("id", open.id).is("ended_at", null);
-  if (plan.openAt) {
-    const ins = await admin.from("study_intervals").insert({ session_id: sessionId, profile_id: profileId, group_id: s.group_id, started_at: plan.openAt });
-    // 23505: a second device opened it in the same instant. One open interval is enough.
-    if (ins.error && ins.error.code !== "23505") throw ins.error;
-  }
-  await admin.from("study_sessions").update({ state: plan.state, last_beat_at: now.toISOString() }).eq("id", sessionId).neq("state", "stopped");
-  return { state: plan.state, seconds: await sessionSeconds({ id: sessionId, last_beat_at: now.toISOString() }) };
+    .maybeSingle<SessionRow>();
+  return data;
 }
 
-export { BEAT_GRACE_SECONDS };
+/** The welcome-back question: what each answer would count. */
+async function awayFor(s: SessionRow): Promise<BeatResult> {
+  const seenSeconds = await sessionSeconds(s, Date.parse(s.last_beat_at));
+  const allSeconds = await sessionSeconds(s, Date.now());
+  return { state: "check", seconds: seenSeconds, startedAt: s.started_at, away: { startedAt: s.started_at, lastSeenAt: s.last_beat_at, seenSeconds, allSeconds } };
+}
+
+/** Checks shared by every timer write: stopped, left the group, abandoned, or away too long. */
+async function guard(profileId: string, s: SessionRow | null): Promise<BeatResult | null> {
+  if (!s || s.state === "stopped") return { state: "stopped", seconds: s ? await sumCredited(s.id) : 0 };
+  if (s.group_id && !(await isMember(s.group_id, profileId))) {
+    await finishSession(s.id, "left_group", new Date().toISOString());
+    return { state: "stopped", seconds: await sumCredited(s.id) };
+  }
+  if (Date.now() - Date.parse(s.last_beat_at) > ABANDONED_SECONDS * 1000) {
+    await finishSession(s.id, "timeout", s.last_beat_at);
+    return { state: "stopped", seconds: await sumCredited(s.id) };
+  }
+  if (needsCheck(s)) return awayFor(s);
+  return null;
+}
+
+/**
+ * "Edumi is open somewhere" (any tab, visible or not). It never pauses or resumes: only the
+ * student does that. After a long absence it asks what to count instead of carrying on.
+ */
+export async function beat(profileId: string, sessionId: string): Promise<BeatResult> {
+  const s = await loadSession(profileId, sessionId);
+  const stop = await guard(profileId, s);
+  if (stop) return stop;
+  const now = new Date().toISOString();
+  await createAdminClient().from("study_sessions").update({ last_beat_at: now }).eq("id", sessionId).neq("state", "stopped");
+  return { state: s!.state as "running" | "paused", seconds: await sessionSeconds({ id: sessionId, last_beat_at: now }), startedAt: s!.started_at };
+}
+
+/** Pause (close the open piece now) or resume (open a new piece now). Repeats change nothing. */
+export async function setPaused(profileId: string, sessionId: string, paused: boolean): Promise<BeatResult> {
+  const s = await loadSession(profileId, sessionId);
+  const stop = await guard(profileId, s);
+  if (stop) return stop;
+  const admin = createAdminClient();
+  const now = new Date().toISOString();
+  if (paused) {
+    await admin.from("study_intervals").update({ ended_at: now }).eq("session_id", sessionId).is("ended_at", null);
+  } else {
+    const { data: open } = await admin.from("study_intervals").select("id").eq("session_id", sessionId).is("ended_at", null).maybeSingle();
+    if (!open) {
+      const ins = await admin.from("study_intervals").insert({ session_id: sessionId, profile_id: profileId, group_id: s!.group_id, started_at: now });
+      // 23505: a second device resumed in the same instant. One open piece is enough.
+      if (ins.error && ins.error.code !== "23505") throw ins.error;
+    }
+  }
+  await admin.from("study_sessions").update({ state: paused ? "paused" : "running", last_beat_at: now }).eq("id", sessionId).neq("state", "stopped");
+  return { state: paused ? "paused" : "running", seconds: await sessionSeconds({ id: sessionId, last_beat_at: now }), startedAt: s!.started_at };
+}
+
+/**
+ * The student's answer after a long absence: count until they left Edumi, the whole time, or until
+ * a time they pick. Then either finish, or keep going from now (the gap isn't counted).
+ */
+export async function resolveAway(profileId: string, sessionId: string, until: "left" | "now" | { at: string }, then: "finish" | "resume"): Promise<BeatResult> {
+  const s = await loadSession(profileId, sessionId);
+  if (!s || s.state === "stopped") return { state: "stopped", seconds: s ? await sumCredited(s.id) : 0 };
+  const now = Date.now();
+  const end = until === "left" ? s.last_beat_at : until === "now" ? new Date(now).toISOString() : clampEnd(until.at, s.started_at, now);
+  if (then === "finish") {
+    await finishSession(sessionId, "manual", end);
+    return { state: "stopped", seconds: await sumCredited(sessionId) };
+  }
+  await trimSession(sessionId, end);
+  const admin = createAdminClient();
+  const nowIso = new Date(now).toISOString();
+  const ins = await admin.from("study_intervals").insert({ session_id: sessionId, profile_id: profileId, group_id: s.group_id, started_at: nowIso });
+  if (ins.error && ins.error.code !== "23505") throw ins.error;
+  await admin.from("study_sessions").update({ state: "running", last_beat_at: nowIso }).eq("id", sessionId).neq("state", "stopped");
+  return { state: "running", seconds: await sessionSeconds({ id: sessionId, last_beat_at: nowIso }), startedAt: s.started_at };
+}
+

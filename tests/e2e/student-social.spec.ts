@@ -113,19 +113,19 @@ test("a group studies together: chat, timer, help and practice", async ({ browse
 
   // Timer: one start event, even after pause and resume or a second tab.
   await a.getByRole("button", { name: "Start studying" }).click();
-  await expect(a.getByText("Counting")).toBeVisible();
+  await expect(a.getByText("Studying", { exact: true })).toBeVisible();
   await expect(b.getByText(/Alex T\. just started studying\. 6 hours left on today's goal\./)).toBeVisible({ timeout: 15_000 });
   await a.getByRole("button", { name: "Pause" }).click();
   await a.getByRole("button", { name: "Resume" }).click();
   const second = await a.context().newPage();
   await second.goto(groupUrl);
-  await expect(second.getByRole("button", { name: "Stop" })).toBeVisible();
+  await expect(second.getByRole("button", { name: "Finish" })).toBeVisible();
   await second.close();
   const starts = await admin.from("group_messages").select("id").eq("group_id", groupId).contains("meta", { event: "study_start" });
   expect(starts.data).toHaveLength(1);
   const live = await admin.from("study_sessions").select("id").eq("profile_id", alex.id).neq("state", "stopped");
   expect(live.data).toHaveLength(1);
-  await a.getByRole("button", { name: "Stop" }).click();
+  await a.getByRole("button", { name: "Finish" }).click();
   await expect(a.getByRole("button", { name: "Start studying" })).toBeVisible();
   const stopped = await admin.from("study_sessions").select("state, credited_seconds").eq("profile_id", alex.id).single();
   expect(stopped.data!.state).toBe("stopped");

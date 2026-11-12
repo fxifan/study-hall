@@ -1,31 +1,67 @@
 import { addDaysToDateKey, dateKeyOf, dayRangeUtc } from "@/lib/time";
 
 /**
- * Study-time credit (student social brief, "Shared daily goal and timer"). Pure functions, so the
- * acceptance scenarios are unit tests (credit.test.ts). The server stores credited intervals; an
- * open interval's end is bounded by the session's last valid heartbeat, never by "now", so a
- * device that disappears earns nothing past its last proof of activity.
+ * Study-time credit (student social brief, "Shared daily goal and timer"; timer rule in
+ * docs/ui-refresh-and-timer.md). Pure functions, so the acceptance scenarios are unit tests.
+ *
+ * A session is an honour-based log: time counts from Start until Pause or Finish, whatever tab or
+ * app the student is in. Heartbeats only say "Edumi is open somewhere". If Edumi has been closed
+ * everywhere for longer than AWAY_LIMIT_SECONDS, the time after the last heartbeat is held back
+ * (not counted for groups or ranks) until the student says what to count.
  */
 
-/** A heartbeat must arrive within this many seconds or the open interval is closed at the last one. */
-export const BEAT_GRACE_SECONDS = 75;
-/** A live session with no heartbeat for this long is stopped (timeout) by the next read or cron. */
-export const STALE_SECONDS = 10 * 60;
+/** Edumi closed everywhere for up to this long still counts. Longer, the student chooses on return. */
+export const AWAY_LIMIT_SECONDS = 2 * 60 * 60;
+/** A session this long asks the student to confirm it at Finish. */
+export const LONG_SESSION_SECONDS = 6 * 60 * 60;
+/** A session nobody came back to for this long is closed at the last time Edumi was open. */
+export const ABANDONED_SECONDS = 24 * 60 * 60;
 
 export type CreditInterval = {
   profileId: string;
   startedAt: string;
   /** Null while open. */
   endedAt: string | null;
-  /** The session's last heartbeat: bounds an open interval. */
+  /** The session's last heartbeat: when Edumi was last open somewhere. */
   lastBeatAt: string;
 };
 
-/** [start, end) in ms that an interval actually earned. Open intervals end at the last heartbeat. */
+/** True when Edumi has been closed everywhere for longer than the away limit. */
+export function awayTooLong(lastBeatAt: string, now: number): boolean {
+  return now - Date.parse(lastBeatAt) > AWAY_LIMIT_SECONDS * 1000;
+}
+
+/** Where an open interval's counted time ends: now, or the last heartbeat after a long absence. */
+export function openEnd(lastBeatAt: string, now: number): number {
+  return awayTooLong(lastBeatAt, now) ? Date.parse(lastBeatAt) : now;
+}
+
+/** [start, end) in ms that an interval actually earned. */
 export function effectiveSpan(i: CreditInterval, now: number): [number, number] {
   const start = Date.parse(i.startedAt);
-  const end = i.endedAt ? Date.parse(i.endedAt) : Math.min(Date.parse(i.lastBeatAt), now);
+  const end = i.endedAt ? Date.parse(i.endedAt) : openEnd(i.lastBeatAt, now);
   return [start, Math.max(start, end)];
+}
+
+/**
+ * End a session's time at `end`: pieces that start at or after it are dropped, and any piece still
+ * open or running past it is closed there. Used by Finish and by "pick when I stopped".
+ */
+export function trimTo(intervals: { id: string; started_at: string; ended_at: string | null }[], end: string): { drop: string[]; close: string[] } {
+  const e = Date.parse(end);
+  const drop: string[] = [];
+  const close: string[] = [];
+  for (const i of intervals) {
+    if (Date.parse(i.started_at) >= e) drop.push(i.id);
+    else if (!i.ended_at || Date.parse(i.ended_at) > e) close.push(i.id);
+  }
+  return { drop, close };
+}
+
+/** Clamp a student-picked stop time into [start, now]. */
+export function clampEnd(picked: string, start: string, now: number): string {
+  const t = Math.min(Math.max(Date.parse(picked), Date.parse(start)), now);
+  return new Date(t).toISOString();
 }
 
 function overlapSeconds([a, b]: [number, number], [c, d]: [number, number]): number {
@@ -83,29 +119,6 @@ export function shortMinutes(minutes: number): string {
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
   return h ? `${h}h ${String(m).padStart(2, "0")}m` : `${m}m`;
-}
-
-/**
- * The heartbeat state machine, as a plan of writes (server.ts applies it). Given the session's
- * current open interval and last beat, decide what to close and open.
- *  - A gap longer than the grace closes the open interval at the last beat (no credit for the gap).
- *  - active: make sure an interval is open (from now).
- *  - inactive (hidden, idle, paused): close the open interval at now.
- */
-export type BeatPlan = { closeAt: string | null; openAt: string | null; state: "running" | "paused" };
-
-export function planBeat(input: { hasOpen: boolean; lastBeatAt: string; now: Date; active: boolean }): BeatPlan {
-  const nowIso = input.now.toISOString();
-  const gap = (input.now.getTime() - Date.parse(input.lastBeatAt)) / 1000;
-  let open = input.hasOpen;
-  let closeAt: string | null = null;
-  if (open && gap > BEAT_GRACE_SECONDS) {
-    closeAt = input.lastBeatAt;
-    open = false;
-  }
-  if (input.active) return { closeAt, openAt: open ? null : nowIso, state: "running" };
-  if (open) closeAt = nowIso;
-  return { closeAt, openAt: null, state: "paused" };
 }
 
 export type Standing = { profileId: string; seconds: number; rank: number };

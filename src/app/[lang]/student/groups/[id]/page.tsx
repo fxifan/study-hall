@@ -12,6 +12,7 @@ import {
   groupSeconds,
   isMember,
   liveSessionFor,
+  needsCheck,
   postRecapIfDue,
   requireMember,
   requireSocialStudent,
@@ -102,14 +103,15 @@ async function GroupView({ params, searchParams }: Pick<PageProps<"/[lang]/stude
   const totals = weekView ? await groupSeconds(group.id, window.start, window.end) : progress.totals;
   const boardMembers = members.filter((m) => m.board_opt_in);
   const standings = rank(new Map(boardMembers.map((m) => [m.profile_id, totals.get(m.profile_id) ?? 0])));
-  const { data: liveRows } = await admin.from("study_sessions").select("profile_id, state").eq("group_id", group.id).neq("state", "stopped");
-  const liveBy = new Map((liveRows ?? []).map((r) => [r.profile_id as string, r.state as string]));
+  const { data: liveRows } = await admin.from("study_sessions").select("profile_id, state, last_beat_at").eq("group_id", group.id).neq("state", "stopped");
+  // "Studying now" means a running timer that isn't waiting on a welcome-back answer.
+  const liveBy = new Map((liveRows ?? []).map((r) => [r.profile_id as string, needsCheck(r as { state: string; last_beat_at: string }) ? "away" : (r.state as string)]));
   const studyingNow = members.filter((m) => m.share_status && liveBy.get(m.profile_id) === "running");
   // Quiet days: lead with the student's own goal rather than an empty board.
   const quiet = studyingNow.length === 0 ? await consistencyFor(me.profile.id) : null;
 
   const initialTimer = live
-    ? { sessionId: live.id, state: live.state, seconds: await sessionSeconds(live), groupId: live.group_id }
+    ? { sessionId: live.id, state: live.state, seconds: await sessionSeconds(live), groupId: live.group_id, startedAt: live.started_at }
     : { sessionId: null, state: "stopped" as const, seconds: 0, groupId: null };
   const origin = await siteOrigin();
   const invite = invites?.[0];
@@ -150,7 +152,7 @@ async function GroupView({ params, searchParams }: Pick<PageProps<"/[lang]/stude
         )}
       </section>
 
-      <StudyTimer initial={initialTimer} groupId={group.id} groupName={group.name} studyScreen />
+      <StudyTimer initial={initialTimer} groupId={group.id} groupName={group.name} />
 
       <div className="grid gap-5 lg:grid-cols-[1fr_20rem]">
         <GroupChat groupId={group.id} meId={me.profile.id} initial={messages} names={names} ranks={rankView} blocked={blockedIds} canPost={!suspended} prompt={prompt} nudge={nudge} />

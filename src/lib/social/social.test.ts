@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ageFrom, canSelfSignUp } from "./age";
-import { dayWindow, goalProgress, planBeat, rank, secondsByMember, standouts, weekWindow, type CreditInterval } from "./credit";
+import { awayTooLong, clampEnd, dayWindow, goalProgress, openEnd, rank, secondsByMember, standouts, trimTo, weekWindow, type CreditInterval } from "./credit";
 import { completionAward, marksAward } from "./points";
 import { generateStudentResource, markQuiz, offlineStudentLlm } from "./resources";
 
@@ -44,7 +44,13 @@ describe("shared daily goal", () => {
     expect(d2).toBe(45 * 60);
   });
 
-  it("bounds an open interval at the last heartbeat, not now", () => {
+  it("keeps counting an open interval while Edumi was closed for up to 2 hours", () => {
+    const open: CreditInterval = { profileId: "a", startedAt: at("2026-11-07T01:00:00Z"), endedAt: null, lastBeatAt: at("2026-11-07T01:20:00Z") };
+    // Other tabs, apps, a locked phone: 1 h 40 since Edumi was last open still counts to now.
+    expect(secondsByMember([open], start, end, Date.parse("2026-11-07T03:00:00Z")).get("a")).toBe(120 * 60);
+  });
+
+  it("holds back time after the last heartbeat once Edumi was closed for over 2 hours", () => {
     const open: CreditInterval = { profileId: "a", startedAt: at("2026-11-07T01:00:00Z"), endedAt: null, lastBeatAt: at("2026-11-07T01:20:00Z") };
     expect(secondsByMember([open], start, end, Date.parse("2026-11-07T05:00:00Z")).get("a")).toBe(20 * 60);
   });
@@ -55,26 +61,28 @@ describe("shared daily goal", () => {
   });
 });
 
-describe("heartbeat state machine", () => {
-  const now = new Date("2026-11-07T01:00:00Z");
-  it("opens an interval on the first active beat", () => {
-    expect(planBeat({ hasOpen: false, lastBeatAt: now.toISOString(), now, active: true })).toEqual({ closeAt: null, openAt: now.toISOString(), state: "running" });
+describe("timer rules", () => {
+  const last = "2026-11-07T01:00:00Z";
+  it("tab switching never matters: only time since Edumi was last open", () => {
+    expect(awayTooLong(last, Date.parse("2026-11-07T02:59:00Z"))).toBe(false);
+    expect(awayTooLong(last, Date.parse("2026-11-07T03:01:00Z"))).toBe(true);
+    expect(openEnd(last, Date.parse("2026-11-07T02:00:00Z"))).toBe(Date.parse("2026-11-07T02:00:00Z"));
+    expect(openEnd(last, Date.parse("2026-11-07T04:00:00Z"))).toBe(Date.parse(last));
   });
-  it("keeps an open interval going on a timely beat", () => {
-    expect(planBeat({ hasOpen: true, lastBeatAt: "2026-11-07T00:59:30Z", now, active: true })).toEqual({ closeAt: null, openAt: null, state: "running" });
+  it("finishing at a picked time drops later pieces and closes the one running past it", () => {
+    const pieces = [
+      { id: "a", started_at: "2026-11-07T01:00:00Z", ended_at: "2026-11-07T01:30:00Z" },
+      { id: "b", started_at: "2026-11-07T01:40:00Z", ended_at: null },
+      { id: "c", started_at: "2026-11-07T03:00:00Z", ended_at: null },
+    ];
+    expect(trimTo(pieces, "2026-11-07T02:00:00.000Z")).toEqual({ drop: ["c"], close: ["b"] });
+    expect(trimTo(pieces, "2026-11-07T01:20:00.000Z")).toEqual({ drop: ["b", "c"], close: ["a"] });
   });
-  it("closes at the last beat after a gap, then reopens from now", () => {
-    expect(planBeat({ hasOpen: true, lastBeatAt: "2026-11-07T00:50:00Z", now, active: true })).toEqual({
-      closeAt: "2026-11-07T00:50:00Z",
-      openAt: now.toISOString(),
-      state: "running",
-    });
-  });
-  it("leaving the study screen pauses credit", () => {
-    expect(planBeat({ hasOpen: true, lastBeatAt: "2026-11-07T00:59:30Z", now, active: false })).toEqual({ closeAt: now.toISOString(), openAt: null, state: "paused" });
-  });
-  it("a repeated inactive beat (retried stop) closes nothing new", () => {
-    expect(planBeat({ hasOpen: false, lastBeatAt: "2026-11-07T00:59:30Z", now, active: false })).toEqual({ closeAt: null, openAt: null, state: "paused" });
+  it("a picked stop time stays between the start and now", () => {
+    const now = Date.parse("2026-11-07T05:00:00Z");
+    expect(clampEnd("2026-11-06T22:00:00Z", "2026-11-07T01:00:00Z", now)).toBe("2026-11-07T01:00:00.000Z");
+    expect(clampEnd("2026-11-07T09:00:00Z", "2026-11-07T01:00:00Z", now)).toBe("2026-11-07T05:00:00.000Z");
+    expect(clampEnd("2026-11-07T02:15:00Z", "2026-11-07T01:00:00Z", now)).toBe("2026-11-07T02:15:00.000Z");
   });
 });
 

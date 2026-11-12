@@ -6,7 +6,7 @@ import { z } from "zod";
 import { track } from "@/lib/events";
 import { GOAL_CHOICES } from "@/lib/social/consistency";
 import { awardConsistency } from "@/lib/social/consistency-server";
-import { beat, finishSession, liveSessionFor, socialActor, startSoloSession } from "@/lib/social/server";
+import { finishSession, liveSessionFor, setPaused, socialActor, startSoloSession } from "@/lib/social/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { dateKeyOf } from "@/lib/time";
 
@@ -26,7 +26,7 @@ export async function startSolo(formData: FormData) {
   const admin = createAdminClient();
   const { data: open } = await admin.from("solo_tasks").select("id").eq("profile_id", me.profile.id).eq("status", "open").maybeSingle();
   const session = await startSoloSession(me);
-  await beat(me.profile.id, session.id, true);
+  await setPaused(me.profile.id, session.id, false);
   if (!open) {
     const ins = await admin.from("solo_tasks").insert({ profile_id: me.profile.id, session_id: session.id, source: parsed.data.source, body: parsed.data.body });
     if (ins.error && ins.error.code !== "23505") throw ins.error;
@@ -52,10 +52,7 @@ export async function finishSolo(input: z.input<typeof finishSchema>): Promise<S
   if (!task) return { ok: false, error: "There's no solo task to finish. Refresh the page." };
   // Stop a solo timer if it's still running (a group timer is left alone).
   const live = await liveSessionFor(me.profile.id);
-  if (live && live.group_id === null) {
-    await beat(me.profile.id, live.id, false);
-    await finishSession(live.id, "manual");
-  }
+  if (live && live.group_id === null) await finishSession(live.id, "manual");
   const { error } = await admin
     .from("solo_tasks")
     .update({ status: parsed.data.status, tomorrow: parsed.data.tomorrow || null, day: dateKeyOf(), finished_at: new Date().toISOString() })

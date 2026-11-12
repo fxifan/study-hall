@@ -89,7 +89,7 @@ test("a tutor links a student, who reports progress for free", async ({ browser 
   await expect(student.getByRole("button", { name: "Pause" })).toBeVisible();
   const { data: live } = await admin.from("study_sessions").select("group_id, state").eq("profile_id", studentId).neq("state", "stopped");
   expect(live).toEqual([{ group_id: null, state: "running" }]);
-  await student.getByRole("button", { name: "Stop" }).click();
+  await student.getByRole("button", { name: "Finish" }).click();
 
   // Paid pages still send an expired student to their tutor page, not the plan page.
   await student.goto("/student/groups");
