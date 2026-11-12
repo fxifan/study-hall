@@ -4,11 +4,16 @@ import { cookies } from "next/headers";
 import { Suspense } from "react";
 import { localizePath } from "@/i18n/config";
 import { getLocale } from "@/i18n/server";
+import { whenLabel } from "@/lib/social/activity";
+import { myActivity } from "@/lib/social/activity-server";
 import { consistencyFor } from "@/lib/social/consistency-server";
+import { myRank } from "@/lib/social/rank-sync";
+import { nextRank, rankByTier } from "@/lib/social/ranks";
 import { groupMembers, liveSessionFor, requireSocialStudent, todayProgress, type Group } from "@/lib/social/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { TUTOR_LINK_COOKIE, linkedTutors } from "@/lib/tutor/links";
 import { GroupCard } from "../_social/group-card";
+import { RankBadge } from "../_social/rank-badge";
 import { Loading, StudentShell, card } from "../_social/shell";
 import { startSolo } from "../_social/solo-actions";
 import { StreakCard } from "../_social/streak-card";
@@ -33,7 +38,7 @@ async function Home() {
   const [me, locale, jar] = await Promise.all([requireSocialStudent(), getLocale(), cookies()]);
   const href = (p: string) => localizePath(p, locale);
   const admin = createAdminClient();
-  const [c, live, tutors, { data: open }, { data: rows }, { count: invites }] = await Promise.all([
+  const [c, live, tutors, { data: open }, { data: rows }, { count: invites }, recent, mine] = await Promise.all([
     consistencyFor(me.profile.id),
     liveSessionFor(me.profile.id),
     linkedTutors(me.profile.id),
@@ -45,7 +50,12 @@ async function Home() {
       .is("study_groups.archived_at", null)
       .returns<{ study_groups: Group }[]>(),
     admin.from("group_friend_invites").select("id", { count: "exact", head: true }).eq("invitee_id", me.profile.id).eq("state", "pending"),
+    myActivity(me.profile.id),
+    myRank(me.profile.id),
   ]);
+  const rank = rankByTier(mine.tier);
+  const nextUp = nextRank(rank);
+  const xp = nextUp ? Math.max(0, Math.min(100, Math.round(((mine.points - rank.min) / (nextUp.min - rank.min)) * 100))) : 100;
   const groups = (rows ?? []).map((r) => r.study_groups).slice(0, 2);
   const [progress, rosters] = await Promise.all([Promise.all(groups.map((g) => todayProgress(g))), Promise.all(groups.map((g) => groupMembers(g.id)))]);
 
@@ -98,6 +108,23 @@ async function Home() {
         )}
       </section>
 
+      <Link href={href("/student/ranks")} className={`${card} flex items-center gap-4 py-4 text-ink no-underline hover:border-ink`} data-testid="rank-xp" aria-label={`Your rank: ${rank.name}. See your progression`}>
+        <RankBadge rank={rank} size={52} labelled={false} className="shrink-0" />
+        <span className="flex min-w-0 flex-1 flex-col gap-1.5">
+          <span className="flex items-baseline justify-between gap-2">
+            <span className="truncate font-semibold">{rank.name}</span>
+            <span className="shrink-0 font-mono text-xs text-ink-soft">
+              {mine.points.toLocaleString("en-AU")}
+              {nextUp ? ` / ${nextUp.min.toLocaleString("en-AU")}` : ""} XP
+            </span>
+          </span>
+          <span className="block h-2.5 overflow-hidden rounded-full bg-paper-deep" role="progressbar" aria-valuenow={xp} aria-valuemin={0} aria-valuemax={100} aria-label={nextUp ? `Progress to ${nextUp.name}` : "Top rank reached"}>
+            <span className="block h-full rounded-full bg-[var(--tiles-sage-strong)] transition-[width] duration-700" style={{ width: `${xp}%` }} />
+          </span>
+          <span className="text-xs text-ink-soft">{nextUp ? `${(nextUp.min - mine.points).toLocaleString("en-AU")} XP to ${nextUp.name} · See your progression →` : "The top rank · See your progression →"}</span>
+        </span>
+      </Link>
+
       <StreakCard c={c} goalHref={href("/student/me#goal")} />
 
       <section aria-label="Your groups" className="flex flex-col gap-3">
@@ -139,6 +166,22 @@ async function Home() {
                     </button>
                   </form>
                 )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+      {recent.length > 0 && (
+        <section aria-label="Recent activity" className={`${card} flex flex-col`} data-testid="my-activity">
+          <h2 className="mb-1 font-semibold">Recent activity</h2>
+          <ul className="flex flex-col text-sm">
+            {recent.map((r, i) => (
+              <li key={i} className="flex items-baseline justify-between gap-3 border-t border-rule py-2 first:border-t-0">
+                <span>
+                  {r.kind === "milestone" && <span aria-hidden>★ </span>}
+                  {r.text}
+                </span>
+                <span className="shrink-0 text-xs text-ink-faint">{whenLabel(r.at)}</span>
               </li>
             ))}
           </ul>
