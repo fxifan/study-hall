@@ -37,10 +37,13 @@ import {
   MAX_GROUP_MEMBERS,
   postSystemMessage,
   requireMember,
+  resolveAway,
+  setPaused,
   socialActor,
   startSession,
   startSoloSession,
   token,
+  type BeatResult,
 } from "@/lib/social/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -213,13 +216,15 @@ export async function unblockUser(profileId: string) {
 
 // --- Timer ------------------------------------------------------------------------------------
 
-export type TimerState = { sessionId: string | null; state: "running" | "paused" | "stopped"; seconds: number; groupId: string | null };
+export type TimerState = BeatResult & { sessionId: string | null; groupId: string | null };
+
+const STOPPED: TimerState = { sessionId: null, state: "stopped", seconds: 0, groupId: null };
 
 /** Start the timer for a group, or with no group (`null`) for a tutor's next step. */
 export async function startStudy(groupId: string | null): Promise<TimerState> {
   const me = groupId ? await socialActor() : await tutorStudyActor();
   const s = groupId ? await startSession(me, groupId) : await startSoloSession(me);
-  const b = await beat(me.profile.id, s.id, true);
+  const b = await setPaused(me.profile.id, s.id, false);
   await track({ name: "study_session_started", product: "platform", role: "student", userId: me.profile.id, objectType: groupId ? "study_group" : undefined, objectId: groupId ?? undefined, dedupeKey: `study:${s.id}` });
   return { sessionId: s.id, groupId: s.group_id, ...b };
 }
@@ -231,22 +236,48 @@ async function tutorStudyActor() {
   return me;
 }
 
-export async function heartbeat(sessionId: string, active: boolean): Promise<TimerState> {
+/** "Edumi is open": sent from any tab, visible or not. Never pauses the timer. */
+export async function heartbeat(sessionId: string): Promise<TimerState> {
   const me = await tutorStudyActor();
-  if (!uuid.safeParse(sessionId).success) return { sessionId: null, state: "stopped", seconds: 0, groupId: null };
-  const b = await beat(me.profile.id, sessionId, active);
+  if (!uuid.safeParse(sessionId).success) return STOPPED;
+  return { sessionId, groupId: null, ...(await beat(me.profile.id, sessionId)) };
+}
+
+export async function pauseStudy(sessionId: string, paused: boolean): Promise<TimerState> {
+  const me = await socialActor({ paid: false });
+  if (!uuid.safeParse(sessionId).success) return STOPPED;
+  return { sessionId, groupId: null, ...(await setPaused(me.profile.id, sessionId, paused)) };
+}
+
+const until = z.union([z.literal("left"), z.literal("now"), z.object({ at: z.iso.datetime() })]);
+
+/** Finish a session. `endAt` is a stop time the student picked (long sessions ask for one). */
+export async function stopStudy(sessionId: string, endAt?: string): Promise<TimerState> {
+  const me = await socialActor({ paid: false });
+  if (!uuid.safeParse(sessionId).success) return STOPPED;
+  const at = endAt && z.iso.datetime().safeParse(endAt).success ? endAt : null;
+  const b = at ? await resolveAway(me.profile.id, sessionId, { at }, "finish") : null;
+  if (!b) {
+    const { data: own } = await createAdminClient().from("study_sessions").select("id").eq("id", sessionId).eq("profile_id", me.profile.id).maybeSingle();
+    if (own) await finishSession(sessionId, "manual");
+  }
+  return afterStop(me.profile.id, sessionId);
+}
+
+/** The welcome-back answer after Edumi was closed for over 2 hours. */
+export async function answerAway(sessionId: string, choice: z.input<typeof until>, then: "finish" | "resume"): Promise<TimerState> {
+  const me = await socialActor({ paid: false });
+  const parsed = until.safeParse(choice);
+  if (!uuid.safeParse(sessionId).success || !parsed.success || (then !== "finish" && then !== "resume")) return STOPPED;
+  const b = await resolveAway(me.profile.id, sessionId, parsed.data, then);
+  if (b.state === "stopped") return afterStop(me.profile.id, sessionId);
   return { sessionId, groupId: null, ...b };
 }
 
-export async function stopStudy(sessionId: string): Promise<TimerState> {
-  const me = await socialActor({ paid: false });
-  if (!uuid.safeParse(sessionId).success) return { sessionId: null, state: "stopped", seconds: 0, groupId: null };
-  // A last inactive beat closes the open interval at now (within grace), then the stop totals it.
-  const b = await beat(me.profile.id, sessionId, false);
-  if (b.state !== "stopped") await finishSession(sessionId, "manual");
-  const { data } = await createAdminClient().from("study_sessions").select("credited_seconds, group_id").eq("id", sessionId).eq("profile_id", me.profile.id).maybeSingle();
-  await track({ name: "study_session_stopped", product: "platform", role: "student", userId: me.profile.id, props: { seconds: data?.credited_seconds ?? 0 }, dedupeKey: `study_stop:${sessionId}` });
-  await awardConsistency(me.profile.id); // reaching the daily goal makes today a study day
+async function afterStop(profileId: string, sessionId: string): Promise<TimerState> {
+  const { data } = await createAdminClient().from("study_sessions").select("credited_seconds, group_id").eq("id", sessionId).eq("profile_id", profileId).maybeSingle();
+  await track({ name: "study_session_stopped", product: "platform", role: "student", userId: profileId, props: { seconds: data?.credited_seconds ?? 0 }, dedupeKey: `study_stop:${sessionId}` });
+  await awardConsistency(profileId); // reaching the daily goal makes today a study day
   return { sessionId: null, state: "stopped", seconds: (data?.credited_seconds as number) ?? 0, groupId: (data?.group_id as string) ?? null };
 }
 

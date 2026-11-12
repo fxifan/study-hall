@@ -35,7 +35,7 @@ async function Solo({ searchParams }: Pick<PageProps<"/[lang]/student/solo">, "s
   ]);
   const initial =
     live && live.group_id === null
-      ? { sessionId: live.id, state: live.state, seconds: await sessionSeconds(live), groupId: null }
+      ? { sessionId: live.id, state: live.state, seconds: await sessionSeconds(live), groupId: null, startedAt: live.started_at }
       : { sessionId: null, state: "stopped" as const, seconds: 0, groupId: null };
   const choices = [
     ...tutors.filter((t) => t.task && t.task.status !== "done").map((t) => ({ source: "tutor", tag: t.tutorName.split(" ")[0], body: t.task!.body })),
@@ -50,7 +50,7 @@ async function Solo({ searchParams }: Pick<PageProps<"/[lang]/student/solo">, "s
             <p className="text-xs font-semibold tracking-wide text-ink-faint uppercase">Working on</p>
             <p className="mt-1 text-lg font-medium">{open.body as string}</p>
           </section>
-          <StudyTimer initial={initial} solo studyScreen />
+          <StudyTimer initial={initial} solo />
           <p className="text-sm text-ink-soft">Aim for a 25-minute focus block, then a 5-minute break. Solo time counts towards your goal and the Friends board, not a group&apos;s goal.</p>
           <SoloCheckIn task={open.body as string} />
         </>

@@ -33,7 +33,7 @@ async function Tutor() {
   ]);
   const paid = hasAccess(me.access);
   const initial = live
-    ? { sessionId: live.id, state: live.state, seconds: await sessionSeconds(live), groupId: live.group_id }
+    ? { sessionId: live.id, state: live.state, seconds: await sessionSeconds(live), groupId: live.group_id, startedAt: live.started_at }
     : { sessionId: null, state: "stopped" as const, seconds: 0, groupId: null };
 
   return (
@@ -47,7 +47,7 @@ async function Tutor() {
           </Link>
         </p>
       )}
-      {tutors.length > 0 && <StudyTimer initial={initial} solo studyScreen />}
+      {tutors.length > 0 && <StudyTimer initial={initial} solo />}
       {tutors.map((t) => (
         <TutorTaskCard
           key={t.recordId}
