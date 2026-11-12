@@ -122,7 +122,7 @@ export function GroupChat({
   return (
     <section
       aria-label="Group chat"
-      className="flex min-h-[24rem] flex-col rounded-2xl border border-rule bg-sheet lg:sticky lg:top-6 lg:h-[min(48rem,calc(100dvh-3rem))] lg:self-start"
+      className="flex min-h-[24rem] flex-col rounded-2xl border border-rule bg-sheet lg:sticky lg:top-6 lg:h-[min(48rem,calc(100dvh-3rem))] w-full"
     >
       {prompt && <PracticeStrip prompt={prompt} />}
       <ol

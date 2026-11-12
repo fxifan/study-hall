@@ -4,20 +4,15 @@ import { cookies } from "next/headers";
 import { Suspense } from "react";
 import { localizePath } from "@/i18n/config";
 import { getLocale } from "@/i18n/server";
-import { rank, shortMinutes } from "@/lib/social/credit";
 import { groupMembers, namesFor, requireSocialStudent, todayProgress, type Group } from "@/lib/social/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { TUTOR_LINK_COOKIE, linkedTutors } from "@/lib/tutor/links";
-import { consistencyFor } from "@/lib/social/consistency-server";
-import { StreakCard } from "../_social/streak-card";
+import { TUTOR_LINK_COOKIE } from "@/lib/tutor/links";
+import { GroupCard } from "../_social/group-card";
 import { createGroup, joinGroup } from "../_social/actions";
 import { respondGroupInvite } from "../_social/friend-actions";
-import { Loading, Notice, StudentShell, card, tile, primaryBtn, secondaryBtn, smallBtn } from "../_social/shell";
+import { GroupsTabs, Loading, Notice, StudentShell, card, tile, primaryBtn, secondaryBtn, smallBtn } from "../_social/shell";
 
 export const metadata: Metadata = { title: "Your groups" };
-
-/** Group cards cycle through the Tiles colours: sage, pink, sand, slate. */
-const TILE = ["bg-brand-soft", "bg-[var(--tiles-pink-soft)]", "bg-[var(--tiles-sand)]", "bg-[var(--tiles-slate-soft)]"];
 
 const ERRORS: Record<string, string> = {
   code: "We couldn't find an open group with that code. Check it with your friend, or ask them for a new one.",
@@ -53,22 +48,11 @@ async function Groups({ searchParams }: Pick<PageProps<"/[lang]/student/groups">
   const inviterNames = await namesFor((friendInvites ?? []).map((i) => i.inviter_id as string));
   const pendingCode = (typeof query.code === "string" ? query.code : jar.get("edumi_invite")?.value) ?? "";
   const error = typeof query.error === "string" ? ERRORS[query.error] : null;
-  const [tutors, consistency] = await Promise.all([linkedTutors(me.profile.id), consistencyFor(me.profile.id)]);
-  const tutorTasks = tutors.filter((t) => t.task && t.task.status !== "done");
 
   return (
-    <StudentShell me={me} title={`Hi ${me.student.first_name}`} current="groups">
+    <StudentShell me={me} title="Groups" current="groups">
+      <GroupsTabs current="groups" />
       {error && <Notice tone="error">{error}</Notice>}
-      <StreakCard c={consistency} goalHref={localizePath("/student/me#goal", locale)} />
-      {consistency.tomorrow && (
-        <div className="rounded-2xl border border-[#d6c8ad] bg-[var(--tiles-sand)] px-4 py-3 text-[var(--tiles-sand-ink)]" data-testid="tomorrow">
-          <p className="text-xs font-semibold tracking-wide uppercase">Tomorrow, from last time</p>
-          <p className="font-medium text-ink">{consistency.tomorrow}</p>
-        </div>
-      )}
-      <Link href={localizePath("/student/solo", locale)} className={`${primaryBtn} w-fit no-underline`} data-testid="study-solo">
-        Study solo
-      </Link>
       {pendingCode && /^[A-Za-z0-9]{8,16}$/.test(pendingCode) && (
         <form action={joinGroup} className={`${card} flex flex-wrap items-center justify-between gap-3 border-ink`}>
           <input type="hidden" name="code" value={pendingCode} />
@@ -83,19 +67,6 @@ async function Groups({ searchParams }: Pick<PageProps<"/[lang]/student/groups">
           <span className="text-sm font-medium">Review →</span>
         </Link>
       )}
-      {tutorTasks.map((t) => (
-        <Link
-          key={t.recordId}
-          href={localizePath("/student/tutor", locale)}
-          className={`${card} flex flex-col gap-1 border-2 border-[var(--tiles-sage)] no-underline`}
-          data-testid="tutor-task-preview"
-        >
-          <span className="w-fit rounded-full bg-[var(--tiles-sage-soft)] px-2.5 py-0.5 text-xs font-semibold text-[var(--tiles-sage-ink)]">From {t.tutorName}</span>
-          <span className="font-medium text-ink">{t.task!.body}</span>
-          <span className="text-sm text-ink-soft">Tell {t.tutorName.split(" ")[0]} how you went →</span>
-        </Link>
-      ))}
-
       {(friendInvites ?? []).map((i) => (
         <div key={i.id as string} className={`${tile} flex flex-wrap items-center justify-between gap-3 bg-[var(--tiles-sand)]`} data-testid="friend-invite">
           <p className="text-sm">
@@ -122,39 +93,11 @@ async function Groups({ searchParams }: Pick<PageProps<"/[lang]/student/groups">
         </div>
       ) : (
         <ul className="grid gap-3 sm:grid-cols-2">
-          {groups.map((g, i) => {
-            const p = progress[i];
-            const pct = Math.min(100, Math.round((p.doneMinutes / Math.max(1, p.targetMinutes)) * 100));
-            // Today's race: only members on the board count; nobody is named as behind.
-            const board = rosters[i].filter((m) => m.board_opt_in);
-            const standings = rank(new Map(board.map((m) => [m.profile_id, p.totals.get(m.profile_id) ?? 0])));
-            const leader = standings[0] && standings[0].seconds >= 60 ? board.find((m) => m.profile_id === standings[0].profileId) : undefined;
-            const mine = standings.find((x) => x.profileId === me.profile.id);
-            const race = !leader
-              ? "Nobody's on the board yet today. Take the lead."
-              : leader.profile_id === me.profile.id
-                ? "You're leading today"
-                : `${leader.name} leads${mine ? ` · you're #${mine.rank}` : ""}`;
-            return (
-              <li key={g.id}>
-                <Link href={localizePath(`/student/groups/${g.id}`, locale)} className={`${tile} ${TILE[i % TILE.length]} flex flex-col gap-3 text-ink no-underline hover:border-ink`}>
-                  <div className="flex items-baseline justify-between gap-2">
-                    <span className="text-lg font-medium">{g.name}</span>
-                    <span className="font-mono text-xs text-ink-soft">
-                      {shortMinutes(p.doneMinutes)} / {shortMinutes(p.targetMinutes)}
-                    </span>
-                  </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-sheet" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Today's goal">
-                    <div className="h-full rounded-full bg-brand" style={{ width: `${pct}%` }} />
-                  </div>
-                  <span className="flex flex-wrap justify-between gap-2 text-sm text-ink-soft">
-                    <span>{p.reached ? "Goal reached today" : `${shortMinutes(p.remainingMinutes)} left today`}</span>
-                    <span className="font-medium text-ink">{race}</span>
-                  </span>
-                </Link>
-              </li>
-            );
-          })}
+          {groups.map((g, i) => (
+            <li key={g.id}>
+              <GroupCard group={g} progress={progress[i]} members={rosters[i]} meId={me.profile.id} href={localizePath(`/student/groups/${g.id}`, locale)} index={i} />
+            </li>
+          ))}
         </ul>
       )}
 

@@ -15,7 +15,7 @@ import { respondFriend, setFriendsBoard } from "../_social/actions";
 import { CopyButton } from "../_social/copy-button";
 import { endFriendship, requestFriendByUsername } from "../_social/friend-actions";
 import { RankBadge } from "../_social/rank-badge";
-import { Loading, Notice, StudentShell, card, primaryBtn, smallBtn, tile } from "../_social/shell";
+import { GroupsTabs, Loading, Notice, StudentShell, card, primaryBtn, smallBtn, tile } from "../_social/shell";
 import { UsernameCard } from "../_social/username-card";
 
 export const metadata: Metadata = { title: "Friends" };
@@ -78,6 +78,7 @@ async function Friends({ searchParams }: Pick<PageProps<"/[lang]/student/friends
 
   return (
     <StudentShell me={me} title="Friends" current="friends">
+      <GroupsTabs current="friends" />
       {error && <Notice tone="error">{error}</Notice>}
       {!myUsername && <UsernameCard current={null} back="/student/friends" error={usernameError} />}
 

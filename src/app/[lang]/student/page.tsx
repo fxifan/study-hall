@@ -49,7 +49,7 @@ async function StudentHome({ searchParams }: Pick<PageProps<"/[lang]/student">, 
     searchParams,
   ]);
   // Admins reach the student area through Student view, which is the Edumi app.
-  if (profile.role === "admin") redirect(localizePath("/student/groups", locale));
+  if (profile.role === "admin") redirect(localizePath("/student/home", locale));
   const s = t.student;
   const supabase = await createClient();
   const { data: student } = await supabase
@@ -72,10 +72,11 @@ async function StudentHome({ searchParams }: Pick<PageProps<"/[lang]/student">, 
 
   // Edumi groups are the home for students who signed themselves up (no Study Hall plan).
   const groupsHref = localizePath("/student/groups", locale);
+  const homeHref = localizePath("/student/home", locale);
   if (student?.self_signed && student.status === "active" && !query.studyhall) {
     const { start: s0, end: e0 } = dayRangeUtc(dateKeyOf());
     const { count } = await supabase.from("sessions").select("id", { count: "exact", head: true }).gte("starts_at", s0.toISOString()).lt("starts_at", e0.toISOString()).neq("status", "cancelled");
-    if (!count) redirect(groupsHref);
+    if (!count) redirect(homeHref);
   }
   const groupsLink = student?.social_enabled ? (
     <Link href={groupsHref} className="rounded-lg border border-rule bg-sheet px-4 py-3 font-medium no-underline">

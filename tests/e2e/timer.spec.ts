@@ -40,7 +40,7 @@ test("the timer keeps counting across tabs and asks after a long absence", async
   await admin.from("student_plans").insert({ profile_id: id });
   const { data } = await admin.auth.admin.generateLink({ type: "magiclink", email });
   await page.goto(`/auth/confirm?token_hash=${data.properties!.hashed_token}&type=magiclink`);
-  await page.waitForURL(/\/student\/groups/);
+  await page.waitForURL(/\/student\/home/);
 
   await page.goto("/student/solo");
   await page.getByLabel("My own task").fill("Read lecture 5 slides");

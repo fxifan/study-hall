@@ -125,18 +125,17 @@ async function GroupView({ params, searchParams }: Pick<PageProps<"/[lang]/stude
       <LiveRefresh seconds={30} />
       {error && <Notice tone="error">{error}</Notice>}
 
-      <section aria-label="Today's goal" className={`${tile} flex flex-col gap-2 bg-brand-soft`}>
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="font-medium">Today&apos;s goal</h2>
-          <span className="font-mono text-sm">
-            {shortMinutes(progress.doneMinutes)} of {shortMinutes(progress.targetMinutes)}
-          </span>
-        </div>
-        <div className="h-3 overflow-hidden rounded-full bg-sheet" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Today's goal">
-          <div className="h-full rounded-full bg-brand transition-[width]" style={{ width: `${pct}%` }} />
+      <section aria-label="Today's goal" className={`${card} flex flex-col gap-2`}>
+        <p className="font-mono text-xs tracking-wide text-ink-faint uppercase">Today&apos;s goal</p>
+        <p className="flex flex-wrap items-baseline gap-x-2">
+          <span className="font-mono text-3xl font-semibold tabular-nums">{shortMinutes(progress.doneMinutes)}</span>
+          <span className="text-sm text-ink-soft">of {shortMinutes(progress.targetMinutes)} together</span>
+        </p>
+        <div className="h-2.5 overflow-hidden rounded-full bg-paper-deep" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Today's goal">
+          <div className="h-full rounded-full bg-[var(--tiles-sage-strong)] transition-[width] duration-700" style={{ width: `${pct}%` }} />
         </div>
         <p className="text-sm text-ink-soft">
-          {progress.reached ? "Goal reached. Every extra minute still counts." : `${shortMinutes(progress.remainingMinutes)} to go together.`}
+          {progress.reached ? "Goal reached. Every extra minute still counts." : `${shortMinutes(progress.remainingMinutes)} to go. Everyone's time counts towards it.`}
           {group.next_target_minutes ? ` Tomorrow's goal: ${shortMinutes(group.next_target_minutes)}.` : ""}
         </p>
         {studyingNow.length === 0 && quiet && !quiet.todayCounted && (
@@ -145,49 +144,70 @@ async function GroupView({ params, searchParams }: Pick<PageProps<"/[lang]/stude
             {quiet.streak ? `, and on a ${quiet.streak}-day streak` : ""}.
           </p>
         )}
-        {studyingNow.length > 0 && (
-          <p className="text-sm">
-            <span className="mr-1 inline-block h-2 w-2 rounded-full bg-success" aria-hidden /> Studying now: {studyingNow.map((m) => (m.profile_id === me.profile.id ? "you" : m.name)).join(", ")}
-          </p>
-        )}
       </section>
+
+      {studyingNow.length > 0 && (
+        <p className={`${tile} flex items-center gap-2 bg-brand-soft py-3 text-sm font-medium text-[var(--tiles-sage-ink)]`} data-testid="studying-now">
+          <span className="inline-block size-2 animate-pulse rounded-full bg-[var(--tiles-sage-strong)]" aria-hidden />
+          Studying now: {studyingNow.map((m) => (m.profile_id === me.profile.id ? "you" : m.name)).join(", ")}
+        </p>
+      )}
 
       <StudyTimer initial={initialTimer} groupId={group.id} groupName={group.name} />
 
       <div className="grid gap-5 lg:grid-cols-[1fr_20rem]">
-        <GroupChat groupId={group.id} meId={me.profile.id} initial={messages} names={names} ranks={rankView} blocked={blockedIds} canPost={!suspended} prompt={prompt} nudge={nudge} />
-
-        <aside className="flex flex-col gap-4">
-          <section aria-label="Leaderboard" className={`${card} flex flex-col gap-2`}>
-            <div className="flex items-center justify-between">
-              <h2 className="font-medium">{weekView ? "This week" : "Today"}</h2>
-              <Link href={localizePath(`/student/groups/${group.id}${weekView ? "" : "?board=week"}`, locale)} className="-my-2 inline-flex min-h-11 items-center px-2 text-sm">
-                {weekView ? "Show today" : "Show week"}
-              </Link>
+        <div className="flex min-w-0 flex-col gap-5">
+          <section aria-label="Leaderboard" className={`${card} flex flex-col gap-3`}>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="font-semibold">Who&apos;s helped {weekView ? "this week" : "today"}</h2>
+              <nav aria-label="Period" className="flex rounded-full bg-paper-deep p-1 text-sm">
+                {[
+                  { on: !weekView, label: "Today", to: `/student/groups/${group.id}` },
+                  { on: weekView, label: "This week", to: `/student/groups/${group.id}?board=week` },
+                ].map((t) => (
+                  <Link
+                    key={t.label}
+                    href={localizePath(t.to, locale)}
+                    aria-current={t.on ? "page" : undefined}
+                    className={`inline-flex min-h-9 items-center rounded-full px-3 font-medium no-underline ${t.on ? "bg-sheet text-ink shadow-sm" : "text-ink-soft"}`}
+                  >
+                    {t.label}
+                  </Link>
+                ))}
+              </nav>
             </div>
             {standings.length === 0 ? (
               <p className="text-sm text-ink-soft">Nobody has joined the board yet.</p>
             ) : (
               <ol className="flex flex-col gap-1 text-sm">
-                {standings.map((s) => (
-                  <li
-                    key={s.profileId}
-                    className={`flex justify-between gap-2 rounded-md px-2 py-1 ${s.profileId === me.profile.id ? "bg-brand-soft font-medium" : ""} ${s.rank === 1 && s.seconds >= 60 ? "border-l-2 border-brand" : ""}`}
-                  >
-                    <span>
-                      <span className="inline-block w-7 font-mono text-ink-faint">{s.rank}</span>
-                      {ranks.get(s.profileId) && <RankBadge rank={ranks.get(s.profileId)!} size={20} className="mr-1.5 -mt-0.5 align-middle" />}
-                      {s.profileId === me.profile.id ? "You" : names[s.profileId]}
-                      {liveBy.get(s.profileId) === "running" && <span className="ml-1 text-xs text-ink-faint">(live)</span>}
-                    </span>
-                    <span className="font-mono">{shortMinutes(Math.floor(s.seconds / 60))}</span>
-                  </li>
-                ))}
+                {standings.map((s) => {
+                  const mine = s.profileId === me.profile.id;
+                  const width = Math.round((s.seconds / Math.max(1, standings[0].seconds)) * 100);
+                  return (
+                    <li key={s.profileId} className={`grid grid-cols-[1.75rem_1fr_auto] items-center gap-2 rounded-xl px-2 py-1.5 ${mine ? "bg-brand-soft font-medium" : ""}`}>
+                      <span className="font-mono text-ink-faint">{s.rank}</span>
+                      <span className="min-w-0">
+                        <span className="flex items-center gap-1.5">
+                          {ranks.get(s.profileId) && <RankBadge rank={ranks.get(s.profileId)!} size={20} />}
+                          <span className="truncate">{mine ? "You" : names[s.profileId]}</span>
+                          {liveBy.get(s.profileId) === "running" && <span className="size-2 animate-pulse rounded-full bg-[var(--tiles-sage-strong)]" role="img" aria-label="(live)" />}
+                        </span>
+                        <span className="mt-1 block h-1.5 overflow-hidden rounded-full bg-paper-deep">
+                          <span className="block h-full rounded-full bg-[var(--tiles-sage-strong)]" style={{ width: `${s.seconds ? Math.max(4, width) : 0}%` }} />
+                        </span>
+                      </span>
+                      <span className="font-mono">{s.seconds >= 60 ? shortMinutes(Math.floor(s.seconds / 60)) : "Not yet"}</span>
+                    </li>
+                  );
+                })}
               </ol>
             )}
-            <p className="text-xs text-ink-faint">Live times are provisional until a session stops. Only this group&apos;s minutes count here.</p>
+            <p className="text-xs text-ink-faint">Everyone&apos;s time adds to the group&apos;s goal, wherever they rank. Only this group&apos;s minutes count here.</p>
           </section>
+          <GroupChat groupId={group.id} meId={me.profile.id} initial={messages} names={names} ranks={rankView} blocked={blockedIds} canPost={!suspended} prompt={prompt} nudge={nudge} />
+        </div>
 
+        <aside className="flex flex-col gap-4">
           <section aria-label="Call out for help" className={`${tile} flex flex-col gap-3 bg-[var(--tiles-pink-soft)]`}>
             <h2 className="font-medium">Call out for help</h2>
             {(help ?? []).map((h) => {

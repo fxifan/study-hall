@@ -369,5 +369,5 @@ export async function openStudentView() {
   } else if (!existing.social_enabled) {
     await db.from("students").update({ social_enabled: true }).eq("id", existing.id);
   }
-  await back("/student/groups", "");
+  await back("/student/home", "");
 }

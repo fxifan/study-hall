@@ -6,12 +6,12 @@ import { liveSessionFor, requireSocialStudent, sessionSeconds } from "@/lib/soci
 import { createAdminClient } from "@/lib/supabase/admin";
 import { linkedTutors } from "@/lib/tutor/links";
 import { StudentShell } from "../_social/shell";
-import { SoloCheckIn } from "../_social/solo-checkin";
+import { SoloCheckIn, SoloResult } from "../_social/solo-checkin";
 import { startSolo } from "../_social/solo-actions";
 import { StreakCard } from "../_social/streak-card";
 import { StudyTimer } from "../_social/study-timer";
 
-export const metadata: Metadata = { title: "Study solo" };
+export const metadata: Metadata = { title: "Study" };
 
 /**
  * Study solo (docs/consistency-and-solo.md): pick one task, study on a timer that counts towards
@@ -27,33 +27,58 @@ export default function SoloPage({ searchParams }: PageProps<"/[lang]/student/so
 
 async function Solo({ searchParams }: Pick<PageProps<"/[lang]/student/solo">, "searchParams">) {
   const [me, query] = await Promise.all([requireSocialStudent(), searchParams]);
-  const [{ data: open }, live, c, tutors] = await Promise.all([
-    createAdminClient().from("solo_tasks").select("id, body").eq("profile_id", me.profile.id).eq("status", "open").maybeSingle(),
+  const admin = createAdminClient();
+  const [{ data: open }, live, c, tutors, { data: groupRows }] = await Promise.all([
+    admin.from("solo_tasks").select("id, body").eq("profile_id", me.profile.id).eq("status", "open").maybeSingle(),
     liveSessionFor(me.profile.id),
     consistencyFor(me.profile.id),
     linkedTutors(me.profile.id),
+    admin
+      .from("study_group_members")
+      .select("study_groups!inner(id, name, archived_at)")
+      .eq("profile_id", me.profile.id)
+      .is("study_groups.archived_at", null)
+      .returns<{ study_groups: { id: string; name: string } }[]>(),
   ]);
+  const groups = (groupRows ?? []).map((r) => r.study_groups);
   const initial =
     live && live.group_id === null
       ? { sessionId: live.id, state: live.state, seconds: await sessionSeconds(live), groupId: null, startedAt: live.started_at }
       : { sessionId: null, state: "stopped" as const, seconds: 0, groupId: null };
+  // The ring fills towards today's goal: time already counted today, plus this session as it runs.
+  const doneBeforeSeconds = Math.max(0, c.todayMinutes * 60 - (initial.sessionId ? initial.seconds : 0));
+  const modes = (
+    <nav aria-label="Study mode" className="flex w-full gap-1 overflow-x-auto rounded-full bg-paper-deep p-1 text-sm">
+      <span aria-current="page" className="inline-flex min-h-9 flex-1 items-center justify-center rounded-full bg-sheet px-4 font-semibold whitespace-nowrap shadow-sm">
+        Solo
+      </span>
+      {groups.map((g) => (
+        <Link key={g.id} href={`/student/groups/${g.id}`} className="inline-flex min-h-9 flex-1 items-center justify-center rounded-full px-4 font-medium whitespace-nowrap text-ink-soft no-underline hover:text-ink">
+          {g.name}
+        </Link>
+      ))}
+    </nav>
+  );
   const choices = [
     ...tutors.filter((t) => t.task && t.task.status !== "done").map((t) => ({ source: "tutor", tag: t.tutorName.split(" ")[0], body: t.task!.body })),
     ...(c.tomorrow ? [{ source: "tomorrow", tag: "Tomorrow", body: c.tomorrow }] : []),
   ];
 
   return (
-    <StudentShell me={me} title="Study solo" current="groups" back={{ href: "/student/groups", label: "Groups" }}>
+    <StudentShell me={me} title="Study" current="study">
+      {groups.length > 0 && modes}
       {open ? (
         <>
-          <section className="rounded-2xl border-2 border-[var(--tiles-sage)] bg-sheet p-4">
+          <StudyTimer key={initial.sessionId ?? "none"} initial={initial} solo hero={{ goalMinutes: c.goalMinutes, doneBeforeSeconds }} refreshOnStop={false} />
+          <section className="rounded-2xl border border-rule bg-sheet px-4 py-3">
             <p className="text-xs font-semibold tracking-wide text-ink-faint uppercase">Working on</p>
-            <p className="mt-1 text-lg font-medium">{open.body as string}</p>
+            <p className="mt-0.5 text-lg font-medium">{open.body as string}</p>
           </section>
-          <StudyTimer initial={initial} solo />
           <p className="text-sm text-ink-soft">Aim for a 25-minute focus block, then a 5-minute break. Solo time counts towards your goal and the Friends board, not a group&apos;s goal.</p>
-          <SoloCheckIn task={open.body as string} />
+          <SoloCheckIn key={open.id as string} task={open.body as string} />
         </>
+      ) : query.done ? (
+        <SoloResult counted={query.done === "1"} points={Number(query.points) || 0} streak={Number(query.streak) || 0} tomorrow={c.tomorrow} />
       ) : (
         <>
           <StreakCard c={c} />
