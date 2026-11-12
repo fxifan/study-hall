@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { finishSolo, type SoloFinish } from "./solo-actions";
 
@@ -16,33 +17,21 @@ export function SoloCheckIn({ task }: { task: string }) {
   const [tomorrow, setTomorrow] = useState("");
   const [result, setResult] = useState<SoloFinish | null>(null);
   const [pending, start] = useTransition();
+  const router = useRouter();
 
-  if (result?.ok) {
-    return (
-      <section className="flex flex-col gap-3" data-testid="solo-result">
-        <p role="status" className="rounded-2xl bg-[var(--tiles-sage-ink)] px-4 py-3 text-paper">
-          {result.counted ? "Study day counted" : "Saved"}
-          {result.points ? ` · +${result.points} points` : ""}
-          {result.streak ? ` · ${result.streak}-day streak` : ""}
-        </p>
-        {tomorrow && (
-          <p className="rounded-2xl bg-[var(--tiles-sand)] px-4 py-3 text-sm text-[var(--tiles-sand-ink)]">
-            <span className="font-semibold">Tomorrow:</span> {tomorrow}
-          </p>
-        )}
-        <Link href="/student/groups" className="inline-flex h-11 w-fit items-center rounded-full bg-ink px-5 font-medium text-paper no-underline">
-          Back to Groups
-        </Link>
-      </section>
-    );
-  }
+  if (result?.ok) return <SoloResult counted={result.counted} points={result.points} streak={result.streak} tomorrow={tomorrow} />;
 
   return (
     <form
       className="flex flex-col gap-3 rounded-2xl border border-rule bg-sheet p-4"
       onSubmit={(e) => {
         e.preventDefault();
-        start(async () => setResult(await finishSolo({ status, tomorrow })));
+        start(async () => {
+          const r = await finishSolo({ status, tomorrow });
+          setResult(r);
+          // The result also lives in the URL, so a background refresh of the page can't wipe it.
+          if (r.ok) router.replace(`/student/solo?done=${r.counted ? 1 : 0}&points=${r.points}&streak=${r.streak}`, { scroll: false });
+        });
       }}
     >
       <fieldset className="flex flex-col gap-2">
@@ -78,5 +67,26 @@ export function SoloCheckIn({ task }: { task: string }) {
         {pending ? "Saving…" : "I'm done"}
       </button>
     </form>
+  );
+}
+
+/** After a check-in: what it earned, and tomorrow's line. Also rendered by the page from the URL. */
+export function SoloResult({ counted, points, streak, tomorrow }: { counted: boolean; points: number; streak: number; tomorrow?: string | null }) {
+  return (
+    <section className="flex flex-col gap-3" data-testid="solo-result">
+      <p role="status" className="rounded-2xl bg-[var(--tiles-sage-ink)] px-4 py-3 text-paper">
+        {counted ? "Study day counted" : "Saved"}
+        {points ? ` · +${points} points` : ""}
+        {streak ? ` · ${streak}-day streak` : ""}
+      </p>
+      {tomorrow && (
+        <p className="rounded-2xl bg-[var(--tiles-sand)] px-4 py-3 text-sm text-[var(--tiles-sand-ink)]">
+          <span className="font-semibold">Tomorrow:</span> {tomorrow}
+        </p>
+      )}
+      <Link href="/student/home" className="inline-flex h-11 w-fit items-center rounded-full bg-ink px-5 font-medium text-paper no-underline">
+        Back to Home
+      </Link>
+    </section>
   );
 }

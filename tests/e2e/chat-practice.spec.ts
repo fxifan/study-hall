@@ -31,7 +31,7 @@ async function login(browser: Browser, email: string) {
   const page = await (await browser.newContext()).newPage();
   const { data } = await admin.auth.admin.generateLink({ type: "magiclink", email });
   await page.goto(`/auth/confirm?token_hash=${data.properties!.hashed_token}&type=magiclink`);
-  await page.waitForURL(/\/student\/groups/);
+  await page.waitForURL(/\/student\/home/);
   return page;
 }
 

@@ -18,7 +18,7 @@ async function magic(page: Page, email: string) {
   if (error) throw error;
   await page.goto(`/auth/confirm?token_hash=${data.properties.hashed_token}&type=magiclink`);
   // The link redirects to /student, which sends self-signed students on to /student/groups.
-  await page.waitForURL(/\/student\/groups/);
+  await page.waitForURL(/\/student\/home/);
 }
 
 async function student(firstName: string): Promise<{ email: string; id: string }> {

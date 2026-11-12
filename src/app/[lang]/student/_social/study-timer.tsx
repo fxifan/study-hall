@@ -49,6 +49,8 @@ export function StudyTimer({
   groupName,
   solo = false,
   compact = false,
+  hero,
+  refreshOnStop = true,
 }: {
   initial: TimerState;
   /** The group a new session counts towards (the group page). */
@@ -57,6 +59,10 @@ export function StudyTimer({
   solo?: boolean;
   groupName?: string;
   compact?: boolean;
+  /** The Study screen: a large clock inside a ring filling towards today's goal. */
+  hero?: { goalMinutes: number; doneBeforeSeconds: number };
+  /** Off where another control finishes the session and shows its own result (the solo check-in). */
+  refreshOnStop?: boolean;
 }) {
   const router = useRouter();
   const [timer, setTimer] = useState<TimerState>(initial);
@@ -79,9 +85,9 @@ export function StudyTimer({
     (seconds: number) => {
       setTimer({ sessionId: null, state: "stopped", seconds, groupId: null });
       setConfirmLong(false);
-      router.refresh();
+      if (refreshOnStop) router.refresh();
     },
-    [router],
+    [router, refreshOnStop],
   );
 
   // "Edumi is open": every 30 s, and straight away when the student comes back to this tab or
@@ -167,7 +173,7 @@ export function StudyTimer({
     });
 
   const live = Boolean(timer.sessionId);
-  const otherGroup = live && (solo ? timer.groupId !== null : groupId && timer.groupId && timer.groupId !== groupId);
+  const otherGroup = live && (solo ? timer.groupId !== null : Boolean(groupId) && timer.groupId !== groupId);
   const status = timer.state === "paused" ? "Paused" : "Studying";
 
   const question =
@@ -212,6 +218,69 @@ export function StudyTimer({
           {alert}
         </div>
       </div>
+    );
+  }
+
+  if (hero) {
+    const today = hero.doneBeforeSeconds + (live ? shown : 0);
+    const frac = Math.min(1, today / (hero.goalMinutes * 60));
+    const left = Math.max(0, Math.ceil(hero.goalMinutes - today / 60));
+    const C = 2 * Math.PI * 54;
+    return (
+      <section aria-label="Study timer" className="flex flex-col items-center gap-4 rounded-3xl border border-rule bg-sheet px-4 py-6">
+        {question ? (
+          <div className="w-full">{question}</div>
+        ) : (
+          <>
+            <div className="relative size-56">
+              <svg viewBox="0 0 120 120" className="size-full -rotate-90" aria-hidden>
+                <circle cx="60" cy="60" r="54" fill="none" strokeWidth="7" className="stroke-paper-deep" />
+                <circle
+                  cx="60"
+                  cy="60"
+                  r="54"
+                  fill="none"
+                  strokeWidth="7"
+                  strokeLinecap="round"
+                  className="stroke-[var(--tiles-sage-strong)] transition-[stroke-dashoffset] duration-700 ease-out"
+                  strokeDasharray={C}
+                  strokeDashoffset={C * (1 - frac)}
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
+                <p className="font-mono text-4xl font-semibold tabular-nums" aria-live="off">
+                  {clock(live ? shown : 0)}
+                </p>
+                <p className="flex items-center gap-1.5 text-sm font-semibold" aria-live="polite">
+                  {live && timer.state === "running" && <span aria-hidden className="size-2 animate-pulse rounded-full bg-[var(--tiles-sage-strong)]" />}
+                  {live ? status : "Ready"}
+                </p>
+                <p className="text-xs text-ink-soft">{left ? `Goal today · ${left} min to go` : "Goal reached · study day counted"}</p>
+              </div>
+            </div>
+            <div className="flex w-full max-w-sm gap-2">
+              {!live || otherGroup ? (
+                <button onClick={start} disabled={pending} className="inline-flex h-14 flex-1 items-center justify-center rounded-full bg-[var(--tiles-sage-strong)] px-5 text-base font-semibold text-paper disabled:opacity-50">
+                  {otherGroup ? "Switch here" : "Start studying"}
+                </button>
+              ) : (
+                <>
+                  <button onClick={togglePause} disabled={pending} className="inline-flex h-14 flex-1 items-center justify-center rounded-full border border-rule bg-sheet text-base font-semibold">
+                    {timer.state === "paused" ? "Resume" : "Pause"}
+                  </button>
+                  <button onClick={() => finish()} disabled={pending} className="inline-flex h-14 flex-1 items-center justify-center rounded-full bg-ink text-base font-semibold text-paper">
+                    Finish
+                  </button>
+                </>
+              )}
+            </div>
+            <p className="max-w-sm rounded-xl bg-[var(--tiles-sage-soft)] px-3 py-2 text-sm text-[var(--tiles-sage-ink)]" data-testid="keeps-running">
+              {KEEPS_RUNNING}
+            </p>
+          </>
+        )}
+        {alert}
+      </section>
     );
   }
 

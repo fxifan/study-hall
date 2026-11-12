@@ -21,6 +21,11 @@ Code: `src/lib/social/credit.ts` (rules: `openEnd`, `trimTo`, `clampEnd`, the co
 
 Tests: unit tests in `src/lib/social/social.test.ts` ("timer rules"), browser test in `tests/e2e/timer.spec.ts`.
 
-## Visual refresh (mocked, not built)
+## Visual refresh (built)
 
-Bottom bar Home · Groups · Study · Practice · Me; timer-centred Study screen; group goal before ranking. Waiting on a decision to build.
+- **Bottom bar** on phones: Home · Groups · **Study** (raised middle button) · Practice · Me, with line icons. The same five as pills on wider screens. Friends sit inside Groups behind a Groups / Friends switch.
+- **Home** (`/student/home`, where students land after login): one dark "Continue studying" card with a single action (start the next task, or open the running timer), the streak card, up to two group goals, and today's tasks (open solo task, tutors' next steps, yesterday's "tomorrow" line).
+- **Study** (`/student/solo`): a mode switch (Solo, or a group), a large clock inside a ring that fills towards today's goal, Pause / Finish, and the note that the timer keeps running across tabs. The check-in result is kept in the URL so a background refresh can't wipe it.
+- **Group page:** today's shared goal first with large numbers, a "Studying now" strip, then "Who's helped today / this week" with a bar per member and neutral wording ("Not yet"), then chat; help, invite, members and settings in the side column.
+
+Not built: the mockup's recent-activity feed, a separate leaderboard tab (it's a section on the group page), and new colour tokens (the existing Tiles sage is the accent).
