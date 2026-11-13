@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { plainMath } from "@/lib/math-input";
 import type { Llm } from "@/lib/llm";
 
 /**
@@ -177,7 +178,7 @@ export function replyText(reply: AssistantReply): string {
 
 /** A conversation title from its first message: the first line, trimmed to a word boundary. */
 export function conversationTitle(message: string): string {
-  const line = message.trim().split("\n")[0].replace(/\s+/g, " ");
+  const line = plainMath(message.trim().split("\n")[0]).replace(/\s+/g, " ");
   if (line.length <= 60) return line.replace(/[?.!]+$/, "") || "Chat";
   return `${line.slice(0, 57).replace(/[\s,;:.]+\S*$/, "")}…`;
 }

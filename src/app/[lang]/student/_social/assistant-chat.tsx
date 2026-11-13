@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
+import { MathKeyboard, MathPreview, MathToggle } from "@/components/math-keyboard";
 import { MathLine, MathText } from "@/components/math-text";
+import { autoMath } from "@/lib/math-input";
 import { ASSISTANT_DAILY_LIMIT, MAX_STUDENT_MESSAGE, QUICK_REPLIES, type AssistantReply, type QuickReply, type ReplyBlock } from "@/lib/social/assistant";
 import type { ChatMessage } from "@/lib/social/assistant-server";
 import { flagMessage, rateMessage, saveConversation, sendChatMessage } from "./assistant-actions";
@@ -83,6 +85,8 @@ export function AssistantChat({ conversationId, initial, saved: savedInitially, 
   const [flagged, setFlagged] = useState<Set<string>>(() => new Set(initial.filter((m) => m.flagged_at).map((m) => m.id)));
   const [pending, start] = useTransition();
   const end = useRef<HTMLDivElement>(null);
+  const input = useRef<HTMLInputElement>(null);
+  const [keyboard, setKeyboard] = useState(false);
 
   useEffect(() => {
     end.current?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -119,8 +123,8 @@ export function AssistantChat({ conversationId, initial, saved: savedInitially, 
         <div className="flex flex-col gap-4 p-4 sm:p-5" aria-live="polite">
           {messages.map((m) =>
             m.role === "student" ? (
-              <p key={m.id} className="max-w-[88%] self-end rounded-2xl rounded-br-sm bg-ink px-3.5 py-2.5 whitespace-pre-wrap text-paper">
-                {m.body}
+              <p key={m.id} className="max-w-[88%] self-end rounded-2xl rounded-br-sm bg-ink px-3.5 py-2.5 break-words whitespace-pre-wrap text-paper">
+                <MathText text={autoMath(m.body)} />
               </p>
             ) : (
               <div key={m.id} className="flex max-w-full flex-col gap-2 self-start sm:max-w-[88%]">
@@ -158,29 +162,36 @@ export function AssistantChat({ conversationId, initial, saved: savedInitially, 
           <div ref={end} />
         </div>
         {canSend && (
-          <form
-            className="flex gap-2 border-t border-rule p-3"
-            onSubmit={(e) => {
-              e.preventDefault();
-              send(draft);
-            }}
-          >
-            <label htmlFor="chat-message" className="sr-only">
-              Message
-            </label>
-            <input
-              id="chat-message"
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              maxLength={MAX_STUDENT_MESSAGE}
-              autoComplete="off"
-              placeholder={awaiting ? "Type your answer, or what you'd do first" : "Ask a follow-up question"}
-              className="h-11 min-w-0 flex-1 rounded-full border border-rule bg-paper px-4 text-sm"
-            />
-            <button className="inline-flex h-11 items-center rounded-full bg-ink px-5 text-sm font-medium text-paper disabled:opacity-50" disabled={pending || !draft.trim() || left <= 0}>
-              Send
-            </button>
-          </form>
+          <div className="flex flex-col gap-2 border-t border-rule p-3">
+            <MathPreview text={draft} />
+            {keyboard && <MathKeyboard target={input} value={draft} onChange={setDraft} />}
+            <form
+              className="flex gap-2"
+              onSubmit={(e) => {
+                e.preventDefault();
+                send(draft);
+              }}
+            >
+              <MathToggle open={keyboard} onToggle={() => setKeyboard(!keyboard)} className="h-11" />
+              <label htmlFor="chat-message" className="sr-only">
+                Message
+              </label>
+              <input
+                ref={input}
+                id="chat-message"
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                maxLength={MAX_STUDENT_MESSAGE}
+                autoComplete="off"
+                autoCapitalize="off"
+                placeholder={awaiting ? "Type your answer, or what you'd do first" : "Ask a follow-up question"}
+                className="h-11 min-w-0 flex-1 rounded-full border border-rule bg-paper px-4 text-sm"
+              />
+              <button className="inline-flex h-11 items-center rounded-full bg-ink px-5 text-sm font-medium text-paper disabled:opacity-50" disabled={pending || !draft.trim() || left <= 0}>
+                Send
+              </button>
+            </form>
+          </div>
         )}
       </section>
       {error && (

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { localizePath } from "@/i18n/config";
 import { getLocale } from "@/i18n/server";
+import { plainMath } from "@/lib/math-input";
 import { aiAccess, assistantLeftToday, conversationMessages, ownConversation } from "@/lib/social/assistant-server";
 import { requireSocialStudent } from "@/lib/social/server";
 import { AssistantChat } from "../../../_social/assistant-chat";
@@ -35,7 +36,7 @@ async function Chat({ params, searchParams }: Pick<PageProps<"/[lang]/student/pr
   const context = [`Year ${conversation.year_level ?? me.student.year_level}`, conversation.subject, conversation.topic].filter(Boolean) as string[];
 
   return (
-    <StudentShell me={me} title={conversation.title} current="practice" back={{ href: "/student/practice/ask", label: "Ask EduMi AI" }}>
+    <StudentShell me={me} title={plainMath(conversation.title)} current="practice" back={{ href: "/student/practice/ask", label: "Ask EduMi AI" }}>
       <div className="flex flex-wrap items-center gap-1.5">
         {context.map((c) => (
           <span key={c} className="rounded-full bg-[var(--tiles-sage-soft)] px-2 py-0.5 text-xs font-semibold text-[var(--tiles-sage-ink)]">

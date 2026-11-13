@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { localizePath } from "@/i18n/config";
 import { getLocale } from "@/i18n/server";
+import { plainMath } from "@/lib/math-input";
 import { ASSISTANT_DAILY_LIMIT } from "@/lib/social/assistant";
 import { aiAccess, assistantLeftToday } from "@/lib/social/assistant-server";
 import { DAILY_LIMITS, KIND_LABEL, QUIZ_QUESTIONS, type CurriculumPoint, type ResourceKind } from "@/lib/social/resources";
@@ -48,7 +49,7 @@ async function Practice({ searchParams }: Pick<PageProps<"/[lang]/student/practi
   type Row = { id: string; href: string; title: string; label: string; version: number; done: boolean; at: string };
   const list: Row[] = [
     ...resources.map((r) => ({ id: r.id, href: `/student/practice/${r.id}`, title: r.title, label: KIND_LABEL[r.kind], version: r.version, done: Boolean(r.completed_at), at: r.created_at })),
-    ...(savedChats ?? []).map((c) => ({ id: c.id as string, href: `/student/practice/ask/${c.id}`, title: c.title as string, label: "EduMi AI chat", version: 1, done: false, at: c.saved_at as string })),
+    ...(savedChats ?? []).map((c) => ({ id: c.id as string, href: `/student/practice/ask/${c.id}`, title: plainMath(c.title as string), label: "EduMi AI chat", version: 1, done: false, at: c.saved_at as string })),
   ].sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
   const today = dateKeyOf();
   const todays = resources.filter((r) => dateKeyOf(r.created_at) === today);

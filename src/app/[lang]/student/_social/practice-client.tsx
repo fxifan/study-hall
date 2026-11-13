@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, useSyncExternalStore, useTransition } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, useTransition } from "react";
 import { useFormStatus } from "react-dom";
+import { MathKeyboard, MathPreview, MathToggle } from "@/components/math-keyboard";
 import { MathText } from "@/components/math-text";
 import type { PublicQuiz } from "@/lib/social/resources";
 import { submitQuiz, type QuizResult } from "./actions";
@@ -224,22 +225,7 @@ function QuizRunnerInner({ resourceId, quiz, back = null, ai = null, hydrated }:
                   })}
                 </fieldset>
               ) : (
-                <div className="flex flex-col gap-1">
-                  <label htmlFor={`q${qi}-answer`} className="sr-only">
-                    Your answer to question {qi + 1}
-                  </label>
-                  <textarea
-                    id={`q${qi}-answer`}
-                    value={String(answers[qi] ?? "")}
-                    onChange={(e) => set(qi, e.target.value)}
-                    disabled={Boolean(result)}
-                    maxLength={1500}
-                    rows={4}
-                    placeholder="Write your answer. Show your working or reasoning: marks follow the rubric."
-                    className="rounded-lg border border-rule bg-paper px-3 py-2 text-sm disabled:opacity-80"
-                  />
-                  {!result && <span className="self-end font-mono text-xs text-ink-faint">{String(answers[qi] ?? "").length}/1500</span>}
-                </div>
+                <FreeAnswer id={`q${qi}-answer`} label={`Your answer to question ${qi + 1}`} value={String(answers[qi] ?? "")} onChange={(v) => set(qi, v)} done={Boolean(result)} />
               )}
 
               {r && (
@@ -338,5 +324,40 @@ function MistakeButton() {
     <button disabled={pending} className="inline-flex h-8 items-center justify-center rounded-full border border-rule bg-sheet px-3 text-xs font-medium text-ink hover:bg-paper-deep disabled:opacity-50">
       {pending ? "Opening EduMi AI…" : "Help me understand my mistake"}
     </button>
+  );
+}
+
+/** A free-response answer with the maths keyboard and a typeset preview of any maths typed. */
+function FreeAnswer({ id, label, value, onChange, done }: { id: string; label: string; value: string; onChange: (v: string) => void; done: boolean }) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+  const [keyboard, setKeyboard] = useState(false);
+  return (
+    <div className="flex flex-col gap-2">
+      <label htmlFor={id} className="sr-only">
+        {label}
+      </label>
+      <textarea
+        ref={ref}
+        id={id}
+        value={value}
+        onChange={(e) => onChange(e.target.value.slice(0, 1500))}
+        disabled={done}
+        maxLength={1500}
+        rows={4}
+        autoCapitalize="off"
+        placeholder="Write your answer. Show your working or reasoning: marks follow the rubric."
+        className="rounded-lg border border-rule bg-paper px-3 py-2 text-sm disabled:opacity-80"
+      />
+      <MathPreview text={value} />
+      {!done && (
+        <>
+          <div className="flex items-center justify-between gap-2">
+            <MathToggle open={keyboard} onToggle={() => setKeyboard(!keyboard)} className="h-8 text-xs" />
+            <span className="font-mono text-xs text-ink-faint">{value.length}/1500</span>
+          </div>
+          {keyboard && <MathKeyboard target={ref} value={value} onChange={(v) => onChange(v.slice(0, 1500))} />}
+        </>
+      )}
+    </div>
   );
 }

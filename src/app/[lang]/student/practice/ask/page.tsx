@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { MathTextarea } from "@/components/math-keyboard";
 import { localizePath } from "@/i18n/config";
 import { getLocale } from "@/i18n/server";
+import { plainMath } from "@/lib/math-input";
 import { ASSISTANT_DAILY_LIMIT, MAX_STUDENT_MESSAGE } from "@/lib/social/assistant";
 import { aiAccess, assistantLeftToday } from "@/lib/social/assistant-server";
 import { requireSocialStudent } from "@/lib/social/server";
@@ -65,13 +67,14 @@ async function Ask({ searchParams }: Pick<PageProps<"/[lang]/student/practice/as
           <label htmlFor="ask-message" className="sr-only">
             Your question
           </label>
-          <textarea
+          <MathTextarea
             id="ask-message"
             name="message"
             required
             maxLength={MAX_STUDENT_MESSAGE}
             rows={3}
             defaultValue={prefill}
+            autoCapitalize="off"
             placeholder="e.g. why do you change the sign when you move a number across?"
             className="rounded-2xl border border-transparent bg-sheet px-4 py-3 text-sm text-ink"
           />
@@ -117,7 +120,7 @@ async function Ask({ searchParams }: Pick<PageProps<"/[lang]/student/practice/as
               <li key={c.id as string}>
                 <Link href={href(`/student/practice/ask/${c.id}`)} className="flex items-center justify-between gap-2 py-2 text-ink no-underline hover:underline">
                   <span>
-                    {c.title as string}
+                    {plainMath(c.title as string)}
                     <span className="block text-xs text-ink-faint">
                       {c.source === "quiz_mistake" ? "Quiz mistake" : "Chat"} · {formatInZone(c.updated_at as string, "d MMM")}
                     </span>
