@@ -291,7 +291,7 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/[lang]/app">, "searc
           />
         </header>
 
-        <PlanBanner access={access} />
+        <PlanBanner access={access} settingsHref={appHref("/app/settings", locale)} />
         {error && (
           <p role="alert" className="rounded-md border border-pen px-3 py-2 text-sm text-pen">
             Some of your dashboard couldn&apos;t load. Refresh to try again.

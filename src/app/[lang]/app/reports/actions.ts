@@ -12,7 +12,7 @@ import { createClient } from "@/lib/supabase/server";
 import { draftReport } from "@/lib/tutor/drafting";
 import { sessionWhen, studentName } from "@/lib/tutor/format";
 import { canWork } from "@/lib/tutor/plan";
-import { accessFor, logUsage } from "@/lib/tutor/server";
+import { accessFor, logUsage, planStateFor } from "@/lib/tutor/server";
 import { blockedMessage } from "../_components/plan-banner";
 import { back, requireTutorAction } from "../_lib/action-helpers";
 
@@ -93,7 +93,7 @@ export async function redraft(formData: FormData) {
 /** Email the report to the parent, in the family's language(s). Never automatic (spec §3.3). */
 export async function sendReport(id: string, body: ReportBody): Promise<ActionResult> {
   const me = await requireTutorAction();
-  if (!canWork({ plan: me.tutor.plan, trialEndsAt: me.tutor.trial_ends_at })) return { ok: false, error: blockedMessage("trial_ended") };
+  if (!canWork(await planStateFor(me.tutor))) return { ok: false, error: blockedMessage("over_free_limit") };
   const parsed = reportBodySchema.safeParse(body);
   if (!idSchema.safeParse(id).success || !parsed.success) return { ok: false, error: "Some items are too long or empty." };
   if (tutorEmailMode() !== "app") return { ok: false, error: "Sending from Edumi isn't set up. Use \"Open in my email\"." };

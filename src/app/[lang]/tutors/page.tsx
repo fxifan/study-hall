@@ -5,7 +5,7 @@ import { TrialPrice } from "@/components/trial-price";
 import { Wordmark } from "@/components/wordmark";
 import { localizePath } from "@/i18n/config";
 import { getLocale } from "@/i18n/server";
-import { MONTHLY_DRAFT_CAP, PLANS, TUTOR_PRODUCT_NAME } from "@/lib/tutor/config";
+import { FREE_DRAFT_CAP, FREE_STUDENT_LIMIT, MONTHLY_DRAFT_CAP, PLANS, TUTOR_PRODUCT_NAME } from "@/lib/tutor/config";
 import { formatCents } from "@/lib/tutor/invoice-math";
 import { SAMPLE_META, SAMPLE_TEXT_EN, SAMPLE_TEXT_ZH } from "@/lib/tutor/sample";
 import { SignUpForm } from "./signup-form";
@@ -97,7 +97,7 @@ export default async function TutorsLanding() {
                   See an example
                 </a>
               </div>
-              <p className="tl-fine">14 days free · Then {solo}/month · Free for your students</p>
+              <p className="tl-fine">Free for up to {FREE_STUDENT_LIMIT} students · Solo {solo}/month, 14 days free · Free for your students</p>
             </div>
 
             <figure className="tl-hb" aria-label="Example: Alex's Edumi study screen with his tutor's next step, and the tutor's prep note">
@@ -263,12 +263,29 @@ export default async function TutorsLanding() {
               Simple, in Australian dollars.
             </h2>
             <div className="tl-prices">
+              <article className="tl-price" data-testid="free-plan">
+                <h3>Free</h3>
+                <p className="tl-amount">
+                  A$0<span> forever</span>
+                </p>
+                <ul>
+                  <li>Up to {FREE_STUDENT_LIMIT} students, with every feature</li>
+                  <li>Voice note to parent report, in English and Chinese</li>
+                  <li>Invoices and lesson calendar</li>
+                  <li>{FREE_DRAFT_CAP} AI drafts a month</li>
+                  <li>No card needed</li>
+                </ul>
+                <a href="#signup" className="tl-btn tl-btn--secondary">
+                  Start free
+                </a>
+              </article>
               <article className="tl-price tl-price--main">
                 <h3>{PLANS.solo.name}</h3>
                 <TrialPrice full={solo} days={PLANS.trial.days} />
                 <ul>
                   <li>Unlimited students, reports and invoices</li>
                   <li>Fair use: {MONTHLY_DRAFT_CAP} AI drafts a month</li>
+                  <li>Refer a tutor: you both get a month free</li>
                   <li>Cancel in the trial and pay nothing</li>
                 </ul>
                 <a href="#signup" className="tl-btn tl-btn--primary">
@@ -276,7 +293,7 @@ export default async function TutorsLanding() {
                 </a>
               </article>
             </div>
-            <p className="tl-fine tl-center">You add a card to start the trial. It&apos;s charged {solo}/month when the trial ends unless you cancel.</p>
+            <p className="tl-fine tl-center">Start free, no card. Upgrade to Solo when you teach more than {FREE_STUDENT_LIMIT} students: you add a card to start its trial, and it&apos;s {solo}/month after unless you cancel.</p>
             <p className="tl-fine tl-center">Families pay you directly by bank transfer. We never hold your money. Prices in AUD.</p>
           </div>
         </section>
@@ -287,9 +304,9 @@ export default async function TutorsLanding() {
             <div>
               <p className="tl-label">Get started</p>
               <h2 id="signup-title" className="tl-h2">
-                Start your 14-day free trial.
+                Start free, in a minute.
               </h2>
-              <p className="tl-sub">We&apos;ll email you a sign-in link, then you add a card to start your trial. A$0 today; {solo}/month after {PLANS.trial.days} days unless you cancel.</p>
+              <p className="tl-sub">We&apos;ll email you a sign-in link. Free for up to {FREE_STUDENT_LIMIT} students, no card. Solo ({solo}/month) when you need more, with the first {PLANS.trial.days} days free.</p>
               <div className="tl-privacy">
                 <span className="tl-icon" aria-hidden="true">
                   <ShieldCheck size={18} strokeWidth={2} />

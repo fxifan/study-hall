@@ -11,7 +11,7 @@ import { invoiceEmail } from "@/lib/tutor/invoice-email";
 import { computeLines, computeTotals, linesPayload, sessionLine, type LineInput } from "@/lib/tutor/invoice-math";
 import { invoiceFilename, invoicePdf } from "@/lib/tutor/invoice-pdf";
 import { canWork } from "@/lib/tutor/plan";
-import { logUsage } from "@/lib/tutor/server";
+import { logUsage, planStateFor } from "@/lib/tutor/server";
 import { addDaysToDateKey, dateKeyOf, formatInZone, zonedDateTimeToUtc } from "@/lib/time";
 import { blockedMessage } from "../_components/plan-banner";
 import { back, requireTutorAction } from "../_lib/action-helpers";
@@ -28,7 +28,7 @@ export async function createInvoice(formData: FormData) {
     .safeParse({ familyId: formData.get("familyId"), from: formData.get("from"), to: formData.get("to") });
   if (!parsed.success) return back("/app/invoices", "?error=range");
   const { familyId, from, to } = parsed.data;
-  if (!canWork({ plan: me.tutor.plan, trialEndsAt: me.tutor.trial_ends_at })) return back(`/app/families/${familyId}`, "?error=blocked");
+  if (!canWork(await planStateFor(me.tutor))) return back(`/app/families/${familyId}`, "?error=blocked");
 
   const supabase = await createClient();
   const { data: sessions } = await supabase
@@ -113,7 +113,7 @@ export async function saveInvoice(id: string, input: { issueDate: string; dueDat
 /** Email the invoice PDF to the family and fix its contents (spec §3.5). */
 export async function sendInvoice(id: string): Promise<ActionResult> {
   const me = await requireTutorAction();
-  if (!canWork({ plan: me.tutor.plan, trialEndsAt: me.tutor.trial_ends_at })) return { ok: false, error: blockedMessage("trial_ended") };
+  if (!canWork(await planStateFor(me.tutor))) return { ok: false, error: blockedMessage("over_free_limit") };
   if (!z.uuid().safeParse(id).success) return { ok: false, error: "Invoice not found." };
   if (tutorEmailMode() !== "app") return { ok: false, error: "Sending from Edumi isn't set up. Send it from your own email." };
   const supabase = await createClient();
@@ -158,7 +158,7 @@ export async function sendInvoice(id: string): Promise<ActionResult> {
  */
 export async function markInvoiceSent(id: string): Promise<ActionResult> {
   const me = await requireTutorAction();
-  if (!canWork({ plan: me.tutor.plan, trialEndsAt: me.tutor.trial_ends_at })) return { ok: false, error: blockedMessage("trial_ended") };
+  if (!canWork(await planStateFor(me.tutor))) return { ok: false, error: blockedMessage("over_free_limit") };
   if (!z.uuid().safeParse(id).success) return { ok: false, error: "Invoice not found." };
   const supabase = await createClient();
   const invoice = await loadInvoice(supabase, id, { tutor: me.tutor, email: me.profile.email });

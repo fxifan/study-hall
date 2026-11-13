@@ -15,6 +15,20 @@ export const PLANS = {
    */
   solo: { name: "Solo", priceCentsPerMonth: 1500 },
 } as const;
+
+/**
+ * Free plan (owner decision, 13 Nov 2026, from the market strategy): after any trial, a tutor with
+ * up to this many students keeps every feature, for free and with no time limit. More students
+ * need Solo (14 days free, then A$15/month).
+ */
+export const FREE_STUDENT_LIMIT = 3;
+/** AI report drafts a month on the free plan (about weekly lessons for 3 students, plus redos). */
+export const FREE_DRAFT_CAP = 30;
+
+/** Referrals: when a tutor you referred first pays for Solo, you both get this much off (one month). */
+export const REFERRAL_CREDIT_CENTS = 1500;
+/** For a referrer who isn't paying yet, the same reward as days of full (Solo) access. */
+export const REFERRAL_FREE_DAYS = 30;
 export type TutorPlan = keyof typeof PLANS;
 
 /** Fair-use cap on AI drafts per calendar month (Melbourne), on every plan (spec §7). */

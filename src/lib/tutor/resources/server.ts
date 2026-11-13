@@ -3,7 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { LlmError, llmConfigured, openAiLlm, type Llm } from "@/lib/llm";
 import type { ReportBody } from "@/lib/report/schema";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { monthStart, type TutorRow } from "../server";
+import { monthStart, type TutorRow, planStateFor } from "../server";
 import { resourceAccess, type ResourceAccess } from "./access";
 import { offlineResourceLlm } from "./generate";
 import { cleanFocus } from "./prompt";
@@ -62,7 +62,8 @@ export async function resourceCounts(tutorId: string, now = new Date()): Promise
 }
 
 export async function resourceAccessFor(tutor: Pick<TutorRow, "id" | "plan" | "trial_ends_at">): Promise<ResourceAccess> {
-  return resourceAccess({ plan: tutor.plan, trialEndsAt: tutor.trial_ends_at, ...(await resourceCounts(tutor.id)) });
+  const [state, counts] = await Promise.all([planStateFor(tutor), resourceCounts(tutor.id)]);
+  return resourceAccess({ ...state, ...counts });
 }
 
 /**

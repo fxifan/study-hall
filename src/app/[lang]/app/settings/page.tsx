@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { MONTHLY_DRAFT_CAP, PLANS, SUPPORT_EMAIL } from "@/lib/tutor/config";
+import { FREE_DRAFT_CAP, FREE_STUDENT_LIMIT, MONTHLY_DRAFT_CAP, PLANS, REFERRAL_CREDIT_CENTS, REFERRAL_FREE_DAYS, SUPPORT_EMAIL } from "@/lib/tutor/config";
 import { maskTail, tryDecrypt } from "@/lib/tutor/crypto";
 import { formatCents } from "@/lib/tutor/invoice-math";
-import { accessFor, draftsThisMonth, requireTutor } from "@/lib/tutor/server";
+import { accessFor, draftsThisMonth, needsTrialStart, requireTutor } from "@/lib/tutor/server";
 import { formatInZone } from "@/lib/time";
 import { tutorEmailMode } from "@/lib/email/send";
+import { siteOrigin } from "@/lib/site";
+import { referralCodeFor, referralStats } from "@/lib/tutor/referrals";
+import { CopyButton } from "../../student/_social/copy-button";
 import { saveSettings } from "../actions";
 import { openTutorPortal, startSoloCheckout } from "../billing-actions";
 import { stripeConfigured } from "@/lib/stripe";
@@ -35,7 +38,8 @@ async function Settings({ searchParams }: Pick<PageProps<"/[lang]/app/settings">
   const paid = typeof query.checkout === "string" && stripeConfigured() && (await syncTutorCheckout(query.checkout, first.tutor.id));
   const me = paid ? await refreshTutorAfterCheckout() : first;
   const t = me.tutor;
-  const [access, used] = await Promise.all([accessFor(t), draftsThisMonth(t.id)]);
+  const [access, used, code, refs, origin] = await Promise.all([accessFor(t), draftsThisMonth(t.id), referralCodeFor(t.id), referralStats(t.id), siteOrigin()]);
+  const referralLink = `${origin}/tutors?ref=${code}#signup`;
   const bsb = maskTail(tryDecrypt(t.bank_bsb_enc), 3);
   const acct = maskTail(tryDecrypt(t.bank_acct_enc), 3);
   const error = typeof query.error === "string" ? ERRORS[query.error] : null;
@@ -152,10 +156,13 @@ async function Settings({ searchParams }: Pick<PageProps<"/[lang]/app/settings">
         <p>
           {t.plan === "solo"
             ? `Solo plan, ${formatCents(PLANS.solo.priceCentsPerMonth)}/month.`
-            : `Free trial until ${formatInZone(t.trial_ends_at, "d MMMM yyyy")}. After that, Solo is ${formatCents(PLANS.solo.priceCentsPerMonth)}/month.`}
+            : access.ok && access.tier === "trial"
+              ? `Free trial until ${formatInZone(t.trial_ends_at, "d MMMM yyyy")}. After that you keep the free plan for up to ${FREE_STUDENT_LIMIT} students, or Solo is ${formatCents(PLANS.solo.priceCentsPerMonth)}/month.`
+              : `Free plan: up to ${FREE_STUDENT_LIMIT} students, ${FREE_DRAFT_CAP} AI drafts a month, free for as long as you like. Solo adds unlimited students and up to ${MONTHLY_DRAFT_CAP} drafts a month for ${formatCents(PLANS.solo.priceCentsPerMonth)}/month${needsTrialStart(t) ? ", with the first 14 days free" : ""}.`}
         </p>
         <p className="text-ink-soft">
-          AI drafts this month: {used} of {MONTHLY_DRAFT_CAP} (fair use).
+          AI drafts this month: {used} of {access.ok && access.tier === "free" ? FREE_DRAFT_CAP : MONTHLY_DRAFT_CAP}
+          {access.ok && access.tier === "free" ? "" : " (fair use)"}.
         </p>
         {paid && <p role="status">Thanks: you&apos;re on Solo.</p>}
         {!stripeConfigured() ? (
@@ -169,10 +176,27 @@ async function Settings({ searchParams }: Pick<PageProps<"/[lang]/app/settings">
         ) : t.plan !== "solo" ? (
           <form action={startSoloCheckout}>
             <button type="submit" className={primaryButton}>
-              Upgrade to Solo, {formatCents(PLANS.solo.priceCentsPerMonth)}/month
+              {needsTrialStart(t) ? "Try Solo free for 14 days" : `Upgrade to Solo, ${formatCents(PLANS.solo.priceCentsPerMonth)}/month`}
             </button>
           </form>
         ) : null}
+      </section>
+
+      <section className="flex flex-col gap-2 dash-card p-4 text-sm" data-testid="referral">
+        <h2 className="font-medium">Refer a tutor, get a month free</h2>
+        <p className="text-ink-soft">
+          Share your link with another tutor. When they upgrade to Solo and their first month is paid, you both get a month free (
+          {formatCents(REFERRAL_CREDIT_CENTS)} off, or {REFERRAL_FREE_DAYS} days of Solo if you&apos;re on the free plan).
+        </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="min-w-0 truncate rounded-md border border-rule bg-paper px-2.5 py-1.5 font-mono text-xs">{referralLink}</span>
+          <CopyButton text={referralLink} label="Copy link" />
+        </div>
+        <p className="text-ink-soft">
+          {refs.signedUp === 0
+            ? "No one has signed up with your link yet."
+            : `${refs.signedUp} ${refs.signedUp === 1 ? "tutor has" : "tutors have"} signed up with your link; ${refs.rewarded} free ${refs.rewarded === 1 ? "month" : "months"} earned.`}
+        </p>
       </section>
     </TutorShell>
   );

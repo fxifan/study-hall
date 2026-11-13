@@ -1,3 +1,4 @@
+import { studentLimitMessage } from "@/lib/tutor/plan-messages";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -27,6 +28,7 @@ type Family = {
 const ERRORS: Record<string, string> = {
   student: "Check the student's details and try again.",
   family: "Check the parent's name and email and try again.",
+  limit: studentLimitMessage(),
 };
 
 async function Students({ searchParams }: Pick<PageProps<"/[lang]/app/students">, "searchParams">) {

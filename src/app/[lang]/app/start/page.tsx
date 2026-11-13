@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { localizePath } from "@/i18n/config";
 import { getLocale } from "@/i18n/server";
-import { PLANS, MONTHLY_DRAFT_CAP } from "@/lib/tutor/config";
+import { FREE_STUDENT_LIMIT, PLANS, MONTHLY_DRAFT_CAP } from "@/lib/tutor/config";
 import { formatCents } from "@/lib/tutor/invoice-math";
 import { syncTutorCheckout } from "@/lib/tutor/billing";
 import { needsTrialStart, requireTutor } from "@/lib/tutor/server";
@@ -11,11 +11,11 @@ import { formatInZone } from "@/lib/time";
 import { startSoloCheckout } from "../billing-actions";
 import { Loading, TutorShell, primaryButton } from "../_components/shell";
 
-export const metadata: Metadata = { title: "Start your free trial" };
+export const metadata: Metadata = { title: "Try Solo free" };
 
 /**
- * New tutors start their 14-day trial here, in Stripe Checkout with a card (owner, 8 Nov 2026).
- * Every other tutor page sends them here until they have.
+ * Solo's 14-day trial starts here, in Stripe Checkout with a card (owner, 8 Nov 2026). Since the
+ * free plan (13 Nov 2026) it's optional: tutors use Edumi free for up to 3 students without it.
  */
 export default function StartPage({ searchParams }: PageProps<"/[lang]/app/start">) {
   return (
@@ -35,9 +35,9 @@ async function Start({ searchParams }: Pick<PageProps<"/[lang]/app/start">, "sea
   const firstCharge = formatInZone(new Date(new Date().getTime() + PLANS.trial.days * 86_400_000).toISOString(), "EEE d MMM");
 
   return (
-    <TutorShell tutor={me} title="Start your free trial" current="today">
+    <TutorShell tutor={me} title="Try Solo free for 14 days" current="today">
       <section className="dash-card flex flex-col gap-3 p-5" data-testid="start-trial">
-        <p className="text-ink-soft">Welcome, {me.tutor.display_name.split(" ")[0]}. One step before your dashboard.</p>
+        <p className="text-ink-soft">Teaching more than {FREE_STUDENT_LIMIT} students? Solo has no limit.</p>
         <ul className="list-disc pl-5 text-sm">
           <li>{PLANS.trial.days} days free, with everything in Solo: unlimited students, reports and invoices, and {MONTHLY_DRAFT_CAP} AI drafts a month.</li>
           <li>You&apos;ll add a card on the next page and pay A$0 today.</li>

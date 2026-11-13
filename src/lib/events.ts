@@ -35,6 +35,7 @@ export const EVENTS = {
   invoice_generated: "A tutor created an invoice.",
   invoice_sent: "A tutor sent or marked an invoice as sent.",
   resource_generated: "A tutor generated a practice set or writing tips.",
+  tutor_referral_rewarded: "A referred tutor first paid for Solo, so both tutors got a free month (kind = referrer/referred reward: credit or days).",
   // Edumi students (docs/student-social.md)
   study_group_created: "A student created a study group.",
   study_group_joined: "A student joined a study group (via = friend_invite when a friend invited them; otherwise an invite code).",

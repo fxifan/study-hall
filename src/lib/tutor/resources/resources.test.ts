@@ -133,13 +133,17 @@ describe("cleanFocus", () => {
 describe("resourceAccess", () => {
   const now = new Date("2026-11-05T00:00:00Z");
   const future = "2026-11-10T00:00:00Z";
-  it("gives the trial 3 in total", () => {
-    expect(resourceAccess({ plan: "trial", trialEndsAt: future, thisMonth: 2, total: 2 }, now)).toEqual({ ok: true, left: 1 });
-    expect(resourceAccess({ plan: "trial", trialEndsAt: future, thisMonth: 3, total: 3 }, now)).toEqual({ ok: false, reason: "trial_limit" });
-    expect(resourceAccess({ plan: "trial", trialEndsAt: "2026-11-01T00:00:00Z", thisMonth: 0, total: 0 }, now)).toEqual({ ok: false, reason: "trial_ended" });
+  const past = "2026-11-01T00:00:00Z";
+  it("gives the trial and the free plan 3 in total", () => {
+    expect(resourceAccess({ plan: "trial", trialEndsAt: future, students: 8, thisMonth: 2, total: 2 }, now)).toEqual({ ok: true, left: 1 });
+    expect(resourceAccess({ plan: "trial", trialEndsAt: future, students: 8, thisMonth: 3, total: 3 }, now)).toEqual({ ok: false, reason: "trial_limit" });
+    expect(resourceAccess({ plan: "trial", trialEndsAt: past, students: 2, thisMonth: 0, total: 1 }, now)).toEqual({ ok: true, left: 2 });
+  });
+  it("blocks a tutor over the free plan's student limit", () => {
+    expect(resourceAccess({ plan: "trial", trialEndsAt: past, students: 4, thisMonth: 0, total: 0 }, now)).toEqual({ ok: false, reason: "over_free_limit" });
   });
   it("gives Solo 60 a month", () => {
-    expect(resourceAccess({ plan: "solo", trialEndsAt: "2026-01-01T00:00:00Z", thisMonth: 59, total: 400 }, now)).toEqual({ ok: true, left: 1 });
-    expect(resourceAccess({ plan: "solo", trialEndsAt: "2026-01-01T00:00:00Z", thisMonth: 60, total: 400 }, now)).toEqual({ ok: false, reason: "monthly_cap" });
+    expect(resourceAccess({ plan: "solo", trialEndsAt: "2026-01-01T00:00:00Z", students: 20, thisMonth: 59, total: 400 }, now)).toEqual({ ok: true, left: 1 });
+    expect(resourceAccess({ plan: "solo", trialEndsAt: "2026-01-01T00:00:00Z", students: 20, thisMonth: 60, total: 400 }, now)).toEqual({ ok: false, reason: "monthly_cap" });
   });
 });

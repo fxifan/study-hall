@@ -152,7 +152,7 @@ async function Tutors({ searchParams }: Pick<PageProps<"/[lang]/admin/tutors">, 
           <tbody className="divide-y divide-rule">
             {rows.map((t) => {
               const plan =
-                t.plan === "solo" ? "Solo" : trialDaysLeft(t.trial_ends_at) === 0 ? "Trial ended" : `Trial to ${formatInZone(t.trial_ends_at, "d MMM")}`;
+                t.plan === "solo" ? "Solo" : trialDaysLeft(t.trial_ends_at) === 0 ? "Free plan" : `Trial to ${formatInZone(t.trial_ends_at, "d MMM")}`;
               return (
                 <tr key={t.id} className={isReservedTestEmail(t.email) ? "text-ink-faint" : ""}>
                   <td className="py-2">
