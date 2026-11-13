@@ -60,9 +60,9 @@ async function Ranks() {
           </div>
           <p className="flex flex-wrap justify-center gap-x-3 text-sm text-ink-soft sm:justify-between">
             <span>
-              <span className="font-mono font-semibold text-ink">{points.toLocaleString("en-AU")}</span> points
+              <span className="font-mono font-semibold text-ink">{points.toLocaleString("en-AU")}</span> XP
             </span>
-            <span>{next ? `${(next.min - points).toLocaleString("en-AU")} to ${next.name}` : "The top rank"}</span>
+            <span>{next ? `${(next.min - points).toLocaleString("en-AU")} XP to ${next.name}` : "The top rank"}</span>
           </p>
         </div>
       </section>
@@ -81,7 +81,7 @@ async function Ranks() {
                   <div className={`flex min-w-0 flex-1 flex-col ${state === "current" ? "rounded-xl bg-brand-soft px-3 py-2" : "pt-1"}`}>
                     <span className="flex flex-wrap items-baseline justify-between gap-x-2">
                       <span className={`font-medium ${state === "locked" ? "text-ink-soft" : ""}`}>{r.name}</span>
-                      <span className="font-mono text-xs text-ink-faint">{r.min.toLocaleString("en-AU")} pts</span>
+                      <span className="font-mono text-xs text-ink-faint">{r.min.toLocaleString("en-AU")} XP</span>
                     </span>
                     <span className="text-xs text-ink-soft">
                       {state === "earned"
@@ -92,9 +92,9 @@ async function Ranks() {
                             : "Reached"
                         : state === "current"
                           ? next
-                            ? `You're here · ${(next.min - points).toLocaleString("en-AU")} points to go`
+                            ? `You're here · ${(next.min - points).toLocaleString("en-AU")} XP to go`
                             : "You're here · the top rank"
-                          : `${(r.min - points).toLocaleString("en-AU")} more points`}
+                          : `${(r.min - points).toLocaleString("en-AU")} more XP`}
                     </span>
                   </div>
                 </li>
@@ -104,14 +104,14 @@ async function Ranks() {
         </section>
 
         <div className="flex flex-col gap-5">
-          <section aria-label="Points by week" className={`${card} flex flex-col gap-3`}>
+          <section aria-label="XP by week" className={`${card} flex flex-col gap-3`}>
             <div className="flex items-baseline justify-between gap-2">
-              <h2 className="font-semibold">Points by week</h2>
+              <h2 className="font-semibold">XP by week</h2>
               <span className="text-sm text-ink-soft">
                 <span className="font-mono font-semibold text-ink">+{thisWeek}</span> this week
               </span>
             </div>
-            <ol className="flex h-32 items-end gap-1.5" aria-label="Points in each of the last 8 weeks">
+            <ol className="flex h-32 items-end gap-1.5" aria-label="XP in each of the last 8 weeks">
               {weeks.map((w, i) => (
                 <li key={w.week} className="flex h-full flex-1 flex-col items-center justify-end gap-1">
                   <span className="font-mono text-[10px] text-ink-faint">{w.points || ""}</span>
@@ -121,7 +121,7 @@ async function Ranks() {
                     style={{ height: `${w.points ? Math.max(4, (w.points / maxWeek) * 100) : 2}%` }}
                   />
                   <span className="sr-only">
-                    Week of {w.week}: {w.points} points
+                    Week of {w.week}: {w.points} XP
                   </span>
                 </li>
               ))}
@@ -132,16 +132,16 @@ async function Ranks() {
             </p>
           </section>
 
-          <section aria-label="Recent points" className={`${card} flex flex-col gap-1`}>
-            <h2 className="mb-1 font-semibold">Recent points</h2>
+          <section aria-label="Recent XP" className={`${card} flex flex-col gap-1`}>
+            <h2 className="mb-1 font-semibold">Recent XP</h2>
             {recent.length === 0 ? (
-              <p className="text-sm text-ink-soft">Finish a quiz, notes or flashcards, or reach your daily goal, to earn your first points.</p>
+              <p className="text-sm text-ink-soft">Finish a quiz, notes or flashcards, or reach your daily goal, to earn your first XP.</p>
             ) : (
               <ul className="flex flex-col text-sm">
                 {recent.map((p, i) => (
                   <li key={i} className="flex items-baseline justify-between gap-3 border-t border-rule py-2 first:border-t-0">
                     <span>
-                      <span className="font-mono font-semibold text-[var(--tiles-sage-ink)]">+{p.points as number}</span> {POINT_LABEL[p.kind as string] ?? "Points"}
+                      <span className="font-mono font-semibold text-[var(--tiles-sage-ink)]">+{p.points as number}</span> {POINT_LABEL[p.kind as string] ?? "XP"}
                     </span>
                     <span className="shrink-0 text-xs text-ink-faint">{whenLabel(p.created_at as string)}</span>
                   </li>
@@ -155,8 +155,8 @@ async function Ranks() {
       <section className={`${card} flex flex-col gap-2 text-sm`}>
         <h2 className="font-medium">How ranks work</h2>
         <p className="text-ink-soft">
-          Quizzes pay the marks you earn, and notes and flashcards pay 10 points when you finish them (up to 60 a day). Each study day adds 5, and a full study week 15
-          more. Your rank goes up as your points add up, and never goes down. Study minutes count on the leaderboards, not towards your rank.
+          Quizzes pay 1 XP per mark you earn, and notes and flashcards pay 10 XP when you finish them (up to 60 a day). Each study day adds 5 XP, and a full study week
+          15 more. Your rank goes up as your XP adds up, and never goes down. Study minutes count on the leaderboards, not towards your rank.
         </p>
         <form action={setShowRank} className="mt-2 flex flex-wrap items-center gap-3">
           <label className="flex min-h-11 items-center gap-2">
@@ -164,7 +164,7 @@ async function Ranks() {
           </label>
           <button className={smallBtn}>Save</button>
         </form>
-        <p className="text-xs text-ink-faint">Others only ever see your badge, never your points or scores.</p>
+        <p className="text-xs text-ink-faint">Others only ever see your badge, never your XP or scores.</p>
       </section>
     </StudentShell>
   );
