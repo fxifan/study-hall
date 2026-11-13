@@ -9,6 +9,7 @@ import {
   conversationTitle,
   findAiAddonItem,
   HISTORY_MESSAGES,
+  normaliseReply,
   offlineAssistantLlm,
   replyJsonSchema,
   replyText,
@@ -83,6 +84,20 @@ describe("EduMi AI replies", () => {
 
   it("reject the wrong shape", async () => {
     await expect(askAssistant(fixed({ blocks: [{ type: "essay", body: "x" }] }), ctx, [], "why?")).rejects.toBeInstanceOf(AssistantError);
+  });
+
+  it("always end an explanation with the practice question as a Your turn card", () => {
+    const explainOnly = { blocks: [reply.blocks[0]], practice_question: "Solve \\(\\frac{dy}{dx} = 5x^2\\) for \\(y\\).", awaiting_answer: false } as never;
+    const out = normaliseReply(explainOnly);
+    expect(out.blocks.map((b) => b.type)).toEqual(["explain", "try"]);
+    expect(out.blocks[1].body).toContain("5x^2");
+    expect(out.awaiting_answer).toBe(true);
+  });
+
+  it("don't add a second Your turn card, or one when there's no question", () => {
+    expect(normaliseReply({ ...reply, practice_question: "Solve 2x = 8." } as never).blocks.filter((b) => b.type === "try")).toHaveLength(1);
+    const hint = { blocks: [{ type: "hint", title: "", body: "Undo the + 5 first.", steps: [] }], practice_question: "", awaiting_answer: true } as never;
+    expect(normaliseReply(hint).blocks.map((b) => b.type)).toEqual(["hint"]);
   });
 
   it("flatten to plain text for history", () => {

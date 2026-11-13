@@ -5,6 +5,7 @@ import { curriculumTitle, flashcardsSchema, KIND_LABEL, notesSchema, publicQuizS
 import { localizePath } from "@/i18n/config";
 import { getLocale } from "@/i18n/server";
 import { aiAccess } from "@/lib/social/assistant-server";
+import { MathText } from "@/components/math-text";
 import { cameFromGroup, requireSocialStudent } from "@/lib/social/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { completeResource, flagResource, regenerateResource } from "../../_social/actions";
@@ -54,13 +55,17 @@ async function Resource({ params, searchParams }: Pick<PageProps<"/[lang]/studen
           const n = notesSchema.parse(r.content);
           return (
             <article className={`${card} flex flex-col gap-4`}>
-              <p>{n.summary}</p>
+              <p>
+                <MathText text={n.summary} />
+              </p>
               {n.sections.map((s) => (
                 <section key={s.heading}>
                   <h2 className="mb-1 font-medium">{s.heading}</h2>
                   <ul className="list-disc pl-5 text-sm">
                     {s.points.map((p) => (
-                      <li key={p}>{p}</li>
+                      <li key={p}>
+                        <MathText text={p} />
+                      </li>
                     ))}
                   </ul>
                 </section>

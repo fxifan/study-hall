@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState, useSyncExternalStore, useTransition } from "react";
 import { useFormStatus } from "react-dom";
+import { MathText } from "@/components/math-text";
 import type { PublicQuiz } from "@/lib/social/resources";
 import { submitQuiz, type QuizResult } from "./actions";
 import { startMistakeChat } from "./assistant-actions";
@@ -24,7 +25,9 @@ export function Flashcards({ cards }: { cards: { front: string; back: string }[]
         className="flex min-h-48 w-full max-w-xl items-center justify-center rounded-2xl border border-rule bg-sheet p-6 text-center text-lg shadow-sm"
         aria-label={flipped ? "Show the question" : "Show the answer"}
       >
-        {flipped ? c.back : c.front}
+        <span className="whitespace-pre-wrap">
+          <MathText text={flipped ? c.back : c.front} />
+        </span>
       </button>
       <div className="flex items-center gap-4 text-sm">
         <button type="button" onClick={() => go(-1)} className="rounded-full border border-rule px-3 py-1.5">
@@ -191,7 +194,9 @@ function QuizRunnerInner({ resourceId, quiz, back = null, ai = null, hydrated }:
                 )}
               </div>
               {q.point && <p className="w-fit rounded-md bg-brand-soft px-2 py-1 text-xs">Tests: {q.point}</p>}
-              <p className="font-medium whitespace-pre-wrap">{q.prompt}</p>
+              <p className="font-medium whitespace-pre-wrap">
+                <MathText text={q.prompt} />
+              </p>
 
               {q.type === "mcq" ? (
                 <fieldset className="flex flex-col gap-2" disabled={Boolean(result)}>
@@ -212,7 +217,7 @@ function QuizRunnerInner({ resourceId, quiz, back = null, ai = null, hydrated }:
                         <input type="radio" name={`q${qi}`} checked={chosen} onChange={() => set(qi, oi)} className="mt-0.5" />
                         <span>
                           <span className="mr-1.5 font-mono text-ink-faint">{LABELS[oi]}</span>
-                          {o}
+                          <MathText text={o} />
                         </span>
                       </label>
                     );
@@ -239,7 +244,9 @@ function QuizRunnerInner({ resourceId, quiz, back = null, ai = null, hydrated }:
 
               {r && (
                 <div className="flex flex-col gap-2 rounded-lg bg-paper-deep p-3 text-sm">
-                  <p>{r.feedback}</p>
+                  <p className="whitespace-pre-wrap">
+                    <MathText text={r.feedback} />
+                  </p>
                   {r.rubric && (
                     <ul className="flex flex-col gap-1">
                       {r.rubric.map((c) => {
@@ -261,7 +268,9 @@ function QuizRunnerInner({ resourceId, quiz, back = null, ai = null, hydrated }:
                   {r.modelAnswer && (
                     <details>
                       <summary className="cursor-pointer text-ink-soft">Model answer</summary>
-                      <p className="mt-1 whitespace-pre-wrap">{r.modelAnswer}</p>
+                      <p className="mt-1 whitespace-pre-wrap">
+                        <MathText text={r.modelAnswer} />
+                      </p>
                     </details>
                   )}
                   {ai && r.awarded < r.marks && (

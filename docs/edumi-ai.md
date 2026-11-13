@@ -36,7 +36,7 @@ Study Hall and tutor workflows come later.
 - The model is `OPENAI_ASSISTANT_MODEL`, or the report model by default. There's an offline
   stand-in when there's no API key (or `TUTOR_RESOURCES_OFFLINE=1`).
 - Messages are capped at 1,500 characters. Only the last 12 messages go back to the model.
-  Every reply records its model, `prompt_version` (`assistant-v2`) and tokens.
+  Every reply records its model, `prompt_version` (`assistant-v4`) and tokens.
 - Chats are private: RLS lets only the student read them. Parents, tutors and supervisors have no
   access. The student's words are fenced in the prompt, and the rules hold whatever they write.
 - Safety: the prompt refuses to write assessed work, says when it's unsure, and points to Kids
@@ -45,6 +45,6 @@ Study Hall and tutor workflows come later.
 ## Before launch (from the brief's release gates)
 
 - Run the human-reviewed evaluation set (Years 7–10 Maths, VCE Methods and General, Biology,
-  Chemistry, English, Accounting) against `assistant-v2`.
+  Chemistry, English, Accounting) against `assistant-v4`.
 - Privacy and child-safety review for minors; decide on retention for `ai_messages`.
 - Run `npm run stripe:setup` in each Stripe mode so the add-on price exists.

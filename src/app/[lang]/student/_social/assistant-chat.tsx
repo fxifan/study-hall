@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
+import { MathLine, MathText } from "@/components/math-text";
 import { ASSISTANT_DAILY_LIMIT, MAX_STUDENT_MESSAGE, QUICK_REPLIES, type AssistantReply, type QuickReply, type ReplyBlock } from "@/lib/social/assistant";
 import type { ChatMessage } from "@/lib/social/assistant-server";
 import { flagMessage, rateMessage, saveConversation, sendChatMessage } from "./assistant-actions";
@@ -33,18 +34,34 @@ const BLOCK_STYLE: Record<ReplyBlock["type"], { box: string; label: string; tone
 function Block({ b }: { b: ReplyBlock }) {
   const st = BLOCK_STYLE[b.type];
   const label = b.title || st.label;
-  if (b.type === "text" && !b.steps.length) return <p className="whitespace-pre-wrap">{b.body}</p>;
+  if (b.type === "text" && !b.steps.length)
+    return (
+      <p className="leading-relaxed whitespace-pre-wrap">
+        <MathText text={b.body} />
+      </p>
+    );
   return (
-    <div className={`flex flex-col gap-1.5 rounded-xl px-3.5 py-3 ${st.box}`}>
+    <div className={`flex flex-col gap-2 rounded-xl px-3.5 py-3 ${st.box}`}>
       {label && <p className={`font-mono text-[11px] font-semibold tracking-wide uppercase ${st.tone}`}>{label}</p>}
-      {b.body && <p className="whitespace-pre-wrap">{b.body}</p>}
+      {b.body && (
+        <p className="leading-relaxed whitespace-pre-wrap">
+          <MathText text={b.body} />
+        </p>
+      )}
       {b.steps.length > 0 && (
-        <ol className="flex flex-col gap-1 text-sm">
+        <ol className="flex flex-col gap-2.5">
           {b.steps.map((s, i) => (
-            <li key={i} className="grid grid-cols-[1.25rem_1fr] gap-x-2 sm:grid-cols-[1.25rem_1fr_auto]">
-              <span className="font-mono text-xs leading-5 text-ink-faint">{i + 1}</span>
-              <span>{s.text}</span>
-              {s.math && <span className="col-start-2 font-mono text-sm whitespace-pre-wrap sm:col-start-3 sm:text-right">{s.math}</span>}
+            // Each step: what to do, then its line of working underneath, so long maths has room.
+            <li key={i} className="grid grid-cols-[1.25rem_1fr] gap-x-2 gap-y-1">
+              <span className="font-mono text-xs leading-6 text-ink-faint">{i + 1}</span>
+              <span className="text-sm leading-6">
+                <MathText text={s.text} />
+              </span>
+              {s.math && (
+                <span className="col-start-2 w-fit max-w-full rounded-lg bg-sheet/70 px-2.5 py-1">
+                  <MathLine tex={s.math} />
+                </span>
+              )}
             </li>
           ))}
         </ol>
