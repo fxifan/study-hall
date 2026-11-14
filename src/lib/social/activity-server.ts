@@ -59,7 +59,7 @@ export async function myActivity(profileId: string): Promise<ActivityItem[]> {
     items.push({ at: s.stopped_at as string, kind: "session", text: `Studied ${studied(s.credited_seconds as number)} · ${group ?? "Solo"}` });
   }
   for (const p of points ?? []) {
-    items.push({ at: p.created_at as string, kind: "milestone", text: p.kind === "full_week" ? `Full study week · +${p.points}` : `Study day counted · +${p.points}` });
+    items.push({ at: p.created_at as string, kind: "milestone", text: p.kind === "full_week" ? `Full study week · +${p.points} XP` : `Study day counted · +${p.points} XP` });
   }
   for (const t of solo ?? []) {
     if (!t.finished_at) continue;

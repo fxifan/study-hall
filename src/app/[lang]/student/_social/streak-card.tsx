@@ -22,7 +22,7 @@ export function StreakCard({ c, goalHref }: { c: Consistency; goalHref?: string 
       <div className="flex items-baseline justify-between gap-2">
         <h2 className="text-lg font-semibold">{c.streak ? `${c.streak}-day streak` : "Start a streak today"}</h2>
         {c.todayCounted && (
-          <span className="rounded-full bg-[var(--tiles-sage-soft)] px-2.5 py-0.5 text-xs font-semibold text-[var(--tiles-sage-ink)]">+{STUDY_DAY_POINTS} today</span>
+          <span className="rounded-full bg-[var(--tiles-sage-soft)] px-2.5 py-0.5 text-xs font-semibold text-[var(--tiles-sage-ink)]">+{STUDY_DAY_POINTS} XP today</span>
         )}
       </div>
       <ol className="grid grid-cols-7 gap-1.5" aria-label="This week">
@@ -58,7 +58,7 @@ export function StreakCard({ c, goalHref }: { c: Consistency; goalHref?: string 
       )}
       <p className="text-sm text-ink-soft">
         {c.studyDaysThisWeek} study {c.studyDaysThisWeek === 1 ? "day" : "days"} this week
-        {toBonus > 0 ? ` · ${toBonus} more for the +${FULL_WEEK_POINTS} full-week bonus` : ` · full week, +${FULL_WEEK_POINTS} earned`}
+        {toBonus > 0 ? ` · ${toBonus} more for the +${FULL_WEEK_POINTS} XP full-week bonus` : ` · full week, +${FULL_WEEK_POINTS} XP earned`}
       </p>
     </section>
   );

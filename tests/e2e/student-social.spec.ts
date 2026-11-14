@@ -171,7 +171,7 @@ test("a group studies together: chat, timer, help and practice", async ({ browse
   await a.getByRole("button", { name: "Submit for marking" }).click();
   // 6 multiple choice (1 each) + 3 + 1 = 10 of 12.
   await expect(a.getByText("10 / 12 marks")).toBeVisible({ timeout: 30_000 });
-  await expect(a.getByText("+10 points")).toBeVisible();
+  await expect(a.getByText("+10 XP")).toBeVisible();
   const points = await admin.from("points_ledger").select("kind, points").eq("profile_id", alex.id).order("kind");
   // The quiz pays its marks, and finishing it makes today a study day (+5).
   expect(points.data).toEqual([{ kind: "marks", points: 10 }, { kind: "study_day", points: 5 }]);
@@ -182,7 +182,7 @@ test("a group studies together: chat, timer, help and practice", async ({ browse
   await a.getByLabel("Your answer to question 8").fill("4");
   await a.getByRole("button", { name: "Submit for marking" }).click();
   await expect(a.getByText("8 / 12 marks")).toBeVisible({ timeout: 30_000 });
-  await expect(a.getByText(/No new points/)).toBeVisible();
+  await expect(a.getByText(/No new XP/)).toBeVisible();
 });
 
 test("a uni student born before 2005 can sign up", async ({ page }) => {

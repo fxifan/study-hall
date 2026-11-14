@@ -94,7 +94,7 @@ async function Practice({ searchParams }: Pick<PageProps<"/[lang]/student/practi
       <p className="-mt-2 text-xs text-ink-faint">
         Today: {quizLeft} of {DAILY_LIMITS.quiz} quizzes ({QUIZ_QUESTIONS} questions each) and {studyLeft} of {DAILY_LIMITS.study} notes or flashcard sets left
         {ai.kind === "on" ? `, and ${askLeft} of ${ASSISTANT_DAILY_LIMIT} questions to EduMi AI` : ""}. Quizzes pay
-        the marks you earn as points. AI can make mistakes: flag anything that looks wrong.
+        the marks you earn as XP. AI can make mistakes: flag anything that looks wrong.
       </p>
 
       {list.length > 0 && (

@@ -160,8 +160,8 @@ function QuizRunnerInner({ resourceId, quiz, back = null, ai = null, hydrated }:
             </p>
             <p className="text-sm text-ink-soft">
               {result.points > 0
-                ? `+${result.points} points`
-                : "No new points: retakes pay only when you beat your best on this quiz."}
+                ? `+${result.points} XP`
+                : "No new XP: retakes pay only when you beat your best on this quiz."}
             </p>
           </div>
         </div>

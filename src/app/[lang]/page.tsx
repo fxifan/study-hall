@@ -178,7 +178,7 @@ export default async function HomePage() {
                   <span style={{ width: "83%" }} />
                 </span>
                 <p className="home-chips">
-                  <span className="home-chip">+10 points</span>
+                  <span className="home-chip">+10 XP</span>
                   <span className="home-chip">Silver Striver</span>
                 </p>
               </div>

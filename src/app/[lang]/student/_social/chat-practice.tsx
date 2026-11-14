@@ -29,7 +29,7 @@ export function PracticeStrip({ prompt }: { prompt: PracticePrompt }) {
     <div className="flex items-center gap-3 border-b border-rule px-3 py-2.5" data-testid="practice-strip">
       <RankBadge rank={prompt.rank} size={34} labelled={false} />
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium">{prompt.next ? `${prompt.toNext} points to ${prompt.next.name}` : `${prompt.rank.name}: the top rank`}</p>
+        <p className="truncate text-sm font-medium">{prompt.next ? `${prompt.toNext} XP to ${prompt.next.name}` : `${prompt.rank.name}: the top rank`}</p>
         {prompt.next && (
           <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-paper-deep" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label={`Progress to ${prompt.next.name}`}>
             <div className="h-full rounded-full bg-brand" style={{ width: `${pct}%` }} />
@@ -90,9 +90,9 @@ export function RankUpNudge({ nudge, prompt }: { nudge: RankUpNudgeView; prompt:
         <RankBadge rank={prompt.next} size={40} labelled={false} />
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-[var(--tiles-pink-ink)]">
-            Your move: {prompt.toNext} points to {prompt.next.name}
+            Your move: {prompt.toNext} XP to {prompt.next.name}
           </p>
-          <p className="text-xs text-ink-soft">Every mark you earn in a quiz is a point.</p>
+          <p className="text-xs text-ink-soft">Every mark you earn in a quiz is 1 XP.</p>
         </div>
         <Link href={prompt.href} className="shrink-0 rounded-full bg-ink px-3.5 py-1.5 text-sm font-medium text-paper no-underline hover:opacity-90">
           Quiz me

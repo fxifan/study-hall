@@ -61,11 +61,11 @@ test("the chat prompts practice, the quiz leads back, and a friend's rank-up nud
   const page = await login(browser, mia.email);
   await page.goto(`/student/groups/${groupId}`);
   const strip = page.getByTestId("practice-strip");
-  await expect(strip).toContainText("5 points to Bronze Braincell");
+  await expect(strip).toContainText("5 XP to Bronze Braincell");
   await expect(strip).toContainText("60 left today");
   const nudge = page.getByTestId("rank-up-nudge");
   await expect(nudge).toContainText("Leo T. ranked up to Bronze Braincell");
-  await expect(nudge).toContainText("Your move: 5 points to Bronze Braincell");
+  await expect(nudge).toContainText("Your move: 5 XP to Bronze Braincell");
 
   // Dismissing the nudge keeps it gone after a reload.
   await nudge.getByRole("button", { name: "Dismiss" }).click();
@@ -93,12 +93,12 @@ test("the chat prompts practice, the quiz leads back, and a friend's rank-up nud
   await page.getByRole("link", { name: "Back to Methods crew →" }).click();
   await expect(page).toHaveURL(new RegExp(`/student/groups/${groupId}$`));
   // 45 + 10 marks + 5 for the study day the quiz completed.
-  await expect(page.getByTestId("practice-strip")).toContainText("90 points to Silver Striver");
+  await expect(page.getByTestId("practice-strip")).toContainText("90 XP to Silver Striver");
   await expect(page.getByTestId("practice-strip")).toContainText("50 left today");
 
   // Leo sees his own strip, never Mia's points.
   const other = await login(browser, leo.email);
   await other.goto(`/student/groups/${groupId}`);
-  await expect(other.getByTestId("practice-strip")).toContainText("90 points to Silver Striver");
-  await expect(other.getByText("95 points")).toHaveCount(0);
+  await expect(other.getByTestId("practice-strip")).toContainText("90 XP to Silver Striver");
+  await expect(other.getByText("95 XP")).toHaveCount(0);
 });
