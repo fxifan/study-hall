@@ -615,10 +615,10 @@
 /* Pricing */
 .tl-prices {
   margin: 36px auto 0;
-  max-width: 440px;
+  max-width: 880px;
   display: grid;
-  /* One paid plan; the free trial is part of it (no separate $0 plan). */
-  grid-template-columns: minmax(0, 1fr);
+  /* Free (up to 3 students) and Solo, whose free trial is part of it. */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
 }
 .tl-price {

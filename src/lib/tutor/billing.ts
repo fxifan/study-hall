@@ -4,6 +4,7 @@ import type Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { planForStatus } from "./plan";
+import { rewardReferralIfDue } from "./referrals";
 
 export { planForStatus };
 
@@ -45,6 +46,8 @@ export async function syncTutorSubscription(subscription: Stripe.Subscription): 
     .eq("id", tutorId);
   if (error) throw error;
   await trackSubscription(subscription, "tutors", "tutor", tutorId);
+  // A referred tutor's first real payment (not the trial) gives both tutors a free month, once.
+  if (subscription.status === "active") await rewardReferralIfDue(tutorId);
 }
 
 export async function syncTutorCheckout(sessionId: string, tutorId: string): Promise<boolean> {

@@ -1,15 +1,13 @@
-import { MONTHLY_DRAFT_CAP, PLANS } from "@/lib/tutor/config";
+import Link from "next/link";
+import { FREE_STUDENT_LIMIT, PLANS } from "@/lib/tutor/config";
 import { formatCents } from "@/lib/tutor/invoice-math";
 import type { Access } from "@/lib/tutor/plan";
+import { blockedMessage } from "@/lib/tutor/plan-messages";
 
-export function blockedMessage(reason: "trial_ended" | "fair_use"): string {
-  return reason === "trial_ended"
-    ? `Your 14-day free trial has ended. To keep drafting and sending reports and invoices, upgrade to Solo (${formatCents(PLANS.solo.priceCentsPerMonth)}/month) in Settings. Your students, reports and invoices are all still here.`
-    : `You've used this month's fair-use allowance of ${MONTHLY_DRAFT_CAP} AI drafts. It resets on the 1st. You can still edit and send reports you've already drafted.`;
-}
+export { blockedMessage };
 
-/** Trial countdown, or the reason the tutor is blocked. */
-export function PlanBanner({ access }: { access: Access }) {
+/** Trial countdown, the free plan's student count, or the reason the tutor is blocked. */
+export function PlanBanner({ access, settingsHref }: { access: Access; settingsHref?: string }) {
   if (!access.ok) {
     return (
       <p role="alert" className="rounded-md border border-pen px-3 py-2 text-sm text-pen">
@@ -17,10 +15,23 @@ export function PlanBanner({ access }: { access: Access }) {
       </p>
     );
   }
-  if (access.plan === "trial" && access.trialDaysLeft !== null) {
+  if (access.tier === "trial" && access.trialDaysLeft !== null) {
     return (
       <p className="dash-card px-3 py-2 text-sm">
-        Free trial: {access.trialDaysLeft} {access.trialDaysLeft === 1 ? "day" : "days"} left. Then Solo is {formatCents(PLANS.solo.priceCentsPerMonth)}/month.
+        Free trial: {access.trialDaysLeft} {access.trialDaysLeft === 1 ? "day" : "days"} left. After that you keep the free plan for up to {FREE_STUDENT_LIMIT}{" "}
+        students, or Solo is {formatCents(PLANS.solo.priceCentsPerMonth)}/month.
+      </p>
+    );
+  }
+  if (access.tier === "free") {
+    return (
+      <p className="dash-card px-3 py-2 text-sm" data-testid="free-plan-banner">
+        Free plan: {access.students} of {FREE_STUDENT_LIMIT} students, {access.draftsLeft} AI drafts left this month.{" "}
+        {settingsHref && (
+          <Link href={settingsHref} className="font-medium">
+            Teaching more? Try Solo free for 14 days →
+          </Link>
+        )}
       </p>
     );
   }

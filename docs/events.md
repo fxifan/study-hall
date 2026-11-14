@@ -54,6 +54,11 @@ the action succeeded. Read by `/admin/analytics`.
 | `student_resource_completed` | platform | Notes or flashcards marked done | per resource |
 | `student_resource_flagged` | platform | A student flagged generated content | none |
 | `quiz_submitted` | platform | A quiz was marked (`count`, `status` scored or practice) | none |
+| `ai_chat_started` | platform | A student started an EduMi AI chat (`source` ask, task or quiz_mistake) | none |
+| `ai_reply_rated` | platform | A student rated an EduMi AI reply (`status` helpful or unhelpful) | none |
+| `ai_reply_flagged` | platform | A student flagged an EduMi AI reply (`reason`) | none |
+| `ai_addon_added` | platform | A student added the A$2.99/month EduMi AI add-on (`status` = plan kind) | none |
+| `ai_addon_removed` | platform | A student removed the EduMi AI add-on | none |
 
 ## Not tracked yet (needs product work first)
 

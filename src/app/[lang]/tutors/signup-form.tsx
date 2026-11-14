@@ -1,22 +1,37 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { signUpTutor, type SignUpState } from "./actions";
 
 const input = "dash-field !h-12 !text-base";
 
 export function SignUpForm({ termsHref, privacyHref, loginHref }: { termsHref: string; privacyHref: string; loginHref: string }) {
   const [state, action, pending] = useActionState<SignUpState, FormData>(signUpTutor, { status: "idle" });
+  // A referral link (/tutors?ref=CODE): read after hydration so the page itself can stay static.
+  const [ref, setRef] = useState("");
+  useEffect(() => {
+    const code = new URLSearchParams(window.location.search).get("ref") ?? "";
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reading the URL once on mount
+    if (/^[A-Za-z2-9]{8}$/.test(code)) setRef(code.toUpperCase());
+  }, []);
   if (state.status === "sent") {
     return (
       <p role="status" className="dash-card p-4">
-        Check <strong>{state.email}</strong> for a sign-in link. Open it on this phone or computer to start your 14-day free trial.
+        Check <strong>{state.email}</strong> for a sign-in link. Open it on this phone or computer to get started.
       </p>
     );
   }
   return (
     <form action={action} className="flex flex-col gap-3" id="signup">
+      {ref && (
+        <>
+          <input type="hidden" name="ref" value={ref} />
+          <p className="rounded-md bg-[var(--tiles-sage-soft)] px-3 py-2 text-sm text-[var(--tiles-sage-ink)]" data-testid="referral-note">
+            A tutor invited you. When you upgrade to Solo, you both get a month free.
+          </p>
+        </>
+      )}
       <label className="flex flex-col gap-1.5 text-sm font-medium">
         Your name
         <input name="name" className={input} required maxLength={80} autoComplete="name" />

@@ -1,9 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, useSyncExternalStore, useTransition } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, useTransition } from "react";
+import { useFormStatus } from "react-dom";
+import { MathKeyboard, MathPreview, MathToggle } from "@/components/math-keyboard";
+import { MathText } from "@/components/math-text";
 import type { PublicQuiz } from "@/lib/social/resources";
 import { submitQuiz, type QuizResult } from "./actions";
+import { startMistakeChat } from "./assistant-actions";
 import { RankUpCelebration } from "./rank-up";
 
 export function Flashcards({ cards }: { cards: { front: string; back: string }[] }) {
@@ -22,7 +26,9 @@ export function Flashcards({ cards }: { cards: { front: string; back: string }[]
         className="flex min-h-48 w-full max-w-xl items-center justify-center rounded-2xl border border-rule bg-sheet p-6 text-center text-lg shadow-sm"
         aria-label={flipped ? "Show the question" : "Show the answer"}
       >
-        {flipped ? c.back : c.front}
+        <span className="whitespace-pre-wrap">
+          <MathText text={flipped ? c.back : c.front} />
+        </span>
       </button>
       <div className="flex items-center gap-4 text-sm">
         <button type="button" onClick={() => go(-1)} className="rounded-full border border-rule px-3 py-1.5">
@@ -55,7 +61,8 @@ function tone(awarded: number, marks: number) {
  * (free responses by AI against a rubric for the curriculum point); the key, model answers and
  * rubrics arrive only with the result. Points equal the marks earned (retakes pay the improvement).
  */
-type QuizProps = { resourceId: string; quiz: PublicQuiz; back?: { href: string; label: string } | null };
+/** `ai`: with the EduMi AI add-on, marked questions offer "Help me understand my mistake"; without, a link to the add-on. */
+type QuizProps = { resourceId: string; quiz: PublicQuiz; back?: { href: string; label: string } | null; ai?: { on: boolean; askHref: string } | null };
 type Answers = (number | string | null)[];
 
 const draftKey = (resourceId: string) => `edumi:quiz-draft:${resourceId}`;
@@ -108,7 +115,7 @@ export function QuizRunner(props: QuizProps) {
   return <QuizRunnerInner key={hydrated ? "client" : "server"} {...props} hydrated={hydrated} />;
 }
 
-function QuizRunnerInner({ resourceId, quiz, back = null, hydrated }: QuizProps & { hydrated: boolean }) {
+function QuizRunnerInner({ resourceId, quiz, back = null, ai = null, hydrated }: QuizProps & { hydrated: boolean }) {
   const blank = () => quiz.questions.map((q) => (q.type === "mcq" ? null : "")) as Answers;
   const [draft] = useState(() => (hydrated ? parseDraft(readDraft(resourceId), quiz) : null));
   const [answers, setAnswers] = useState<Answers>(() => draft ?? blank());
@@ -188,7 +195,9 @@ function QuizRunnerInner({ resourceId, quiz, back = null, hydrated }: QuizProps 
                 )}
               </div>
               {q.point && <p className="w-fit rounded-md bg-brand-soft px-2 py-1 text-xs">Tests: {q.point}</p>}
-              <p className="font-medium whitespace-pre-wrap">{q.prompt}</p>
+              <p className="font-medium whitespace-pre-wrap">
+                <MathText text={q.prompt} />
+              </p>
 
               {q.type === "mcq" ? (
                 <fieldset className="flex flex-col gap-2" disabled={Boolean(result)}>
@@ -209,34 +218,21 @@ function QuizRunnerInner({ resourceId, quiz, back = null, hydrated }: QuizProps 
                         <input type="radio" name={`q${qi}`} checked={chosen} onChange={() => set(qi, oi)} className="mt-0.5" />
                         <span>
                           <span className="mr-1.5 font-mono text-ink-faint">{LABELS[oi]}</span>
-                          {o}
+                          <MathText text={o} />
                         </span>
                       </label>
                     );
                   })}
                 </fieldset>
               ) : (
-                <div className="flex flex-col gap-1">
-                  <label htmlFor={`q${qi}-answer`} className="sr-only">
-                    Your answer to question {qi + 1}
-                  </label>
-                  <textarea
-                    id={`q${qi}-answer`}
-                    value={String(answers[qi] ?? "")}
-                    onChange={(e) => set(qi, e.target.value)}
-                    disabled={Boolean(result)}
-                    maxLength={1500}
-                    rows={4}
-                    placeholder="Write your answer. Show your working or reasoning: marks follow the rubric."
-                    className="rounded-lg border border-rule bg-paper px-3 py-2 text-sm disabled:opacity-80"
-                  />
-                  {!result && <span className="self-end font-mono text-xs text-ink-faint">{String(answers[qi] ?? "").length}/1500</span>}
-                </div>
+                <FreeAnswer id={`q${qi}-answer`} label={`Your answer to question ${qi + 1}`} value={String(answers[qi] ?? "")} onChange={(v) => set(qi, v)} done={Boolean(result)} />
               )}
 
               {r && (
                 <div className="flex flex-col gap-2 rounded-lg bg-paper-deep p-3 text-sm">
-                  <p>{r.feedback}</p>
+                  <p className="whitespace-pre-wrap">
+                    <MathText text={r.feedback} />
+                  </p>
                   {r.rubric && (
                     <ul className="flex flex-col gap-1">
                       {r.rubric.map((c) => {
@@ -258,8 +254,25 @@ function QuizRunnerInner({ resourceId, quiz, back = null, hydrated }: QuizProps 
                   {r.modelAnswer && (
                     <details>
                       <summary className="cursor-pointer text-ink-soft">Model answer</summary>
-                      <p className="mt-1 whitespace-pre-wrap">{r.modelAnswer}</p>
+                      <p className="mt-1 whitespace-pre-wrap">
+                        <MathText text={r.modelAnswer} />
+                      </p>
                     </details>
+                  )}
+                  {ai && r.awarded < r.marks && (
+                    <div className="pt-1">
+                      {ai.on ? (
+                        <form action={startMistakeChat}>
+                          <input type="hidden" name="resource" value={resourceId} />
+                          <input type="hidden" name="question" value={qi} />
+                          <MistakeButton />
+                        </form>
+                      ) : (
+                        <Link href={ai.askHref} className="text-sm font-medium text-ink">
+                          Get help with this from EduMi AI →
+                        </Link>
+                      )}
+                    </div>
                   )}
                 </div>
               )}
@@ -302,5 +315,49 @@ function QuizRunnerInner({ resourceId, quiz, back = null, hydrated }: QuizProps 
         </button>
       )}
     </section>
+  );
+}
+
+function MistakeButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button disabled={pending} className="inline-flex h-8 items-center justify-center rounded-full border border-rule bg-sheet px-3 text-xs font-medium text-ink hover:bg-paper-deep disabled:opacity-50">
+      {pending ? "Opening EduMi AI…" : "Help me understand my mistake"}
+    </button>
+  );
+}
+
+/** A free-response answer with the maths keyboard and a typeset preview of any maths typed. */
+function FreeAnswer({ id, label, value, onChange, done }: { id: string; label: string; value: string; onChange: (v: string) => void; done: boolean }) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+  const [keyboard, setKeyboard] = useState(false);
+  return (
+    <div className="flex flex-col gap-2">
+      <label htmlFor={id} className="sr-only">
+        {label}
+      </label>
+      <textarea
+        ref={ref}
+        id={id}
+        value={value}
+        onChange={(e) => onChange(e.target.value.slice(0, 1500))}
+        disabled={done}
+        maxLength={1500}
+        rows={4}
+        autoCapitalize="off"
+        placeholder="Write your answer. Show your working or reasoning: marks follow the rubric."
+        className="rounded-lg border border-rule bg-paper px-3 py-2 text-sm disabled:opacity-80"
+      />
+      <MathPreview text={value} />
+      {!done && (
+        <>
+          <div className="flex items-center justify-between gap-2">
+            <MathToggle open={keyboard} onToggle={() => setKeyboard(!keyboard)} className="h-8 text-xs" />
+            <span className="font-mono text-xs text-ink-faint">{value.length}/1500</span>
+          </div>
+          {keyboard && <MathKeyboard target={ref} value={value} onChange={(v) => onChange(v.slice(0, 1500))} />}
+        </>
+      )}
+    </div>
   );
 }

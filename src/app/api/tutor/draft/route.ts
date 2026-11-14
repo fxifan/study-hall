@@ -1,3 +1,4 @@
+import { blockedMessage } from "@/lib/tutor/plan-messages";
 import { track } from "@/lib/events";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
@@ -43,9 +44,7 @@ export async function POST(request: Request) {
   if (!access.ok) {
     return fail(
       402,
-      access.reason === "trial_ended"
-        ? "Your free trial has ended. Upgrade to Solo to keep drafting reports."
-        : "You've reached this month's fair-use limit for AI drafts. It resets on the 1st.",
+      blockedMessage(access.reason),
       { reason: access.reason },
     );
   }

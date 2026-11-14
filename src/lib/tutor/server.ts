@@ -1,14 +1,11 @@
 import "server-only";
-import { redirect } from "next/navigation";
 import { cache } from "react";
-import { localizePath } from "@/i18n/config";
-import { getLocale } from "@/i18n/server";
 import { getCurrentProfile, requireRole, type CurrentProfile } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { dateKeyOf, zonedDateTimeToUtc } from "@/lib/time";
 import type { TutorPlan } from "./config";
-import { draftAccess, type Access } from "./plan";
+import { draftAccess, type Access, type PlanState } from "./plan";
 
 export type TutorRow = {
   id: string;
@@ -58,9 +55,9 @@ async function ensureAdminWorkspace(profile: CurrentProfile): Promise<TutorRow |
 }
 
 /**
- * A tutor who signed up after trials moved to Stripe (8 Nov 2026) and hasn't started theirs: sign-up
- * sets trial_ends_at to the sign-up time, so there's no free time until Checkout. Older no-card
- * trials (14 days after sign-up) and anyone who has been to Checkout don't count.
+ * A tutor who hasn't started a Solo trial: sign-up sets trial_ends_at to the sign-up time, so their
+ * first Checkout gets the 14-day trial. Older no-card trials (14 days after sign-up) and anyone who
+ * has been to Checkout don't count. They use the free plan until then.
  */
 export function needsTrialStart(t: Pick<TutorRow, "plan" | "stripe_customer_id" | "trial_ends_at" | "created_at">): boolean {
   return t.plan === "trial" && !t.stripe_customer_id && Date.parse(t.trial_ends_at) - Date.parse(t.created_at) < 3600_000;
@@ -71,7 +68,8 @@ export async function requireTutor(options: { allowTrialStart?: boolean } = {}):
   const profile = await requireRole("tutor");
   const tutor = (await loadTutor(profile.id)) ?? (profile.role === "admin" ? await ensureAdminWorkspace(profile) : null);
   if (!tutor) throw new Error("This tutor account has no profile row.");
-  if (!options.allowTrialStart && needsTrialStart(tutor)) redirect(localizePath("/app/start", await getLocale()));
+  // Since the free plan (13 Nov 2026), new tutors go straight in; the Solo trial is an upgrade.
+  void options;
   return { profile, tutor };
 }
 
@@ -109,8 +107,21 @@ export async function draftsThisMonth(tutorId: string, now = new Date()): Promis
   return count ?? 0;
 }
 
+/** How many students the tutor has (the free plan covers up to FREE_STUDENT_LIMIT). */
+export async function studentCount(tutorId: string): Promise<number> {
+  const { count, error } = await createAdminClient().from("tutor_students").select("id", { count: "exact", head: true }).eq("tutor_id", tutorId);
+  if (error) throw error;
+  return count ?? 0;
+}
+
+/** Everything the plan rules need about this tutor (src/lib/tutor/plan.ts). */
+export async function planStateFor(tutor: Pick<TutorRow, "id" | "plan" | "trial_ends_at">): Promise<PlanState> {
+  return { plan: tutor.plan, trialEndsAt: tutor.trial_ends_at, students: await studentCount(tutor.id) };
+}
+
 export async function accessFor(tutor: TutorRow): Promise<Access> {
-  return draftAccess({ plan: tutor.plan, trialEndsAt: tutor.trial_ends_at, draftsThisMonth: await draftsThisMonth(tutor.id) });
+  const [state, drafts] = await Promise.all([planStateFor(tutor), draftsThisMonth(tutor.id)]);
+  return draftAccess({ ...state, draftsThisMonth: drafts });
 }
 
 /** Usage logging (spec §7). Service role: tutors can read their usage but not write it. */

@@ -3,6 +3,8 @@
 import { track } from "@/lib/events";
 import { z } from "zod";
 import { encryptSecret } from "@/lib/tutor/crypto";
+import { canAddStudent } from "@/lib/tutor/plan";
+import { planStateFor } from "@/lib/tutor/server";
 import { createClient } from "@/lib/supabase/server";
 import { back, requireTutorAction } from "./_lib/action-helpers";
 
@@ -48,7 +50,9 @@ function form(formData: FormData, keys: string[]) {
 
 /** Add a student, with a new family or an existing one (the usual first step). */
 export async function addStudent(formData: FormData) {
-  const { profile } = await requireTutorAction();
+  const { profile, tutor } = await requireTutorAction();
+  // The free plan covers up to FREE_STUDENT_LIMIT students; Solo and the trial have no limit.
+  if (!canAddStudent(await planStateFor(tutor))) return back("/app/students", "?error=limit");
   const parsed = z
     .object({ ...studentFields, familyId: z.union([z.uuid(), z.literal("new")]) })
     .safeParse(form(formData, ["firstName", "lastInitial", "yearLevel", "subjects", "notes", "goals", "familyId"]));

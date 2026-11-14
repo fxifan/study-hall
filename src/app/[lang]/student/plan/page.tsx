@@ -4,6 +4,8 @@ import { Suspense } from "react";
 import { localizePath } from "@/i18n/config";
 import { getLocale } from "@/i18n/server";
 import { siteOrigin } from "@/lib/site";
+import { AI_ADDON_PRICE_LABEL } from "@/lib/social/assistant";
+import { aiAccess } from "@/lib/social/assistant-server";
 import { syncStudentCheckout } from "@/lib/social/billing";
 import { PLAN_FEATURES } from "@/lib/social/copy";
 import { requireSocialStudent } from "@/lib/social/server";
@@ -11,6 +13,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { formatInZone } from "@/lib/time";
 import { TrialPrice } from "@/components/trial-price";
 import { createParentLink, openStudentPortal, startStudentCheckout } from "../_social/actions";
+import { AiAddonOffer } from "../_social/ai-addon-offer";
+import { removeAiAddonAction } from "../_social/assistant-actions";
 import { CopyButton } from "../_social/copy-button";
 import { Loading, Notice, StudentShell, card, primaryBtn, secondaryBtn } from "../_social/shell";
 
@@ -36,10 +40,14 @@ async function Plan({ searchParams }: Pick<PageProps<"/[lang]/student/plan">, "s
   const { data: plan } = await createAdminClient().from("student_plans").select("payer, stripe_customer_id, parent_link_token, current_period_end").eq("profile_id", me.profile.id).maybeSingle();
   const parentUrl = plan?.parent_link_token ? `${await siteOrigin()}${localizePath(`/pay/${plan.parent_link_token}`, locale)}` : null;
   const a = me.access;
+  const ai = await aiAccess(me);
 
   return (
     <StudentShell me={me} title="Your Edumi plan" current="me" celebrate={false}>
       {justPaid && <Notice tone="ok">{a.kind === "trial" ? "Your free trial has started." : "You're subscribed. Thanks!"}</Notice>}
+      {query.addon === "added" && <Notice tone="ok">EduMi AI is on your plan.</Notice>}
+      {query.addon === "removed" && <Notice tone="ok">EduMi AI is off. Any unused part of this month is credited on your next bill.</Notice>}
+      {query.error === "addon" && <Notice tone="error">That didn&apos;t work, and nothing was charged. Try again.</Notice>}
       {a.kind === "disabled" && <Notice>A parent set up your account. Ask them to switch on Edumi groups from their parent page.</Notice>}
       {a.kind === "expired" && <Notice tone="error">Your free week has ended. Subscribe, or ask a parent to, to keep your groups, timer and practice.</Notice>}
 
@@ -100,6 +108,28 @@ async function Plan({ searchParams }: Pick<PageProps<"/[lang]/student/plan">, "s
           </form>
         )}
       </section>
+
+      {ai.kind === "on" ? (
+        me.profile.role !== "admin" && (
+          <section className={`${card} flex flex-col gap-3`} data-testid="ai-addon-on">
+            <div className="flex items-baseline justify-between gap-2">
+              <h2 className="text-lg font-medium">EduMi AI</h2>
+              <p>
+                <span className="text-2xl font-medium">{AI_ADDON_PRICE_LABEL}</span>
+                <span className="text-sm text-ink-soft">/month</span>
+              </p>
+            </div>
+            <p className="text-sm text-ink-soft">On your plan{a.kind === "trial" ? ", free until your trial ends" : ""}. Billed with your Edumi plan.</p>
+            {plan?.payer === "student" && (
+              <form action={removeAiAddonAction}>
+                <button className={secondaryBtn}>Remove EduMi AI</button>
+              </form>
+            )}
+          </section>
+        )
+      ) : (
+        (a.kind === "trial" || a.kind === "paid" || a.kind === "studyhall") && <AiAddonOffer access={ai} back="plan" planHref={localizePath("/student/plan", locale)} />
+      )}
     </StudentShell>
   );
 }

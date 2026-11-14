@@ -35,6 +35,7 @@ export const EVENTS = {
   invoice_generated: "A tutor created an invoice.",
   invoice_sent: "A tutor sent or marked an invoice as sent.",
   resource_generated: "A tutor generated a practice set or writing tips.",
+  tutor_referral_rewarded: "A referred tutor first paid for Solo, so both tutors got a free month (kind = referrer/referred reward: credit or days).",
   // Edumi students (docs/student-social.md)
   study_group_created: "A student created a study group.",
   study_group_joined: "A student joined a study group (via = friend_invite when a friend invited them; otherwise an invite code).",
@@ -53,6 +54,11 @@ export const EVENTS = {
   student_resource_completed: "A student marked notes or flashcards complete.",
   student_resource_flagged: "A student flagged generated content as incorrect.",
   quiz_submitted: "A student submitted a quiz for marking.",
+  ai_chat_started: "A student started an EduMi AI chat (source = ask, task or quiz_mistake).",
+  ai_reply_rated: "A student rated an EduMi AI reply (status = helpful or unhelpful).",
+  ai_reply_flagged: "A student flagged an EduMi AI reply (reason = wrong, unclear, level or inappropriate).",
+  ai_addon_added: "A student added the A$2.99/month EduMi AI add-on (status = their plan: trial or paid).",
+  ai_addon_removed: "A student removed the EduMi AI add-on.",
   rank_promoted: "A student reached a higher Study Rank (status = new rank id, count = tiers gained).",
 } as const;
 export type EventName = keyof typeof EVENTS;

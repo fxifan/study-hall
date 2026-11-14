@@ -2,6 +2,7 @@ import "server-only";
 import type Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { AI_ADDON_LOOKUP_KEY, AI_ADDON_PRICE_CENTS, findAiAddonItem } from "./assistant";
 import { STUDENT_PRICE_CENTS } from "./server";
 
 /**
@@ -69,7 +70,10 @@ export async function syncStudentSubscription(subscription: Stripe.Subscription)
   const status = PLAN_STATUS[subscription.status];
   if (!status) return; // incomplete: wait for the next event
   const customer = typeof subscription.customer === "string" ? subscription.customer : subscription.customer.id;
-  const periodEnd = subscription.items.data[0]?.current_period_end;
+  // The EduMi AI add-on rides on the same subscription as a second item (it ends with the plan).
+  const addonItem = status === "canceled" || status === "expired" ? null : findAiAddonItem(subscription.items.data);
+  const planItem = subscription.items.data.find((i) => i.id !== addonItem) ?? subscription.items.data[0];
+  const periodEnd = planItem?.current_period_end;
   const { error } = await createAdminClient()
     .from("student_plans")
     .upsert({
@@ -80,6 +84,8 @@ export async function syncStudentSubscription(subscription: Stripe.Subscription)
       stripe_subscription_id: subscription.id,
       current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
       ...(subscription.trial_end ? { trial_ends_at: new Date(subscription.trial_end * 1000).toISOString() } : {}),
+      ai_addon_item_id: addonItem,
+      ...(addonItem ? {} : { ai_addon_since: null }),
       updated_at: new Date().toISOString(),
     });
   if (error) throw error;
@@ -91,4 +97,60 @@ export async function syncStudentCheckout(sessionId: string, profileId: string):
   if (session.status !== "complete" || !sub || typeof sub === "string" || sub.metadata.student_profile_id !== profileId) return false;
   await syncStudentSubscription(sub);
   return true;
+}
+
+// --- EduMi AI add-on (A$2.99/month) ------------------------------------------------------------
+
+/** The add-on's Stripe price: made on first use if `npm run stripe:setup` hasn't made it yet. */
+async function aiAddonPriceId(): Promise<string> {
+  const stripe = getStripe();
+  const found = (await stripe.prices.list({ lookup_keys: [AI_ADDON_LOOKUP_KEY], active: true, limit: 1 })).data[0];
+  if (found) return found.id;
+  const product = await stripe.products.create({ name: "Edumi AI", metadata: { app: "edumi", product: "ai_addon" } });
+  const price = await stripe.prices.create({
+    product: product.id,
+    currency: "aud",
+    unit_amount: AI_ADDON_PRICE_CENTS,
+    recurring: { interval: "month" },
+    lookup_key: AI_ADDON_LOOKUP_KEY,
+    metadata: { app: "edumi", addon: "ai" },
+  });
+  return price.id;
+}
+
+export class AddonError extends Error {}
+
+/**
+ * Add EduMi AI to the student's own subscription. During the free trial it trials too; after
+ * that Stripe pro-rates it onto the next invoice. Only a plan the student pays for themselves: a
+ * parent's card isn't charged from the student's account.
+ */
+export async function addAiAddon(profileId: string): Promise<void> {
+  const admin = createAdminClient();
+  const { data: plan } = await admin.from("student_plans").select("status, payer, stripe_subscription_id").eq("profile_id", profileId).maybeSingle();
+  if (!plan?.stripe_subscription_id || plan.payer !== "student" || !["active", "trialing", "past_due"].includes(plan.status as string)) {
+    throw new AddonError("Add EduMi AI from a plan you pay for yourself.");
+  }
+  const stripe = getStripe();
+  const subscription = await stripe.subscriptions.retrieve(plan.stripe_subscription_id as string);
+  if (findAiAddonItem(subscription.items.data)) return syncStudentSubscription(subscription);
+  await stripe.subscriptionItems.create(
+    { subscription: subscription.id, price: await aiAddonPriceId(), quantity: 1, proration_behavior: "create_prorations", metadata: { addon: "ai" } },
+    // A double click within the same minute creates one item, not two.
+    { idempotencyKey: `ai-addon:${subscription.id}:${new Date().toISOString().slice(0, 16)}` },
+  );
+  await admin.from("student_plans").update({ ai_addon_since: new Date().toISOString() }).eq("profile_id", profileId);
+  await syncStudentSubscription(await stripe.subscriptions.retrieve(subscription.id));
+}
+
+/** Take EduMi AI off: Stripe credits the unused part of the month on the next invoice. */
+export async function removeAiAddon(profileId: string): Promise<void> {
+  const admin = createAdminClient();
+  const { data: plan } = await admin.from("student_plans").select("payer, stripe_subscription_id").eq("profile_id", profileId).maybeSingle();
+  if (!plan?.stripe_subscription_id || plan.payer !== "student") throw new AddonError("No add-on to remove.");
+  const stripe = getStripe();
+  const subscription = await stripe.subscriptions.retrieve(plan.stripe_subscription_id as string);
+  const item = findAiAddonItem(subscription.items.data);
+  if (item) await stripe.subscriptionItems.del(item, { proration_behavior: "create_prorations" });
+  await syncStudentSubscription(await stripe.subscriptions.retrieve(subscription.id));
 }
