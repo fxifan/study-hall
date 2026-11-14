@@ -25,6 +25,7 @@ const en = {
     live: "studying now",
     you: "You",
     yourMove: "your move",
+    passed: "passed Ava",
     standout: "Yesterday's standout: Leo K. · 2h 40m",
     quiz: "Practice quiz · Chain rule",
     score: "7 / 8 · +10 points",

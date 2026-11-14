@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Fragment } from "react";
 import { LanguageSwitch } from "@/components/language-switch";
 import { Wordmark } from "@/components/wordmark";
 import { localizePath } from "@/i18n/config";
@@ -101,14 +102,21 @@ export default async function HomePage() {
                 {t.hero.eyebrow}
               </p>
               <h1 id="home-title" data-rv style={{ "--d": 1 } as React.CSSProperties}>
-                {t.hero.title}
+                {t.hero.title.split(" ").map((w, i) => (
+                  <Fragment key={i}>
+                    {i > 0 && " "}
+                    <span className="home-w" style={{ "--i": i } as React.CSSProperties}>
+                      {w}
+                    </span>
+                  </Fragment>
+                ))}
               </h1>
               <p className="home-lede" data-rv style={{ "--d": 2 } as React.CSSProperties}>
                 {t.hero.lede}
               </p>
               <div className="home-cta" data-rv style={{ "--d": 3 } as React.CSSProperties}>
                 <Link href={join} className="home-btn home-btn--primary">
-                  {t.hero.primary} <span aria-hidden="true">→</span>
+                  {t.hero.primary} <span aria-hidden="true" className="home-arrow">→</span>
                 </Link>
                 <Link href={studyHall} className="home-btn home-btn--ghost">
                   {t.hero.secondary}
@@ -142,7 +150,7 @@ export default async function HomePage() {
                   <span>Methods crew · {t.hero.board.split("·").pop()?.trim()}</span>
                   <span className="home-mono">{t.hero.liveTag}</span>
                 </p>
-                <ol className="home-board">
+                <ol className="home-board" data-climb>
                   <li className="home-row home-row--first">
                     <span className="home-rank">1</span>
                     <span>
@@ -150,23 +158,26 @@ export default async function HomePage() {
                     </span>
                     <strong>1h 10m</strong>
                   </li>
-                  <li className="home-row">
+                  <li className="home-row" data-row="rival">
                     <span className="home-rank">2</span>
                     <span>Ava S.</span>
                     <strong>40m</strong>
                   </li>
-                  <li className="home-row home-row--you">
+                  <li className="home-row home-row--you" data-row="you">
                     <span className="home-rank">3</span>
                     <span>
-                      {t.hero.you} <span className="home-nudge">{t.hero.yourMove}</span>
+                      {t.hero.you}{" "}
+                      <span className="home-nudge" data-passed={t.hero.passed}>
+                        {t.hero.yourMove}
+                      </span>
                     </span>
-                    <strong>0m</strong>
+                    <strong data-min>0m</strong>
                   </li>
                 </ol>
               </div>
               <div className="home-tile home-tile--goal" aria-hidden="true">
                 <p className="home-tile-head">{t.hero.goalShort}</p>
-                <span className="home-ring" style={{ "--p": 31 } as React.CSSProperties}>
+                <span className="home-ring" data-ring style={{ "--p": 31 } as React.CSSProperties}>
                   <span>31%</span>
                 </span>
                 <p className="home-tile-foot">{t.hero.goalOf}</p>
@@ -244,7 +255,9 @@ export default async function HomePage() {
                 </div>
                 <div className="home-app-timer">
                   <div>
-                    <p className="home-clock">24:18</p>
+                    <p className="home-clock" data-tick>
+                      24:18
+                    </p>
                     <p className="home-mono">{t.app.timer}</p>
                   </div>
                   <span className="home-app-actions">
@@ -331,7 +344,7 @@ export default async function HomePage() {
                     ))}
                   </ul>
                   <Link href={link} className={`home-btn ${key === "st" ? "home-btn--light" : "home-btn--ghost"}`}>
-                    {p.cta} <span aria-hidden="true">→</span>
+                    {p.cta} <span aria-hidden="true" className="home-arrow">→</span>
                   </Link>
                 </article>
               ))}
@@ -348,7 +361,7 @@ export default async function HomePage() {
               <h2 id="closing-title">{t.closing.title}</h2>
               <div className="home-cta">
                 <Link href={join} className="home-btn home-btn--primary">
-                  {t.closing.join} <span aria-hidden="true">→</span>
+                  {t.closing.join} <span aria-hidden="true" className="home-arrow">→</span>
                 </Link>
                 <Link href={studyHall} className="home-btn home-btn--ghost">
                   {t.closing.studyHall}

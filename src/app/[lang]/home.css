@@ -927,3 +927,224 @@
     box-shadow: 0 0 0 8px rgba(91, 118, 103, 0);
   }
 }
+
+/*
+ * UX motion principles (Nov 2026). Everything below is progressive: hidden start states only apply
+ * once HomeEffects has added .js, and only without prefers-reduced-motion. HomeEffects drives the hero
+ * leaderboard climb, the goal ring count and the app clock.
+ */
+.home {
+  --home-inout: cubic-bezier(0.65, 0, 0.35, 1); /* slow in & slow out: moves on screen */
+  --home-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* overshoot: follow-through */
+}
+.home-arrow,
+.home-w {
+  display: inline-block;
+}
+.home-row--you {
+  position: relative;
+}
+.home-nudge.home-won {
+  padding: 1px 8px;
+  border-radius: 99px;
+  background: var(--t-sage-strong);
+  color: #fff;
+}
+.home-spark {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--t-sage);
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  /* Snappy press (150ms) and an anticipation wind-up on the arrow */
+  .home-btn:active {
+    transform: scale(0.96);
+    transition-duration: 0.15s;
+  }
+  .home-btn:hover .home-arrow {
+    animation: home-windup 0.42s var(--home-inout) both;
+  }
+  /* Headline: words land one by one with a small squash */
+  .home.js h1 .home-w {
+    opacity: 0;
+    transform: translateY(0.45em) scale(0.96, 1.12);
+    transform-origin: 50% 100%;
+  }
+  .home.js h1.in .home-w {
+    animation: home-word 0.64s var(--home-ease) both;
+    animation-delay: calc(120ms + var(--i) * 60ms);
+  }
+  /* Soft shapes drift on curved paths */
+  .home-shape--a,
+  .home-shape--c {
+    animation: home-drift 14s var(--home-inout) infinite;
+  }
+  .home-shape--b,
+  .home-shape--d {
+    animation: home-drift 11s var(--home-inout) infinite reverse;
+  }
+  /* Quiz tile: bar eases in, chips spring in after it */
+  .home.js .home-stage .home-bar > span {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  .home.js .home-stage.in .home-bar > span {
+    transform: none;
+    transition: transform 1.1s var(--home-inout) 0.6s;
+  }
+  .home.js .home-stage .home-chip {
+    display: inline-block;
+    opacity: 0;
+    scale: 0.6;
+  }
+  .home.js .home-stage.in .home-chip {
+    opacity: 1;
+    scale: 1;
+    transition:
+      scale 0.46s var(--home-spring) 1.5s,
+      opacity 0.2s 1.5s;
+  }
+  .home.js .home-stage.in .home-chip + .home-chip {
+    transition-delay: 1.62s;
+  }
+  .home-row--you.home-landed {
+    animation: home-land 0.42s var(--home-ease);
+  }
+  .home-nudge.home-won {
+    display: inline-block;
+    animation: home-pop 0.48s var(--home-spring);
+  }
+  .home-spark {
+    animation: home-spark 0.7s var(--home-ease) forwards;
+  }
+  /* Bento and product cards: lift on hover, bento tilts toward the pointer (3D) */
+  .home-bento {
+    perspective: 1000px;
+  }
+  .home.js .home-bento-tile.in .home-icon {
+    animation: home-pop 0.6s var(--home-spring) both;
+    animation-delay: calc(var(--d, 0) * 80ms + 0.25s);
+  }
+  .home-bento-tile,
+  .home-product,
+  .home.js .home-bento-tile.in.home-settled,
+  .home.js .home-product.in.home-settled {
+    transition:
+      transform 0.28s var(--home-ease),
+      box-shadow 0.28s;
+  }
+  .home-bento-tile:hover,
+  .home.js .home-bento-tile.in.home-settled:hover {
+    transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-4px);
+    box-shadow: 0 18px 40px rgba(31, 35, 38, 0.1);
+  }
+  .home-product:hover,
+  .home.js .home-product.in.home-settled:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 40px rgba(31, 35, 38, 0.08);
+  }
+  /* Inside the app: messages arrive one by one; the help call-out nudges once */
+  .home.js .home-app .home-msg {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+    transform-origin: left bottom;
+  }
+  .home.js .home-app .home-msg--me {
+    transform-origin: right bottom;
+  }
+  .home.js .home-app.in .home-msg {
+    opacity: 1;
+    transform: none;
+    transition:
+      transform 0.42s var(--home-spring),
+      opacity 0.2s;
+    transition-delay: 0.4s;
+  }
+  .home.js .home-app.in .home-msg:nth-child(2) {
+    transition-delay: 1s;
+  }
+  .home.js .home-app.in .home-msg:nth-child(3) {
+    transition-delay: 1.6s;
+  }
+  .home.js .home-app.in .home-msg:nth-child(4) {
+    transition-delay: 2.2s;
+    animation: home-nudge 0.52s var(--home-ease) 2.5s;
+  }
+}
+@keyframes home-windup {
+  35% {
+    transform: translateX(-4px);
+  }
+  100% {
+    transform: translateX(5px);
+  }
+}
+@keyframes home-word {
+  0% {
+    opacity: 0;
+    transform: translateY(0.45em) scale(0.96, 1.12);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(0) scale(1.04, 0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes home-drift {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  33% {
+    translate: 10px -14px;
+  }
+  66% {
+    translate: -8px -6px;
+  }
+}
+@keyframes home-land {
+  30% {
+    scale: 1.04 0.9;
+  }
+  60% {
+    scale: 0.98 1.03;
+  }
+}
+@keyframes home-pop {
+  0% {
+    scale: 0.6;
+  }
+  100% {
+    scale: 1;
+  }
+}
+@keyframes home-spark {
+  0% {
+    opacity: 1;
+    transform: rotate(var(--a)) translateX(10px);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--a)) translateX(44px) scale(0.3);
+  }
+}
+@keyframes home-nudge {
+  20% {
+    translate: -6px 0;
+  }
+  40% {
+    translate: 6px 0;
+  }
+  60% {
+    translate: -3px 0;
+  }
+  80% {
+    translate: 2px 0;
+  }
+}
