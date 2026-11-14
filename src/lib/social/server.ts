@@ -45,7 +45,7 @@ export type StudentRow = {
 export type Access =
   /** Signed up, but hasn't started the free trial (that needs a card, in Stripe Checkout). */
   | { kind: "none" }
-  /** `billed`: a Stripe trial that becomes A$11.99/month when it ends. Older no-card trials aren't. */
+  /** `billed`: a Stripe trial that becomes A$3.99/month when it ends. Older no-card trials aren't. */
   | { kind: "trial"; trialEndsAt: string; billed: boolean }
   | { kind: "paid"; periodEnd: string | null }
   | { kind: "studyhall" }

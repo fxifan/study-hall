@@ -8,7 +8,7 @@ test("the home page leads with friendly competition and routes to every product"
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Outstudy your friends. Win together.");
   const main = page.locator("main");
   await expect(main.getByRole("link", { name: /Challenge your friends/ }).first()).toHaveAttribute("href", "/join");
-  await expect(page.locator("#students")).toContainText("A$11.99/month");
+  await expect(page.locator("#students")).toContainText("A$3.99/month");
   await expect(main.getByRole("link", { name: /Explore Study Hall/ }).first()).toHaveAttribute("href", "/study_hall");
   await expect(main.getByRole("link", { name: /See Edumi for Tutors/ })).toHaveAttribute("href", "/tutors");
   await expect(page.getByRole("link", { name: "Log in" }).first()).toBeVisible();

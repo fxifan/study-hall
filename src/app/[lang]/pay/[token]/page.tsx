@@ -90,7 +90,7 @@ async function Pay({
           </p>
           <section className="rounded-2xl border border-rule bg-sheet p-4">
             <p className="mb-2">
-              <span className="text-2xl font-medium">A$11.99</span>{" "}
+              <span className="text-2xl font-medium">A$3.99</span>{" "}
               <span className="text-ink-soft">per month, cancel any time</span>
             </p>
             <ul className="list-disc pl-5 text-sm">
@@ -134,7 +134,7 @@ async function Pay({
               </p>
             )}
             <button className="inline-flex h-11 items-center justify-center rounded-full bg-ink px-5 font-medium text-paper">
-              Pay A$11.99/month
+              Pay A$3.99/month
             </button>
           </form>
         </>

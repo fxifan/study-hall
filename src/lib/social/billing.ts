@@ -6,7 +6,7 @@ import { AI_ADDON_LOOKUP_KEY, AI_ADDON_PRICE_CENTS, findAiAddonItem } from "./as
 import { STUDENT_PRICE_CENTS } from "./server";
 
 /**
- * Stripe for Edumi students: the A$11.99/month student plan, paid by the student or by a parent
+ * Stripe for Edumi students: the A$3.99/month student plan, paid by the student or by a parent
  * through a shared link. Subscriptions carry metadata.student_profile_id. The webhook and the return
  * pages both call the sync functions, which are idempotent.
  */

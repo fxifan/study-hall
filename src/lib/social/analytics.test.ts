@@ -33,7 +33,7 @@ describe("Edumi student analytics", () => {
   it("adds up the pilot measures", () => {
     const m = edumiMetrics(rows, r, now);
     expect(m.acquisition).toMatchObject({ signups: 2, trialsStarted: 1, trialing: 1 });
-    expect(m.plans).toMatchObject({ paying: 1, byParent: 1, mrrCents: 1199, trialConversion: 1 });
+    expect(m.plans).toMatchObject({ paying: 1, byParent: 1, mrrCents: 399, trialConversion: 1 });
     expect(m.groups).toMatchObject({ created: 1, active: 1, activeWithTwo: 1, goalsHit: 1, goalDays: 1, messages: 12 });
     expect(m.study).toMatchObject({ minutes: 90, studiers: 2 });
     expect(m.help.rate).toBe(0.5);

@@ -18,7 +18,7 @@ Study Hall and tutor workflows come later.
 
 ## The A$2.99/month add-on
 
-- EduMi AI is an add-on to the A$11.99/month student plan, sold as a **second item on the
+- EduMi AI is an add-on to the A$3.99/month student plan, sold as a **second item on the
   student's own Stripe subscription** (price lookup key `edumi-ai-addon-monthly`). It trials with
   the plan and is pro-rated after that. It ends when the plan ends.
 - Students add or remove it on the Ask page or on Your plan. The webhook

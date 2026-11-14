@@ -56,12 +56,12 @@ async function Plan({ searchParams }: Pick<PageProps<"/[lang]/student/plan">, "s
           <h2 className="text-lg font-medium">Edumi Student</h2>
           {a.kind !== "none" && (
             <p>
-              <span className="text-2xl font-medium">A$11.99</span>
+              <span className="text-2xl font-medium">A$3.99</span>
               <span className="text-sm text-ink-soft">/month</span>
             </p>
           )}
         </div>
-        {a.kind === "none" && <TrialPrice full="A$11.99" days={7} />}
+        {a.kind === "none" && <TrialPrice full="A$3.99" days={7} />}
         <ul className="list-disc pl-5 text-sm">
           {PLAN_FEATURES.map((f) => (
             <li key={f}>{f}</li>
@@ -70,7 +70,7 @@ async function Plan({ searchParams }: Pick<PageProps<"/[lang]/student/plan">, "s
         <p className="text-sm text-ink-soft">
           {a.kind === "trial" &&
             (a.billed
-              ? `Free trial until ${formatInZone(a.trialEndsAt, "EEE d MMM")}. Then A$11.99/month on your card, unless you cancel before.`
+              ? `Free trial until ${formatInZone(a.trialEndsAt, "EEE d MMM")}. Then A$3.99/month on your card, unless you cancel before.`
               : `Free trial until ${formatInZone(a.trialEndsAt, "EEE d MMM")}. Add a card to keep Edumi after that.`)}
           {a.kind === "paid" && `Active${plan?.payer === "parent" ? ", paid by a parent" : ""}${a.periodEnd ? `. Renews ${formatInZone(a.periodEnd, "d MMM")}` : ""}.`}
           {a.kind === "studyhall" && "Included with your family's Study Hall plan."}
@@ -78,7 +78,7 @@ async function Plan({ searchParams }: Pick<PageProps<"/[lang]/student/plan">, "s
         {a.kind === "none" && (
           <p className="text-sm text-ink-soft" data-testid="start-trial">
             You&apos;ll add a card on the next page and pay A$0 today. From {formatInZone(new Date(new Date().getTime() + 7 * 86_400_000).toISOString(), "EEE d MMM")} it&apos;s
-            A$11.99 a month, charged to that card until you cancel. Cancel any time before then and you won&apos;t be charged.
+            A$3.99 a month, charged to that card until you cancel. Cancel any time before then and you won&apos;t be charged.
           </p>
         )}
         {(a.kind === "none" || (a.kind === "trial" && !a.billed) || a.kind === "expired") && (

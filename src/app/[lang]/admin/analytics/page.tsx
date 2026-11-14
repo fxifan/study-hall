@@ -180,7 +180,7 @@ async function Analytics({ searchParams }: Pick<PageProps<"/[lang]/admin/analyti
             <Stat label="On trial now" value={ed.acquisition.trialing} />
             <Stat label="Students with groups on" value={ed.acquisition.enabled} note="Self sign-ups plus children a parent switched on" />
             <Stat label="Paying students" value={ed.plans.paying} note={`${ed.plans.byStudent} paid by the student · ${ed.plans.byParent} by a parent`} />
-            <Stat label="Student MRR" value={money(ed.plans.mrrCents)} note="Paying students × A$11.99" />
+            <Stat label="Student MRR" value={money(ed.plans.mrrCents)} note="Paying students × A$3.99" />
             <Stat label="Trial to paid" value={pct(ed.plans.trialConversion)} note={`Of ${ed.plans.trialsEnded} trials that ended in the period`} />
           </Grid>
           <h2 className="text-lg font-medium">Pilot funnel</h2>

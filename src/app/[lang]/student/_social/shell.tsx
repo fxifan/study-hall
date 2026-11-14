@@ -177,7 +177,7 @@ function TrialBar({ access, href, now }: { access: Access; href: string; now: Da
       <p className="mx-auto w-full max-w-4xl px-4 py-2 text-sm">
         Free trial: {days} day{days === 1 ? "" : "s"} left.{" "}
         <Link href={href} className="font-medium">
-          {access.billed ? "Then A$11.99/month" : "Keep Edumi for A$11.99/month"}
+          {access.billed ? "Then A$3.99/month" : "Keep Edumi for A$3.99/month"}
         </Link>
       </p>
     </div>

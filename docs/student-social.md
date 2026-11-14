@@ -6,7 +6,7 @@ Edumi's core product (owner, 6 Nov 2026). Brief: `edumi-study-hall-claude-code.m
 
 - Students 13+ sign themselves up at `/join` (birth month and year age gate). Under-13s join only through a parent, who switches on "Study groups" per child on `/parent`.
 - Full group chat, with report and block for students and moderation on `/admin/edumi`.
-- Student plan: A$11.99/month, paid by the student (`/student/plan`) or a parent (shared link `/pay/[token]`). Families on a Study Hall plan are covered.
+- Student plan: A$3.99/month, paid by the student (`/student/plan`) or a parent (shared link `/pay/[token]`). Families on a Study Hall plan are covered.
 - Free trial (owner, 8 Nov 2026): 7 days, started in Stripe Checkout with a card (`payment_method_collection: always`, `trial_period_days: 7`), then billed monthly unless cancelled. After sign-up and login the student lands on `/student/plan` ("Start my free trial"); without a plan row they have no paid features (`Access.kind = "none"`). Students on an older no-card trial keep its end date if they add a card. One trial per student. Tutors work the same way: 14 days via `/app/start`. Tutor-linked features stay free.
 - AI practice: 2 quizzes of 8 questions a day, plus 4 notes or flashcard sets a day.
 - Edumi for students isn't linked to Study Hall (owner, 6 Nov 2026): no group bookings. Families on a Study Hall plan still get it included.

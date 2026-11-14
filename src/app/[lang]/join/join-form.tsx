@@ -107,7 +107,7 @@ export function JoinForm({ invite, lang, privacyHref, termsHref }: { invite: str
       <Button type="submit" size="lg" disabled={pending}>
         {pending ? "Creating your account…" : "Create my account"}
       </Button>
-      <p className="text-xs text-ink-faint">7 days free. You add a card to start the trial; after 7 days it&apos;s A$11.99 a month unless you cancel. Paid by you or a parent.</p>
+      <p className="text-xs text-ink-faint">7 days free. You add a card to start the trial; after 7 days it&apos;s A$3.99 a month unless you cancel. Paid by you or a parent.</p>
     </form>
   );
 }

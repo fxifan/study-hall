@@ -2,8 +2,8 @@
  * Terms of use for Edumi study groups (students). Shown at /legal/terms. Owner-approved 7 Nov 2026.
  * To change them, edit the text, bump the version and date.
  */
-export const STUDENT_TERMS_VERSION = "2026-11-v2";
-export const STUDENT_TERMS_DATE = "2026-11-08";
+export const STUDENT_TERMS_VERSION = "2026-11-v3";
+export const STUDENT_TERMS_DATE = "2026-11-14";
 export const STUDENT_TERMS_DRAFT = false;
 
 export const STUDENT_TERMS = `These terms are an agreement between you and Edumi (run by Feifan Wu, a sole trader in Victoria, Australia). By using Edumi study groups, you agree to them. Our Privacy & child safety notice explains how we handle your information.
@@ -15,7 +15,7 @@ export const STUDENT_TERMS = `These terms are an agreement between you and Edumi
 
 ## Your plan
 
-- You get 7 days free. To start the trial you (or a parent) add a card. Unless you cancel before the trial ends, that card is charged A$11.99 a month from then on.
+- You get 7 days free. To start the trial you (or a parent) add a card. Unless you cancel before the trial ends, that card is charged A$3.99 a month from then on.
 - You can cancel at any time. Cancel during the trial and you pay nothing. After that, you keep access until the end of the month you've paid for. We don't refund part months unless the law requires it.
 - Your tutor's next steps and the study timer are free and don't need a trial or a card.
 - If we change the price, we'll tell you at least 30 days before.

@@ -37,7 +37,7 @@ const en = {
     proof: [
       { value: "1 goal", label: "shared by your whole group" },
       { value: "8", label: "question quizzes, marked" },
-      { value: "A$0", was: "A$11.99", label: "for 7 days, then A$11.99 a month" },
+      { value: "A$0", was: "A$3.99", label: "for 7 days, then A$3.99 a month" },
     ],
   },
   app: {
@@ -74,7 +74,7 @@ const en = {
         "Verified study timer: every minute on the board is earned",
         "AI practice: 2 quizzes of 8 questions a day, plus 13 Study Ranks to climb",
         "Call Out for Help when you're stuck",
-        "7 days free, then A$11.99/month, paid by you or a parent",
+        "7 days free, then A$3.99/month, paid by you or a parent",
       ],
       cta: "Challenge your friends",
     },

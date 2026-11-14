@@ -78,9 +78,9 @@ test("under-13s are pointed to Study Hall; 13+ students can sign up", async ({ p
   await magic(page, email);
   // The trial starts in Stripe Checkout with a card: first stop is the plan page.
   await expect(page).toHaveURL(/\/student\/plan/);
-  await expect(page.getByTestId("start-trial")).toContainText("A$11.99 a month, charged to that card until you cancel");
+  await expect(page.getByTestId("start-trial")).toContainText("A$3.99 a month, charged to that card until you cancel");
   await expect(page.getByRole("button", { name: "Get Edumi free for 7 days" })).toBeVisible();
-  await expect(page.getByText("7 days free, then A$11.99 a month. Cancel any time.")).toBeAttached();
+  await expect(page.getByText("7 days free, then A$3.99 a month. Cancel any time.")).toBeAttached();
 });
 
 test("a group studies together: chat, timer, help and practice", async ({ browser }) => {

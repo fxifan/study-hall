@@ -11,12 +11,13 @@
  * 2. A Customer Portal configuration: update card, see invoices, switch plan, cancel at the end of
  *    the paid week with an optional reason (owner decision 2026-10-30; reasons feed churn metrics).
  * 2b. The tutor product's Solo plan: A$15/month (lookup key study-hall-tutor-solo).
- * 2c/2d. The Edumi student plan (A$11.99/month) and the EduMi AI add-on (A$2.99/month).
+ * 2c/2d. The Edumi student plan (A$3.99/month) and the EduMi AI add-on (A$2.99/month).
  * 3. With --webhook <url>: a webhook endpoint for that URL. Its signing secret is written to
  *    .stripe-webhook-secret (gitignored) instead of being printed.
  */
 import { writeFileSync } from "node:fs";
 import Stripe from "stripe";
+import { STUDENT_PRICE_CENTS } from "../src/lib/social/plan-price";
 import { createAdminClient, loadEnv, requireEnv } from "./lib/env";
 
 loadEnv();
@@ -158,21 +159,32 @@ async function main() {
     : await stripe.billingPortal.configurations.create(tutorPortal);
   console.log(`Tutor Customer Portal configuration ${tutorConfig.id}`);
 
-  // 2c. Edumi student plan (A$11.99/month, owner decision 6 Nov 2026). The 7-day trial is Edumi's
-  // own (student_plans.trial_ends_at), so the price carries no Stripe trial.
+  // 2c. Edumi student plan (A$3.99/month, owner decision 14 Nov 2026; was A$11.99). The 7-day trial
+  // is Edumi's own (student_plans.trial_ends_at), so the price carries no Stripe trial. Stripe prices
+  // can't change amount, so a price at another amount is replaced: the new one takes over the lookup
+  // key (which checkout uses) and the old one is archived. Existing subscriptions keep their price.
   const studentKey = "edumi-student-monthly";
   let studentPrice = (await stripe.prices.list({ lookup_keys: [studentKey], limit: 1 })).data[0];
-  if (!studentPrice) {
-    const product = await stripe.products.create({ name: "Edumi Student", metadata: { app: "edumi", product: "student" } });
+  if (!studentPrice || studentPrice.unit_amount !== STUDENT_PRICE_CENTS) {
+    const old = studentPrice;
+    const product =
+      typeof old?.product === "string"
+        ? old.product
+        : (await stripe.products.create({ name: "Edumi Student", metadata: { app: "edumi", product: "student" } })).id;
     studentPrice = await stripe.prices.create({
-      product: product.id,
-      unit_amount: 1199,
+      product,
+      unit_amount: STUDENT_PRICE_CENTS,
       currency: "aud",
       recurring: { interval: "month" },
       lookup_key: studentKey,
+      transfer_lookup_key: true,
       metadata: { app: "edumi", product: "student" },
     });
-    console.log(`Created Edumi Student price ${studentPrice.id}`);
+    console.log(`Created Edumi Student price ${studentPrice.id} (A$${(STUDENT_PRICE_CENTS / 100).toFixed(2)})`);
+    if (old) {
+      await stripe.prices.update(old.id, { active: false });
+      console.log(`Archived old Edumi Student price ${old.id} (${old.unit_amount}c)`);
+    }
   }
   console.log(`Edumi Student -> ${studentPrice.id}`);
 
