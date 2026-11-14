@@ -76,7 +76,7 @@ export function SoloResult({ counted, points, streak, tomorrow }: { counted: boo
     <section className="flex flex-col gap-3" data-testid="solo-result">
       <p role="status" className="rounded-2xl bg-[var(--tiles-sage-ink)] px-4 py-3 text-paper">
         {counted ? "Study day counted" : "Saved"}
-        {points ? ` · +${points} points` : ""}
+        {points ? ` · +${points} XP` : ""}
         {streak ? ` · ${streak}-day streak` : ""}
       </p>
       {tomorrow && (

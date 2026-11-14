@@ -57,7 +57,7 @@ async function Me({ searchParams }: Pick<PageProps<"/[lang]/student/me">, "searc
             <span className="block h-full rounded-full bg-brand" style={{ width: `${pct}%` }} />
           </span>
           <span className="text-sm text-ink-soft">
-            {total} points{next ? ` · ${next.min - total} to ${next.name}` : " · top rank"} · See all ranks →
+            {total} XP{next ? ` · ${next.min - total} XP to ${next.name}` : " · top rank"} · See all ranks →
           </span>
         </span>
       </Link>

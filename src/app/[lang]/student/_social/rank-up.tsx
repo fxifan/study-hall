@@ -176,7 +176,7 @@ export function RankUpCelebration({ promotion, onDone }: { promotion: PromotionV
             {to.name}
           </h2>
           <p id="rank-up-desc" className="text-sm text-ink-soft">
-            You reached {to.name} with {promotion.points.toLocaleString("en-AU")} points.
+            You reached {to.name} with {promotion.points.toLocaleString("en-AU")} XP.
             {next ? ` Next up: ${next.name} at ${next.min.toLocaleString("en-AU")}.` : " That is the top rank."}
           </p>
         </div>

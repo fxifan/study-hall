@@ -45,7 +45,7 @@ test("study solo, check in, earn the study day once, and see the streak", async 
   await page.getByText("Done", { exact: true }).click();
   await page.getByLabel("Tomorrow (optional)").fill("Questions 6–10");
   await page.getByRole("button", { name: "I'm done" }).click();
-  await expect(page.getByTestId("solo-result")).toContainText("Study day counted · +5 points · 1-day streak");
+  await expect(page.getByTestId("solo-result")).toContainText("Study day counted · +5 XP · 1-day streak");
   const { data: ledger } = await admin.from("points_ledger").select("kind, points").eq("profile_id", id);
   expect(ledger).toEqual([{ kind: "study_day", points: 5 }]);
   const { data: live } = await admin.from("study_sessions").select("state").eq("profile_id", id).neq("state", "stopped");
@@ -54,7 +54,7 @@ test("study solo, check in, earn the study day once, and see the streak", async 
   // Home shows the streak and tomorrow's task, offered as the next thing to study.
   await page.getByRole("link", { name: "Back to Home" }).click();
   await expect(page.getByTestId("streak-card")).toContainText("1-day streak");
-  await expect(page.getByTestId("streak-card")).toContainText("+5 today");
+  await expect(page.getByTestId("streak-card")).toContainText("+5 XP today");
   // Home leads with it: one press starts tomorrow's task.
   await expect(page.getByTestId("tomorrow")).toContainText("Questions 6–10");
   await page.getByTestId("continue").getByRole("button", { name: "Start studying" }).click();
